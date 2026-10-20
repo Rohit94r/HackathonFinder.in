@@ -58,3 +58,9 @@ venv/
 # Temp
 *.local
 *.tmp
+
+# Project
+impact.html
+
+# Commercial fonts copied from the design reference; not licensed for redistribution
+apps/web/public/fonts/

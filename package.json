@@ -1,0 +1,16 @@
+{
+  "name": "hackathonfinder",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@10.34.7",
+  "engines": {
+    "node": ">=18.18"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @hackathonfinder/web dev",
+    "build": "pnpm --filter @hackathonfinder/web build",
+    "start": "pnpm --filter @hackathonfinder/web start",
+    "lint": "pnpm --filter @hackathonfinder/web lint",
+    "typecheck": "pnpm -r typecheck"
+  }
+}
