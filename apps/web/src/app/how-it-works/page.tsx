@@ -1,294 +1,167 @@
-'use client';
-
-import React, { useState } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
-import FAQAccordion from '@/components/FAQAccordion';
-import Footer from '@/components/Footer';
-import { siteConfig } from '@/data/siteConfig';
+import {
+  ArrowRight,
+  BellRing,
+  CheckCircle2,
+  Merge,
+  PenLine,
+  Radar,
+  Rocket,
+  ScanText,
+  ShieldCheck,
+  Tags,
+  type LucideIcon,
+} from 'lucide-react';
+import { AGENTS, SOURCES, SOURCE_KIND_LABELS, STATUS_LABELS, type SourceKind, type Status } from '@hackathonfinder/shared';
+import StatusBadge from '@/components/hackathon/StatusBadge';
+import { PageHero, SectionHeading } from '@/components/ui';
+
+export const metadata: Metadata = {
+  title: 'How it works',
+  description: 'How HackathonFinder finds hackathons across the internet, cleans up the details and keeps listings accurate.',
+};
+
+const AGENT_ICONS: Record<string, LucideIcon> = {
+  scout: Radar,
+  extractor: ScanText,
+  deduper: Merge,
+  verifier: ShieldCheck,
+  tagger: Tags,
+  writer: PenLine,
+  publisher: Rocket,
+  alerts: BellRing,
+};
+
+const STATUS_RULES: { status: Status; when: string }[] = [
+  { status: 'open', when: 'Registration is open.' },
+  { status: 'closing-soon', when: 'The deadline is within 3 days.' },
+  { status: 'registration-closed', when: 'The deadline has passed, but the event hasn’t started.' },
+  { status: 'in-progress', when: 'The event is happening now.' },
+  { status: 'completed', when: 'The event has ended.' },
+];
+
+const RULES = [
+  'We follow each website’s terms and use official APIs and feeds wherever they exist.',
+  'We only collect event information that organizers share publicly.',
+  'Instagram and LinkedIn events come from organizer and student submissions, partners, our browser extension and official APIs, not from scraping accounts.',
+  'We always link back to the official page for registration.',
+  'We write our own short summaries and never copy full descriptions or posters without permission.',
+  'Organizers can claim, edit or remove their listing at any time.',
+];
+
+const KIND_ORDER: SourceKind[] = ['platform', 'search', 'social', 'events', 'college', 'community', 'people'];
 
 export default function HowItWorksPage() {
-  const [openStep1, setOpenStep1] = useState(false);
-  const [openStep2, setOpenStep2] = useState(false);
-  const [openStep3, setOpenStep3] = useState(false);
-
   return (
-    <div className="body-home-page">
-      <Navbar variant="green" />
+    <>
+      <PageHero
+        title="We do the searching"
+        accent="you do the building"
+        description="A team of AI agents checks the internet for hackathons, turns each one into a clear listing and keeps it up to date."
+      />
 
-      {/* Hero Section */}
-      <section className="section-hero" style={{ position: 'relative' }}>
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6552372e1ab0c62b6f61a164_work-together.svg"
-          loading="lazy"
-          alt=""
-          className="image-29 top-left"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6407480019507306040fb325_eco%20funds.svg"
-          loading="lazy"
-          alt=""
-          className="hiw_sticker_bottom-left"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6527ca0fc14a039c9c8a6db6_work%20together.svg"
-          loading="lazy"
-          alt=""
-          className="hiw_sticker_bottom-right"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6552372d8825ecb49ccdda6b_priority-planet.svg"
-          loading="lazy"
-          alt=""
-          className="hiw_sticker_bottom-right2"
-        />
-
-        <div className="w-layout-blockcontainer container-30 w-container">
-          <div className="w-layout-blockcontainer container-29 w-container">
-            <h1 className="heading-h2-white-centered" style={{ opacity: 1, transform: 'none' }}>
-              How the agents
-            </h1>
-            <h1 className="heading-h2-green-centered" style={{ opacity: 1, transform: 'none' }}>
-              work together
-            </h1>
-          </div>
-          <div
-            className="w-layout-blockcontainer hero_text-wrapper w-container"
-            style={{ opacity: 1 }}
-          >
-            <p className="paragraph-white-centered">
-              Seven agents, one pipeline. A story goes in, and a post comes out on your website and
-              LinkedIn, checked for quality before anything goes live.
-            </p>
-            <Link href={siteConfig.demoHref} className="button-primary w-button">
-              Book a demo
-            </Link>
-          </div>
+      <section className="section bg-surface">
+        <div className="container-page">
+          <SectionHeading eyebrow="The pipeline" title="Eight agents, one listing" description="Every event goes through the same steps before you see it." />
+          <ol className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {AGENTS.map((agent, i) => {
+              const Icon = AGENT_ICONS[agent.id] ?? Radar;
+              return (
+                <li key={agent.id} className="card relative p-6">
+                  <span className="absolute right-5 top-5 font-display text-sm font-bold text-surface/80">
+                    {String(i + 1).padStart(2, '0')}
+                  </span>
+                  <span className="mb-4 inline-flex rounded-xl bg-ink p-2.5 text-white">
+                    <Icon className="h-5 w-5" />
+                  </span>
+                  <h3 className="text-lg font-bold">{agent.name}</h3>
+                  <p className="mt-2 text-sm leading-6 text-ink/70">{agent.job}</p>
+                </li>
+              );
+            })}
+          </ol>
         </div>
       </section>
 
-      {/* How it Works Steps */}
-      <section className="section-hiw">
-        <div className="m-timeline-wrapper">
-          <div className="m-section-large">
-            <div className="m-container-regular">
-              {/* Step 01 */}
-              <div className="step">
-                <div className="scroll-animation-wrapper">
-                  <div className="step-number_hiw">
-                    <div className="number">01</div>
-                  </div>
-                  <div className="timeline-line">
-                    <div className="m-timeline-line"></div>
-                  </div>
-                </div>
-                <div className="hiw_block-1">
-                  <div className="hiv-wrapper">
-                    <div className="div-block-34">
-                      <h3 className="heading-h4 white hiv">FIND AND RESEARCH</h3>
-                      <p className="paragraph-white-left">
-                        The news finder scans the sources you approve, puts each story in a category
-                        and ranks it by relevance. Then the research agent looks for the angle your
-                        readers haven&#39;t heard yet and gathers the sources behind it.
-                      </p>
-                    </div>
-
-                    <div
-                      className="faq-block-copy hiw"
-                      onClick={() => setOpenStep1(!openStep1)}
-                      style={{ cursor: 'pointer', marginTop: '16px' }}
-                    >
-                      <div className="faq-question-wrapper hiw">
-                        <h5 className="faq-title hiw">more about news sources</h5>
-                        <div className="accordian-icon-wrapper hiw">
-                          <div className="horizontal-line hiw"></div>
-                          <div
-                            className="vertical-line hiw"
-                            style={{
-                              transform: openStep1 ? 'scale(0)' : 'scale(1)',
-                              transition: 'transform 0.2s ease',
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          maxHeight: openStep1 ? '300px' : '0px',
-                          overflow: 'hidden',
-                          transition: 'max-height 0.3s ease',
-                        }}
-                      >
-                        <p className="faq-paragraph hiw first" style={{ height: 'auto', paddingTop: '10px' }}>
-                          You pick the sources and the categories to pull for. The news finder
-                          combines RSS feeds with a search API, drops duplicate stories and scores
-                          the rest, so it only keeps what&#39;s worth writing about. Until your list
-                          is ready, it starts with major business and technology outlets.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="hiw-animation-wrapper first" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <img
-                      src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/654a36b6f78e92b5209148af_Kikin_Illustrations_Scene_01_RGB%202.svg"
-                      alt="Step 1 graphic"
-                      style={{ maxHeight: '200px', objectFit: 'contain' }}
-                    />
+      <section className="section">
+        <div className="container-page">
+          <SectionHeading eyebrow="Sources" title="Where we look" description="From big hackathon platforms to a poster on a college Instagram page." />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {KIND_ORDER.map((kind) => {
+              const list = SOURCES.filter((s) => s.kind === kind);
+              if (!list.length) return null;
+              return (
+                <div key={kind} className="card p-6">
+                  <h3 className="text-base font-bold">{SOURCE_KIND_LABELS[kind]}</h3>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {list.map((s) => (
+                      <span key={s.slug} className="rounded-lg bg-ink/5 px-2.5 py-1 text-sm font-medium text-ink/80">
+                        {s.name}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              </div>
-
-              {/* Step 02 */}
-              <div className="step">
-                <div className="scroll-animation-wrapper">
-                  <div className="step-number_hiw">
-                    <div className="number">02</div>
-                  </div>
-                  <div className="timeline-line">
-                    <div className="m-timeline-line"></div>
-                  </div>
-                </div>
-                <div className="hiw_block-2 animated-block">
-                  <div className="hiv-wrapper">
-                    <div className="div-block-34">
-                      <h3 className="heading-h4 white hiv">WRITE AND CHECK</h3>
-                      <p className="paragraph-white-left">
-                        The writer drafts in your persona, using a fixed paragraph framework for each
-                        category. The value check then asks whether the post adds value to an
-                        executive. If not, the draft goes back for a rewrite, at most twice.
-                      </p>
-                    </div>
-
-                    <div
-                      className="faq-block-copy hiw"
-                      onClick={() => setOpenStep2(!openStep2)}
-                      style={{ cursor: 'pointer', marginTop: '16px' }}
-                    >
-                      <div className="faq-question-wrapper hiw">
-                        <h5 className="faq-title hiw">How does each category get its own voice?</h5>
-                        <div className="accordian-icon-wrapper hiw">
-                          <div className="horizontal-line hiw"></div>
-                          <div
-                            className="vertical-line hiw"
-                            style={{
-                              transform: openStep2 ? 'scale(0)' : 'scale(1)',
-                              transition: 'transform 0.2s ease',
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          maxHeight: openStep2 ? '300px' : '0px',
-                          overflow: 'hidden',
-                          transition: 'max-height 0.3s ease',
-                        }}
-                      >
-                        <p className="faq-paragraph hiw second" style={{ height: 'auto', paddingTop: '10px' }}>
-                          Brief, Thinking, Playbook, Decisions and Deep Dive each have their own
-                          template and paragraph structure. The writer also learns from your best
-                          existing posts in each category, so new posts sound like you and not like
-                          generic AI.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="hiw-animation-wrapper second" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <img
-                      src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/65363617f2f8b421dacfacc5_Illustration.svg"
-                      alt="Step 2 graphic"
-                      style={{ maxHeight: '200px', objectFit: 'contain' }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Step 03 */}
-              <div className="step">
-                <div className="scroll-animation-wrapper">
-                  <div className="step-number_hiw">
-                    <div className="number">03</div>
-                  </div>
-                  <div className="timeline-line">
-                    <div className="m-timeline-line"></div>
-                  </div>
-                </div>
-                <div className="hiw_block-3 animated-block">
-                  <div className="hiv-wrapper">
-                    <div className="div-block-34">
-                      <h3 className="heading-h4 white hiv">FORMAT, SCHEDULE AND PUBLISH</h3>
-                      <p className="paragraph-white-left">
-                        The SEO agent checks competitor content and keywords, writes the title,
-                        meta description and slug, formats the post and adds internal links. The
-                        scheduler picks the best time slot, and the publisher posts to your website
-                        and LinkedIn.
-                      </p>
-                    </div>
-
-                    <Link href="/#calculator" className="button-secondary w-button" style={{ marginTop: '12px', display: 'inline-block' }}>
-                      build your pipeline
-                    </Link>
-
-                    <div
-                      className="faq-block-copy hiw"
-                      onClick={() => setOpenStep3(!openStep3)}
-                      style={{ cursor: 'pointer', marginTop: '16px' }}
-                    >
-                      <div className="faq-question-wrapper hiw">
-                        <h5 className="faq-title hiw">What about LinkedIn?</h5>
-                        <div className="accordian-icon-wrapper hiw">
-                          <div className="horizontal-line hiw"></div>
-                          <div
-                            className="vertical-line hiw"
-                            style={{
-                              transform: openStep3 ? 'scale(0)' : 'scale(1)',
-                              transition: 'transform 0.2s ease',
-                            }}
-                          ></div>
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          maxHeight: openStep3 ? '300px' : '0px',
-                          overflow: 'hidden',
-                          transition: 'max-height 0.3s ease',
-                        }}
-                      >
-                        <p className="faq-paragraph hiw" style={{ height: 'auto', paddingTop: '10px' }}>
-                          The publisher rewrites each post for LinkedIn and sends it at the right
-                          time. Personal profiles connect through LinkedIn&#39;s official API.
-                          Company pages need LinkedIn&#39;s approval first, and until then you get a
-                          post-ready version to publish in one click. You can see every scheduled
-                          post in the{' '}
-                          <Link href="/dashboard" className="text-links hiw">
-                            agent dashboard
-                          </Link>
-                          .
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="hiw-animation-wrapper third" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <img
-                      src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/65366ae62f51f2c63edd236f_Scene-illustration-2.cropped.svg"
-                      alt="Step 3 graphic"
-                      style={{ maxHeight: '200px', objectFit: 'contain' }}
-                    />
-                  </div>
-                </div>
-              </div>
+              );
+            })}
+            <div className="rounded-2xl border-2 border-ink bg-white p-6">
+              <h3 className="text-base font-bold">Browser extension</h3>
+              <p className="mt-2 text-sm text-ink/70">
+                See a hackathon on Instagram, LinkedIn or any site? One click on “Add to
+                HackathonFinder” turns it into a listing. Coming soon.
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FAQs */}
-      <FAQAccordion />
+      <section className="section bg-surface">
+        <div className="container-page grid gap-10 lg:grid-cols-2">
+          <div>
+            <SectionHeading eyebrow="Status" title="Always up to date" description="Each listing’s status updates on its own, based on its dates." />
+            <ul className="card divide-y divide-ink/10">
+              {STATUS_RULES.map((r) => (
+                <li key={r.status} className="flex items-center justify-between gap-4 px-5 py-4">
+                  <StatusBadge status={r.status} />
+                  <span className="text-right text-sm text-ink/70">{r.when}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-xs text-ink/60">
+              {STATUS_LABELS['closing-soon']} is marked with a flame icon so you never miss a deadline.
+            </p>
+          </div>
+          <div>
+            <SectionHeading eyebrow="Data rules" title="Honest, fair and linked to the source" />
+            <ul className="space-y-3">
+              {RULES.map((rule) => (
+                <li key={rule} className="card flex items-start gap-3 p-4 text-sm text-ink/80">
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-ink" />
+                  {rule}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
 
-      {/* Footer */}
-      <Footer />
-    </div>
+      <section className="section">
+        <div className="container-page">
+          <div className="flex flex-col items-center rounded-3xl bg-ink px-6 py-14 text-center">
+            <h2 className="text-3xl font-bold text-white">See it in action</h2>
+            <p className="mt-3 max-w-lg text-surface/80">Search open hackathons by city, theme, deadline and team size.</p>
+            <div className="mt-6 flex flex-wrap justify-center gap-3">
+              <Link href="/hackathons" className="btn-lime">
+                Explore hackathons
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+              <Link href="/submit" className="btn-ghost-dark">
+                Submit a hackathon
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }
