@@ -1,417 +1,363 @@
-'use client';
-
-import React, { useState } from 'react';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
-import Marquee from '@/components/Marquee';
-import Calculator from '@/components/Calculator';
-import Testimonials from '@/components/Testimonials';
-import FAQAccordion from '@/components/FAQAccordion';
-import Footer from '@/components/Footer';
+import { ArrowRight, Bell, Globe, GraduationCap, Layers, MapPin, Radar, Rocket, Search, Users } from 'lucide-react';
+import { CITIES, SOURCES, THEMES } from '@hackathonfinder/shared';
+import HeroScene from '@/components/art/HeroScene';
+import Sticker from '@/components/art/Sticker';
+import HeroSearch from '@/components/search/HeroSearch';
+import HackathonCard from '@/components/hackathon/HackathonCard';
+import FeaturedSlider from '@/components/hackathon/FeaturedSlider';
+import EventArt from '@/components/hackathon/EventArt';
+import FAQTabs from '@/components/FAQTabs';
+import NewsletterForm from '@/components/NewsletterForm';
+import { SampleNotice, SectionHeading } from '@/components/ui';
+import { blogPosts } from '@/data/blogData';
+import { organizerFaqs, studentFaqs } from '@/data/faqData';
+import { getHackathons, closingSoon, openOnly, themeCounts, cityCounts } from '@/lib/hackathons';
+import { themeStyle } from '@/lib/themeStyles';
+import { cn } from '@/lib/cn';
+
+export const dynamic = 'force-dynamic';
+
+const BENEFITS = [
+  {
+    icon: Radar,
+    title: 'We search everywhere.',
+    text: 'Unstop, Devfolio, Devpost, Instagram, LinkedIn, Google, college sites and more. Checked every day, so you don’t have to.',
+  },
+  {
+    icon: Layers,
+    title: 'One clear card per event.',
+    text: 'Dates, deadline, team size, prizes and who can join, all in one place. The same event on three sites shows up once.',
+  },
+  {
+    icon: Search,
+    title: 'Find what fits you.',
+    text: 'Filter by city, online, theme, deadline, fee and prize, or just type what you want in plain words.',
+  },
+  {
+    icon: Bell,
+    title: 'Never miss a deadline.',
+    text: 'Save events to My hackathons and track them from saved to submitted. Email reminders are coming soon.',
+  },
+];
+
+const AUDIENCE = [
+  { icon: GraduationCap, lines: ['College students', 'in Pune and beyond'] },
+  { icon: Rocket, lines: ['First-timers', 'and pro hackers'] },
+  { icon: Users, lines: ['Teams looking for', 'their next win'] },
+];
 
 export default function HomePage() {
-  const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      setSubmitted(true);
-    }
-  };
+  const { items } = getHackathons();
+  const open = openOnly(items);
+  const urgent = closingSoon(items, 4);
+  const featured = open.filter((h) => h.featured);
+  const fresh = [...open].sort((a, b) => Date.parse(b.addedAt) - Date.parse(a.addedAt)).slice(0, 6);
+  const themes = themeCounts(items);
+  const cities = cityCounts(items);
+  const sourceNames = SOURCES.map((s) => s.name);
 
   return (
-    <div className="body-home-page">
-      {/* Navbar */}
-      <Navbar variant="green" />
+    <>
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-ink">
+        <div className="container-page relative flex flex-col items-center pt-16 text-center sm:pt-24">
+          <h1 className="text-[12vw] text-surface sm:text-8xl lg:text-[9rem]">Find every</h1>
+          <p className="font-display text-[12vw] uppercase leading-[0.9] tracking-tight text-outline sm:text-8xl lg:text-[9rem]">
+            hackathon
+          </p>
+          <p className="mt-8 max-w-2xl text-lg leading-8 text-surface/85">
+            Every platform lists only its own events. HackathonFinder searches Unstop, Devfolio,
+            Instagram, LinkedIn, Google and {SOURCES.length - 5}+ more places, and puts them all in one
+            place. Free for students.
+          </p>
+          <div className="mt-10 flex w-full justify-center">
+            <HeroSearch />
+          </div>
+        </div>
+        <HeroScene className="-mt-4 sm:-mt-10" />
+      </section>
 
-      {/* Hero Section */}
-      <section className="hero-section">
-        <div className="div-block-17">
-          <div className="div-block-16">
-            <div className="w-layout-blockcontainer hero_h1-wrapper w-container">
-              <h1 className="hero_h1-white" style={{ opacity: 1, transform: 'none' }}>
-                Executive insight
-              </h1>
-              <h1 className="hero_h1-green" style={{ opacity: 1, transform: 'none' }}>
-                on autopilot
-              </h1>
+      {/* Sources marquee */}
+      <section className="overflow-hidden border-y-2 border-ink bg-white py-6" aria-label="Where we look">
+        <div className="flex">
+          <div className="flex shrink-0 animate-marquee items-center gap-10 pr-10">
+            {[...sourceNames, ...sourceNames].map((name, i) => (
+              <span key={`${name}-${i}`} className="flex items-center gap-10 whitespace-nowrap font-display text-2xl uppercase text-ink">
+                {name}
+                <span aria-hidden="true" className="h-3 w-3 rounded-full bg-ink" />
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Statement + digest */}
+      <section className="relative overflow-hidden py-24 sm:py-32">
+        <Sticker text="No FOMO" tone="green" className="left-[6%] top-14 hidden -rotate-12 lg:inline-flex" />
+        <Sticker text="Free for students" tone="yellow" shape="burst" className="right-[6%] top-10 hidden rotate-12 lg:inline-flex" />
+        <Sticker text="Build bold" tone="turquoise" shape="circle" className="bottom-12 left-[10%] hidden rotate-6 lg:inline-flex" />
+        <Sticker text="Team up" tone="dark" className="bottom-16 right-[9%] hidden -rotate-6 lg:inline-flex" />
+        <div className="container-page flex flex-col items-center text-center">
+          <h2 className="max-w-5xl text-5xl sm:text-7xl lg:text-8xl">Every hackathon. One place.</h2>
+          <p className="mt-8 max-w-2xl text-lg leading-8 text-ink/75">
+            Stop checking ten websites and scrolling Instagram for posters. We find the hackathons,
+            clean up the details and send you to the official page to register.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link href="/hackathons" className="btn-primary">
+              Explore hackathons
+            </Link>
+            <Link href="/how-it-works" className="btn-secondary">
+              How it works
+            </Link>
+          </div>
+          <div className="mt-10 flex w-full justify-center">
+            <NewsletterForm dark={false} />
+          </div>
+        </div>
+      </section>
+
+      {/* Numbered benefits */}
+      <section className="container-page pb-24">
+        <div className="border-t border-ink/40">
+          {BENEFITS.map((b, i) => (
+            <div key={b.title} className="grid gap-6 border-b border-ink/40 py-8 md:grid-cols-[1fr_1.2fr_auto] md:items-center">
+              <div className="flex items-center gap-5">
+                <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-ink text-sm font-bold text-white">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <h3 className="font-display text-2xl uppercase leading-none sm:text-3xl">{b.title}</h3>
+              </div>
+              <p className="text-base leading-7 text-ink/75">{b.text}</p>
+              <span className="hidden h-24 w-24 items-center justify-center rounded-full bg-white shadow-card md:inline-flex">
+                <b.icon className="h-10 w-10 text-ink" />
+              </span>
             </div>
-            <div
-              className="w-layout-blockcontainer hero_text-wrapper w-container"
-              style={{ opacity: 1 }}
+          ))}
+        </div>
+      </section>
+
+      {/* Closing soon (dark) */}
+      <section className="on-dark bg-ink py-24">
+        <div className="container-page">
+          <div className="mb-12 flex flex-col items-center text-center">
+            <h2 className="text-5xl text-surface sm:text-7xl">Closing soon.</h2>
+            <p className="mt-5 max-w-xl text-lg text-surface/80">
+              Registration ends in the next few days. Lock in your team today.
+            </p>
+          </div>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {urgent.map((h) => (
+              <HackathonCard key={h.slug} h={h} />
+            ))}
+          </div>
+          <div className="mt-10 flex justify-center">
+            <Link href="/hackathons?sort=deadline" className="btn-primary">
+              See all by deadline
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Who it's for */}
+      <section className="border-t border-surface/10 bg-ink pb-24">
+        <div className="container-page grid gap-10 pt-4 lg:grid-cols-2 lg:items-end">
+          <p className="max-w-md text-lg leading-8 text-surface/80 lg:order-1">
+            Whether it’s your first hackathon or your fiftieth, HackathonFinder helps you find events
+            you can actually join, near you or online.
+          </p>
+          <div className="text-left lg:order-2 lg:text-right">
+            <h2 className="text-6xl text-surface sm:text-8xl">Who it’s</h2>
+            <p className="font-display text-6xl uppercase leading-[0.9] tracking-tight text-outline sm:text-8xl">for</p>
+          </div>
+        </div>
+        <div className="container-page mt-16 grid divide-y divide-surface/20 border-y border-surface/20 md:grid-cols-3 md:divide-x md:divide-y-0">
+          {AUDIENCE.map((a) => (
+            <div key={a.lines[0]} className="flex flex-col items-center gap-5 px-6 py-10 text-center">
+              <a.icon className="h-12 w-12 text-white" />
+              <div>
+                {a.lines.map((line) => (
+                  <p key={line} className="font-display text-xl uppercase leading-tight text-surface">
+                    {line}
+                  </p>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Big stacked statement */}
+      <section className="relative overflow-hidden py-24 sm:py-32">
+        <Sticker text="36h of code" tone="yellow" className="left-[5%] top-16 hidden -rotate-6 lg:inline-flex" />
+        <Sticker text="Ship it" tone="green" shape="circle" className="right-[6%] top-24 hidden rotate-12 lg:inline-flex" />
+        <Sticker text="Win big" tone="turquoise" shape="burst" className="bottom-10 left-[8%] hidden -rotate-12 lg:inline-flex" />
+        <Sticker text="Learn fast" tone="dark" className="bottom-20 right-[8%] hidden rotate-3 lg:inline-flex" />
+        <div className="container-page flex flex-col items-center text-center">
+          {['No more ten tabs.', 'No more missed', 'deadlines. Just', 'find it, build it,', 'win it.'].map((line) => (
+            <p key={line} className="font-display text-4xl uppercase leading-[0.95] tracking-tight text-ink sm:text-6xl lg:text-7xl">
+              {line}
+            </p>
+          ))}
+        </div>
+      </section>
+
+      {/* Featured slider */}
+      {featured.length > 0 && (
+        <section className="bg-white py-24">
+          <div className="container-page">
+            <FeaturedSlider items={featured} />
+          </div>
+        </section>
+      )}
+
+      {/* Themes */}
+      <section className="section">
+        <div className="container-page">
+          <SectionHeading title="What do you want to build?" action={{ href: '/hackathons', label: 'All themes' }} />
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
+            {THEMES.slice(0, 10).map((t) => {
+              const style = themeStyle(t.slug);
+              return (
+                <Link
+                  key={t.slug}
+                  href={`/themes/${t.slug}`}
+                  className="group card flex flex-col gap-3 p-5 transition hover:-translate-y-1 hover:shadow-lift"
+                >
+                  <span className={cn('inline-flex w-fit rounded-full p-3', style.soft)}>
+                    <style.icon className="h-5 w-5" />
+                  </span>
+                  <span className="font-display text-lg uppercase leading-tight text-ink">{t.name}</span>
+                  <span className="text-xs text-ink/60">
+                    {themes[t.slug] ?? 0} open {themes[t.slug] === 1 ? 'event' : 'events'}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Cities */}
+      <section className="section pt-0">
+        <div className="container-page">
+          <SectionHeading title="Hackathons near you" description="Starting with Pune, plus online events you can join from anywhere." />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Link
+              href="/cities/pune"
+              className="group relative overflow-hidden rounded-[20px] bg-ink p-8 text-surface shadow-card transition hover:-translate-y-1 hover:shadow-lift sm:col-span-2 lg:row-span-2"
             >
-              <p className="paragraph-white-centered">
-                HackathonFinder runs a team of AI agents that find the news, research the angle,
-                write in your voice, check the value and publish to your website and LinkedIn, on
-                schedule.{' '}
-              </p>
-              <Link href="#demo" className="button-primary w-button">
-                Book a demo
+              <Sticker text="Launching here" tone="yellow" className="right-6 top-6 rotate-6" />
+              <div className="flex h-full flex-col justify-end gap-3 pt-16">
+                <MapPin className="h-10 w-10 text-white" />
+                <h3 className="font-display text-6xl uppercase leading-none text-surface">Pune</h3>
+                <p className="text-surface/80">{cities.pune ?? 0} open hackathons, from college fests to 36-hour builds.</p>
+                <span className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold uppercase text-white">
+                  Explore Pune
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                </span>
+              </div>
+            </Link>
+            <Link href="/hackathons?city=online" className="card group flex items-center gap-4 p-5 transition hover:-translate-y-1 hover:shadow-lift">
+              <span className="rounded-full bg-ink/5 p-3 text-ink">
+                <Globe className="h-5 w-5" />
+              </span>
+              <span>
+                <span className="block font-display uppercase text-ink">Online</span>
+                <span className="text-xs text-ink/60">{cities.online ?? 0} open events</span>
+              </span>
+            </Link>
+            {CITIES.filter((c) => !c.launch).map((c) => (
+              <Link key={c.slug} href={`/cities/${c.slug}`} className="card group flex items-center gap-4 p-5 transition hover:-translate-y-1 hover:shadow-lift">
+                <span className="rounded-full bg-ink/5 p-3 text-ink">
+                  <MapPin className="h-5 w-5" />
+                </span>
+                <span>
+                  <span className="block font-display uppercase text-ink">{c.name}</span>
+                  <span className="text-xs text-ink/60">{cities[c.slug] ?? 0} open events</span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Fresh this week */}
+      <section className="section bg-white">
+        <div className="container-page">
+          <SectionHeading title="Fresh this week" action={{ href: '/hackathons?sort=newest', label: 'See newest' }} />
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {fresh.map((h) => (
+              <HackathonCard key={h.slug} h={h} />
+            ))}
+          </div>
+          <SampleNotice className="mt-8" />
+        </div>
+      </section>
+
+      {/* Team Finder + Organizers */}
+      <section className="section">
+        <div className="container-page grid gap-6 lg:grid-cols-2">
+          <div className="relative overflow-hidden rounded-[20px] border-2 border-ink bg-white p-8 sm:p-12">
+            <h2 className="text-4xl sm:text-5xl">Great idea, no team?</h2>
+            <p className="mt-4 max-w-md text-ink/80">
+              Post the skills you have and the skills you need. Find a designer, a backend dev or a
+              pitch person for your next hackathon.
+            </p>
+            <Link href="/teams" className="btn mt-8 bg-ink text-surface hover:bg-ink-700">
+              Find teammates
+            </Link>
+          </div>
+          <div className="on-dark relative overflow-hidden rounded-[20px] bg-ink p-8 sm:p-12">
+            <h2 className="text-4xl text-surface sm:text-5xl">Running a hackathon?</h2>
+            <p className="mt-4 max-w-md text-surface/80">
+              List it for free and reach students who are actively looking. Featured spots are
+              available when you want extra reach.
+            </p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/submit" className="btn-primary">
+                Submit your hackathon
+              </Link>
+              <Link href="/organizers" className="btn-ghost-dark">
+                Learn more
               </Link>
             </div>
           </div>
         </div>
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/654a36b6f78e92b5209148af_Kikin_Illustrations_Scene_01_RGB%202.svg"
-          loading="eager"
-          alt="Illustration of two people carrying a canoe in a mountainous landscape with pine trees, a river, and logs at sunset"
-          className="scene-illustration-1"
-        />
-        <div className="w-layout-blockcontainer illustration-wrapper-copy w-container">
-          <img
-            src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/654a36b6f78e92b5209148af_Kikin_Illustrations_Scene_01_RGB%202.svg"
-            loading="eager"
-            alt="Illustration of two people carrying a canoe in a mountainous landscape with pine trees, a river, and logs at sunset"
-            className="scene-illustration-1-mobile"
-          />
-        </div>
       </section>
 
-      {/* Agents & Categories Marquee */}
-      <Marquee showTitle={false} />
-
-      {/* Benefits Section 1 */}
-      <section id="demo" className="section-benefits-1" style={{ position: 'relative' }}>
-        <div className="w-layout-blockcontainer container-15 w-container">
-          <div className="h2-wrapper">
-            <h2 className="heading-h2-black-centered">Built for executives. Not for algorithms.</h2>
-          </div>
-        </div>
-        <div className="w-layout-blockcontainer container-16 w-container">
-          <p className="paragraph-black-centered">
-            Your readers run Fortune 500 companies, and they have no time for generic content.
-            Our agents skip the case studies everyone has already read and find the angles your
-            readers haven&#39;t seen. Every draft has to pass one test: does it add value to an
-            executive?
-          </p>
-          <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '24px' }}>
-            <Link href="/dashboard" className="button-primary w-button">
-              See the dashboard
-            </Link>
-            <Link href="/how-it-works" className="button-secondary-light w-button">
-              How it works
-            </Link>
-          </div>
-
-          <div className="form-learn-more w-form">
-            {!submitted ? (
-              <form onSubmit={handleSubmit} className="form-3">
-                <div className="div-block-43">
-                  <div className="div-block-42">
-                    <input
-                      className="text-field-3 w-input"
-                      maxLength={256}
-                      name="email"
-                      placeholder="Your work email"
-                      type="email"
-                      id="email"
-                      required
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                    <input
-                      type="submit"
-                      className="button-secondary-light form w-button"
-                      value="Book a demo"
-                    />
-                  </div>
+      {/* Blog */}
+      <section className="section pt-0">
+        <div className="container-page">
+          <SectionHeading title="Guides to help you win" action={{ href: '/blog', label: 'Read the blog' }} />
+          <div className="grid gap-5 md:grid-cols-3">
+            {blogPosts.slice(0, 3).map((post) => (
+              <Link key={post.slug} href={`/blog/${post.slug}`} className="group card overflow-hidden transition hover:-translate-y-1 hover:shadow-lift">
+                <EventArt theme={post.theme} title={post.title} label={post.category} className="h-40" />
+                <div className="p-6">
+                  <p className="text-xs text-ink/60">
+                    {post.date} · {post.readMinutes} min read
+                  </p>
+                  <h3 className="mt-2 text-xl font-semibold leading-snug">{post.title}</h3>
+                  <p className="mt-2 line-clamp-2 text-sm text-ink/70">{post.excerpt}</p>
+                  <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-ink">
+                    Read guide
+                    <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                  </span>
                 </div>
-              </form>
-            ) : (
-              <div className="success-message-2 w-form-done" style={{ display: 'block' }}>
-                <div>Thanks! We&#39;ll be in touch to set up your demo.</div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Floating stickers */}
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6527ca0fa1114411609088ef_make%20business%20do%20good.svg"
-          loading="lazy"
-          alt=""
-          className="sticker-ritgh-top"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/65437bfd31c9aad0c299a643_put%20planet%20first.svg"
-          loading="lazy"
-          alt=""
-          className="sticker-left-bottom"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6527ca0fc14a039c9c8a6db6_work%20together.svg"
-          loading="lazy"
-          alt=""
-          className="sticker-right-bottom"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6527ca0f2546312f94afb400_borrow%20wisely.svg"
-          loading="lazy"
-          alt=""
-          className="sticker-right-middle"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6527ca0f4fea32f3c89a031d_change%20the%20world.svg"
-          loading="lazy"
-          alt=""
-          className="sticker-left-top"
-        />
-      </section>
-
-      {/* Benefits Section 2: 4 Benefit Cards */}
-      <section className="section-benefits-2">
-        {/* Card 01 */}
-        <div className="block-1 animated-block">
-          <div className="div-block-35">
-            <div className="div-block-34">
-              <div className="circle-number">
-                <div className="number">01</div>
-              </div>
-              <h4 className="heading-h4">Find what matters.</h4>
-            </div>
-            <div className="div-block-33">
-              <p className="paragraph-black-left">
-                The news finder scans the sources you approve, sorts stories by category and ranks
-                them by relevance. Only the topics worth writing about reach the writer.
-              </p>
-            </div>
-          </div>
-          <div className="animation-wrapper first" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <img
-              src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/654a36b6f78e92b5209148af_Kikin_Illustrations_Scene_01_RGB%202.svg"
-              alt="News finder illustration"
-              style={{ maxHeight: '180px', objectFit: 'contain' }}
-            />
-          </div>
-        </div>
-
-        {/* Card 02 */}
-        <div className="block-2 animated-block">
-          <div className="div-block-35">
-            <div className="div-block-34">
-              <div className="circle-number">
-                <div className="number">02</div>
-              </div>
-              <h4 className="heading-h4">Research that goes deeper.</h4>
-            </div>
-            <div className="div-block-33">
-              <p className="paragraph-black-left">
-                No more recycled Microsoft and Google case studies. The research agent looks for
-                the angle your readers don&#39;t know yet, like a bootstrapped unicorn they have
-                never studied.
-              </p>
-            </div>
-          </div>
-          <div className="animation-wrapper second" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <img
-              src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/65363617f2f8b421dacfacc5_Illustration.svg"
-              alt="Research illustration"
-              style={{ maxHeight: '180px', objectFit: 'contain' }}
-            />
-          </div>
-        </div>
-
-        {/* Card 03 */}
-        <div className="block-3 animated-block">
-          <div className="div-block-35">
-            <div className="div-block-34">
-              <div className="circle-number">
-                <div className="number">03</div>
-              </div>
-              <h4 className="heading-h4">YOUR VOICE. IN EVERY CATEGORY.</h4>
-            </div>
-            <div className="div-block-33">
-              <p className="paragraph-black-left">
-                The writer uses your persona and a fixed paragraph framework for each category. A
-                Decision reads like a Decision and a Playbook reads like a Playbook. No more
-                look-alike AI paragraphs.
-              </p>
-            </div>
-          </div>
-          <div className="animation-wrapper third" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <img
-              src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/65366ae62f51f2c63edd236f_Scene-illustration-2.cropped.svg"
-              alt="Writer illustration"
-              style={{ maxHeight: '180px', objectFit: 'contain' }}
-            />
-          </div>
-        </div>
-
-        {/* Card 04 */}
-        <div className="block-4 animated-block">
-          <div className="div-block-35">
-            <div className="div-block-34">
-              <div className="circle-number">
-                <div className="number">04</div>
-              </div>
-              <h4 className="heading-h4">PUBLISHED EVERYWHERE. ON TIME.</h4>
-            </div>
-            <div className="div-block-33">
-              <p className="paragraph-black-left">
-                SEO, formatting and scheduling are handled for you. Every post goes live on your
-                website, and a LinkedIn version goes out at the right time.
-              </p>
-            </div>
-          </div>
-          <div className="animation-wrapper forth" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <img
-              src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6527ca0f4fea32f3c89a031d_change%20the%20world.svg"
-              alt="Publishing illustration"
-              style={{ maxHeight: '180px', objectFit: 'contain' }}
-            />
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Interactive Pipeline Builder */}
-      <Calculator />
-
-      {/* Who It's For 1 */}
-      <section className="section-who_we_fund-1">
-        <div className="div-block-22">
-          <div className="div-block-23">
-            <h2 className="heading-h2-white-right" style={{ opacity: 1, transform: 'none' }}>
-              who it&#39;s
-            </h2>
-            <h1 className="heading-h2-white-right" style={{ opacity: 1, transform: 'none' }}>
-              for
-            </h1>
-          </div>
-          <div className="div-block-25">
-            <p className="paragraph-white-left">
-              Teams that publish for senior leaders and can&#39;t afford a single generic post.
-              Readers that judge a brand by the quality of its thinking.
-            </p>
-          </div>
+      {/* FAQ */}
+      <section id="faqs" className="section bg-white">
+        <div className="container-page">
+          <FAQTabs students={studentFaqs} organizers={organizerFaqs} />
         </div>
       </section>
-
-      {/* Who It's For 2: 3 Columns */}
-      <section className="section-who_we_fund-2">
-        <div className="columns w-row">
-          {/* Column 1 */}
-          <div className="who-we-fund_column w-col w-col-4 w-col-medium-4">
-            <div className="div-block-26">
-              <img
-                src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6526cc210b0e422796833aad_icon-house.svg"
-                loading="lazy"
-                alt=""
-                className="image-17"
-              />
-              <div className="div-block-27">
-                <h6 className="heading-h5" style={{ opacity: 1, transform: 'none' }}>
-                  Content platforms{' '}
-                </h6>
-                <h6 className="heading-h5" style={{ opacity: 1, transform: 'none' }}>
-                  for C-level readers
-                </h6>
-              </div>
-            </div>
-          </div>
-
-          {/* Column 2 */}
-          <div className="who-we-fund_column central w-col w-col-4 w-col-medium-4">
-            <div className="div-block-26">
-              <img
-                src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6526cc22529df10ae4f5e974_icon-invoice.svg"
-                loading="lazy"
-                alt=""
-                className="image-17"
-              />
-              <div className="div-block-27">
-                <h6 className="heading-h5" style={{ opacity: 1, transform: 'none' }}>
-                  teams that publish
-                </h6>
-                <h6 className="heading-h5" style={{ opacity: 1, transform: 'none' }}>
-                  every week{' '}
-                </h6>
-                <h6 className="heading-h5" style={{ opacity: 1, transform: 'none' }}>
-                  across channels
-                </h6>
-              </div>
-            </div>
-          </div>
-
-          {/* Column 3 */}
-          <div className="who-we-fund_column-copy w-col w-col-4 w-col-medium-4">
-            <div className="div-block-26">
-              <img
-                src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6526cc216a0fbc5be58f8b64_icon-leaf.svg"
-                loading="lazy"
-                alt=""
-                className="image-17"
-              />
-              <div className="div-block-27">
-                <h6 className="heading-h5" style={{ opacity: 1, transform: 'none' }}>
-                  enterprises that want
-                </h6>
-                <h6 className="heading-h5" style={{ opacity: 1, transform: 'none' }}>
-                  their own agents
-                </h6>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Quality Bar Section */}
-      <section className="section-esg">
-        <div className="div-block-28">
-          <h3 className="heading-h3-green-center">EVERY DRAFT FACES</h3>
-          <h3 className="heading-h3-green-center">ONE QUESTION.</h3>
-          <h3 className="heading-h3-green-center">DOES THIS ADD VALUE</h3>
-          <h3 className="heading-h3-green-center">TO AN EXECUTIVE?</h3>
-          <h3 className="heading-h3-green-center">IF NOT, IT GETS REWRITTEN.</h3>
-        </div>
-
-        {/* Floating Badges */}
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6528262a6cc8a59123cfc51f_reduced%20inequalities.svg"
-          loading="lazy"
-          alt=""
-          className="esg-sticker-top"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6528262a92d2cb7d55649568_gender%20equality.svg"
-          loading="lazy"
-          alt=""
-          className="esg-sticker-bottom"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6528262a049496476650d483_climate%20action.svg"
-          loading="lazy"
-          alt=""
-          className="esg-sticker-left-bottom"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6528262a19c99a0901eb7330_industry.svg"
-          loading="lazy"
-          alt=""
-          className="esg-sticker-left-top"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6528262ad0ac4ce82d0ffb93_zero%20hunger.svg"
-          loading="lazy"
-          alt=""
-          className="esg-sticker-top-right"
-        />
-        <img
-          src="https://cdn.prod.website-files.com/635273ea37c256ef2835d522/6528262ab3b79bd59bf00e6d_clean%20water.svg"
-          loading="lazy"
-          alt=""
-          className="esg-sticker-bottom-right"
-        />
-      </section>
-
-      {/* Content Categories Slider */}
-      <Testimonials />
-
-      {/* FAQs Section */}
-      <FAQAccordion />
-
-      {/* Footer */}
-      <Footer />
-    </div>
+    </>
   );
 }
