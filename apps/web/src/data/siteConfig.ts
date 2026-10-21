@@ -1,15 +1,17 @@
-// Placeholder contact details and links — replace with the real ones before launch.
+// Placeholder contact details and social links. Replace before launch.
 export const siteConfig = {
   name: 'HackathonFinder',
-  shortName: 'HF',
-  tagline: 'Executive insight, on autopilot',
+  domain: 'HackathonFinder.in',
+  tagline: 'Every hackathon. One place.',
   description:
-    'HackathonFinder runs a team of AI agents that find the news, research the angle, write in your voice, check the value and publish to your website and LinkedIn.',
+    'HackathonFinder finds hackathons from Unstop, Devfolio, Instagram, LinkedIn, Google and more, and lists them in one place. Search by city, theme, deadline, team size and prize.',
   url: 'https://hackathonfinder.in',
   email: 'hello@hackathonfinder.in',
-  demoHref: '/#demo',
-  linkedinUrl: '#',
-  xUrl: '#',
-  poweredBy: 'LayerFlow',
-  firstDeployment: 'The Executive Narrative',
+  social: {
+    instagram: '#',
+    linkedin: '#',
+    telegram: '#',
+    whatsapp: '#',
+    discord: '#',
+  },
 };
