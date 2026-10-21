@@ -1,0 +1,38 @@
+import type { Metadata } from 'next';
+import Explorer from '@/components/hackathon/Explorer';
+import { PageHero, SampleNotice } from '@/components/ui';
+import { getHackathons, openOnly } from '@/lib/hackathons';
+import { parseFilters } from '@/lib/filters';
+
+export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = {
+  title: 'Explore hackathons',
+  description:
+    'Search every open hackathon by city, online or offline, deadline, team size, prize, fee, theme and eligibility.',
+};
+
+export default function HackathonsPage({
+  searchParams,
+}: {
+  searchParams: Record<string, string | string[] | undefined>;
+}) {
+  const { items } = getHackathons();
+  const initial = parseFilters(searchParams);
+
+  return (
+    <>
+      <PageHero
+        title="Every hackathon"
+        accent="one search"
+        description={`${openOnly(items).length} events are open for registration right now. Filter by what matters to you and register on the official page.`}
+      />
+      <section className="bg-surface py-10">
+        <div className="container-page">
+          <SampleNotice className="mb-6" />
+          <Explorer items={items} initial={initial} />
+        </div>
+      </section>
+    </>
+  );
+}
