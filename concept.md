@@ -1,13 +1,13 @@
 # HackathonFinder.in: Product Concept
 
 > **Every hackathon. One place.**
-> Status: concept, build in progress · Last updated: 21 Oct 2026
+> Status: concept, build in progress · Last updated: 22 Oct 2026
 
 ---
 
 ## 1. The idea in one line
 
-HackathonFinder.in finds every hackathon on the internet, from Unstop, Devfolio, Instagram, LinkedIn, Google and many other places, and shows them in one searchable list, so students never miss an event that fits them.
+HackathonFinder.in finds every hackathon on the internet, from Unstop, Devfolio, Google, Instagram, LinkedIn, Facebook, WhatsApp groups and many other places, and shows them in one searchable list with the nearest ones first, so students never miss an event that fits them.
 
 ---
 
@@ -71,10 +71,11 @@ Each listing has a **type**, so users can search for exactly what they need.
 | **Google search** | "hackathon Pune 2026", "AI hackathon students", and similar queries | Web search API, scheduled queries by city, theme and month |
 | **Instagram** | College club pages, tech community pages, event posters | Organizer submissions, partner accounts, our browser extension and official APIs where allowed |
 | **LinkedIn** | Company and community announcement posts | Same as Instagram: submissions, extension, official APIs where allowed |
+| **Facebook** | College club pages, student and tech community groups, event posts | Same as Instagram: submissions, extension, official APIs where allowed |
 | **Event sites** | Luma, Eventbrite, Meetup, Google Developer Groups, Commudle | Public event pages and feeds |
 | **College and government sites** | College fest pages, Smart India Hackathon, institute portals | Public pages, watched for changes |
 | **Communities** | Discord, Telegram, WhatsApp groups, Reddit, X | User and organizer submissions |
-| **People** | Students and organizers | "Submit a hackathon" form and browser extension |
+| **People** | Students and organizers | "Submit a hackathon": a 30-second quick share for students (paste a link, a forwarded WhatsApp message or a poster), the full form for organizers, and the browser extension |
 
 **Browser extension:** while browsing Chrome, Instagram, LinkedIn or any website, a user sees a hackathon and clicks **"Add to HackathonFinder"**. Our system reads that page or poster and turns it into a listing. This covers the places that can't be crawled automatically.
 
@@ -112,6 +113,7 @@ Every listing shows **where it came from** and **when it was last checked**.
 ## 8. Features
 
 ### 8.1 Find hackathons
+- **Near me:** share your location once, or pick your city, and see the nearest in-person hackathons first, with "6 km away" on every card and a distance filter (10, 25, 50 or 150 km). Online events follow under "join from anywhere". The location stays in the browser, rounded to about 1 km, and is never put in links
 - **One list of all hackathons**, with clear cards showing name, organizer, dates, deadline, mode, city, prize and status
 - **Search** by name, organizer, theme or keyword
 - **Filters:**
@@ -126,42 +128,52 @@ Every listing shows **where it came from** and **when it was last checked**.
   - Fee: free or paid
   - Event type: hackathon, ideathon, coding contest, and others
   - Source platform
-- **Sort** by deadline, newest, prize or start date
+- **Sort** by deadline, nearest, newest, prize or start date
 - **Calendar view** of all events by date
 - **"Closing soon"** section on the homepage
 - **City pages**, for example "Hackathons in Pune", and **theme pages**, for example "AI hackathons"
+- **Cities, city by city:** a page of every city we cover across India (Pune, Mumbai, Bengaluru, Hyderabad, Delhi NCR, Chennai, Ahmedabad, Kolkata, Jaipur, Chandigarh, Kochi, Indore, Nagpur, Bhubaneswar), sorted by events or distance. Students **follow** the cities they care about, and those form their shortlist at the top, each with its open hackathons
 
 ### 8.2 Smart search ("as per requirement")
 Users type what they need in plain words:
 
 > *"Free online AI hackathon for 2nd-year students, team of 3, deadline this month"*
+>
+> *"Offline hackathon near me within 20 km"*
 
 The AI turns that into filters and shows matching events. Users can save it as a **saved search** and get alerts when new matches appear.
 
 ### 8.3 Event page
 - Summary, dates, registration deadline and event timeline
-- Mode, venue and map for offline events
+- Mode, venue, map, "Get directions" and how far it is from you, for offline and hybrid events
 - Team size, eligibility, fee and themes or tracks
 - Prizes and perks
 - Organizer and sponsors
 - **"Register on official site"** button, which links to the source
 - **Add to calendar** (Google or Outlook)
-- **Share** to WhatsApp, LinkedIn or Instagram
+- **Share** to WhatsApp, LinkedIn or Facebook, or through the phone's share menu (Instagram, Telegram and others)
 - Source, plus a "last checked" date
 - Similar hackathons
 
 ### 8.4 For students (with an account)
-- **Profile:** college, year, city, skills and interests
+- **Profile, LeetCode-style but for hackathons:** college, year, city, skills, bio and links, plus:
+  - stat tiles: hackathons, wins, podiums, finals
+  - a results ring: winner, runner-up, finalist, participant
+  - a year-long activity heatmap with streaks
+  - badges: first save, shipped, team player, winner and more
+  - the full hackathon record
+  - public pages at `/u/<handle>` that work as a hackathon portfolio for resumes and LinkedIn
 - **"For you" recommendations** based on the profile
 - **Save** events and get **deadline reminders** by email, push, WhatsApp or Telegram
 - **My tracker:** mark events as saved, registered, submitted, or won or participated
-- **Hackathon portfolio:** a shareable page of every hackathon you've done, useful for resumes and LinkedIn
 - **Weekly digest** of new events that match you
 
-### 8.5 Team finder
-- Post "Looking for teammates" on any hackathon
-- Find people by skill (frontend, backend, ML, design, pitching)
-- Request to join a team and chat about the idea
+### 8.5 Team finder (all of India)
+- Post "Looking for teammates" on any hackathon, with your city or online, team size and the skills you have and need
+- Two lists: teams looking for members, and students looking for a team
+- Filter by state, city, distance from you, skills, hackathon and online or in person
+- A **match score** compares your profile's skills with what each team needs
+- Request to join with a short message, invite students to your team, and see everything you sent
 
 ### 8.6 For organizers
 - **Submit a hackathon** for free (form or browser extension)
@@ -171,9 +183,17 @@ The AI turns that into filters and shows matching events. Users can save it as a
 - **Verified organizer** badge
 
 ### 8.7 Community and content
-- Auto-posts of new hackathons to our **Instagram, LinkedIn and Telegram** channels
+- Auto-posts of new hackathons to our **Instagram, LinkedIn, Facebook and Telegram** channels
+- **City WhatsApp groups** (Pune first): new hackathons near you, teammates close by and meetups before big events
+- **Quick share:** any student who spots a hackathon on Instagram, WhatsApp, Facebook or LinkedIn can add it in 30 seconds
+- **Discussions** (like LeetCode Discuss): students talk with each other about hackathons, in categories (General, Hackathon Q&A, Team up, Project feedback, Resources, City talk) with city filters, upvotes and replies
+- **Winning stories:** students post how they won, blog style: the problem, what they built, what the judges liked, lessons, tech stack and team. Other students cheer them
 - Blog and guides: how to win hackathons, first-hackathon tips, winning project write-ups
 - **Results and winners**, where organizers share winners and projects
+
+### 8.7a Look and feel
+- **Dark mode by default**, with a toggle to switch to light. The choice is remembered
+- The same illustrated style everywhere: the night-city scene, stickers and generated event covers
 
 ### 8.8 Trust and safety
 - Verified badges for organizers and sources
@@ -197,7 +217,7 @@ The AI turns that into filters and shows matching events. Users can save it as a
 | Type | Hackathon / Ideathon / Coding contest / … |
 | Organizer | College, club, company or community |
 | Mode | Online / Offline / Hybrid |
-| Location | City, state, country, venue |
+| Location | City, state, country, venue, map coordinates (for "near me" and directions) |
 | Start and end date | 14–15 Nov 2026 |
 | Registration deadline | 05 Nov 2026, 23:59 IST |
 | Status | Open / Closing soon / In progress / Registration closed / Completed |
@@ -340,14 +360,20 @@ We **don't compete** with the hosting platforms. We send students to them to reg
   - hackathon data model, themes, cities, sources and auto-status rules in `packages/shared`
   - the full student website in `apps/web` (original design, Tailwind CSS, free Google Fonts):
     - home page with smart search
+    - "Near me" page and nearest-first sorting with distances, from GPS or a picked city
     - Explore page with every filter, plus city and theme pages
-    - event pages (register, save, add to Google Calendar, share)
+    - event pages (register, save, add to Google Calendar, share, venue map, directions, distance from you)
+    - quick share for students (link, WhatsApp forward or poster) next to the organizer form
     - calendar
     - My hackathons tracker
-    - Team Finder, community, blog, organizers page, submit form, how it works, privacy and terms
+    - cities page with followed-city shortlists, across 14 Indian cities
+    - community discussions, winning stories, and LeetCode-style profiles (`/profile` and `/u/<handle>`)
+    - India-wide Team Finder with match scores, requests and invites
+    - dark mode by default with a light-mode toggle, and a new grouped navbar
+    - blog, organizers page, submit form, how it works, privacy and terms
 - **Preview only, for now:**
-  - listings are sample data
-  - saved events and team posts live in the browser
+  - listings, students, discussions, team posts and winning stories are sample data
+  - anything a student creates (profile, saves, posts, replies, requests) lives in their browser
   - submissions and digest sign-ups are not stored yet
 - **Next:**
   1. Database and API
