@@ -1,0 +1,26 @@
+{
+  "name": "@hackathonfinder/db",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./seed": "./src/seed/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "seed": "tsx src/seed/cli.ts",
+    "mongo": "tsx src/local-mongo.ts"
+  },
+  "dependencies": {
+    "@hackathonfinder/shared": "workspace:*",
+    "mongoose": "^9.11.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "mongodb-memory-server": "^11.3.0",
+    "tsx": "^4.23.15",
+    "typescript": "^5"
+  }
+}
