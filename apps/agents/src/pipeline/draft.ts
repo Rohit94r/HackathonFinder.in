@@ -1,0 +1,49 @@
+import type { Currency, Eligibility, EventType, Mode, OrganizerType, ThemeSlug } from '@hackathonfinder/shared';
+
+/** A listing being assembled by the pipeline. Fields stay undefined until something states them. */
+export interface Draft {
+  title: string;
+  tagline: string;
+  type: EventType;
+  organizer: string;
+  organizerType: OrganizerType;
+  mode?: Mode;
+  /** City slug (one of ours, or a slug of the stated city). */
+  city?: string;
+  venue?: string;
+  country: string;
+  /** Venue point; `exact` false when it is only the city centre. */
+  point?: { lat: number; lng: number; exact: boolean };
+  startDate?: Date;
+  endDate?: Date;
+  registrationDeadline?: Date;
+  teamMin: number;
+  teamMax: number;
+  eligibility: Eligibility[];
+  fee: number;
+  prizePool: number;
+  prizeCurrency: Currency;
+  prizes: string[];
+  perks: string[];
+  themes: ThemeSlug[];
+  beginnerFriendly: boolean;
+  registrationUrl?: string;
+  /** Our own words (AI or template). Never the organizer's text. */
+  summary: string;
+  imageUrl?: string;
+  logoUrl?: string;
+  /** SOURCES slug shown on the listing. */
+  listingSource: string;
+  confidence: number;
+  /** Problems for the review queue. Any flag keeps a new listing out of "live". */
+  flags: string[];
+  /** What the pipeline did and assumed, stored on the RawItem. */
+  notes: string[];
+  usedAi: boolean;
+}
+
+export const KEY_FIELDS = ['title', 'mode', 'startDate', 'endDate', 'registrationDeadline', 'registrationUrl'] as const;
+
+export function missingKeyFields(d: Draft): string[] {
+  return KEY_FIELDS.filter((k) => !d[k]);
+}
