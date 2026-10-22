@@ -47,6 +47,7 @@ coverage/
 .idea/
 .DS_Store
 Thumbs.db
+.playwright-mcp/
 
 # Python (in case of scrapers/scripts)
 __pycache__/
@@ -64,3 +65,9 @@ impact.html
 
 # Commercial fonts copied from the design reference; not licensed for redistribution
 apps/web/public/fonts/
+
+# Local MongoDB data (pnpm dev)
+.data/
+
+# Local image uploads in development
+apps/web/public/uploads/
