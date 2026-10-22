@@ -49,6 +49,9 @@ export interface Hackathon {
   /** City slug; undefined for online events. */
   city?: string;
   venue?: string;
+  /** Venue coordinates for offline and hybrid events; the city centre is used when missing. */
+  lat?: number;
+  lng?: number;
   country: string;
   /** ISO timestamps. */
   startDate: string;
@@ -72,6 +75,11 @@ export interface Hackathon {
   registrationUrl: string;
   sources: string[];
   summary: string;
+  /** Banner or poster from the source, when we have one; cards fall back to generated art. */
+  imageUrl?: string;
+  logoUrl?: string;
+  /** One of the built-in preview listings rather than a real event. */
+  sample?: boolean;
 }
 
 export interface Theme {
@@ -80,7 +88,12 @@ export interface Theme {
   description: string;
 }
 
-export interface City {
+export interface LatLng {
+  lat: number;
+  lng: number;
+}
+
+export interface City extends LatLng {
   slug: string;
   name: string;
   state: string;

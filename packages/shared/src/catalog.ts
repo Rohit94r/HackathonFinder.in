@@ -48,12 +48,20 @@ export const THEMES: Theme[] = [
 ];
 
 export const CITIES: City[] = [
-  { slug: 'pune', name: 'Pune', state: 'Maharashtra', launch: true },
-  { slug: 'mumbai', name: 'Mumbai', state: 'Maharashtra', launch: false },
-  { slug: 'bengaluru', name: 'Bengaluru', state: 'Karnataka', launch: false },
-  { slug: 'hyderabad', name: 'Hyderabad', state: 'Telangana', launch: false },
-  { slug: 'delhi-ncr', name: 'Delhi NCR', state: 'Delhi', launch: false },
-  { slug: 'chennai', name: 'Chennai', state: 'Tamil Nadu', launch: false },
+  { slug: 'pune', name: 'Pune', state: 'Maharashtra', launch: true, lat: 18.5204, lng: 73.8567 },
+  { slug: 'mumbai', name: 'Mumbai', state: 'Maharashtra', launch: false, lat: 19.076, lng: 72.8777 },
+  { slug: 'bengaluru', name: 'Bengaluru', state: 'Karnataka', launch: false, lat: 12.9716, lng: 77.5946 },
+  { slug: 'hyderabad', name: 'Hyderabad', state: 'Telangana', launch: false, lat: 17.385, lng: 78.4867 },
+  { slug: 'delhi-ncr', name: 'Delhi NCR', state: 'Delhi', launch: false, lat: 28.6139, lng: 77.209 },
+  { slug: 'chennai', name: 'Chennai', state: 'Tamil Nadu', launch: false, lat: 13.0827, lng: 80.2707 },
+  { slug: 'ahmedabad', name: 'Ahmedabad', state: 'Gujarat', launch: false, lat: 23.0225, lng: 72.5714 },
+  { slug: 'kolkata', name: 'Kolkata', state: 'West Bengal', launch: false, lat: 22.5726, lng: 88.3639 },
+  { slug: 'jaipur', name: 'Jaipur', state: 'Rajasthan', launch: false, lat: 26.9124, lng: 75.7873 },
+  { slug: 'chandigarh', name: 'Chandigarh', state: 'Chandigarh', launch: false, lat: 30.7333, lng: 76.7794 },
+  { slug: 'kochi', name: 'Kochi', state: 'Kerala', launch: false, lat: 9.9312, lng: 76.2673 },
+  { slug: 'indore', name: 'Indore', state: 'Madhya Pradesh', launch: false, lat: 22.7196, lng: 75.8577 },
+  { slug: 'nagpur', name: 'Nagpur', state: 'Maharashtra', launch: false, lat: 21.1458, lng: 79.0882 },
+  { slug: 'bhubaneswar', name: 'Bhubaneswar', state: 'Odisha', launch: false, lat: 20.2961, lng: 85.8245 },
 ];
 
 export const SOURCE_KIND_LABELS: Record<SourceKind, string> = {
@@ -79,11 +87,13 @@ export const SOURCES: Source[] = [
   { slug: 'google', name: 'Google Search', kind: 'search', url: 'https://www.google.com' },
   { slug: 'instagram', name: 'Instagram', kind: 'social', url: 'https://www.instagram.com' },
   { slug: 'linkedin', name: 'LinkedIn', kind: 'social', url: 'https://www.linkedin.com' },
+  { slug: 'facebook', name: 'Facebook', kind: 'social', url: 'https://www.facebook.com' },
   { slug: 'luma', name: 'Luma', kind: 'events', url: 'https://lu.ma' },
   { slug: 'eventbrite', name: 'Eventbrite', kind: 'events', url: 'https://www.eventbrite.com' },
   { slug: 'meetup', name: 'Meetup', kind: 'events', url: 'https://www.meetup.com' },
   { slug: 'college-sites', name: 'College websites', kind: 'college', url: '/how-it-works' },
-  { slug: 'communities', name: 'Discord, Telegram & WhatsApp', kind: 'community', url: '/how-it-works' },
+  { slug: 'whatsapp', name: 'WhatsApp', kind: 'community', url: '/how-it-works' },
+  { slug: 'communities', name: 'Discord & Telegram', kind: 'community', url: '/how-it-works' },
   { slug: 'submissions', name: 'Organizer submissions', kind: 'people', url: '/submit' },
 ];
 
