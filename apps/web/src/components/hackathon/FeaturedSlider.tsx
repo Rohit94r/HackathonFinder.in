@@ -31,19 +31,19 @@ export default function FeaturedSlider({ items }: { items: HackathonView[] }) {
           <p className="mt-6 text-xl leading-8 text-ink/80">“{h.summary}”</p>
           <ul className="mt-6 grid grid-cols-2 gap-3 text-sm font-medium text-ink/80">
             <li className="flex items-center gap-2">
-              <MapPin className="h-4 w-4 text-ink" />
+              <MapPin className="h-4 w-4 text-brand-600" />
               {h.mode === 'online' ? 'Online' : cityName(h.city)}
             </li>
             <li className="flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-ink" />
+              <CalendarDays className="h-4 w-4 text-brand-600" />
               {formatDateRange(h.startDate, h.endDate)}
             </li>
             <li className="flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-ink" />
+              <Trophy className="h-4 w-4 text-amber-500" />
               {formatPrizeShort(h.prizePool, h.prizeCurrency)}
             </li>
             <li className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-ink" />
+              <Users className="h-4 w-4 text-brand-600" />
               {formatTeamSize(h.teamMin, h.teamMax)}
             </li>
           </ul>

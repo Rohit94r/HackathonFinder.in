@@ -1,13 +1,7 @@
-import {
-  CITIES,
-  THEMES,
-  computeStatus,
-  createSampleHackathons,
-  daysUntil,
-  isRegistrationOpen,
-  type Hackathon,
-  type Status,
-} from '@hackathonfinder/shared';
+import { CITIES, THEMES, isRegistrationOpen, type Hackathon, type Status } from '@hackathonfinder/shared';
+
+// Types and pure helpers for listings, safe in client components. Loading listings
+// happens on the server: see getHackathons in @/server/hackathons.
 
 /** A listing plus the fields worked out at request time. */
 export interface HackathonView extends Hackathon {
@@ -18,25 +12,6 @@ export interface HackathonView extends Hackathon {
 export interface HackathonSnapshot {
   nowIso: string;
   items: HackathonView[];
-}
-
-/**
- * Loads listings and works out their status for "now". Today this reads the
- * sample listings; it will read from the database once the agents are live.
- */
-export function getHackathons(now: Date = new Date()): HackathonSnapshot {
-  const items = createSampleHackathons(now).map((h) => ({
-    ...h,
-    status: computeStatus(h, now),
-    daysToDeadline: daysUntil(h.registrationDeadline, now),
-  }));
-  return { nowIso: now.toISOString(), items };
-}
-
-export function getHackathon(slug: string, now: Date = new Date()) {
-  const snapshot = getHackathons(now);
-  const item = snapshot.items.find((h) => h.slug === slug);
-  return item ? { ...snapshot, item } : null;
 }
 
 export function openOnly(items: HackathonView[]): HackathonView[] {

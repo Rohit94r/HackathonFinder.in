@@ -1,15 +1,22 @@
 import Link from 'next/link';
-import { BadgeCheck, CalendarDays, Clock, MapPin, Sparkles, Trophy, Users } from 'lucide-react';
+import { BadgeCheck, CalendarDays, Clock, MapPin, Navigation, Sparkles, Trophy, Users } from 'lucide-react';
 import { cityName, eventTypeLabel, modeLabel, sourceBySlug, themeName } from '@hackathonfinder/shared';
 import type { HackathonView } from '@/lib/hackathons';
-import { deadlineLabel, formatDateRange, formatPrizeShort, formatTeamSize } from '@/lib/format';
+import { deadlineLabel, formatDateRange, formatKm, formatPrizeShort, formatTeamSize } from '@/lib/format';
 import { themeStyle } from '@/lib/themeStyles';
 import { cn } from '@/lib/cn';
 import EventArt from './EventArt';
 import SaveButton from './SaveButton';
 import StatusBadge from './StatusBadge';
 
-export default function HackathonCard({ h, className }: { h: HackathonView; className?: string }) {
+interface HackathonCardProps {
+  h: HackathonView;
+  /** Km from the student, when we know where they are and the event is in person. */
+  distanceKm?: number;
+  className?: string;
+}
+
+export default function HackathonCard({ h, distanceKm, className }: HackathonCardProps) {
   const location = h.mode === 'online' ? 'Online' : `${cityName(h.city)} · ${modeLabel(h.mode)}`;
   const open = h.status === 'open' || h.status === 'closing-soon';
 
@@ -26,7 +33,7 @@ export default function HackathonCard({ h, className }: { h: HackathonView; clas
         <div className="absolute left-3 top-3 flex gap-1.5">
           <StatusBadge status={h.status} />
           {h.featured && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-lime px-2.5 py-1 text-xs font-bold text-ink">
+            <span className="inline-flex items-center gap-1 rounded-full bg-lime px-2.5 py-1 text-xs font-bold text-navy">
               <Sparkles className="h-3 w-3" />
               Featured
             </span>
@@ -38,7 +45,7 @@ export default function HackathonCard({ h, className }: { h: HackathonView; clas
       <div className="flex flex-1 flex-col gap-3 p-5">
         <div>
           <p className="mb-1 flex items-center gap-1 text-xs font-medium text-ink/60">
-            <span className="font-semibold uppercase tracking-wider text-ink">{eventTypeLabel(h.type)}</span>
+            <span className="font-semibold uppercase tracking-wider text-brand-600 dark:text-brand-300">{eventTypeLabel(h.type)}</span>
             <span aria-hidden="true">·</span>
             <span className="truncate">{h.organizer}</span>
             {h.verified && <BadgeCheck className="h-3.5 w-3.5 text-ink" aria-label="Verified organizer" />}
@@ -48,10 +55,19 @@ export default function HackathonCard({ h, className }: { h: HackathonView; clas
         </div>
 
         <ul className="grid grid-cols-2 gap-x-3 gap-y-2 text-sm text-ink/70">
-          <li className="flex items-center gap-1.5">
-            <MapPin className="h-4 w-4 shrink-0 text-ink/45" />
-            <span className="truncate">{location}</span>
-          </li>
+          {distanceKm !== undefined ? (
+            <li className="col-span-2 flex items-center gap-1.5">
+              <Navigation className="h-4 w-4 shrink-0 text-ink" />
+              <span className="truncate">
+                {location} · <strong className="font-semibold text-ink">{formatKm(distanceKm)} away</strong>
+              </span>
+            </li>
+          ) : (
+            <li className="flex items-center gap-1.5">
+              <MapPin className="h-4 w-4 shrink-0 text-ink/45" />
+              <span className="truncate">{location}</span>
+            </li>
+          )}
           <li className="flex items-center gap-1.5">
             <CalendarDays className="h-4 w-4 shrink-0 text-ink/45" />
             {formatDateRange(h.startDate, h.endDate)}
@@ -76,7 +92,7 @@ export default function HackathonCard({ h, className }: { h: HackathonView; clas
             {h.fee === 0 ? 'Free' : `₹${h.fee} fee`}
           </span>
           {h.beginnerFriendly && (
-            <span className="rounded-md bg-lime-soft px-2 py-0.5 text-xs font-medium text-ink">
+            <span className="rounded-md px-2 py-0.5 text-xs font-medium bg-pop-soft text-[#a4460a] dark:bg-pop/15 dark:text-[#ffc59a]">
               Beginner-friendly
             </span>
           )}
@@ -86,7 +102,7 @@ export default function HackathonCard({ h, className }: { h: HackathonView; clas
           <span
             className={cn(
               'inline-flex items-center gap-1 font-semibold',
-              h.status === 'closing-soon' ? 'text-ink' : open ? 'text-ink/80' : 'text-ink/60'
+              h.status === 'closing-soon' ? 'text-orange-600 dark:text-orange-400' : open ? 'text-ink/80' : 'text-ink/60'
             )}
           >
             <Clock className="h-3.5 w-3.5" />

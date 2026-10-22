@@ -20,7 +20,7 @@ export default function SaveButton({ slug, title, variant = 'icon', className }:
     // Cards are links; keep the click on the button.
     e.preventDefault();
     e.stopPropagation();
-    toggle(slug);
+    toggle(slug, title);
   };
 
   if (variant === 'full') {
@@ -45,7 +45,7 @@ export default function SaveButton({ slug, title, variant = 'icon', className }:
       aria-label={isSaved ? `Remove ${title} from My hackathons` : `Save ${title}`}
       className={cn(
         'inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm ring-1 ring-black/5 backdrop-blur transition hover:scale-105',
-        isSaved ? 'text-ink' : 'text-ink/70',
+        isSaved ? 'text-accent' : 'text-navy/70',
         className
       )}
     >

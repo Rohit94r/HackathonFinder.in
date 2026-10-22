@@ -1,12 +1,25 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
-import { CITIES, EVENT_TYPES, MODES, THEMES, cityName, eventTypeLabel, modeLabel, themeName } from '@hackathonfinder/shared';
+import { Globe2, MapPin, Search, SlidersHorizontal, X } from 'lucide-react';
+import {
+  CITIES,
+  EVENT_TYPES,
+  MODES,
+  THEMES,
+  cityName,
+  distanceFrom,
+  eligibilityLabel,
+  eventTypeLabel,
+  modeLabel,
+  themeName,
+} from '@hackathonfinder/shared';
 import type { HackathonView } from '@/lib/hackathons';
+import { useMyLocation } from '@/lib/useMyLocation';
 import {
   DEFAULT_FILTERS,
+  DISTANCE_OPTIONS,
   PRIZE_OPTIONS,
   SORT_OPTIONS,
   STATUS_OPTIONS,
@@ -17,12 +30,15 @@ import {
 } from '@/lib/filters';
 import { cn } from '@/lib/cn';
 import HackathonCard from './HackathonCard';
+import LocationChooser from './LocationChooser';
 
 interface ExplorerProps {
   items: HackathonView[];
   initial: Filters;
   /** Filters fixed by the page (e.g. a city page); they stay out of the URL. */
   base?: Filters;
+  /** Ask for the student's location on arrival if we don't have it yet. */
+  autoLocate?: boolean;
 }
 
 function toggle<T>(list: T[], value: T): T[] {
@@ -31,7 +47,7 @@ function toggle<T>(list: T[], value: T): T[] {
 
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <fieldset className="border-b border-ink/10 py-5 first:pt-0 last:border-0">
+    <fieldset className="min-w-0 border-b border-ink/10 py-5 first:pt-0 last:border-0">
       <legend className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink/60">{title}</legend>
       {children}
     </fieldset>
@@ -46,22 +62,57 @@ function Pill({ active, onClick, children }: { active: boolean; onClick: () => v
   );
 }
 
-export default function Explorer({ items, initial, base = DEFAULT_FILTERS }: ExplorerProps) {
+export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoLocate = false }: ExplorerProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [filters, setFilters] = useState<Filters>(initial);
   const [panelOpen, setPanelOpen] = useState(false);
+  const { location, ready, state: locateState, locate, pickCity, clear: clearLocation } = useMyLocation();
+  const asked = useRef(false);
 
   useEffect(() => {
     router.replace(`${pathname}${toQueryString(filters, base)}`, { scroll: false });
   }, [filters, base, pathname, router]);
 
-  const results = useMemo(() => applyFilters(items, filters), [items, filters]);
+  useEffect(() => {
+    if (!autoLocate || !ready || location || asked.current) return;
+    asked.current = true;
+    locate();
+  }, [autoLocate, ready, location, locate]);
+
+  const results = useMemo(() => applyFilters(items, filters, location), [items, filters, location]);
+  const distances = useMemo(
+    () => new Map<string, number | undefined>(location ? items.map((h) => [h.slug, distanceFrom(h, location)]) : []),
+    [items, location]
+  );
   const count = activeFilterCount(filters, base);
   const set = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
   const reset = () => setFilters({ ...base, q: '' });
+  // Sharing a location means "show me what's close", so sort by distance too.
+  const locateNearest = () => {
+    set({ sort: 'nearest' });
+    locate();
+  };
+  const pickCityNearest = (slug: string) => {
+    set({ sort: 'nearest' });
+    pickCity(slug);
+  };
+
+  const needsLocation = ready && !location && (filters.sort === 'nearest' || filters.km > 0);
+  const byDistance = Boolean(location) && filters.sort === 'nearest';
+  const inPerson = byDistance ? results.filter((h) => distances.get(h.slug) !== undefined) : results;
+  const online = byDistance ? results.filter((h) => distances.get(h.slug) === undefined) : [];
+
+  const grid = (list: HackathonView[]) => (
+    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+      {list.map((h) => (
+        <HackathonCard key={h.slug} h={h} distanceKm={distances.get(h.slug)} />
+      ))}
+    </div>
+  );
 
   const activeChips: { label: string; clear: () => void }[] = [
+    ...(filters.km !== base.km ? [{ label: `Within ${filters.km} km`, clear: () => set({ km: base.km }) }] : []),
     ...(filters.city !== base.city
       ? [{ label: filters.city === 'online' ? 'Online' : cityName(filters.city), clear: () => set({ city: base.city }) }]
       : []),
@@ -80,12 +131,42 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS }: Exp
       ? [{ label: PRIZE_OPTIONS.find((p) => p.value === filters.minPrize)?.label ?? '', clear: () => set({ minPrize: base.minPrize }) }]
       : []),
     ...(filters.eligibility !== base.eligibility
-      ? [{ label: filters.eligibility.replace('-', ' '), clear: () => set({ eligibility: base.eligibility }) }]
+      ? [
+          {
+            label: filters.eligibility ? eligibilityLabel(filters.eligibility) : 'Anyone',
+            clear: () => set({ eligibility: base.eligibility }),
+          },
+        ]
       : []),
   ];
 
   const panel = (
     <div>
+      <FilterGroup title="Near you">
+        {location ? (
+          <>
+            <div className="mb-3 flex items-center justify-between gap-2 rounded-xl bg-ink/5 px-3 py-2.5 text-sm">
+              <span className="flex min-w-0 items-center gap-1.5 font-semibold leading-snug text-ink">
+                <MapPin className="h-4 w-4 shrink-0" />
+                {location.label}
+              </span>
+              <button type="button" onClick={clearLocation} className="shrink-0 text-xs font-semibold text-ink/70 hover:underline">
+                Change
+              </button>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {DISTANCE_OPTIONS.map((o) => (
+                <Pill key={o.value} active={filters.km === o.value} onClick={() => set({ km: o.value })}>
+                  {o.value ? `Within ${o.label}` : o.label}
+                </Pill>
+              ))}
+            </div>
+          </>
+        ) : (
+          <LocationChooser state={locateState} onLocate={locateNearest} onPickCity={pickCityNearest} />
+        )}
+      </FilterGroup>
+
       <FilterGroup title="Status">
         <div className="flex flex-wrap gap-2">
           {STATUS_OPTIONS.map((o) => (
@@ -190,7 +271,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS }: Exp
             type="checkbox"
             checked={filters.beginner}
             onChange={(e) => set({ beginner: e.target.checked })}
-            className="h-4 w-4 accent-black"
+            className="h-4 w-4 accent-brand-600"
           />
         </label>
       </FilterGroup>
@@ -262,7 +343,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS }: Exp
               <SlidersHorizontal className="h-4 w-4" />
               Filters
               {count > 0 && (
-                <span className="rounded-full bg-ink px-1.5 text-xs font-bold text-white">{count}</span>
+                <span className="rounded-full bg-ink px-1.5 text-xs font-bold text-surface">{count}</span>
               )}
             </button>
             <label htmlFor="explore-sort" className="sr-only">
@@ -283,17 +364,35 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS }: Exp
           </div>
         </div>
 
+        {needsLocation && (
+          <div className="card mb-6 flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <h2 className="flex items-center gap-2 font-sans text-base font-bold text-ink">
+                <MapPin className="h-5 w-5" />
+                See the hackathons closest to you
+              </h2>
+              <p className="mt-1 text-sm text-ink/70">
+                Share your location or pick your city. It stays in this browser, rounded to about 1 km.
+              </p>
+            </div>
+            <LocationChooser row state={locateState} onLocate={locate} onPickCity={pickCity} className="shrink-0" />
+          </div>
+        )}
+
         {/* Result count + active chips */}
         <div className="mb-6 flex flex-wrap items-center gap-2">
           <p className="mr-2 text-sm text-ink/70" aria-live="polite">
             <strong className="text-ink">{results.length}</strong> {results.length === 1 ? 'event' : 'events'} found
+            {byDistance && location && (
+              <> · nearest to {location.via === 'gps' ? 'you' : location.label} first</>
+            )}
           </p>
           {activeChips.map((chip) => (
             <button
               key={chip.label}
               type="button"
               onClick={chip.clear}
-              className="inline-flex items-center gap-1 rounded-full bg-ink/5 px-2.5 py-1 text-xs font-semibold capitalize text-ink hover:bg-ink/10"
+              className="inline-flex items-center gap-1 rounded-full bg-ink/5 px-2.5 py-1 text-xs font-semibold text-ink hover:bg-ink/10"
             >
               {chip.label}
               <X className="h-3 w-3" />
@@ -303,11 +402,18 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS }: Exp
         </div>
 
         {results.length > 0 ? (
-          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-            {results.map((h) => (
-              <HackathonCard key={h.slug} h={h} />
-            ))}
-          </div>
+          <>
+            {inPerson.length > 0 && grid(inPerson)}
+            {online.length > 0 && (
+              <>
+                <h2 className={cn('mb-4 flex items-center gap-2 font-sans text-lg font-bold text-ink', inPerson.length > 0 && 'mt-10')}>
+                  <Globe2 className="h-5 w-5" />
+                  Online: join from anywhere
+                </h2>
+                {grid(online)}
+              </>
+            )}
+          </>
         ) : (
           <div className="card flex flex-col items-center px-6 py-16 text-center">
             <div className="mb-4 rounded-2xl bg-ink/5 p-4 text-ink">
@@ -339,7 +445,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS }: Exp
             onClick={() => setPanelOpen(false)}
             aria-label="Close filters"
           />
-          <div className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-white shadow-lift">
+          <div className="absolute inset-y-0 right-0 flex w-full max-w-sm flex-col bg-card shadow-lift">
             <div className="flex items-center justify-between border-b border-ink/10 px-5 py-4">
               <h2 className="font-sans text-base font-semibold">Filters</h2>
               <button type="button" onClick={() => setPanelOpen(false)} aria-label="Close filters" className="rounded-lg p-1.5 hover:bg-ink/5">
