@@ -1,9 +1,9 @@
 import { cityName, eventTypeLabel, themeName, type EventType, type Mode, type ThemeSlug } from '@hackathonfinder/shared';
-import { DEFAULT_FILTERS, type Filters } from './filters';
+import { DEFAULT_FILTERS, DISTANCE_OPTIONS, type Filters } from './filters';
 
 interface Rule {
   pattern: RegExp;
-  apply: (f: Filters) => void;
+  apply: (f: Filters, match: RegExpMatchArray) => void;
   label: (f: Filters) => string;
 }
 
@@ -38,6 +38,13 @@ const type = (value: EventType, words: string): Rule => ({
 
 // Order matters: longer phrases first so "smart city" wins over "city".
 const RULES: Rule[] = [
+  { pattern: /\b(near me|nearby|near by|around me|closest|nearest)\b/, apply: (f) => void (f.sort = 'nearest'), label: () => 'Nearest first' },
+  {
+    // "within 20 km" → the smallest distance option that covers it.
+    pattern: /\b(?:within |under )?(\d+) ?(?:km|kms|kilomet(?:er|re)s?)\b/,
+    apply: (f, m) => void (f.km = DISTANCE_OPTIONS.find((d) => d.value >= Number(m[1]))?.value ?? 0),
+    label: (f) => (f.km ? `Within ${f.km} km` : 'Any distance'),
+  },
   { pattern: /\b(closing soon|urgent|last chance)\b/, apply: (f) => void (f.status = 'closing-soon'), label: () => 'Closing soon' },
   { pattern: /\b(happening now|live now|ongoing)\b/, apply: (f) => void (f.status = 'in-progress'), label: () => 'Happening now' },
   { pattern: /\b(this week|next 7 days|7 days)\b/, apply: (f) => void (f.within = 'week'), label: () => 'Deadline this week' },
@@ -52,7 +59,15 @@ const RULES: Rule[] = [
   city('bengaluru', 'bengaluru|bangalore'),
   city('hyderabad', 'hyderabad'),
   city('delhi-ncr', 'delhi|ncr|noida|gurgaon|gurugram'),
-  city('chennai', 'chennai'),
+  city('chennai', 'chennai|madras'),
+  city('ahmedabad', 'ahmedabad|amdavad|gandhinagar'),
+  city('kolkata', 'kolkata|calcutta'),
+  city('jaipur', 'jaipur'),
+  city('chandigarh', 'chandigarh|mohali|panchkula|tricity'),
+  city('kochi', 'kochi|cochin|ernakulam'),
+  city('indore', 'indore'),
+  city('nagpur', 'nagpur'),
+  city('bhubaneswar', 'bhubaneswar'),
   theme('smart-cities', 'smart cit(?:y|ies)|civic'),
   theme('ai-ml', 'ai|ml|genai|machine learning|artificial intelligence|llm'),
   theme('web3', 'web3|blockchain|crypto'),
@@ -97,8 +112,9 @@ export function parseSmartQuery(input: string): SmartResult {
   let text = ` ${input.toLowerCase().replace(/[^\w₹\s-]/g, ' ')} `;
 
   for (const rule of RULES) {
-    if (rule.pattern.test(text)) {
-      rule.apply(filters);
+    const match = text.match(rule.pattern);
+    if (match) {
+      rule.apply(filters, match);
       const label = rule.label(filters);
       if (!understood.includes(label)) understood.push(label);
       text = text.replace(new RegExp(rule.pattern.source, 'g'), ' ');

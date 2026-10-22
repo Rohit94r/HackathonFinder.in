@@ -40,7 +40,7 @@ export default function FAQTabs({ students, organizers }: { students: FaqItem[];
                 }}
                 className={cn(
                   'flex items-center gap-3 rounded-[14px] border-2 px-5 py-4 text-left text-lg font-semibold uppercase transition',
-                  isActive ? 'border-ink bg-ink text-surface' : 'border-ink/15 bg-white text-ink hover:border-ink'
+                  isActive ? 'border-ink bg-ink text-surface' : 'border-ink/15 bg-card text-ink hover:border-ink'
                 )}
               >
                 <tab.icon className="h-6 w-6" />

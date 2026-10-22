@@ -20,25 +20,38 @@ interface ThemeStyle {
   icon: LucideIcon;
   /** Gradient classes for cover art. */
   gradient: string;
-  /** Soft tint for chips and tiles. */
+  /** Soft tint for chips and tiles, in both colour themes. */
   soft: string;
 }
 
-// Full class strings so Tailwind keeps them in the build.
+// Cover art and tints stay inside the landing palette: red, orange and charcoal, in a few mixes
+// so neighbouring cards still look different. Full class strings so Tailwind keeps them in the build.
+const ART = {
+  signature: 'from-[#ec3750] to-[#ff8c37]',
+  deepRed: 'from-[#9b1830] via-[#ec3750] to-[#ff6b81]',
+  sunset: 'from-[#ff8c37] via-[#f9663f] to-[#ec3750]',
+  nightRed: 'from-[#17171d] via-[#3d1d26] to-[#ec3750]',
+  nightOrange: 'from-[#17171d] via-[#a5481a] to-[#ff8c37]',
+};
+const TINT = {
+  red: 'bg-brand-50 text-brand-700 dark:bg-brand-400/15 dark:text-brand-200',
+  orange: 'bg-pop-soft text-[#a4460a] dark:bg-pop/15 dark:text-[#ffc59a]',
+};
+
 export const THEME_STYLES: Record<ThemeSlug, ThemeStyle> = {
-  'ai-ml': { icon: Brain, gradient: 'from-neutral-950 via-neutral-800 to-neutral-600', soft: 'bg-neutral-100 text-ink' },
-  'web-dev': { icon: Code2, gradient: 'from-neutral-900 via-neutral-700 to-neutral-500', soft: 'bg-neutral-100 text-ink' },
-  web3: { icon: Blocks, gradient: 'from-black via-neutral-900 to-neutral-700', soft: 'bg-neutral-100 text-ink' },
-  fintech: { icon: Banknote, gradient: 'from-neutral-800 via-neutral-700 to-neutral-500', soft: 'bg-neutral-100 text-ink' },
-  healthtech: { icon: HeartPulse, gradient: 'from-neutral-950 via-neutral-700 to-neutral-400', soft: 'bg-neutral-100 text-ink' },
-  edtech: { icon: GraduationCap, gradient: 'from-neutral-900 via-neutral-800 to-neutral-500', soft: 'bg-neutral-100 text-ink' },
-  climate: { icon: Leaf, gradient: 'from-neutral-950 via-neutral-800 to-neutral-600', soft: 'bg-neutral-100 text-ink' },
-  'social-impact': { icon: HandHeart, gradient: 'from-neutral-900 via-neutral-700 to-neutral-500', soft: 'bg-neutral-100 text-ink' },
-  iot: { icon: Cpu, gradient: 'from-black via-neutral-900 to-neutral-700', soft: 'bg-neutral-100 text-ink' },
-  'smart-cities': { icon: Building2, gradient: 'from-neutral-800 via-neutral-700 to-neutral-500', soft: 'bg-neutral-100 text-ink' },
-  cybersecurity: { icon: ShieldCheck, gradient: 'from-neutral-950 via-neutral-700 to-neutral-400', soft: 'bg-neutral-100 text-ink' },
-  gaming: { icon: Gamepad2, gradient: 'from-neutral-900 via-neutral-800 to-neutral-500', soft: 'bg-neutral-100 text-ink' },
-  'open-innovation': { icon: Lightbulb, gradient: 'from-neutral-950 via-neutral-800 to-neutral-600', soft: 'bg-neutral-100 text-ink' },
+  'ai-ml': { icon: Brain, gradient: ART.signature, soft: TINT.red },
+  'web-dev': { icon: Code2, gradient: ART.nightRed, soft: TINT.red },
+  web3: { icon: Blocks, gradient: ART.sunset, soft: TINT.orange },
+  fintech: { icon: Banknote, gradient: ART.nightOrange, soft: TINT.orange },
+  healthtech: { icon: HeartPulse, gradient: ART.deepRed, soft: TINT.red },
+  edtech: { icon: GraduationCap, gradient: ART.sunset, soft: TINT.orange },
+  climate: { icon: Leaf, gradient: ART.nightOrange, soft: TINT.orange },
+  'social-impact': { icon: HandHeart, gradient: ART.signature, soft: TINT.red },
+  iot: { icon: Cpu, gradient: ART.sunset, soft: TINT.orange },
+  'smart-cities': { icon: Building2, gradient: ART.nightRed, soft: TINT.red },
+  cybersecurity: { icon: ShieldCheck, gradient: ART.nightRed, soft: TINT.red },
+  gaming: { icon: Gamepad2, gradient: ART.deepRed, soft: TINT.red },
+  'open-innovation': { icon: Lightbulb, gradient: ART.signature, soft: TINT.orange },
 };
 
 export function themeStyle(slug: string): ThemeStyle {

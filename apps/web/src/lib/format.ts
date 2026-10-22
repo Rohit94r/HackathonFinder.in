@@ -80,6 +80,11 @@ export function formatTeamSize(min: number, max: number): string {
   return min === 1 ? `Solo or up to ${max}` : `${min}–${max} members`;
 }
 
+/** "12 km", rounded because stored locations are only accurate to about 1 km. */
+export function formatKm(km: number): string {
+  return km < 1 ? 'Under 1 km' : `${Math.round(km).toLocaleString('en-IN')} km`;
+}
+
 export function deadlineLabel(days: number): string {
   if (days < 0) return 'Registration closed';
   if (days === 0) return 'Closes today';

@@ -1,0 +1,222 @@
+/*
+ * Landing page styles, adapted from Hack Club's site (github.com/hackclub/site, GPL-3.0).
+ * Everything is scoped to .landing so none of it leaks into the rest of the app.
+ */
+.landing {
+  --background: #ffffff;
+  --foreground: #17171d;
+  --surface: #f9fafc;
+  --surface-hover: #f1f2f5;
+  --border: rgba(0, 0, 0, 0.08);
+  --muted: rgba(23, 23, 29, 0.7);
+  --shadow-dd: 0 8px 32px rgba(0, 0, 0, 0.13);
+  --nav-bg: rgba(255, 255, 255, 0.82);
+  --red: #ec3750;
+  /* Brand red fails 4.5:1 for small text on white. Use --red-text for text under 24px. */
+  --red-text: #be1e3a;
+  --orange: #ff8c37;
+  --ink: #17171d;
+  --paper: #ffffff;
+  --cream: #fff6eb;
+  --grid-line: rgba(255, 255, 255, 0.1);
+  --footer-bg: #000000;
+  /* Cards that float over art (search showcase, live stat badges). */
+  --elevated: #ffffff;
+  --hero-bg: linear-gradient(180deg, rgba(236, 55, 80, 0.04) 60%, rgba(236, 55, 80, 0.4) 100%);
+  --grad-deep: linear-gradient(90deg, #b3203d 0%, #d96b1d 100%);
+  --card-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+  --float-shadow: 0 24px 60px rgba(23, 23, 29, 0.25);
+  --feature-card-shadow: none;
+  --field-ring: none;
+  --example-bg: #17171d;
+  /* How it works illustration panels, and the mock listing card inside step 2. */
+  --panel-warm: linear-gradient(160deg, #fff6eb 0%, #ffe3e7 100%);
+  --panel-cool: linear-gradient(160deg, #e9f6ff 0%, #f3ecff 100%);
+  --panel-sun: linear-gradient(160deg, #fff8dc 0%, #ffe9d6 100%);
+  --mock-card: #ffffff;
+  --mock-card-shadow: 0 10px 30px rgba(23, 23, 29, 0.14);
+  --mock-label: rgba(23, 23, 29, 0.55);
+  --mock-rule: rgba(23, 23, 29, 0.08);
+  --tracker-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  --lp-sans: var(--landing-sans-src), system-ui, sans-serif;
+  --lp-serif: var(--landing-serif-src), Georgia, serif;
+
+  position: relative;
+  flex: 1;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--lp-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Decorations are sized against 100vw; clip the overflow without creating a scroll container. */
+  overflow-x: clip;
+}
+
+/*
+ * Dark theme (the site default). --ink, --paper, --cream, --grid-line and --footer-bg
+ * are fixed colours used by art and dark cards, so they stay as they are.
+ */
+[data-theme='dark'] .landing {
+  --background: #17171d;
+  --foreground: #ffffff;
+  --surface: #252429;
+  --surface-hover: #2f2e35;
+  --border: rgba(255, 255, 255, 0.1);
+  --muted: rgba(255, 255, 255, 0.7);
+  --shadow-dd: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 32px rgba(0, 0, 0, 0.5);
+  --nav-bg: rgba(23, 23, 29, 0.82);
+  --red-text: #ff6b81;
+  --elevated: #252429;
+  /*
+   * Same wine fade as light, plus an orange glow at the bottom so the hero stays warm.
+   * Starts almost untinted so it meets the mobile nav spacer without a seam.
+   */
+  --hero-bg: radial-gradient(90% 55% at 50% 100%, rgba(255, 140, 55, 0.14) 0%, transparent 70%),
+    linear-gradient(180deg, rgba(236, 55, 80, 0.02) 0%, rgba(236, 55, 80, 0.06) 55%, rgba(236, 55, 80, 0.38) 100%);
+  /* The light gradient is darkened for white; on dark it needs the bright end of the brand. */
+  --grad-deep: linear-gradient(90deg, #ff5a70 0%, #ff8c37 100%);
+  --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 6px 20px rgba(0, 0, 0, 0.45);
+  --float-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 60px rgba(0, 0, 0, 0.6);
+  --feature-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px rgba(0, 0, 0, 0.35);
+  --field-ring: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --example-bg: #121217;
+  --panel-warm: linear-gradient(160deg, #2e2320 0%, #3d1d26 100%);
+  --panel-cool: linear-gradient(160deg, #1b2837 0%, #2e1c3b 100%);
+  --panel-sun: linear-gradient(160deg, #312c1b 0%, #3c2a21 100%);
+  --mock-card: #2f2e35;
+  --mock-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 12px 32px rgba(0, 0, 0, 0.5);
+  --mock-label: rgba(255, 255, 255, 0.6);
+  --mock-rule: rgba(255, 255, 255, 0.1);
+  --tracker-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 18px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Mascot outlines are ink, which vanishes on a dark page; a cream die-cut edge keeps them readable. */
+[data-theme='dark'] .landing .lp-mascot {
+  filter: drop-shadow(1.5px 0 0 #fff6eb) drop-shadow(-1.5px 0 0 #fff6eb) drop-shadow(0 1.5px 0 #fff6eb) drop-shadow(0 -1.5px 0 #fff6eb);
+}
+
+/* The envelope's ink-tinted shadows disappear on dark; give it a real one. */
+[data-theme='dark'] .landing .submit-envelope .submit-envelope-body {
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.5),
+    0 3px 8px rgba(0, 0, 0, 0.35);
+}
+[data-theme='dark'] .landing .submit-envelope:hover .submit-envelope-body,
+[data-theme='dark'] .landing .submit-envelope:focus-visible .submit-envelope-body {
+  box-shadow:
+    0 22px 44px rgba(0, 0, 0, 0.6),
+    0 6px 14px rgba(0, 0, 0, 0.4);
+}
+
+/* The app's base styles make h1/h2 chunky and uppercase; the landing page has its own type. */
+.landing h1,
+.landing h2,
+.landing h3,
+.landing h4 {
+  font-family: var(--lp-serif);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: inherit;
+}
+
+.landing ::selection {
+  background: var(--red);
+  color: var(--paper);
+}
+
+.landing a:focus-visible,
+.landing button:focus-visible,
+.landing input:focus-visible {
+  outline: 3px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.landing img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ── Mobile section padding ──────────────────────────────────── */
+@media (max-width: 767px) {
+  .landing .section-padded {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  .landing .video-headline-break {
+    display: block;
+  }
+}
+
+/* ── Mobile wave fix ─────────────────────────────────────────── */
+/* Wave SVGs are drawn for a 1920px canvas; on mobile, widen the element so peaks stay wide. */
+@media (max-width: 767px) {
+  .landing .wave-container {
+    overflow: hidden !important;
+  }
+  .landing .wave-container svg {
+    width: 300% !important;
+    margin-left: -100% !important;
+  }
+}
+
+/* ── Pill buttons ─────────────────────────────────────────────── */
+.landing .dark-btn {
+  transition:
+    background 0.4s ease,
+    color 0.4s ease;
+}
+.landing .dark-btn:hover {
+  background: var(--red) !important;
+  color: var(--paper) !important;
+}
+
+.landing .cta-btn {
+  transition:
+    background 0.4s ease,
+    color 0.4s ease;
+}
+.landing .cta-btn:hover {
+  filter: brightness(1.15);
+}
+.landing .cta-btn .btn-arrow {
+  display: inline-block;
+  margin-left: 6px;
+  transition: transform 0.2s ease;
+}
+.landing .cta-btn:hover .btn-arrow {
+  transform: translateX(5px);
+}
+
+/* ── Utilities ────────────────────────────────────────────────── */
+.landing .no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.landing .no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.landing .lp-underline-link {
+  color: var(--red-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.landing .lp-underline-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+@keyframes lp-gradient-pan {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing .lp-rainbow {
+    animation: none !important;
+  }
+}

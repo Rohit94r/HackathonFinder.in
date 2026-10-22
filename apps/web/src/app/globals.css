@@ -3,23 +3,71 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * Theme colours as RGB channels, used by the ink, surface and card Tailwind colours.
+   * Same palette as the landing page (components/landing/landing.css): charcoal or white,
+   * with red and orange as the only brand colours.
+   */
+  :root {
+    --hf-ink: 23 23 29;
+    --hf-ink-800: 37 36 41;
+    --hf-ink-700: 47 46 53;
+    --hf-surface: 249 250 252;
+    --hf-card: 255 255 255;
+    color-scheme: light;
+  }
+  [data-theme='dark'] {
+    --hf-ink: 255 255 255;
+    --hf-ink-800: 228 228 232;
+    --hf-ink-700: 200 200 206;
+    --hf-surface: 23 23 29;
+    --hf-card: 37 36 41;
+    color-scheme: dark;
+  }
+  /*
+   * Dark panels (callouts, the footer, the sign-in art panel) use bg-ink with light text.
+   * On the dark theme they sit one step lighter than the page so they still stand out.
+   */
+  [data-theme='dark'] .on-dark {
+    --hf-ink: 37 36 41;
+    --hf-ink-800: 47 46 53;
+    --hf-ink-700: 58 57 65;
+    --hf-surface: 249 250 252;
+    --hf-card: 255 255 255;
+  }
   html {
     scroll-behavior: smooth;
   }
   body {
     @apply bg-surface font-sans text-ink antialiased;
   }
-  /* Big, chunky, uppercase headlines. */
+  /* Serif headlines in normal case, like the landing page. Young Serif has one weight, so never fake bold. */
   h1,
   h2 {
-    @apply font-display uppercase leading-[0.9] tracking-tight text-ink;
+    @apply font-display font-normal leading-[1.08] tracking-[-0.01em] text-ink;
+  }
+  h1,
+  h2,
+  .font-display {
+    font-synthesis: none;
+  }
+  /* Older markup asks for chunky, tight, uppercase display text; the serif needs normal case and spacing. */
+  .font-display.uppercase {
+    text-transform: none;
+    letter-spacing: -0.01em;
+  }
+  h1.tracking-tight,
+  h2.tracking-tight,
+  .font-display.tracking-tight,
+  .font-display.tracking-tighter {
+    letter-spacing: -0.01em;
   }
   h3,
   h4 {
     @apply font-sans font-semibold text-ink;
   }
   ::selection {
-    @apply bg-ink text-white;
+    @apply bg-accent text-white;
   }
 }
 
@@ -31,37 +79,54 @@
     @apply py-16 sm:py-24;
   }
   .eyebrow {
-    @apply inline-flex items-center gap-2 rounded-full bg-ink px-3 py-1 text-xs font-semibold uppercase tracking-wider text-white;
+    @apply inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-brand-700 dark:text-brand-300;
   }
+  .on-dark .eyebrow {
+    @apply text-brand-300;
+  }
+  /* Pill buttons, as on the landing page. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-[10px] border-[3px] border-transparent px-6 py-3 text-base font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-ink focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-transparent px-6 py-3 text-base font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-pop focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-60;
   }
   .btn-primary {
-    @apply btn border-ink bg-ink text-white hover:bg-ink-700;
+    @apply btn border-accent bg-accent text-white hover:border-[#f04a61] hover:bg-[#f04a61] hover:shadow-glow;
   }
   .btn-lime {
-    @apply btn border-white bg-white text-ink hover:bg-surface;
+    @apply btn border-pop bg-pop text-navy hover:border-[#ff9d52] hover:bg-[#ff9d52];
   }
   .btn-secondary {
-    @apply btn border-ink/80 bg-transparent text-ink hover:bg-ink hover:text-surface;
+    @apply btn border-ink/80 bg-transparent text-ink hover:border-ink hover:bg-ink hover:text-surface;
   }
   .btn-ghost-dark {
-    @apply btn border-surface/50 bg-transparent text-surface hover:border-surface hover:bg-surface hover:text-ink;
+    @apply btn border-surface/40 bg-transparent text-surface hover:border-accent hover:bg-accent hover:text-white;
   }
   .card {
-    @apply rounded-[20px] border border-ink/10 bg-white shadow-card;
+    @apply rounded-[20px] border border-ink/10 bg-card shadow-card dark:border-white/[0.08] dark:shadow-none;
   }
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border border-ink/20 bg-white px-3 py-1.5 text-sm font-medium text-ink transition hover:border-ink;
+    @apply inline-flex items-center gap-1.5 rounded-full border border-ink/15 bg-card px-3 py-1.5 text-sm font-medium text-ink transition hover:border-accent hover:text-brand-700 dark:hover:text-brand-300;
   }
   .chip-active {
-    @apply border-ink bg-ink text-surface hover:border-ink;
+    @apply border-accent bg-accent text-white hover:border-accent hover:text-white dark:hover:text-white;
   }
   .input {
-    @apply w-full rounded-[10px] border border-ink/20 bg-white px-4 py-3 text-sm text-ink placeholder:text-ink/40 focus:border-ink focus:outline-none focus:ring-2 focus:ring-ink/15;
+    @apply w-full rounded-xl border border-ink/15 bg-card px-4 py-3 text-sm text-ink placeholder:text-ink/40 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20;
   }
   .label {
     @apply mb-1.5 block text-sm font-medium text-ink/80;
+  }
+  /* Page header: white with a red fade (light) or charcoal with a warm glow (dark), like the landing hero. */
+  .hf-hero {
+    background:
+      radial-gradient(70% 60% at 50% 100%, rgba(255, 140, 55, 0.12) 0%, transparent 70%),
+      linear-gradient(180deg, rgba(236, 55, 80, 0.02) 0%, rgba(236, 55, 80, 0.05) 55%, rgba(236, 55, 80, 0.2) 100%),
+      #ffffff;
+  }
+  [data-theme='dark'] .hf-hero {
+    background:
+      radial-gradient(90% 55% at 50% 100%, rgba(255, 140, 55, 0.14) 0%, transparent 70%),
+      linear-gradient(180deg, rgba(236, 55, 80, 0.02) 0%, rgba(236, 55, 80, 0.06) 55%, rgba(236, 55, 80, 0.3) 100%),
+      #17171d;
   }
 }
 
@@ -92,36 +157,36 @@
   @apply font-semibold text-ink;
 }
 .prose-hf a {
-  @apply font-medium text-ink underline decoration-ink/30 underline-offset-4 hover:decoration-ink;
+  @apply font-medium text-brand-700 underline decoration-brand-300 underline-offset-4 hover:decoration-brand-600 dark:text-brand-300;
 }
 .prose-hf blockquote {
-  @apply my-6 rounded-r-xl border-l-4 border-ink bg-ink/5 px-5 py-4 italic text-ink/80;
+  @apply my-6 rounded-r-xl border-l-4 border-brand-500 bg-brand-50 px-5 py-4 italic text-ink/80 dark:bg-brand-500/10;
 }
 
-/* Inside black sections marked .on-dark, primary buttons and pills flip to white. */
-.on-dark .btn-primary {
-  border-color: #ffffff;
-  background-color: #ffffff;
-  color: #0a0a0a;
-}
-.on-dark .btn-primary:hover {
-  background-color: #f5f5f5;
-}
-.on-dark .eyebrow {
-  background-color: #ffffff;
-  color: #0a0a0a;
-}
-
-/* Outlined headline text for the second line of big headers. */
-.text-outline {
+/* Red-to-orange gradient text for the second line of big headers, on dark panels. */
+.text-neon {
+  background-image: linear-gradient(90deg, #ff5a70 0%, #ff8c37 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
   color: transparent;
-  -webkit-text-stroke: 2px #ffffff;
 }
-@media (max-width: 640px) {
-  .text-outline {
-    -webkit-text-stroke-width: 1.5px;
-  }
+/* Follows the theme: deeper on light backgrounds (same as the landing's --grad-deep). */
+.text-neon-dark {
+  background-image: linear-gradient(90deg, #b3203d 0%, #d96b1d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
+[data-theme='dark'] .text-neon-dark {
+  background-image: linear-gradient(90deg, #ff5a70 0%, #ff8c37 100%);
+}
+
+/* Flickering neon strips on buildings. */
+@keyframes hf-neon {
+  0%, 18%, 22%, 62%, 66%, 100% { opacity: 1; }
+  20%, 64% { opacity: 0.25; }
+}
+.hf-neon { animation: hf-neon 5s linear infinite; }
 
 /* ---------- Night-city scene animations ---------- */
 @keyframes hf-twinkle {
@@ -205,4 +270,163 @@
 /* Respect visitors who turn off motion. */
 @media (prefers-reduced-motion: reduce) {
   .hf-anim { animation: none !important; }
+}
+
+/* ---------- Noir extras for the night scene ---------- */
+@keyframes hf-cloud {
+  from { transform: translateX(-500px); }
+  to { transform: translateX(1800px); }
+}
+@keyframes hf-flash {
+  0%, 90% { opacity: 0; }
+  91% { opacity: 0.22; }
+  92% { opacity: 0; }
+  93.5% { opacity: 0.14; }
+  95%, 100% { opacity: 0; }
+}
+@keyframes hf-bolt {
+  0%, 90% { opacity: 0; }
+  91% { opacity: 0.95; }
+  92% { opacity: 0; }
+  93.5% { opacity: 0.7; }
+  95%, 100% { opacity: 0; }
+}
+@keyframes hf-sweep {
+  from { transform: rotate(-26deg); }
+  to { transform: rotate(22deg); }
+}
+@keyframes hf-fog {
+  from { transform: translateX(-140px); }
+  to { transform: translateX(140px); }
+}
+@keyframes hf-rain {
+  from { transform: translate(0, -120px); }
+  to { transform: translate(-32px, 0); }
+}
+@keyframes hf-flock {
+  0% { transform: translate(-300px, 0); }
+  50% { transform: translate(700px, -30px); }
+  100% { transform: translate(1700px, 10px); }
+}
+@keyframes hf-flap {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(-0.4); }
+}
+@keyframes hf-airship {
+  from { transform: translateX(600px); }
+  to { transform: translateX(-1400px); }
+}
+@keyframes hf-spin {
+  to { transform: rotate(360deg); }
+}
+
+.hf-cloud { animation: hf-cloud 120s linear infinite; }
+.hf-flash { opacity: 0; animation: hf-flash 16s linear 4s infinite; }
+.hf-bolt { opacity: 0; animation: hf-bolt 16s linear 4s infinite; }
+.hf-sweep { animation: hf-sweep 9s ease-in-out infinite alternate; }
+.hf-fog { animation: hf-fog 30s ease-in-out infinite alternate; }
+.hf-rain { animation: hf-rain 0.7s linear infinite; }
+.hf-flock { animation: hf-flock 48s linear -8s infinite; }
+.hf-flap {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: hf-flap 0.32s ease-in-out infinite alternate;
+}
+.hf-airship { animation: hf-airship 140s linear -50s infinite; }
+.hf-hand-minute { animation: hf-spin 60s linear infinite; }
+.hf-hand-hour { animation: hf-spin 720s linear infinite; }
+
+/* ---------- Scroll reveals ---------- */
+/* Hidden only once JS has marked the page (see the inline script in layout), so content never disappears without JS. */
+.reveal-ready [data-reveal],
+.reveal-ready [data-reveal-stagger] > * {
+  opacity: 0;
+  translate: 0 40px;
+  transition-property: opacity, translate, scale, transform, box-shadow, background-color, color, border-color;
+  transition-duration: 0.9s, 0.9s, 0.9s, 0.2s, 0.2s, 0.2s, 0.2s, 0.2s;
+  transition-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: var(--d, 0ms), var(--d, 0ms), var(--d, 0ms), 0s, 0s, 0s, 0s, 0s;
+}
+.reveal-ready [data-reveal='left'] { translate: -70px 0; }
+.reveal-ready [data-reveal='right'] { translate: 70px 0; }
+.reveal-ready [data-reveal='zoom'] { translate: 0 0; scale: 0.9; }
+.reveal-ready [data-reveal='fade'] { translate: 0 0; }
+.reveal-ready [data-reveal].is-visible,
+.reveal-ready [data-reveal-stagger].is-visible > * {
+  opacity: 1;
+  translate: 0 0;
+  scale: 1;
+}
+[data-reveal-stagger] > *:nth-child(2) { --d: 80ms; }
+[data-reveal-stagger] > *:nth-child(3) { --d: 160ms; }
+[data-reveal-stagger] > *:nth-child(4) { --d: 240ms; }
+[data-reveal-stagger] > *:nth-child(5) { --d: 320ms; }
+[data-reveal-stagger] > *:nth-child(6) { --d: 400ms; }
+[data-reveal-stagger] > *:nth-child(7) { --d: 460ms; }
+[data-reveal-stagger] > *:nth-child(8) { --d: 520ms; }
+[data-reveal-stagger] > *:nth-child(n + 9) { --d: 580ms; }
+
+/* Navbar menus drop in. Uses `translate` so it adds to any centring transform. */
+@keyframes hf-dd-in {
+  from { opacity: 0; translate: 0 -6px; }
+  to { opacity: 1; translate: 0 0; }
+}
+.hf-dd-in { animation: hf-dd-in 180ms cubic-bezier(0.23, 1, 0.32, 1); }
+@media (prefers-reduced-motion: reduce) {
+  .hf-dd-in { animation: none; }
+}
+
+/* Headline rise-in on page load. */
+@keyframes hf-rise {
+  from { opacity: 0; translate: 0 60px; }
+  to { opacity: 1; translate: 0 0; }
+}
+.hf-rise {
+  animation: hf-rise 1s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  animation-delay: var(--d, 0ms);
+}
+
+/* ---------- Noir film grain + vignette for dark sections ---------- */
+.noir {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden; /* the grain layer is oversized so it can jitter */
+}
+.noir::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 40%, transparent 55%, rgba(0, 0, 0, 0.6) 100%);
+}
+.noir::after {
+  content: '';
+  position: absolute;
+  inset: -50%;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.07;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  animation: hf-grain 1.2s steps(6) infinite;
+}
+@keyframes hf-grain {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-5%, 3%); }
+  40% { transform: translate(4%, -4%); }
+  60% { transform: translate(-3%, 5%); }
+  80% { transform: translate(5%, 2%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hf-rise,
+  .noir::after {
+    animation: none !important;
+  }
+  .reveal-ready [data-reveal],
+  .reveal-ready [data-reveal-stagger] > * {
+    opacity: 1 !important;
+    translate: none !important;
+    scale: none !important;
+  }
 }

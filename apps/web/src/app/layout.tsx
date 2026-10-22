@@ -1,12 +1,17 @@
 import type { Metadata } from 'next';
-import { Archivo_Black, Inter } from 'next/font/google';
+import { Figtree, Young_Serif } from 'next/font/google';
 import './globals.css';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
+import Providers from '@/components/Providers';
+import ScrollEffects from '@/components/motion/ScrollEffects';
 import { siteConfig } from '@/data/siteConfig';
+import { THEME_KEY } from '@/lib/theme';
 
-const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
-const display = Archivo_Black({ weight: '400', subsets: ['latin'], variable: '--font-display', display: 'swap' });
+// Same pair as the landing page: Figtree for text, Young Serif for headings.
+const sans = Figtree({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const display = Young_Serif({ weight: '400', subsets: ['latin'], variable: '--font-display', display: 'swap' });
+
+const THEME_SCRIPT = `document.documentElement.classList.add('reveal-ready');
+try { if (localStorage.getItem('${THEME_KEY}') === 'light') document.documentElement.dataset.theme = 'light'; } catch (e) {}`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -31,19 +36,21 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable}`}>
+    <html lang="en" data-theme="dark" className={`${sans.variable} ${display.variable}`} suppressHydrationWarning>
+      <head>
+        {/* Before first paint: turn on scroll reveals, and apply light mode only if the visitor chose it (dark is the default). */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+      </head>
       <body className="flex min-h-screen flex-col">
+        <ScrollEffects />
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:shadow-lift"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-card focus:px-4 focus:py-2 focus:shadow-lift"
         >
           Skip to content
         </a>
-        <Navbar />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <Footer />
+        {/* The landing page (app/page.tsx) brings its own navbar and footer; every other page uses app/(site)/layout.tsx. */}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

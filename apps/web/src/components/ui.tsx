@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowRight, Info } from 'lucide-react';
 import Sticker from '@/components/art/Sticker';
+import CursorSpotlight from '@/components/motion/CursorSpotlight';
 import { cn } from '@/lib/cn';
 
 export function SectionHeading({
@@ -20,6 +21,7 @@ export function SectionHeading({
 }) {
   return (
     <div
+      data-reveal="up"
       className={cn(
         'mb-10 flex flex-col gap-4',
         center ? 'items-center text-center' : 'sm:flex-row sm:items-end sm:justify-between'
@@ -38,8 +40,8 @@ export function SectionHeading({
         <Link
           href={action.href}
           className={cn(
-            'inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold uppercase tracking-wide',
-            dark ? 'text-white hover:text-surface' : 'text-ink hover:text-ink'
+            'inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold',
+            dark ? 'text-brand-300 hover:text-white' : 'text-brand-700 hover:text-ink dark:text-brand-300 dark:hover:text-white'
           )}
         >
           {action.label}
@@ -50,7 +52,10 @@ export function SectionHeading({
   );
 }
 
-/** Dark green page header: one cream line and one neon line, centered. */
+/**
+ * Page header in the landing page style: white with a red fade (light theme) or charcoal
+ * with a warm glow (dark), a serif title and a red-to-orange accent line, centered.
+ */
 export function PageHero({
   title,
   accent,
@@ -65,18 +70,36 @@ export function PageHero({
   stickers?: boolean;
 }) {
   return (
-    <section className="on-dark relative overflow-hidden bg-ink">
+    <section className="hf-hero relative overflow-hidden border-b border-ink/10">
+      <CursorSpotlight />
       {stickers && (
         <>
-          <Sticker text="Ship it" tone="yellow" className="left-[4%] top-10 hidden -rotate-12 md:inline-flex" />
-          <Sticker text="Team up" tone="turquoise" shape="circle" className="bottom-8 right-[5%] hidden rotate-12 md:inline-flex" />
+          <Sticker text="Ship it" tone="yellow" parallax={0.12} className="left-[4%] top-10 hidden -rotate-12 lg:inline-flex" />
+          <Sticker text="Team up" tone="turquoise" shape="circle" parallax={-0.1} className="bottom-8 right-[5%] hidden rotate-12 lg:inline-flex" />
         </>
       )}
-      <div className="container-page relative flex flex-col items-center py-20 text-center sm:py-24">
-        <h1 className="text-5xl text-surface sm:text-6xl lg:text-7xl">{title}</h1>
-        {accent && <p className="font-display text-5xl uppercase leading-[0.9] tracking-tight text-outline sm:text-6xl lg:text-7xl">{accent}</p>}
-        {description && <p className="mt-6 max-w-2xl text-lg leading-8 text-surface/80">{description}</p>}
-        {children && <div className="mt-8 w-full">{children}</div>}
+      <div className="container-page relative z-[3] flex flex-col items-center py-14 text-center sm:py-20">
+        <h1 className="hf-rise text-[2.5rem] sm:text-6xl lg:text-7xl">
+          {title}
+          {accent && (
+            <>
+              {' '}
+              <span className="hf-rise text-neon-dark block pb-1" style={{ ['--d' as string]: '120ms' }}>
+                {accent}
+              </span>
+            </>
+          )}
+        </h1>
+        {description && (
+          <p className="hf-rise mt-5 max-w-2xl text-base leading-7 text-ink/70 sm:text-lg sm:leading-8" style={{ ['--d' as string]: '240ms' }}>
+            {description}
+          </p>
+        )}
+        {children && (
+          <div className="hf-rise mt-8 w-full" style={{ ['--d' as string]: '360ms' }}>
+            {children}
+          </div>
+        )}
       </div>
     </section>
   );
@@ -86,7 +109,7 @@ export function SampleNotice({ children, className }: { children?: React.ReactNo
   return (
     <p
       className={cn(
-        'flex items-start gap-2 rounded-[14px] border border-ink/15 bg-lime-soft px-4 py-3 text-sm text-ink',
+        'flex items-start gap-2 rounded-[14px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-100',
         className
       )}
     >

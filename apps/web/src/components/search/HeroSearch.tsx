@@ -48,7 +48,7 @@ export default function HeroSearch() {
           e.preventDefault();
           go(value || EXAMPLES[exampleIndex]);
         }}
-        className="flex flex-col gap-2 rounded-2xl bg-white p-2 shadow-glow sm:flex-row sm:items-center"
+        className="flex flex-col gap-2 rounded-2xl border border-white/40 bg-white/70 p-2 shadow-glow backdrop-blur-md sm:flex-row sm:items-center"
         role="search"
       >
         <label htmlFor="hero-search" className="sr-only">
@@ -76,7 +76,7 @@ export default function HeroSearch() {
           <p className="flex flex-wrap items-center justify-center gap-1.5 text-sm text-surface/80">
             <span className="text-surface/60">We understood:</span>
             {parsed.understood.map((u) => (
-              <span key={u} className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-lime">
+              <span key={u} className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs font-medium text-accent">
                 {u}
               </span>
             ))}
@@ -93,7 +93,7 @@ export default function HeroSearch() {
                 key={q.label}
                 type="button"
                 onClick={() => go(q.query)}
-                className="rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-sm font-medium text-surface/90 transition hover:border-white hover:text-white"
+                className="rounded-full border border-white/20 bg-ink/70 px-3 py-1.5 text-sm font-medium text-surface/90 backdrop-blur-md transition hover:border-accent hover:text-accent"
               >
                 {q.label}
               </button>

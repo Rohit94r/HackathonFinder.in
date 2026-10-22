@@ -1,6 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import useSWR from 'swr';
+import { useSession } from 'next-auth/react';
+import { logActivity } from './activity';
+import { apiFetch } from './apiClient';
 
 export type TrackStatus = 'saved' | 'registered' | 'submitted' | 'done';
 
@@ -11,8 +15,10 @@ export const TRACK_LABELS: Record<TrackStatus, string> = {
   done: 'Done',
 };
 
+// Signed-out students keep their list in this browser; it moves to their account when they sign in.
 const KEY = 'hf_saved_v1';
 const EVENT = 'hf-saved-change';
+const API = '/api/me/saved';
 
 type SavedMap = Record<string, TrackStatus>;
 
@@ -34,15 +40,21 @@ function write(map: SavedMap) {
   window.dispatchEvent(new Event(EVENT));
 }
 
-/** "My hackathons" list, stored in this browser and shared across components. */
+type ServerList = { items: { slug: string; status: TrackStatus }[] };
+
+/** "My hackathons": the account's tracker when signed in, this browser's list otherwise. */
 export function useSaved() {
-  const [saved, setSaved] = useState<SavedMap>({});
-  const [ready, setReady] = useState(false);
+  const { status: sessionStatus } = useSession();
+  const signedIn = sessionStatus === 'authenticated';
+  const [local, setLocal] = useState<SavedMap>({});
+  const [localReady, setLocalReady] = useState(false);
+  const { data, mutate } = useSWR<ServerList>(signedIn ? API : null);
+  const imported = useRef(false);
 
   useEffect(() => {
-    const sync = () => setSaved(read());
+    const sync = () => setLocal(read());
     sync();
-    setReady(true);
+    setLocalReady(true);
     window.addEventListener(EVENT, sync);
     window.addEventListener('storage', sync);
     return () => {
@@ -51,22 +63,79 @@ export function useSaved() {
     };
   }, []);
 
-  const toggle = useCallback((slug: string) => {
-    const next = read();
-    if (next[slug]) delete next[slug];
-    else next[slug] = 'saved';
-    write(next);
-  }, []);
+  // After sign-in, move anything saved while signed out into the account.
+  useEffect(() => {
+    if (!signedIn || imported.current) return;
+    const pending = read();
+    if (!Object.keys(pending).length) return;
+    imported.current = true;
+    apiFetch(API, { body: { items: pending } })
+      .then(() => {
+        write({});
+        return mutate();
+      })
+      .catch(() => {
+        imported.current = false;
+      });
+  }, [signedIn, mutate]);
 
-  const setStatus = useCallback((slug: string, status: TrackStatus) => {
-    write({ ...read(), [slug]: status });
-  }, []);
+  const saved = useMemo<SavedMap>(
+    () => (signedIn ? Object.fromEntries((data?.items ?? []).map((i) => [i.slug, i.status])) : local),
+    [signedIn, data, local]
+  );
+  const ready = sessionStatus !== 'loading' && (signedIn ? data !== undefined : localReady);
 
-  const remove = useCallback((slug: string) => {
-    const next = read();
-    delete next[slug];
-    write(next);
-  }, []);
+  // Optimistic update, then the server; on failure, refetch the truth.
+  const change = useCallback(
+    async (slug: string, status: TrackStatus | null) => {
+      const next = (prev?: ServerList): ServerList => {
+        const items = (prev?.items ?? []).filter((i) => i.slug !== slug);
+        return { items: status ? [{ slug, status }, ...items] : items };
+      };
+      await mutate(next(data), { revalidate: false });
+      try {
+        if (status) await apiFetch(`${API}/${slug}`, { method: 'PUT', body: { status } });
+        else await apiFetch(`${API}/${slug}`, { method: 'DELETE' });
+      } finally {
+        await mutate();
+      }
+    },
+    [data, mutate]
+  );
 
-  return { saved, ready, count: Object.keys(saved).length, toggle, setStatus, remove };
+  /** `title` labels the entry in the student's activity log. */
+  const toggle = useCallback(
+    (slug: string, title = slug) => {
+      if (signedIn) return void change(slug, saved[slug] ? null : 'saved');
+      const next = read();
+      if (next[slug]) delete next[slug];
+      else {
+        next[slug] = 'saved';
+        logActivity({ type: 'saved', label: title, href: `/hackathons/${slug}` });
+      }
+      write(next);
+    },
+    [signedIn, change, saved]
+  );
+
+  const setStatus = useCallback(
+    (slug: string, status: TrackStatus, title = slug) => {
+      if (signedIn) return void change(slug, status);
+      write({ ...read(), [slug]: status });
+      logActivity({ type: status, label: title, href: `/hackathons/${slug}` });
+    },
+    [signedIn, change]
+  );
+
+  const remove = useCallback(
+    (slug: string) => {
+      if (signedIn) return void change(slug, null);
+      const next = read();
+      delete next[slug];
+      write(next);
+    },
+    [signedIn, change]
+  );
+
+  return { saved, ready, signedIn, count: Object.keys(saved).length, toggle, setStatus, remove };
 }

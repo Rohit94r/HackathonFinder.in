@@ -1,97 +1,140 @@
+// Team Finder shapes shared by the API (server/teams.ts) and the Team Finder UI.
+// Client-safe: no database imports here.
+
+export type TeamMode = 'in-person' | 'online' | 'either';
+export type TeamStatus = 'pending' | 'accepted' | 'declined' | 'withdrawn';
+
+export { SKILLS } from './skills';
+
+export const TEAM_MODES: { value: TeamMode; label: string }[] = [
+  { value: 'in-person', label: 'In person' },
+  { value: 'online', label: 'Online' },
+  { value: 'either', label: 'In person or online' },
+];
+
+export function teamModeLabel(mode: TeamMode): string {
+  return TEAM_MODES.find((m) => m.value === mode)?.label ?? mode;
+}
+
+/** A student as shown on team cards, requests and invites. */
+export interface TeamStudent {
+  id: string;
+  handle: string;
+  name: string;
+  image?: string;
+  about: string;
+  college: string;
+  city: string;
+  skills: string[];
+  isSample: boolean;
+}
+
 export interface TeamPost {
   id: string;
-  name: string;
-  /** e.g. "3rd year, Computer Engineering" */
-  about: string;
+  author: TeamStudent;
+  /** City slug from CITIES, or 'online' for teams with no home city. */
   city: string;
+  mode: TeamMode;
   hackathonSlug: string;
+  hackathonTitle: string;
+  /** ISO; empty when the listing is gone. */
+  hackathonDeadline: string;
+  /** Current team size, including the author. */
+  members: number;
+  teamMax: number;
   has: string[];
   needs: string[];
   idea: string;
-  postedDaysAgo: number;
+  /** False once the team is full or the author closed it. */
+  open: boolean;
+  createdAt: string;
+  updatedAt: string;
+  /** Km from the `near` point, for teams with a home city. */
+  km?: number;
 }
 
-export const SKILLS = [
-  'Frontend',
-  'Backend',
-  'Full stack',
-  'Mobile',
-  'ML / AI',
-  'Data',
-  'UI/UX design',
-  'Hardware / IoT',
-  'Blockchain',
-  'Pitching',
-  'Product',
-  'Game dev',
-];
+export interface TeamPostsPage {
+  items: TeamPost[];
+  total: number;
+  page: number;
+  pages: number;
+  /** Open team posts per city slug (and 'online'), with `counts=1`. */
+  counts?: Record<string, number>;
+}
 
-// Sample posts shown in the preview; real posts come from signed-in students.
-export const sampleTeamPosts: TeamPost[] = [
-  {
-    id: 's1',
-    name: 'Aarav',
-    about: '3rd year, Computer Engineering',
-    city: 'Pune',
-    hackathonSlug: 'codestorm-2026',
-    has: ['Backend', 'ML / AI'],
-    needs: ['Frontend', 'UI/UX design'],
-    idea: 'An AI study buddy that turns lecture notes into quizzes. I have the model working, need someone to make it look good.',
-    postedDaysAgo: 0,
-  },
-  {
-    id: 's2',
-    name: 'Sneha',
-    about: '2nd year, IT',
-    city: 'Pune',
-    hackathonSlug: 'hackher-pune',
-    has: ['UI/UX design', 'Pitching'],
-    needs: ['Full stack', 'Mobile'],
-    idea: 'A women’s safety app for late-night commutes with shared live routes. Looking for two builders.',
-    postedDaysAgo: 1,
-  },
-  {
-    id: 's3',
-    name: 'Rohan',
-    about: 'Final year, Electronics',
-    city: 'Pune',
-    hackathonSlug: 'smart-city-hack-pune',
-    has: ['Hardware / IoT'],
-    needs: ['Backend', 'Data', 'Pitching'],
-    idea: 'Smart water meters for housing societies that flag leaks early. Have the sensor prototype, need the dashboard and pitch.',
-    postedDaysAgo: 2,
-  },
-  {
-    id: 's4',
-    name: 'Priya',
-    about: '1st year, Computer Science',
-    city: 'Online',
-    hackathonSlug: 'buildfest-online',
-    has: ['Frontend'],
-    needs: ['Backend'],
-    idea: 'First hackathon! Want to build a simple expense splitter for hostel friends. Beginners welcome.',
-    postedDaysAgo: 2,
-  },
-  {
-    id: 's5',
-    name: 'Kabir',
-    about: 'Working, 1 year experience',
-    city: 'Bengaluru',
-    hackathonSlug: 'web3-builders-weekend',
-    has: ['Blockchain', 'Backend'],
-    needs: ['Frontend', 'Product'],
-    idea: 'Transparent donation tracking for small NGOs on-chain. Need a frontend dev and someone who can talk to users.',
-    postedDaysAgo: 3,
-  },
-  {
-    id: 's6',
-    name: 'Ishita',
-    about: '3rd year, AI & Data Science',
-    city: 'Online',
-    hackathonSlug: 'greencode-climate-hack',
-    has: ['ML / AI', 'Data'],
-    needs: ['Full stack', 'UI/UX design'],
-    idea: 'Predict heat-wave hotspots in Indian cities from open satellite data, and show them on a simple map.',
-    postedDaysAgo: 4,
-  },
-];
+export interface ResultCounts {
+  hackathons: number;
+  wins: number;
+  podiums: number;
+  finals: number;
+}
+
+/** A student looking for a team (GET /api/people). */
+export interface Student extends TeamStudent {
+  bio: string;
+  github: string;
+  linkedin: string;
+  lookingForTeam: boolean;
+  joinedAt: string;
+  results: ResultCounts;
+  km?: number;
+}
+
+export interface PeoplePage {
+  items: Student[];
+  total: number;
+  page: number;
+  pages: number;
+}
+
+/** The team post a request or invite is about. */
+export interface PostSummary {
+  id: string;
+  hackathonSlug: string;
+  hackathonTitle: string;
+  city: string;
+  members: number;
+  teamMax: number;
+  open: boolean;
+  /** The author removed the post. */
+  removed: boolean;
+}
+
+/** A student asking to join a team post. */
+export interface JoinRequest {
+  id: string;
+  status: TeamStatus;
+  message: string;
+  createdAt: string;
+  updatedAt: string;
+  post: PostSummary | null;
+  from: TeamStudent;
+  /** The post's author. */
+  to: TeamStudent;
+}
+
+/** A student inviting another student, optionally to one of their team posts. */
+export interface TeamInvite {
+  id: string;
+  status: TeamStatus;
+  message: string;
+  createdAt: string;
+  updatedAt: string;
+  post: PostSummary | null;
+  from: TeamStudent;
+  to: TeamStudent;
+}
+
+export interface Inbox<T> {
+  sent: T[];
+  received: T[];
+}
+
+/** Students and open teams in one city, for the city page. */
+export interface CitySnapshot {
+  /** A few students from the city, those looking for a team first. */
+  students: { handle: string; name: string }[];
+  studentTotal: number;
+  lookingTotal: number;
+  teamTotal: number;
+}

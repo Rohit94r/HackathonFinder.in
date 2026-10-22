@@ -4,10 +4,12 @@ import {
   MODES,
   THEMES,
   cityName,
+  distanceFrom,
   eventTypeLabel,
   prizeInInr,
   themeName,
   type EventType,
+  type LatLng,
   type Mode,
   type ThemeSlug,
 } from '@hackathonfinder/shared';
@@ -18,7 +20,7 @@ export type FeeFilter = 'any' | 'free' | 'paid';
 export type TeamFilter = 'any' | 'solo' | 'team';
 export type EligibilityFilter = '' | 'students' | 'professionals' | 'women-only';
 export type WithinFilter = '' | 'week' | 'month';
-export type SortKey = 'deadline' | 'newest' | 'prize' | 'start';
+export type SortKey = 'deadline' | 'nearest' | 'newest' | 'prize' | 'start';
 
 export interface Filters {
   q: string;
@@ -34,6 +36,8 @@ export interface Filters {
   beginner: boolean;
   minPrize: number;
   within: WithinFilter;
+  /** In-person events within this many km of the student; 0 means any distance. */
+  km: number;
   sort: SortKey;
 }
 
@@ -50,8 +54,12 @@ export const DEFAULT_FILTERS: Filters = {
   beginner: false,
   minPrize: 0,
   within: '',
+  km: 0,
   sort: 'deadline',
 };
+
+/** The "near me" page: nearest in-person events first. */
+export const NEAR_ME_FILTERS: Filters = { ...DEFAULT_FILTERS, sort: 'nearest' };
 
 export const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'open', label: 'Open for registration' },
@@ -62,6 +70,7 @@ export const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
 
 export const SORT_OPTIONS: { value: SortKey; label: string }[] = [
   { value: 'deadline', label: 'Deadline (soonest)' },
+  { value: 'nearest', label: 'Nearest first' },
   { value: 'newest', label: 'Newly added' },
   { value: 'prize', label: 'Prize (highest)' },
   { value: 'start', label: 'Start date' },
@@ -72,6 +81,14 @@ export const PRIZE_OPTIONS = [
   { value: 50000, label: '₹50K+' },
   { value: 100000, label: '₹1L+' },
   { value: 200000, label: '₹2L+' },
+];
+
+export const DISTANCE_OPTIONS = [
+  { value: 0, label: 'Any distance' },
+  { value: 10, label: '10 km' },
+  { value: 25, label: '25 km' },
+  { value: 50, label: '50 km' },
+  { value: 150, label: '150 km' },
 ];
 
 type Params = Record<string, string | string[] | undefined>;
@@ -98,6 +115,7 @@ export function parseFilters(params: Params, preset: Partial<Filters> = {}): Fil
   const base = { ...DEFAULT_FILTERS, ...preset };
   const city = one(params, 'city');
   const prize = Number(one(params, 'prize'));
+  const km = Number(one(params, 'km'));
   return {
     q: one(params, 'q').slice(0, 120),
     city: CITY_VALUES.includes(city) ? city : base.city,
@@ -117,7 +135,8 @@ export function parseFilters(params: Params, preset: Partial<Filters> = {}): Fil
     beginner: one(params, 'beginner') === '1' || base.beginner,
     minPrize: PRIZE_OPTIONS.some((p) => p.value === prize) ? prize : base.minPrize,
     within: pick(one(params, 'within'), ['', 'week', 'month'] as const, base.within),
-    sort: pick(one(params, 'sort'), ['deadline', 'newest', 'prize', 'start'] as const, base.sort),
+    km: DISTANCE_OPTIONS.some((d) => d.value === km) ? km : base.km,
+    sort: pick(one(params, 'sort'), ['deadline', 'nearest', 'newest', 'prize', 'start'] as const, base.sort),
   };
 }
 
@@ -136,6 +155,7 @@ export function toQueryString(f: Filters, base: Filters = DEFAULT_FILTERS): stri
   if (f.beginner !== base.beginner) p.set('beginner', f.beginner ? '1' : '0');
   if (f.minPrize !== base.minPrize) p.set('prize', String(f.minPrize));
   if (f.within !== base.within) p.set('within', f.within);
+  if (f.km !== base.km) p.set('km', String(f.km));
   if (f.sort !== base.sort) p.set('sort', f.sort);
   const qs = p.toString();
   return qs ? `?${qs}` : '';
@@ -174,7 +194,12 @@ function matchesEligibility(h: HackathonView, e: EligibilityFilter): boolean {
   return h.eligibility.some((x) => x === 'professionals' || x === 'open-to-all');
 }
 
-export function applyFilters(items: HackathonView[], f: Filters): HackathonView[] {
+/**
+ * Filters and sorts listings. Distance filtering and "nearest" sorting need the
+ * student's `origin`; without it they are skipped and results sort by deadline.
+ */
+export function applyFilters(items: HackathonView[], f: Filters, origin?: LatLng | null): HackathonView[] {
+  const km = new Map<string, number | undefined>(origin ? items.map((h) => [h.slug, distanceFrom(h, origin)]) : []);
   const result = items.filter(
     (h) =>
       matchesText(h, f.q) &&
@@ -188,11 +213,15 @@ export function applyFilters(items: HackathonView[], f: Filters): HackathonView[
       matchesEligibility(h, f.eligibility) &&
       (!f.beginner || h.beginnerFriendly) &&
       prizeInInr(h.prizePool, h.prizeCurrency) >= f.minPrize &&
-      (!f.within || (h.daysToDeadline >= 0 && h.daysToDeadline <= (f.within === 'week' ? 7 : 31)))
+      (!f.within || (h.daysToDeadline >= 0 && h.daysToDeadline <= (f.within === 'week' ? 7 : 31))) &&
+      (!f.km || !origin || (km.get(h.slug) ?? Infinity) <= f.km)
   );
 
+  const byDeadline = (a: HackathonView, b: HackathonView) => Date.parse(a.registrationDeadline) - Date.parse(b.registrationDeadline);
   const sorters: Record<SortKey, (a: HackathonView, b: HackathonView) => number> = {
-    deadline: (a, b) => Date.parse(a.registrationDeadline) - Date.parse(b.registrationDeadline),
+    deadline: byDeadline,
+    // Online events have no distance, so they come after every in-person one.
+    nearest: (a, b) => (km.get(a.slug) ?? Infinity) - (km.get(b.slug) ?? Infinity) || byDeadline(a, b),
     newest: (a, b) => Date.parse(b.addedAt) - Date.parse(a.addedAt),
     prize: (a, b) => prizeInInr(b.prizePool, b.prizeCurrency) - prizeInInr(a.prizePool, a.prizeCurrency),
     start: (a, b) => Date.parse(a.startDate) - Date.parse(b.startDate),
@@ -212,6 +241,7 @@ export function activeFilterCount(f: Filters, base: Filters = DEFAULT_FILTERS): 
     (f.eligibility !== base.eligibility ? 1 : 0) +
     (f.beginner !== base.beginner ? 1 : 0) +
     (f.minPrize !== base.minPrize ? 1 : 0) +
-    (f.within !== base.within ? 1 : 0)
+    (f.within !== base.within ? 1 : 0) +
+    (f.km !== base.km ? 1 : 0)
   );
 }
