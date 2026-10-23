@@ -4,6 +4,10 @@ import { isAiEnabled } from '@hackathonfinder/ai';
 import { enabledProviders } from '@/server/auth';
 import { storageMode } from '@/server/storage';
 
+// Always run live: the build machine has no database, so a prerendered copy would
+// freeze whatever the build saw (usually "db: error") into every response.
+export const dynamic = 'force-dynamic';
+
 /** What's connected: database, AI, email, image storage and sign-in providers. No secrets. */
 export async function GET() {
   let db: 'connected' | 'not-configured' | 'error' = 'not-configured';

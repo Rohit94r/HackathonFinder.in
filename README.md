@@ -70,7 +70,9 @@ One `.env` at the repo root serves the website, the agents and the scripts. Ever
   deadline reminders daily and the weekly digest on Mondays (`/api/cron/reminders`, `/api/cron/digest`,
   authorised with `CRON_SECRET`).
 - **Database:** MongoDB Atlas. Indexes are created by `pnpm db:seed` (it skips the sample content if any is
-  already there) or on first use.
+  already there) or on first use. Atlas → **Network Access** must allow your host: Vercel functions use
+  dynamic egress IPs, so add `0.0.0.0/0` (or Vercel Secure Compute if you have it). Without this every page
+  fails with `MongooseServerSelectionError` / `tlsv1 alert internal error`.
 - **Agents:** a small always-on worker (Railway, Render, a VM, …) running `pnpm agents:schedule` with the
   same `.env`.
 
