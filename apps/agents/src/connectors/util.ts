@@ -1,6 +1,6 @@
 import { htmlToText } from '@hackathonfinder/ai';
 import type { Eligibility } from '@hackathonfinder/shared';
-import { absoluteUrl, cleanLine } from '../text';
+import { absoluteUrl, cleanLine, isPlaceholderImage } from '../text';
 
 // Small readers for platform JSON. Sources change shape without notice, so every
 // field is checked for its type and capped in length before it goes any further.
@@ -70,11 +70,13 @@ export function moneyLine(amount: number, currency: 'INR' | 'USD'): string {
   return currency === 'USD' ? `$${amount.toLocaleString('en-US')}` : `₹${amount.toLocaleString('en-IN')}`;
 }
 
-/** First usable image URL from a list of candidates (skips SVG icons and tracking pixels). */
+export { isPlaceholderImage };
+
+/** First usable image URL from a list of candidates (skips SVG icons, placeholders and tracking pixels). */
 export function firstImage(...candidates: unknown[]): string | undefined {
   for (const c of candidates) {
     const u = url(c);
-    if (u && !/\.svg(\?|$)/i.test(u) && !/(pixel|spacer|blank)\.(gif|png)/i.test(u)) return u;
+    if (u && !/\.svg(\?|$)/i.test(u) && !isPlaceholderImage(u)) return u;
   }
   return undefined;
 }

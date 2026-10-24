@@ -22,14 +22,20 @@ describe('one scrape at a time', () => {
     expect(new Set(results.map((r) => r.runId)).size).toBe(1);
   });
 
-  it('takes a run stuck for over 45 minutes as dead', async () => {
-    const old = await AgentRun.create({ agent: 'scrape', status: 'running', trigger: 'schedule', startedAt: new Date(Date.now() - STALE_RUN_MS - 60_000) });
+  it('takes a run with no heartbeat for 30 minutes as dead, and keeps a long one that still reports', async () => {
+    const long = new Date(Date.now() - 2 * STALE_RUN_MS);
+    const old = await AgentRun.create({ agent: 'scrape', status: 'running', trigger: 'schedule', startedAt: long });
     const next = await acquireRun({ trigger: 'manual' });
     expect(next.kind).toBe('started');
     const dead = await AgentRun.findById(old._id).lean();
     expect(dead?.status).toBe('failed');
-    expect(dead?.errorLog.join(' ')).toMatch(/45 minutes/);
+    expect(dead?.errorLog.join(' ')).toMatch(/No progress for 30 minutes/);
+    // Started an hour ago but its heartbeat is fresh: still running, still blocking a second run.
+    await AgentRun.updateOne({ _id: next.runId }, { $set: { startedAt: long, heartbeatAt: new Date() } });
     expect(await failStaleRuns()).toBe(0);
+    expect((await acquireRun({ trigger: 'manual' })).kind).toBe('already-running');
+    await AgentRun.updateOne({ _id: next.runId }, { $set: { heartbeatAt: long } });
+    expect(await failStaleRuns()).toBe(1);
   });
 
   it('runs each scheduled slot once', async () => {

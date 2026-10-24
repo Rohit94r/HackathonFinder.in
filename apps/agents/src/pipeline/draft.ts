@@ -15,6 +15,11 @@ export interface Draft {
   /** State (or region abroad). */
   region?: string;
   venue?: string;
+  /** See CandidateData.remoteOk. */
+  remoteOk?: boolean;
+  /** For a hybrid event abroad listed online: where its venue is, for the summary. */
+  basedIn?: string;
+  hybridOnline?: boolean;
   country: string;
   /** Venue point; `exact` false when it is only the city centre. */
   point?: { lat: number; lng: number; exact: boolean };
@@ -23,6 +28,8 @@ export interface Draft {
   registrationDeadline?: Date;
   teamMin: number;
   teamMax: number;
+  /** False when nothing stated a team size (teamMin/teamMax are then the 1–4 default). */
+  teamSizeKnown: boolean;
   eligibility: Eligibility[];
   fee: number;
   prizePool: number;

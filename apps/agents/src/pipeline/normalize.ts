@@ -5,16 +5,16 @@ import {
   inferEligibility,
   inferEventType,
   inferMode,
-  inferThemes,
+  matchThemes,
   parseMoney,
   parseTeamSize,
   prizeFromText,
 } from '@hackathonfinder/ai';
 import { slugify } from '@hackathonfinder/db';
-import { CITIES, type Mode, type OrganizerType } from '@hackathonfinder/shared';
+import { CITIES, type Mode, type OrganizerType, type ThemeSlug } from '@hackathonfinder/shared';
 import { parseDate } from '../dates';
 import { countryName } from '../html';
-import { absoluteUrl, cleanLine } from '../text';
+import { absoluteUrl, cleanLine, isPlaceholderImage } from '../text';
 import type { CandidateData, Connector, RawCandidate } from '../types';
 import type { Draft } from './draft';
 
@@ -79,6 +79,28 @@ export function guessOrganizerType(organizer: string, title = ''): OrganizerType
 
 const validInt = (n: unknown, min: number, max: number): n is number => typeof n === 'number' && Number.isInteger(n) && n >= min && n <= max;
 
+/** The part of a description that lists tracks or themes ("Themes: AI, FinTech, …"), if it has one. */
+export function trackList(text: string): string | undefined {
+  const m = text.match(/\b(?:hackathon )?(?:themes?|tracks?|domains?|problem statements?|focus areas?|categories)\b\s*[:\-–—]\s*([\s\S]{10,600})/i);
+  return m?.[1];
+}
+
+/**
+ * Themes only from strong signals: the source's own tags and the title, else an explicit
+ * track list in the description. A word somewhere in a long description doesn't count.
+ * Empty when nothing says (the summary then makes no claim about themes).
+ */
+export function strongThemes(title: string, tags: string[], text: string): ThemeSlug[] {
+  const head = matchThemes([title, ...tags].join(' \n '));
+  if (head.length) return head;
+  const tracks = trackList(text.slice(0, 30_000));
+  if (tracks) {
+    const t = matchThemes(tracks);
+    if (t.length) return t;
+  }
+  return /\b(open innovation|open theme|any theme|no fixed theme|open[- ]ended|build anything)\b/i.test(text.slice(0, 30_000)) ? ['open-innovation'] : [];
+}
+
 /**
  * Turns what a connector read into a draft listing: dates in IST, our city slug and
  * point, mode, team size, money, fee, eligibility, themes and type. Records every
@@ -140,13 +162,18 @@ export function normalize(c: RawCandidate, connector: Pick<Connector, 'slug' | '
 
   let teamMin = 1;
   let teamMax = 4;
+  let teamSizeKnown = true;
   if (validInt(d.teamMax, 1, 50)) {
     teamMax = d.teamMax;
     teamMin = validInt(d.teamMin, 1, teamMax) ? d.teamMin : 1;
   } else {
     const team = parseTeamSize(d.teamSizeText ?? text.slice(0, 20_000));
     if (team && team.max <= 50) [teamMin, teamMax] = [team.min, team.max];
-    else notes.push('team size not stated; using 1–4');
+    else {
+      // The 1–4 default is only so the record is complete; teamSizeKnown keeps it off the page.
+      teamSizeKnown = false;
+      notes.push('team size not stated');
+    }
   }
 
   let fee = typeof d.fee === 'number' && d.fee >= 0 ? Math.round(d.fee) : d.isPaid === false ? 0 : feeFromText(text);
@@ -170,8 +197,7 @@ export function normalize(c: RawCandidate, connector: Pick<Connector, 'slug' | '
     }
   }
 
-  let themes = inferThemes(head);
-  if (themes.length === 1 && themes[0] === 'open-innovation' && text) themes = inferThemes(`${title}\n${text.slice(0, 6000)}`);
+  const themes = strongThemes(title, tags, text);
 
   for (const flag of d.flags ?? []) {
     const line = cleanLine(flag, 200);
@@ -197,6 +223,8 @@ export function normalize(c: RawCandidate, connector: Pick<Connector, 'slug' | '
     registrationDeadline,
     teamMin,
     teamMax,
+    teamSizeKnown,
+    remoteOk: d.remoteOk,
     eligibility: d.eligibility?.length ? d.eligibility : inferEligibility(`${title}\n${text.slice(0, 8000)}`),
     fee,
     prizePool,
@@ -208,8 +236,9 @@ export function normalize(c: RawCandidate, connector: Pick<Connector, 'slug' | '
     registrationUrl: absoluteUrl(d.registrationUrl) ?? absoluteUrl(c.url),
     registrationVia: d.registrationVia === 'qr' ? 'qr' : 'link',
     summary: '',
-    imageUrl: absoluteUrl(d.imageUrl),
-    logoUrl: absoluteUrl(d.logoUrl),
+    // A site's default picture is no banner at all.
+    imageUrl: isPlaceholderImage(d.imageUrl) ? undefined : absoluteUrl(d.imageUrl),
+    logoUrl: isPlaceholderImage(d.logoUrl) ? undefined : absoluteUrl(d.logoUrl),
     listingSource: d.listingSource ?? opts.listingSource ?? connector.slug,
     confidence: Math.max(0, Math.min(1, confidence)),
     flags,

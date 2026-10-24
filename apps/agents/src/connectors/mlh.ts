@@ -33,7 +33,8 @@ export function mlhCandidate(e: Obj): RawCandidate | null {
   const slug = str(e.slug, 100);
   const title = cleanLine(str(e.name), 140);
   if (!slug || !title) return null;
-  const mode = FORMATS[String(e.formatType ?? '').toLowerCase()] ?? 'offline';
+  const format = String(e.formatType ?? '').toLowerCase();
+  const mode = FORMATS[format] ?? 'offline';
   const venue = isObj(e.venueAddress) ? e.venueAddress : {};
   const site = url(e.websiteUrl);
   const page = `https://www.mlh.com/events/${encodeURIComponent(slug)}`;
@@ -51,6 +52,9 @@ export function mlhCandidate(e: Obj): RawCandidate | null {
     // MLH lists no deadline; register before it starts.
     registrationDeadline: str(e.startsAt, 40),
     deadlineAssumed: true,
+    // "hybrid_physical" is an in-person event with some online parts (rejected abroad);
+    // "hybrid_digital" is online first, so it can be listed online when the venue is abroad.
+    remoteOk: format === 'hybrid_digital' || undefined,
     tags: focus,
     eligibility: ['students'],
     imageUrl: firstImage(e.backgroundUrl),

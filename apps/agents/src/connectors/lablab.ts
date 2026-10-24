@@ -31,7 +31,10 @@ export function lablabEventUrls(html: string): string[] {
   return urls;
 }
 
-/** The page's Event as a candidate. "Mixed" attendance with no Indian venue is listed as online. */
+/**
+ * The page's Event as a candidate. lablab hackathons are built online; "Mixed" attendance
+ * adds an optional on-site day (abroad, venue not given), so those are remote-first hybrids.
+ */
 export function lablabCandidate(pageUrl: string, events: Record<string, unknown>[]): RawCandidate | null {
   const ev = events[0];
   if (!ev) return null;
@@ -39,7 +42,9 @@ export function lablabCandidate(pageUrl: string, events: Record<string, unknown>
   if (!c) return null;
   const inIndia = Boolean(cityFromText(`${c.data.city ?? ''} ${c.data.address ?? ''} ${c.data.venue ?? ''}`)) || /india/i.test(c.data.country ?? '');
   if (c.data.mode !== 'online' && !inIndia) {
-    c.data = { ...c.data, mode: 'online', city: undefined, venue: undefined, address: undefined, lat: undefined, lng: undefined };
+    const hasVenue = Boolean(c.data.city || c.data.venue || c.data.address);
+    // A stated venue abroad with in-person attendance only stays in-person (and is rejected).
+    if (c.data.mode === 'hybrid' || !hasVenue) c.data = { ...c.data, mode: 'hybrid', remoteOk: true, country: c.data.country ?? 'Outside India' };
   }
   c.data = { ...c.data, country: c.data.mode === 'online' ? 'Global' : c.data.country, tags: ['AI'] };
   return { ...c, externalId: pageUrl.replace(/\/$/, '').split('/').pop(), url: pageUrl };

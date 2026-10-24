@@ -40,6 +40,8 @@ export interface IHackathon {
   registrationDeadline: Date;
   teamMin: number;
   teamMax: number;
+  /** False when the source states no team size (teamMin/teamMax are then only a default). */
+  teamSizeKnown: boolean;
   eligibility: Eligibility[];
   /** Entry fee in INR; 0 means free. */
   fee: number;
@@ -126,6 +128,7 @@ const hackathonSchema = new Schema<IHackathon>(
     registrationDeadline: { type: Date, required: true },
     teamMin: { type: Number, min: 1, default: 1 },
     teamMax: { type: Number, min: 1, default: 4 },
+    teamSizeKnown: { type: Boolean, default: true },
     eligibility: { type: [String], default: ['students'] },
     fee: { type: Number, min: 0, default: 0 },
     prizePool: { type: Number, min: 0, default: 0 },

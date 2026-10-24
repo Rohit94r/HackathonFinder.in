@@ -23,6 +23,7 @@ import { parseSmartQuery } from '@/lib/smartSearch';
 // Statuses depend on today, so render per request.
 export const dynamic = 'force-dynamic';
 
+const CAROUSEL_SIZE = 20;
 const SMART_EXAMPLE = 'Free online AI hackathon for students, deadline this month';
 
 function sourceNames(h: HackathonView): string[] {
@@ -59,6 +60,8 @@ export default async function HomePage() {
   const { items } = await getHackathons();
   const open = openOnly(items);
   const newestFirst = [...open].sort((a, b) => Date.parse(b.addedAt) - Date.parse(a.addedAt));
+  // The carousel shows a sample of what's open, events with their own banner first, so the page stays light.
+  const carousel = [...newestFirst.filter((h) => h.imageUrl), ...newestFirst.filter((h) => !h.imageUrl)].slice(0, CAROUSEL_SIZE);
   // Featured events lead the search showcase's posters, the rest follow newest first.
   const posters = [...newestFirst.filter((h) => h.featured), ...newestFirst.filter((h) => !h.featured), ...items.filter((h) => !open.includes(h))].map(toPoster);
 
@@ -97,7 +100,7 @@ export default async function HomePage() {
       <main id="main" tabIndex={-1} style={{ outline: 'none' }}>
         <HeroSection sourceCount={SOURCES.length} />
         {/* Sections built from listings only show once there are real ones to show. */}
-        {newestFirst.length > 0 && <ListingsSection items={newestFirst} total={open.length} />}
+        {carousel.length > 0 && <ListingsSection items={carousel} total={open.length} />}
         <NearYouSection cities={topCities} totalCities={CITIES.length} />
         {open.length > 0 && <ClosingSoonSection events={closingSoon(items, 4).map(toClosingCard)} />}
         {newestFirst.length > 0 && <HowItWorksSection example={[...newestFirst].sort((a, b) => b.sources.length - a.sources.length)[0]} />}

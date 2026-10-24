@@ -4,11 +4,13 @@ import { errorMessage } from './errors';
 // Starting a scrape: one at a time, one per scheduled slot. A unique partial index
 // on AgentRun ({ agent } where status is "running") makes the database refuse a
 // second running scrape, so two servers (or a click during a scheduled run) can't
-// start overlapping runs. A run "running" for over 45 minutes is taken as dead (the
-// process was killed) and marked failed; runs stop themselves well before that.
+// start overlapping runs. A running run writes a heartbeat at least once a minute; one
+// that has been silent for 30 minutes is taken as dead (its server stopped or
+// restarted) and marked failed, so it never blocks "Scrape now" for long.
 
-export const STALE_RUN_MS = 45 * 60_000;
-/** How long a run may work before it stops taking new items (under STALE_RUN_MS). */
+/** A running run with no heartbeat (or progress) for this long is dead. */
+export const STALE_RUN_MS = 30 * 60_000;
+/** How long a run may work before it stops taking new items; the rest waits for the next run. */
 export const RUN_BUDGET_MS = 40 * 60_000;
 
 export type Trigger = 'manual' | 'schedule' | 'api';
@@ -40,13 +42,18 @@ export function ensureRunIndexes(): Promise<unknown> {
   return indexes;
 }
 
-/** Marks scrapes stuck in "running" for longer than STALE_RUN_MS as failed. Returns how many. */
+/** Marks scrapes "running" with no heartbeat for STALE_RUN_MS as failed, with the reason. Returns how many. */
 export async function failStaleRuns(now = new Date()): Promise<number> {
+  const before = new Date(now.getTime() - STALE_RUN_MS);
   const res = await AgentRun.updateMany(
-    { agent: 'scrape', status: 'running', startedAt: { $lt: new Date(now.getTime() - STALE_RUN_MS) } },
+    {
+      agent: 'scrape',
+      status: 'running',
+      $or: [{ heartbeatAt: { $lt: before } }, { heartbeatAt: { $exists: false }, startedAt: { $lt: before } }],
+    },
     {
       $set: { status: 'failed', finishedAt: now, 'progress.current': 'Stopped' },
-      $push: { errorLog: 'Stopped responding (still "running" after 45 minutes; the server probably restarted). Marked as failed.' },
+      $push: { errorLog: 'No progress for 30 minutes (the server running it stopped or restarted), so it was marked as failed. Its listings so far are kept.' },
     }
   );
   return res.modifiedCount ?? 0;
@@ -91,6 +98,7 @@ export async function acquireRun(opts: AcquireOptions): Promise<Acquired> {
       slot: opts.slot ? String(opts.slot) : undefined,
       startedBy,
       startedAt: now,
+      heartbeatAt: now,
       progress: { done: 0, total: 0, current: 'Starting…' },
       log: [`Started (${opts.trigger}${opts.slot ? `, slot ${opts.slot}` : ''})`],
     });

@@ -41,6 +41,9 @@ interface ExplorerProps {
   autoLocate?: boolean;
 }
 
+/** Cards per group before "Show more". */
+const PAGE = 24;
+
 function toggle<T>(list: T[], value: T): T[] {
   return list.includes(value) ? list.filter((v) => v !== value) : [...list, value];
 }
@@ -110,12 +113,25 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
   const inPerson = byDistance ? results.filter((h) => h.mode !== 'online') : results;
   const online = byDistance ? results.filter((h) => h.mode === 'online') : [];
 
-  const grid = (list: HackathonView[]) => (
-    <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-      {list.map((h) => (
-        <HackathonCard key={h.slug} h={h} distanceKm={distances.get(h.slug)} />
-      ))}
-    </div>
+  // A page of cards per group, so a long list doesn't load hundreds of banners at once.
+  const [shown, setShown] = useState({ inPerson: PAGE, online: PAGE });
+  useEffect(() => setShown({ inPerson: PAGE, online: PAGE }), [filters, location]);
+
+  const grid = (list: HackathonView[], group: keyof typeof shown) => (
+    <>
+      <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        {list.slice(0, shown[group]).map((h) => (
+          <HackathonCard key={h.slug} h={h} distanceKm={distances.get(h.slug)} />
+        ))}
+      </div>
+      {list.length > shown[group] && (
+        <div className="mt-6 flex justify-center">
+          <button type="button" onClick={() => setShown((s) => ({ ...s, [group]: s[group] + PAGE }))} className="btn-secondary">
+            Show more ({list.length - shown[group]} left)
+          </button>
+        </div>
+      )}
+    </>
   );
 
   const activeChips: { label: string; clear: () => void }[] = [
@@ -415,14 +431,14 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
 
         {results.length > 0 ? (
           <>
-            {inPerson.length > 0 && grid(inPerson)}
+            {inPerson.length > 0 && grid(inPerson, 'inPerson')}
             {online.length > 0 && (
               <>
                 <h2 className={cn('mb-4 flex items-center gap-2 font-sans text-lg font-bold text-ink', inPerson.length > 0 && 'mt-10')}>
                   <Globe2 className="h-5 w-5" />
                   Online: join from anywhere
                 </h2>
-                {grid(online)}
+                {grid(online, 'online')}
               </>
             )}
           </>

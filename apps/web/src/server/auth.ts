@@ -27,8 +27,13 @@ declare module 'next-auth/jwt' {
     uid?: string;
     handle?: string;
     role?: Role;
+    /** When the account was last checked against the database (ms). */
+    checkedAt?: number;
   }
 }
+
+/** How often a signed-in session is re-checked, so a ban or a deleted account takes effect within a minute. */
+const RECHECK_MS = 60_000;
 
 /** Which sign-in buttons to show: OAuth providers only appear once their keys are set. */
 export function enabledProviders() {
@@ -93,7 +98,9 @@ async function upsertOAuthUser(input: { provider: string; providerAccountId: str
   if (!linked) user.providers.push({ provider: input.provider, providerAccountId: input.providerAccountId });
   // The provider confirmed this email, so it counts as verified.
   if (email && user.email === email && !user.emailVerified) user.emailVerified = new Date();
-  if (!user.image && input.image) user.image = input.image;
+  // The provider's photo only fills an empty profile the first time the account is linked,
+  // so a student who removed their photo doesn't get it back on every sign-in.
+  if (!linked && !user.image && input.image) user.image = input.image;
   if (isAdminEmail(user.email)) user.role = 'admin';
   await user.save();
   return user;
@@ -123,8 +130,10 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
     async jwt({ token, user, trigger }) {
-      // On sign-in, and whenever the client calls update() after a profile change.
-      if (user?.id || trigger === 'update') {
+      // On sign-in, whenever the client calls update() after a profile change, and at most once a
+      // minute otherwise, so role changes, bans and deleted accounts reach existing sessions quickly.
+      const stale = Boolean(token.uid) && Date.now() - (token.checkedAt ?? 0) > RECHECK_MS;
+      if (user?.id || trigger === 'update' || stale) {
         const id = user?.id ?? token.uid;
         if (id) {
           await connectDb();
@@ -137,6 +146,7 @@ export const authOptions: NextAuthOptions = {
           token.name = dbUser.name;
           token.email = dbUser.email;
           token.picture = dbUser.image;
+          token.checkedAt = Date.now();
         }
       }
       return token;

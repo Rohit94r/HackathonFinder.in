@@ -46,6 +46,12 @@ export interface CandidateData {
   registrationUrl?: string;
   /** "qr" when the source says registration is by scanning a QR code on the poster. */
   registrationVia?: 'link' | 'qr';
+  /**
+   * A hybrid event whose main way to take part is online (MLH "hybrid_digital", lablab's
+   * online build phase). Only these may be listed online when the venue is abroad; other
+   * hybrid events abroad are in-person first and are rejected like any event outside India.
+   */
+  remoteOk?: boolean;
   /** SOURCES slug shown on the listing when it differs from the connector (a Google result on linkedin.com → "linkedin"). */
   listingSource?: string;
   /** Review notes from the connector (a search lead, a QR to check). Any flag keeps the listing in review. */

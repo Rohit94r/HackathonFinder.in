@@ -2,12 +2,14 @@ import { connectDb, disconnectDb, isDbConfigured, loadEnv } from '@hackathonfind
 import { CONNECTORS } from './connectors';
 import { errorMessage } from './errors';
 import { runScrapeNow, startScheduler } from './launch';
+import { repairListings } from './repair';
 import { redact, runScrape } from './run';
 import { sourceStatuses, syncSources } from './sources';
 
 // pnpm agents:run -- [--source unstop,devfolio] [--limit 20] [--dry-run]
 // pnpm agents:schedule            long-running worker: scrapes at 02:00 and 14:00 IST
 // pnpm agents:sources -- [--sync] lists sources, missing keys and health
+// tsx src/cli.ts repair [--dry-run]  brings existing listings in line with the current rules
 
 function arg(name: string): string | undefined {
   const i = process.argv.indexOf(`--${name}`);
@@ -74,12 +76,23 @@ async function sources(): Promise<number> {
   return 0;
 }
 
+async function repair(): Promise<number> {
+  await connectDb();
+  const res = await repairListings({ dryRun: has('dry-run'), log: (l) => print(`  ${l}`) });
+  print(
+    `\n${has('dry-run') ? 'Would change' : 'Changed'}: checked ${res.checked}, split ${res.split}, took down ${res.takenDown.length}, updated ${res.updated} (${Object.entries(res.fields)
+      .map(([k, n]) => `${k} ${n}`)
+      .join(', ')}), placeholder copies deleted ${res.imagesRemoved}`
+  );
+  return 0;
+}
+
 async function main() {
   loadEnv();
   const command = process.argv[2];
-  const commands: Record<string, () => Promise<number>> = { run, schedule, sources };
+  const commands: Record<string, () => Promise<number>> = { run, schedule, sources, repair };
   if (!command || !commands[command]) {
-    print('Usage: tsx src/cli.ts run [--source a,b] [--limit n] [--dry-run] | schedule [--no-catch-up] | sources [--sync]');
+    print('Usage: tsx src/cli.ts run [--source a,b] [--limit n] [--dry-run] | schedule [--no-catch-up] | sources [--sync] | repair [--dry-run]');
     process.exitCode = 2;
     return;
   }

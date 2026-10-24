@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectDb, Hackathon, isDbConfigured } from '@hackathonfinder/db';
-import { createSampleHackathons } from '@hackathonfinder/shared';
 import { recordRegisterClick } from '@/server/analytics';
 import { getSessionUser } from '@/server/auth';
 
@@ -22,8 +21,6 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
         console.error('[go] Could not record the register click:', err);
       }
     }
-  } else {
-    url = createSampleHackathons(new Date()).find((h) => h.slug === params.slug)?.registrationUrl;
   }
   // Only ever redirect to http(s) links, never javascript: or relative tricks.
   if (!url || !/^https?:\/\//i.test(url)) return NextResponse.redirect(new URL(`/hackathons/${params.slug}`, req.nextUrl.origin));

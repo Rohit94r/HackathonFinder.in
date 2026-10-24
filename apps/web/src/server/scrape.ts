@@ -1,6 +1,6 @@
 import 'server-only';
 import { AgentRun, connectDb, Types, User, type IAgentRun, type IRunItem } from '@hackathonfinder/db';
-import { launchScrape, setSourceEnabled, sourceStatuses } from '@hackathonfinder/agents';
+import { failStaleRuns, launchScrape, setSourceEnabled, sourceStatuses } from '@hackathonfinder/agents';
 
 // The website's door to the discovery engine (apps/agents): start a scrape, follow its
 // progress and list past runs. The admin dashboard's "Scrape now", the scheduled runs
@@ -144,6 +144,8 @@ export async function startScrape(opts: { trigger: ScrapeTrigger; sources?: stri
 export async function getScrapeRun(id: string): Promise<ScrapeRunDetail | null> {
   if (typeof id !== 'string' || !Types.ObjectId.isValid(id)) return null;
   await connectDb();
+  // A run whose server died shows as failed instead of "running" forever.
+  await failStaleRuns().catch(() => 0);
   const run = await AgentRun.findOne({ _id: new Types.ObjectId(id), agent: 'scrape' }).lean<LeanRun>();
   if (!run) return null;
   const handles = await handlesFor([run]);
@@ -159,6 +161,7 @@ export async function getScrapeRun(id: string): Promise<ScrapeRunDetail | null> 
 export async function listScrapeRuns(limit = 20): Promise<ScrapeRunSummary[]> {
   await connectDb();
   const n = Math.max(1, Math.min(100, Math.floor(Number(limit) || 20)));
+  await failStaleRuns().catch(() => 0);
   const runs = await AgentRun.find({ agent: 'scrape' }).sort({ startedAt: -1 }).limit(n).select('-items -log -errorLog').lean<LeanRun[]>();
   const handles = await handlesFor(runs);
   return runs.map((r) => summary(r, handles));

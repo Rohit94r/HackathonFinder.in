@@ -645,7 +645,7 @@ export default function UserDetail({ id }: { id: string }) {
                   </span>
                   <span className="min-w-0 break-words">
                     <span className="mr-1.5 text-[11px] uppercase tracking-wide text-neutral-500">{t.kind}</span>
-                    {t.href ? (
+                    {t.href && t.href.startsWith('/') && !t.href.startsWith('//') ? (
                       <Link href={t.href} className="hover:underline" target={t.href.startsWith('/admin') ? undefined : '_blank'}>
                         {t.text}
                       </Link>

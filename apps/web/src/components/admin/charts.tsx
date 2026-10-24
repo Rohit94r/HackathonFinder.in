@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { cn } from '@/lib/cn';
 import { num } from './ui';
@@ -41,7 +41,18 @@ export function TrafficChart({ points, height = 180 }: { points: Point[]; height
   const [hover, setHover] = useState<number | null>(null);
   const [asTable, setAsTable] = useState(false);
   const max = useMemo(() => niceMax(Math.max(1, ...points.map((p) => p.views))), [points]);
-  const W = 720;
+  // Drawn at the box's real width (one unit = one pixel), so labels stay 10px on any screen.
+  const boxRef = useRef<HTMLDivElement>(null);
+  const [W, setW] = useState(720);
+  useEffect(() => {
+    const el = boxRef.current;
+    if (!el) return;
+    const measure = () => setW(Math.max(280, Math.round(el.clientWidth)));
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const H = height;
   const padL = 34;
   const padB = 22;
@@ -56,7 +67,7 @@ export function TrafficChart({ points, height = 180 }: { points: Point[]; height
   const totals = points.reduce((t, p) => ({ views: t.views + p.views, visitors: t.visitors + p.visitors }), { views: 0, visitors: 0 });
 
   return (
-    <div>
+    <div ref={boxRef}>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-4" aria-hidden={asTable}>
           <span className="inline-flex items-center gap-1.5">
@@ -97,7 +108,7 @@ export function TrafficChart({ points, height = 180 }: { points: Point[]; height
           </table>
         </div>
       ) : (
-        <svg viewBox={`0 0 ${W} ${H}`} className="block h-auto w-full" role="img" aria-label={`Visitors and page views, ${points.length} ${points[0]?.key.includes('T') ? 'hours' : 'days'}`} onMouseLeave={() => setHover(null)}>
+        <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} className="block max-w-full" role="img" aria-label={`Visitors and page views, ${points.length} ${points[0]?.key.includes('T') ? 'hours' : 'days'}`} onMouseLeave={() => setHover(null)}>
           {[0, 0.5, 1].map((f) => (
             <g key={f}>
               <line x1={padL} x2={W - 4} y1={y(max * f)} y2={y(max * f)} stroke="#e5e5e5" strokeWidth={1} />

@@ -92,6 +92,22 @@ export function absoluteUrl(input: unknown, base?: string): string | undefined {
   }
 }
 
+/**
+ * Site-wide default pictures that sources show when an event has no banner of its own
+ * (KnowAFest's "knowafest-event-default.png", "no-image", "placeholder"…). They say
+ * nothing about the event, so they count as no image.
+ */
+export function isPlaceholderImage(u: string | undefined | null): boolean {
+  if (!u) return false;
+  let path = u;
+  try {
+    path = new URL(u).pathname;
+  } catch {
+    // keep the raw string
+  }
+  return /(^|[\/_-])(default|placeholder|no[-_]?image|noimage|image[-_]?not[-_]?found|dummy|fallback|spacer|pixel)([-_.\/]|$)|event[-_]default|default[-_](event|banner|cover|poster|thumb)/i.test(path);
+}
+
 /** JSON with sorted keys, so equal content always hashes the same. */
 export function stableStringify(value: unknown): string {
   if (value === undefined) return 'null';

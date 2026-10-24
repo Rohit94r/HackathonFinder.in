@@ -43,6 +43,8 @@ export interface IRawItem {
   imageUrls: string[];
   /** Hash of the content, so unchanged items are skipped. */
   contentHash: string;
+  /** Rules version that last processed it; older ones get their listing's derived fields rewritten. */
+  pipelineVersion?: number;
   status: RawItemStatus;
   hackathonId?: Types.ObjectId;
   error?: string;
@@ -91,6 +93,8 @@ export interface IAgentRun {
   startedBy?: Types.ObjectId;
   startedAt: Date;
   finishedAt?: Date;
+  /** Last time a running run reported progress; a run silent for 30 minutes is taken as dead. */
+  heartbeatAt?: Date;
   counts: { found: number; new: number; created: number; updated: number; merged: number; review: number; rejected: number; errors: number };
   /** Live progress for the admin dashboard. */
   progress: { done: number; total: number; current: string };
@@ -130,6 +134,7 @@ const rawItemSchema = new Schema<IRawItem>(
     data: { type: Schema.Types.Mixed, default: {} },
     imageUrls: { type: [String], default: [] },
     contentHash: { type: String, required: true },
+    pipelineVersion: Number,
     status: {
       type: String,
       enum: ['new', 'extracted', 'published', 'merged', 'review', 'rejected', 'error', 'skipped'],
@@ -178,6 +183,7 @@ const agentRunSchema = new Schema<IAgentRun>(
     startedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     startedAt: { type: Date, default: () => new Date() },
     finishedAt: Date,
+    heartbeatAt: Date,
     counts: { type: Schema.Types.Mixed, default: () => ({ ...zeroCounts }) },
     progress: {
       done: { type: Number, default: 0 },

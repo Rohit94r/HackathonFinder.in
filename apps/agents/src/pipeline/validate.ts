@@ -28,9 +28,11 @@ export function validate(d: Draft, now: Date, opts: { isNew: boolean }): Validat
   if (start > now.getTime() + 2 * YEAR_MS) return { ok: false, reason: 'start date is more than two years away (probably misread)' };
   if (end - start > YEAR_MS) d.flags.push('Runs for more than a year; check the dates');
 
-  if (d.mode === 'offline') {
+  // Hybrid events are in-person first: abroad they are rejected like any in-person event.
+  // (Remote-first hybrid events abroad were already turned into online listings.)
+  if (d.mode === 'offline' || d.mode === 'hybrid') {
     if (d.country && !/^(india|bharat)$/i.test(d.country)) return { ok: false, reason: `in-person event outside India (${d.country})` };
-    if (!d.city) d.flags.push('In-person event, but the city is not stated');
+    if (!d.city) d.flags.push(`${d.mode === 'hybrid' ? 'Hybrid' : 'In-person'} event, but the city is not stated`);
     else if (!d.country && !isCatalogCity(d.city)) d.flags.push('Check the location: the country is not stated');
   }
   return { ok: true };

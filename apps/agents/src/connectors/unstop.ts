@@ -2,11 +2,13 @@ import type { Mode } from '@hackathonfinder/shared';
 import { parseDate } from '../dates';
 import { cleanLine } from '../text';
 import type { CandidateData, Connector, ConnectorContext, RawCandidate } from '../types';
+import { datesFromText } from './leads';
 import { arr, eligibilityFrom, firstImage, int, isObj, labels, moneyLine, num, plainText, str, url, type Obj } from './util';
 
 // Unstop's public listing API (robots.txt allows /api/public/*). The list has most
-// fields; the banner and the real event dates are only on each competition's page,
-// which the runner asks for just for new listings and ones still without an image.
+// fields; the banner and the event timeline (rounds, important dates) are only on
+// each competition's page, which the runner reads for new listings, ones still
+// without an image, and when the rules change.
 
 const API = 'https://unstop.com/api/public';
 const PER_PAGE = 100;
@@ -24,23 +26,42 @@ interface DateRow {
   end?: Date;
 }
 
+/** "Hackathon: 28–29 October 2026", "Hackathon Dates: November 28-29, 2026" in the description. */
+export function eventDatesInText(text: string | undefined, now: Date): { start?: Date; end?: Date } {
+  const m = (text ?? '').replace(/\s+/g, ' ').match(/\b(?:hackathon|event|grand finale|finale|competition|contest|main event)\s*(?:dates?|day|schedule|on)?\s*[:\-–—]\s*([^.\n]{4,90})/i);
+  if (!m) return {};
+  const d = datesFromText(m[1], now);
+  return d.start ? { start: d.start, end: d.end } : {};
+}
+
+const sameDay = (a: Date, b: Date) => a.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }) === b.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' });
+
 /**
- * When the event happens. Unstop's own start_date is when the listing opened, so it
- * can't be used: the first finale-like "important date" or round at or after the
- * registration deadline wins, and the deadline itself when nothing else is known.
+ * When the event happens, only from what Unstop states (never the deadline as a stand-in):
+ * 1. the first round or "important date" that is the event itself (hackathon, finale,
+ *    offline round, presentations…);
+ * 2. else the dates the description gives for the hackathon ("Hackathon: 28–29 October");
+ * 3. else the first round or important date after registration closes (not paperwork);
+ * 4. else Unstop's own start_date (when the competition opened; online challenges run from then).
+ * It ends at the latest round end, Unstop's end_date or the description's end date, whichever
+ * is latest and not before the start; results announcements don't count. With nothing after
+ * the start, it is a one-day event.
  */
-export function unstopEventDates(deadline: Date | undefined, listEnd: Date | undefined, rows: DateRow[]): { start?: Date; end?: Date } {
-  if (!deadline) return { start: undefined, end: listEnd };
-  const after = rows.filter((r) => r.start && r.start.getTime() >= deadline.getTime() - 24 * 3600_000);
-  const eventRow = after
-    .filter((r) => EVENT_ROW.test(r.title) && !PAPERWORK_ROW.test(r.title))
-    .sort((a, b) => a.start!.getTime() - b.start!.getTime())[0];
-  const firstAfter = after.filter((r) => !PAPERWORK_ROW.test(r.title)).sort((a, b) => a.start!.getTime() - b.start!.getTime())[0];
-  const start = eventRow?.start ?? firstAfter?.start ?? deadline;
-  const ends = [listEnd, ...rows.map((r) => r.end), start].filter((d): d is Date => Boolean(d) && d!.getTime() >= start.getTime() && !Number.isNaN(d!.getTime()));
-  // The latest round end (or the listing's end) is when it is over.
-  const end = ends.length ? new Date(Math.max(...ends.map((d) => d.getTime()))) : start;
-  return { start, end };
+export function unstopEventDates(o: { deadline?: Date; opens?: Date; closes?: Date; rows: DateRow[]; text?: string; now?: Date }): { start?: Date; end?: Date } {
+  const valid = (d?: Date) => d && !Number.isNaN(d.getTime());
+  const rows = o.rows.filter((r) => valid(r.start)).sort((a, b) => a.start!.getTime() - b.start!.getTime());
+  const eventRow = rows.find((r) => EVENT_ROW.test(r.title) && !PAPERWORK_ROW.test(r.title));
+  // The description's dates count only if they aren't from before the competition opened (an old edition).
+  let text = eventDatesInText(o.text, o.now ?? o.opens ?? new Date());
+  if (text.start && o.opens && text.start.getTime() < o.opens.getTime() - 24 * 3600_000) text = {};
+  const afterDeadline = o.deadline ? rows.find((r) => !PAPERWORK_ROW.test(r.title) && r.start!.getTime() >= o.deadline!.getTime() - 24 * 3600_000) : undefined;
+  const start = eventRow?.start ?? text.start ?? afterDeadline?.start ?? (valid(o.opens) ? o.opens : undefined);
+  if (!start) return {};
+  const ends = [o.closes, eventRow?.end, ...rows.filter((r) => !PAPERWORK_ROW.test(r.title) || /^registrations? (start|open)/i.test(r.title)).map((r) => r.end ?? (r === eventRow ? undefined : r.start))];
+  if (text.start && text.end && sameDay(text.start, start)) ends.push(text.end);
+  const after = ends.filter((d): d is Date => Boolean(valid(d)) && d!.getTime() >= start.getTime());
+  if (after.length) return { start, end: new Date(Math.max(...after.map((d) => d.getTime()))) };
+  return { start, end: parseDate(start.toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }), { kind: 'end' }) ?? start };
 }
 
 function prizeCurrency(p: Obj): 'INR' | 'USD' {
@@ -101,8 +122,15 @@ export function unstopCandidate(item: Obj): RawCandidate | null {
   const fee = num(payment?.amount);
   const prizes = unstopPrizes(arr(item.prizes));
   const deadline = parseDate(str(regn.end_regn_dt), { kind: 'deadline' });
-  const listEnd = parseDate(str(item.end_date), { kind: 'end' });
-  const { start, end } = unstopEventDates(deadline, listEnd, []);
+  const description = plainText(item.details);
+  // The list has no timeline; until the competition page is read: when it opened and closes, or the description's dates.
+  const { start, end } = unstopEventDates({
+    deadline,
+    opens: parseDate(str(regn.start_regn_dt), { kind: 'start' }),
+    closes: parseDate(str(item.end_date), { kind: 'end' }),
+    rows: [],
+    text: description,
+  });
   const country = isObj(addr.country) ? str(addr.country.name, 60) : undefined;
 
   const data: CandidateData = {
@@ -130,7 +158,7 @@ export function unstopCandidate(item: Obj): RawCandidate | null {
     logoUrl: firstImage(item.logoUrl2, org.logoUrl2, org.logoUrl),
     registrationUrl: pageUrl,
   };
-  return { externalId: id, url: pageUrl, title, text: [title, plainText(item.details)].join('\n\n'), data, imageUrls: [] };
+  return { externalId: id, url: pageUrl, title, text: [title, description].join('\n\n'), data, imageUrls: [] };
 }
 
 /** Adds what only the competition page has: the banner, real event dates, fee and women-only. */
@@ -155,7 +183,14 @@ export function unstopApplyDetail(c: RawCandidate, comp: Obj): RawCandidate {
   }
   const regn = isObj(comp.regnRequirements) ? comp.regnRequirements : {};
   const deadline = parseDate(str(regn.end_regn_dt), { kind: 'deadline' }) ?? parseDate(data.registrationDeadline, { kind: 'deadline' });
-  const { start, end } = unstopEventDates(deadline, parseDate(str(comp.end_date), { kind: 'end' }) ?? parseDate(data.endDate, { kind: 'end' }), rows);
+  const description = plainText(comp.details);
+  const { start, end } = unstopEventDates({
+    deadline,
+    opens: parseDate(str(comp.start_date), { kind: 'start' }) ?? parseDate(str(regn.start_regn_dt), { kind: 'start' }),
+    closes: parseDate(str(comp.end_date), { kind: 'end' }),
+    rows,
+    text: description || c.text,
+  });
   if (start) data.startDate = start.toISOString();
   if (end) data.endDate = end.toISOString();
   if (deadline) data.registrationDeadline = deadline.toISOString();
@@ -172,8 +207,7 @@ export function unstopApplyDetail(c: RawCandidate, comp: Obj): RawCandidate {
   }
   const gender = arr(regn.gender).map(String);
   if (gender.length === 1 && gender[0] === 'F') data.eligibility = ['women-only', ...(data.eligibility ?? []).filter((e) => e !== 'women-only')];
-  const text = plainText(comp.details);
-  return { ...c, data, text: text ? [c.title ?? data.title, text].join('\n\n') : c.text, imageUrls: image ? [image] : c.imageUrls };
+  return { ...c, data, text: description ? [c.title ?? data.title, description].join('\n\n') : c.text, imageUrls: image ? [image] : c.imageUrls };
 }
 
 export const unstop: Connector = {

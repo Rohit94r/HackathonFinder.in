@@ -1,5 +1,5 @@
 import pLimit from 'p-limit';
-import { cityFromText, extractEvent, isAiEnabled, templateSummary, templateTagline } from '@hackathonfinder/ai';
+import { cityFromText, extractEvent, isAiEnabled } from '@hackathonfinder/ai';
 import { AgentRun, connectDb, Hackathon, isDbConfigured, RawItem, slugify, Types, uniqueSlug, type IHackathon, type IRunItem, type RawItemStatus, type RunStatus } from '@hackathonfinder/db';
 import { CITIES } from '@hackathonfinder/shared';
 import { CONNECTORS, missingEnv } from './connectors';
@@ -13,9 +13,11 @@ import { suspiciousFlags } from './pipeline/checks';
 import { DedupeIndex, entryFromDoc, planMerge, type IndexEntry, type Match } from './pipeline/dedupe';
 import { missingKeyFields, type Draft } from './pipeline/draft';
 import { cityLabel, isCatalogCity, normalize, statedCity } from './pipeline/normalize';
+import { derivedUpdate, writeCopy } from './pipeline/refresh';
+import { notHackathonReason } from './pipeline/relevance';
 import { validate, type Validation } from './pipeline/validate';
 import { recordSourceRun, sourceSettings, syncSources } from './sources';
-import { contentHash, hostOf, normalizeUrl } from './text';
+import { contentHash, hostOf, isPlaceholderImage, normalizeUrl } from './text';
 import { zeroCounts, type CandidateData, type Connector, type ConnectorContext, type RawCandidate, type RunCounts } from './types';
 
 // The discovery engine: Scout → normalize → enrich → dedupe → validate → publish.
@@ -163,7 +165,7 @@ class Recorder {
     const items = this.pending.items.splice(0);
     const log = this.pending.log.splice(0);
     const errors = this.pending.errors.splice(0);
-    const update: Record<string, unknown> = { $set: { counts: { ...this.counts }, progress: { ...this.progress }, ...final } };
+    const update: Record<string, unknown> = { $set: { counts: { ...this.counts }, progress: { ...this.progress }, heartbeatAt: new Date(), ...final } };
     const push: Record<string, unknown> = {};
     if (items.length) push.items = { $each: items, $slice: -MAX_ITEMS };
     if (log.length) push.log = { $each: log, $slice: -MAX_LOG };
@@ -235,7 +237,7 @@ class JobQueue {
 }
 
 /** Bump when the pipeline's rules change, so items rejected under the old rules are read again. */
-export const PIPELINE_VERSION = 1;
+export const PIPELINE_VERSION = 2;
 
 /** What the content hash covers: what the source said (not when we asked), and the rules version. */
 function candidateHash(c: RawCandidate): string {
@@ -252,11 +254,18 @@ function placeLabel(d: Pick<Draft, 'mode' | 'city' | 'cityName'>): string | unde
   return d.cityName || CITIES.find((c) => c.slug === d.city)?.name || undefined;
 }
 
-/** Online events have no venue; a hybrid event abroad is listed for its online part. */
-function placeRules(d: Draft): void {
-  if (d.mode === 'hybrid' && d.country && !/^(india|bharat)$/i.test(d.country)) {
+/**
+ * Online events have no venue. A hybrid event abroad is listed online only when its main
+ * way to take part is online (remoteOk), and then its summary names where it is based;
+ * other hybrid events abroad stay hybrid, and validate() rejects them as in-person abroad.
+ */
+export function placeRules(d: Draft): void {
+  if (d.mode === 'hybrid' && d.country && !/^(india|bharat)$/i.test(d.country) && d.remoteOk) {
+    const where = [d.cityName ?? (d.city ? d.city.replace(/-/g, ' ') : ''), d.region].filter(Boolean).join(', ');
     d.mode = 'online';
-    d.notes.push(`hybrid event outside India (${d.country}); listed for its online part`);
+    d.hybridOnline = true;
+    d.basedIn = where || undefined;
+    d.notes.push(`hybrid event based outside India (${where || d.country}); listed for its online part`);
   }
   if (d.mode === 'online') {
     d.city = undefined;
@@ -279,6 +288,9 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
   const writes = useDb && !dryRun;
   const runOid = opts.runId && Types.ObjectId.isValid(opts.runId) ? new Types.ObjectId(opts.runId) : undefined;
   const rec = new Recorder(writes ? runOid : undefined, opts.log ?? (() => {}));
+  // A heartbeat every minute even in quiet stretches, so a live run is never taken for a dead one.
+  const heartbeat = writes && runOid ? setInterval(() => void rec.flush(), 60_000) : undefined;
+  heartbeat?.unref?.();
   const budgetMs = opts.budgetMs ?? RUN_BUDGET_MS;
   const http = opts.http ?? new Http();
   const geocoder = writes ? new Geocoder(http, { useCache: true, log: (l) => rec.log(l) }) : null;
@@ -308,6 +320,7 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
       geocoding: { requests: geocoder?.requests ?? 0, found: geocoder?.hits ?? 0 },
       durationMs: Date.now() - started,
     };
+    if (heartbeat) clearInterval(heartbeat);
     await rec.flush({ status, finishedAt: new Date() });
     return result;
   };
@@ -338,7 +351,7 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
 
     // What we already have: recent listings (never the sample ones) and what each source said last time.
     const index = useDb ? await DedupeIndex.load(now) : DedupeIndex.from([]);
-    const raws = new Map<string, { _id: Types.ObjectId; contentHash: string; status: RawItemStatus; hackathonId?: Types.ObjectId }>();
+    const raws = new Map<string, { _id: Types.ObjectId; contentHash: string; status: RawItemStatus; hackathonId?: Types.ObjectId; pipelineVersion?: number }>();
     const queue = new JobQueue(runnable.length);
     const scouted: Scouted[] = [];
     rec.log(`${index.size} recent listings to compare against.`);
@@ -356,6 +369,7 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
             data: storedData(c.data),
             imageUrls: c.imageUrls.filter((u) => typeof u === 'string').slice(0, 5),
             contentHash: hash,
+            pipelineVersion: PIPELINE_VERSION,
             status: rawStatus,
             hackathonId: extra.hackathonId && Types.ObjectId.isValid(extra.hackathonId) ? new Types.ObjectId(extra.hackathonId) : undefined,
             error: extra.error?.slice(0, 500),
@@ -383,6 +397,8 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
 
     /** Our unmirrored copy of a banner (Cloudinary failed last time), which a later run should store. */
     const needsMirror = (e?: IndexEntry) => Boolean(mirror?.enabled && e?.imageUrl && e.imageUrl === e.sourceImageUrl && !isStoredCopy(e.imageUrl));
+    /** A site's default picture stored as the banner (from before placeholders were filtered). */
+    const placeholderImage = (e?: IndexEntry) => isPlaceholderImage(e?.sourceImageUrl) || isPlaceholderImage(e?.imageUrl);
 
     /** Optional: Claude fills gaps in posts and search results when ANTHROPIC_API_KEY is set. Rules do everything otherwise. */
     const aiFill = async (j: Job, d: Draft): Promise<RawCandidate> => {
@@ -463,10 +479,14 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
           d.flags.push('Registration is by QR code, but we have no poster yet — add it');
         }
       }
-      // Existing listings keep their image unless it is our own copy that never reached Cloudinary.
-      if (entry?.imageUrl && !needsMirror(entry)) return;
+      // Existing listings keep their image unless it is our own copy that never reached Cloudinary,
+      // or a site's placeholder picture.
+      if (entry?.imageUrl && !needsMirror(entry) && !placeholderImage(entry)) return;
       const source = d.imageUrl ?? d.logoUrl;
-      if (!source) return;
+      if (!source || isPlaceholderImage(source)) {
+        d.imageUrl = undefined;
+        return;
+      }
       const usingLogo = !d.imageUrl;
       if (!mirror) {
         d.imageUrl = connector.storeImages === false ? undefined : source;
@@ -482,13 +502,6 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
       d.imageUrl = res.url;
       d.sourceImageUrl = source;
       if (usingLogo) d.notes.push('no banner on the source; using the organizer’s logo');
-    };
-
-    const write = (d: Draft) => {
-      d.tagline = templateTagline({ type: d.type, mode: d.mode!, city: d.city, cityName: d.cityName, themes: d.themes });
-      d.summary =
-        d.summary ||
-        templateSummary({ type: d.type, mode: d.mode!, organizer: d.organizer, city: d.city, cityName: d.cityName, themes: d.themes, teamMin: d.teamMin, teamMax: d.teamMax, fee: d.fee, beginnerFriendly: d.beginnerFriendly });
     };
 
     const create = async (j: Job, d: Draft): Promise<{ doc: Pick<IHackathon, '_id' | 'slug'>; live: boolean }> => {
@@ -512,6 +525,7 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
         registrationDeadline: d.registrationDeadline,
         teamMin: d.teamMin,
         teamMax: d.teamMax,
+        teamSizeKnown: d.teamSizeKnown,
         eligibility: d.eligibility,
         fee: d.fee,
         prizePool: d.prizePool,
@@ -540,7 +554,7 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
       return { doc, live };
     };
 
-    const merge = async (j: Job, d: Draft, match: Match): Promise<{ id: string; slug: string; action: RunItemAction | 'unchanged'; changed: string[] } | null> => {
+    const merge = async (j: Job, d: Draft, match: Match, refresh: boolean): Promise<{ id: string; slug: string; action: RunItemAction | 'unchanged'; changed: string[] } | null> => {
       const doc = useDb ? await Hackathon.findById(match.entry.id).lean<IHackathon>() : null;
       if (!doc || doc.flags?.includes('sample')) return null;
       const ref = { source: d.listingSource, url: j.c.url, externalId: j.c.externalId };
@@ -548,6 +562,21 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
       if ((doc.sourceRefs ?? []).some((r) => r.source === ref.source && r.externalId && ref.externalId && r.externalId !== ref.externalId)) return null;
       const sameSource = (doc.sourceRefs ?? []).some((r) => r.source === ref.source);
       const { set, changed } = planMerge(doc, d, { sameSource, now });
+      const unset: string[] = [];
+      if (changed.includes('teamMax') || changed.includes('teamMin')) set.teamSizeKnown = d.teamSizeKnown;
+      // Rules changed since this source event was last processed: rewrite what we derive from it
+      // (dates, team size, themes, our copy). A placeholder banner is dropped either way.
+      const ownRef = (doc.sourceRefs ?? []).some((r) => r.source === ref.source && (ref.externalId ? r.externalId === ref.externalId : normalizeUrl(r.url) === normalizeUrl(ref.url)));
+      const derived = derivedUpdate(doc, d, { dates: refresh && ownRef });
+      if (refresh && ownRef) {
+        Object.assign(set, derived.set);
+        unset.push(...derived.unset);
+        changed.push(...derived.changed.filter((k) => !changed.includes(k)));
+      } else if (derived.changed.includes('imageUrl')) {
+        if (derived.set.imageUrl) Object.assign(set, { imageUrl: derived.set.imageUrl, sourceImageUrl: derived.set.sourceImageUrl });
+        else unset.push('imageUrl', 'sourceImageUrl');
+        changed.push('imageUrl');
+      }
       if (doc.mode !== 'online' && d.mode !== 'online') {
         if (!doc.cityName && d.cityName && (set.city ?? doc.city) === d.city) (set.cityName = d.cityName), changed.push('cityName');
         if (!doc.region && d.region) (set.region = d.region), changed.push('region');
@@ -558,7 +587,7 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
           changed.push('location');
         }
       }
-      if (set.imageUrl) set.sourceImageUrl = d.sourceImageUrl ?? d.imageUrl;
+      if (set.imageUrl && !set.sourceImageUrl) set.sourceImageUrl = d.sourceImageUrl ?? d.imageUrl;
       if (doc.imageUrl && doc.imageUrl === doc.sourceImageUrl && d.imageUrl && isStoredCopy(d.imageUrl) && d.sourceImageUrl === doc.sourceImageUrl) {
         set.imageUrl = d.imageUrl;
         changed.push('imageUrl');
@@ -568,9 +597,17 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
       if (at >= 0) refs[at] = { ...refs[at], url: ref.url, lastSeenAt: now };
       else refs.push({ ...ref, firstSeenAt: now, lastSeenAt: now });
       const sources = (doc.sources ?? []).includes(ref.source) ? doc.sources : [...(doc.sources ?? []), ref.source];
+      for (const k of unset) delete set[k];
       if (writes) {
-        await Hackathon.updateOne({ _id: doc._id }, { $set: { ...set, sourceRefs: refs, sources } });
-        index.put(entryFromDoc({ ...doc, ...(set as Partial<IHackathon>), sourceRefs: refs, sources }));
+        await Hackathon.updateOne(
+          { _id: doc._id },
+          { $set: { ...set, sourceRefs: refs, sources }, ...(unset.length ? { $unset: Object.fromEntries(unset.map((k) => [k, 1])) } : {}) }
+        );
+        const after = { ...doc, ...(set as Partial<IHackathon>), sourceRefs: refs, sources };
+        for (const k of unset) delete (after as Record<string, unknown>)[k];
+        index.put(entryFromDoc(after));
+        // A stored copy of a placeholder picture isn't needed any more.
+        if (unset.includes('imageUrl') && mirror && isStoredCopy(doc.imageUrl, mirror.cloudName)) await mirror.destroy(doc.imageUrl!);
       }
       const action = !sameSource || at < 0 ? 'merged' : changed.length ? 'updated' : 'unchanged';
       return { id: String(doc._id), slug: doc.slug, action, changed };
@@ -585,15 +622,17 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
       let match = await mutex.run(async () => index.find(matchQuery(d, j.c)));
       const entry = match?.entry;
       if (!match && !raw) rec.counts.new++;
+      // Processed under older rules: read it again in full and rewrite what we derived from it.
+      const refresh = Boolean(raw && (raw.pipelineVersion ?? 1) < PIPELINE_VERSION);
 
       // Seen before with the same content: only the "last checked" time moves.
-      if (raw && raw.contentHash === hash) {
+      if (raw && raw.contentHash === hash && !refresh) {
         if (raw.status === 'rejected') {
           rec.counts.rejected++;
           touchedRaw.push(raw._id);
           return;
         }
-        if (entry && raw.hackathonId && String(raw.hackathonId) === entry.id && !needsMirror(entry) && (entry.imageUrl || !connector.detail)) {
+        if (entry && raw.hackathonId && String(raw.hackathonId) === entry.id && !needsMirror(entry) && !placeholderImage(entry) && (entry.imageUrl || !connector.detail)) {
           unchanged++;
           touchedListings.add(entry.id);
           touchedRaw.push(raw._id);
@@ -601,8 +640,11 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
         }
       }
 
-      // The event's own page, only for new listings and ones still without a banner.
-      if (connector.detail && (!match || !entry?.imageUrl || !raw)) {
+      // Not a hackathon-type event (a drone race in a fest's "hackathons" list): no detail page needed.
+      const offTopic = notHackathonReason(d.title, j.c.data.tags ?? []);
+
+      // The event's own page, only for new listings, ones still without a banner, and after a rules change.
+      if (connector.detail && !offTopic && (!match || !entry?.imageUrl || !raw || refresh || placeholderImage(entry))) {
         try {
           j = { ...j, c: await connector.detail(j.c, j.s.ctx) };
           d = normalize(j.c, connector, { now });
@@ -620,25 +662,33 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
         }
       }
 
-      const check: Validation = validate(d, now, { isNew: !match });
+      const check: Validation = offTopic ? { ok: false, reason: offTopic } : validate(d, now, { isNew: !match });
       const reason = check.ok ? undefined : (check as { reason: string }).reason;
       const ended = reason === 'event has already ended';
       if (reason && !(match && ended)) {
         rec.counts.rejected++;
         rec.item({ action: 'rejected', source: d.listingSource, title: d.title || j.c.title || j.c.url, url: j.c.url, mode: d.mode, city: placeLabel(d), reason });
         await saveRaw(j, hash, 'rejected', { error: reason, confidence: d.confidence, notes: d.notes });
+        // A listing we made from this very source event that the rules now turn away is taken down too.
+        if (match && writes && (match.reason === 'source-id' || match.reason === 'source-url') && (offTopic || /outside India/.test(reason))) {
+          const res = await Hackathon.updateOne(
+            { _id: new Types.ObjectId(match.entry.id), state: { $in: ['live', 'pending'] }, verified: { $ne: true } },
+            { $set: { state: 'rejected', removedReason: reason.slice(0, 300), removedAt: now } }
+          );
+          if (res.modifiedCount) rec.log(`Took down "${d.title}": ${reason}`);
+        }
         return;
       }
       d.flags.push(...suspiciousFlags(d).filter((f) => !d.flags.includes(f)));
 
       await locate(d, j.c);
       await images(j, d, match?.entry);
-      write(d);
+      writeCopy(d);
 
       await mutex.run(async () => {
         // Look again: another worker may have just created this event from another source.
         match = index.find(matchQuery(d, j.c));
-        const merged = match ? await merge(j, d, match) : null;
+        const merged = match ? await merge(j, d, match, refresh) : null;
         if (merged) {
           if (merged.action === 'unchanged') {
             unchanged++;
@@ -693,9 +743,9 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
             s.ok = true;
             if (useDb && s.list.length) {
               const docs = await RawItem.find({ source: connector.slug, url: { $in: s.list.map((c) => String(c.url)) } })
-                .select('url contentHash status hackathonId')
+                .select('url contentHash status hackathonId pipelineVersion')
                 .lean();
-              for (const d of docs) raws.set(`${connector.slug}\n${d.url}`, { _id: d._id, contentHash: d.contentHash, status: d.status, hackathonId: d.hackathonId });
+              for (const d of docs) raws.set(`${connector.slug}\n${d.url}`, { _id: d._id, contentHash: d.contentHash, status: d.status, hackathonId: d.hackathonId, pipelineVersion: d.pipelineVersion });
             }
           } catch (err) {
             s.error = err;

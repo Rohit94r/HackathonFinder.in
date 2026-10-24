@@ -130,7 +130,9 @@ describe('runScrape', () => {
       expect(u.get('overwrite')).toBe('false');
       expect(u.get('folder')).toBe('hackathonfinder/banners');
       expect(String(u)).not.toContain('shh-secret');
-      expect(u.get('signature')).toBe(signParams({ folder: u.get('folder')!, overwrite: 'false', public_id: u.get('public_id')!, timestamp: u.get('timestamp')! }, 'shh-secret'));
+      expect(u.get('eager')).toBe('f_auto,q_auto,c_limit,w_640|f_auto,q_auto,c_limit,w_1200|f_auto,q_auto,c_limit,w_1400');
+      const signed = Object.fromEntries([...u.entries()].filter(([k]) => !['file', 'api_key', 'signature'].includes(k)));
+      expect(u.get('signature')).toBe(signParams(signed, 'shh-secret'));
     }
     expect(await GeoCache.countDocuments({ found: true })).toBeGreaterThan(0);
 
@@ -150,6 +152,27 @@ describe('runScrape', () => {
     expect(again.unchanged).toBe(5);
     expect(a.detailCalls).toBe(before);
     expect(await Hackathon.countDocuments({ flags: { $ne: 'sample' } })).toBe(4);
+  });
+
+  it('rewrites listings made under older rules and takes down ones the rules now turn away', async () => {
+    let drone = false;
+    const a = platform('unstop', () => [
+      cand('7', { title: 'Code Sprint 2026', mode: 'online', startDate: future(10), endDate: future(11), registrationDeadline: future(9), isPaid: false }),
+      cand('8', { title: drone ? 'Drone Soccer | TECHKRITI' : 'Techkriti Event', mode: 'online', startDate: future(10), endDate: future(11), registrationDeadline: future(9), isPaid: false, tags: drone ? ['Drone', 'Robotics'] : [] }),
+    ]);
+    await runScrape({ connectors: [a], http: http(), env: {}, now: NOW });
+    const sprint = await Hackathon.findOne({ title: 'Code Sprint 2026' }).lean();
+    expect(sprint?.teamSizeKnown).toBe(false);
+    // Pretend an older version wrote it: a wrong theme, a stated team size, an invented summary.
+    await Hackathon.updateOne({ _id: sprint!._id }, { $set: { themes: ['climate'], teamSizeKnown: true, summary: 'An online hackathon. Tracks include Climate.' } });
+    await RawItem.updateMany({}, { $set: { pipelineVersion: 1 } });
+    drone = true;
+    const res = await runScrape({ connectors: [a], http: http(), env: {}, now: NOW });
+    const after = await Hackathon.findOne({ _id: sprint!._id }).lean();
+    expect(after).toMatchObject({ themes: [], teamSizeKnown: false, summary: 'An online hackathon. Free to enter.' });
+    // Same Unstop id, now clearly a drone event: taken down.
+    expect(await Hackathon.findOne({ 'sourceRefs.externalId': '8' }).lean()).toMatchObject({ state: 'rejected', removedReason: expect.stringMatching(/^not a hackathon-type event/) });
+    expect(res.counts.rejected).toBe(1);
   });
 
   it('keeps going when one source fails and marks the run partial', async () => {

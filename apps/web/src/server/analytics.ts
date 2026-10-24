@@ -171,7 +171,7 @@ export async function recordRegisterClick(req: NextRequest, slug: string, userId
   if (referer) {
     try {
       const url = new URL(referer);
-      if (url.host === req.nextUrl.host) from = cleanPath(url.pathname) ?? undefined;
+      if (url.hostname.toLowerCase().replace(/^www\./, '') === ownHost(req)) from = cleanPath(url.pathname) ?? undefined;
     } catch {
       // No usable referer.
     }

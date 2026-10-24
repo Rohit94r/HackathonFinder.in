@@ -19,6 +19,8 @@ export interface CloudinaryConfig {
 export const BANNER_FOLDER = 'hackathonfinder/banners';
 /** Delivery transformation: best format and quality for the browser, at most 1200 px wide, never upscaled. */
 export const BANNER_TRANSFORM = 'f_auto,q_auto,c_limit,w_1200';
+/** Sizes the site asks for (cards, listings, the hero), generated when the banner is stored. */
+export const EAGER_TRANSFORMS = ['f_auto,q_auto,c_limit,w_640', BANNER_TRANSFORM, 'f_auto,q_auto,c_limit,w_1400'];
 const MAX_IMAGE_BYTES = 8 * 1024 * 1024;
 
 /** Cloudinary settings from CLOUDINARY_CLOUD_NAME/API_KEY/API_SECRET, or a CLOUDINARY_URL. */
@@ -54,6 +56,13 @@ export function isStoredCopy(url: string | undefined, cloudName?: string): boole
   } catch {
     return false;
   }
+}
+
+/** The public id inside one of our delivery URLs (".../upload/<transform>/v123/<public id>.jpg"). */
+export function publicIdFromUrl(url: string, cloudName: string): string | undefined {
+  if (!isStoredCopy(url, cloudName)) return undefined;
+  const m = new URL(url).pathname.match(/\/image\/upload\/(?:[^/]+\/)*?v\d+\/(.+)\.[a-z0-9]+$/i);
+  return m ? decodeURIComponent(m[1]) : undefined;
 }
 
 /** "unstop-1773842-3fa9c1d2": source, the event's id and a hash of the image URL (a new banner gets a new copy). */
@@ -132,6 +141,9 @@ export class ImageMirror {
   private async upload(file: string, publicId: string): Promise<UploadResponse & { status: number }> {
     const cfg = this.config!;
     const params: Record<string, string> = {
+      // Card, listing and hero sizes, made at upload so the first visitor doesn't wait for them.
+      eager: EAGER_TRANSFORMS.join('|'),
+      eager_async: 'true',
       folder: BANNER_FOLDER,
       overwrite: 'false',
       public_id: publicId,
@@ -191,6 +203,27 @@ export class ImageMirror {
     }
     if (res.status === 401 || res.status === 420) this.failuresInARow = 99; // bad credentials or rate limited: stop for this run
     return this.fail(imageUrl, res.error?.message ?? `HTTP ${res.status}`);
+  }
+
+  /** Deletes one of our stored copies (by its delivery URL). True when Cloudinary removed it. */
+  async destroy(deliveryUrlOrId: string): Promise<boolean> {
+    if (!this.config) return false;
+    const publicId = deliveryUrlOrId.startsWith('http') ? publicIdFromUrl(deliveryUrlOrId, this.config.cloudName) : deliveryUrlOrId;
+    if (!publicId) return false;
+    const params = { public_id: publicId, timestamp: String(Math.floor(Date.now() / 1000)) };
+    const body = new URLSearchParams({ ...params, api_key: this.config.apiKey, signature: signParams(params, this.config.apiSecret) });
+    const res = await this.uploaders[0]
+      .request(`https://api.cloudinary.com/v1_1/${encodeURIComponent(this.config.cloudName)}/image/destroy`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+        accept: 'application/json',
+        officialApi: true,
+        allowErrorStatus: true,
+        retries: 1,
+      })
+      .catch(() => null);
+    return Boolean(res && res.status === 200 && /"ok"/.test(res.text()));
   }
 
   private fail(imageUrl: string, reason: string): MirrorResult {

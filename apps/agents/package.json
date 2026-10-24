@@ -12,6 +12,7 @@
     "run": "tsx src/cli.ts run",
     "schedule": "tsx src/cli.ts schedule",
     "sources": "tsx src/cli.ts sources",
+    "repair": "tsx src/cli.ts repair",
     "test": "vitest run"
   },
   "dependencies": {

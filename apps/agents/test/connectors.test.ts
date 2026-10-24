@@ -3,7 +3,9 @@ import { devfolioCandidate } from '../src/connectors/devfolio';
 import { devpostCandidate, devpostImage, devpostPrize, placeInIndia } from '../src/connectors/devpost';
 import { hackerearthCandidate } from '../src/connectors/hackerearth';
 import { knowafest, knowafestApplyPage, knowafestCandidate, knowafestFee } from '../src/connectors/knowafest';
-import { lablabCandidate, lablabEventUrls } from '../src/connectors/lablab';
+import { lablab, lablabCandidate, lablabEventUrls } from '../src/connectors/lablab';
+import { writeCopy } from '../src/pipeline/refresh';
+import { placeRules } from '../src/run';
 import { mlhCandidate, mlhEvents, mlhSeason } from '../src/connectors/mlh';
 import { unstop, unstopApplyDetail, unstopCandidate, unstopEventDates, unstopPrizes } from '../src/connectors/unstop';
 import { parsePage } from '../src/html';
@@ -74,16 +76,65 @@ describe('unstop', () => {
     expect(validate(d, NOW, { isNew: true })).toEqual({ ok: true });
   });
 
-  it('never uses the listing date as the start (it is when the listing opened)', () => {
-    const deadline = new Date('2026-11-06T00:00:00+05:30');
-    const r = unstopEventDates(deadline, new Date('2026-11-06T00:00:00+05:30'), [
-      { title: 'Last Date of Idea Submission', start: new Date('2026-11-15T12:00:00+05:30') },
-      { title: 'Hackathon & Final Presentations to Grand Jury', start: new Date('2026-11-28T09:00:00+05:30') },
-      { title: 'Announcement of Winners', start: new Date('2026-12-04T12:00:00+05:30') },
-    ]);
-    expect(r.start?.toISOString()).toBe(new Date('2026-11-28T09:00:00+05:30').toISOString());
-    expect(r.end!.getTime()).toBeGreaterThanOrEqual(r.start!.getTime());
-    expect(unstopEventDates(deadline, undefined, []).start).toEqual(deadline);
+  const t = (s: string) => new Date(`${s}+05:30`);
+  const iso = (s: string) => t(s).toISOString();
+
+  it('takes the event row of the timeline, with its end from the description (Next Horizon)', () => {
+    const r = unstopEventDates({
+      deadline: t('2026-11-06T00:00:00'),
+      opens: t('2026-10-23T00:00:00'),
+      closes: t('2026-11-06T00:00:00'),
+      rows: [
+        { title: 'Last Date of Idea Submission', start: t('2026-11-15T12:15:26') },
+        { title: 'Shortlisting of Teams', start: t('2026-11-16T12:15:57') },
+        { title: 'Hackathon & Final Presentations to Grand Jury', start: t('2026-11-28T09:00:53') },
+        { title: 'Announcement of Winners, certificate and prize distribution', start: t('2026-12-04T12:17:28') },
+      ],
+      text: 'Timeline & Duration Hackathon Dates: November 28-29, 2026 (2 days) Registration Deadline: November 15, 2026',
+    });
+    expect(r.start?.toISOString()).toBe(iso('2026-11-28T09:00:53'));
+    expect(r.end?.toISOString()).toBe(iso('2026-11-29T18:00:00'));
+  });
+
+  it('uses an offline round as the event (Competitive Programming)', () => {
+    const r = unstopEventDates({
+      deadline: t('2026-11-15T18:30:00'),
+      opens: t('2026-10-18T00:00:00'),
+      closes: t('2026-11-20T18:30:00'),
+      rows: [{ title: 'Offline Round', start: t('2026-11-20T16:30:00'), end: t('2026-11-20T18:30:00') }],
+    });
+    expect([r.start?.toISOString(), r.end?.toISOString()]).toEqual([iso('2026-11-20T16:30:00'), iso('2026-11-20T18:30:00')]);
+  });
+
+  it('reads "Hackathon: 28–29 October" when the timeline only has paperwork (Yantravedh)', () => {
+    const r = unstopEventDates({
+      deadline: t('2026-10-28T00:59:00'),
+      opens: t('2026-10-10T00:00:00'),
+      closes: t('2026-10-28T00:59:00'),
+      rows: [{ title: 'Submit Your Registration confirmation here', start: t('2026-10-10T22:11:00'), end: t('2026-10-27T23:59:00') }],
+      text: 'Event Highlights: Hackathon: 28–29 October 2026 Duration: 24 Hours Project Exhibition: 29 October 2026',
+    });
+    expect([r.start?.toISOString(), r.end?.toISOString()]).toEqual([iso('2026-10-28T09:00:00'), iso('2026-10-29T18:00:00')]);
+  });
+
+  it('starts at the first real step after registration (Hack-to-Ween)', () => {
+    const r = unstopEventDates({
+      deadline: t('2026-10-29T23:59:00'),
+      opens: t('2026-10-24T00:00:00'),
+      closes: t('2026-11-29T23:59:00'),
+      rows: [
+        { title: 'Registration Deadline', start: t('2026-10-29T23:59:28') },
+        { title: 'Problem Statement', start: t('2026-10-31T12:00:26') },
+        { title: 'Registrations Start', start: t('2026-10-24T00:00:00'), end: t('2026-11-29T23:59:00') },
+      ],
+    });
+    expect([r.start?.toISOString(), r.end?.toISOString()]).toEqual([iso('2026-10-31T12:00:26'), iso('2026-11-29T23:59:00')]);
+  });
+
+  it('falls back to Unstop’s own dates, never the deadline (CodeOdyssey)', () => {
+    const r = unstopEventDates({ deadline: t('2026-11-20T01:40:38'), opens: t('2026-10-20T00:00:00'), closes: t('2026-11-20T01:40:38'), rows: [], text: 'Build your project within the announced timeline' });
+    expect([r.start?.toISOString(), r.end?.toISOString()]).toEqual([iso('2026-10-20T00:00:00'), iso('2026-11-20T01:40:38')]);
+    expect(unstopEventDates({ deadline: t('2026-11-20T01:40:38'), rows: [] })).toEqual({});
   });
 
   it('counts only cash prizes toward the pool', () => {
@@ -190,6 +241,26 @@ describe('mlh', () => {
   });
 });
 
+describe('hybrid events abroad', () => {
+  const ev = (formatType: string) => ({ id: 'n', slug: 'nasa-space-apps-nyc', name: "NASA's Space Apps Challenge NYC", startsAt: '2026-11-13T21:30:00Z', endsAt: '2026-11-15T21:30:00Z', location: ' Brooklyn, New York', formatType, websiteUrl: 'https://www.spaceappsnyc.org/', venueAddress: { city: 'Brooklyn', state: 'New York', country: 'US' } });
+
+  it('rejects an in-person-first hybrid event abroad (MLH hybrid_physical)', () => {
+    const d = normalize(mlhCandidate(ev('hybrid_physical'))!, { slug: 'mlh', trust: 0.9 }, { now: NOW });
+    placeRules(d);
+    expect(d.mode).toBe('hybrid');
+    expect(validate(d, NOW, { isNew: true })).toMatchObject({ ok: false, reason: 'in-person event outside India (United States)' });
+  });
+
+  it('lists an online-first hybrid event abroad online, naming where it is based (MLH hybrid_digital)', () => {
+    const d = normalize(mlhCandidate(ev('hybrid_digital'))!, { slug: 'mlh', trust: 0.9 }, { now: NOW });
+    placeRules(d);
+    expect(d.mode).toBe('online');
+    expect(validate(d, NOW, { isNew: true }).ok).toBe(true);
+    writeCopy(d);
+    expect(d.summary).toMatch(/^A hybrid hackathon based in Brooklyn, New York; you can take part online\./);
+  });
+});
+
 describe('hackerearth', () => {
   it('maps the events feed', () => {
     const rows = fixtureJson('hackerearth.json').response;
@@ -242,8 +313,13 @@ describe('lablab', () => {
     expect(lablabEventUrls(list)).toEqual(['https://lablab.ai/ai-hackathons/vultr-hackathon']);
     const ev = { '@type': 'Event', name: 'Vultr: Agent Rush Hackathon', startDate: '2026-11-03T15:00:00.000Z', endDate: '2026-11-08T22:00:00.000Z', eventAttendanceMode: 'https://schema.org/MixedEventAttendanceMode', location: { '@type': 'VirtualLocation', url: 'https://lablab.ai/ai-hackathons/vultr-hackathon' }, image: 'https://storage.googleapis.com/lablab-static-eu/events/banner.jpg', offers: { price: '0', priceCurrency: 'USD', url: 'https://lablab.ai/ai-hackathons/vultr-hackathon' } };
     const c = lablabCandidate('https://lablab.ai/ai-hackathons/vultr-hackathon', [ev])!;
-    // Hybrid with no venue in India: listed for its online part.
-    expect(c.data.mode).toBe('online');
+    // Built online with an optional on-site day abroad: a remote-first hybrid, listed for its online part.
+    expect(c.data).toMatchObject({ mode: 'hybrid', remoteOk: true, country: 'Outside India' });
+    const d = normalize(c, lablab, { now: NOW });
+    placeRules(d);
+    expect(d.mode).toBe('online');
+    writeCopy(d);
+    expect(d.summary).toMatch(/^A hybrid hackathon; you can take part online\./);
     expect(c.data.imageUrl).toBe('https://storage.googleapis.com/lablab-static-eu/events/banner.jpg');
     expect(c.data.fee).toBe(0);
     expect(c.externalId).toBe('vultr-hackathon');

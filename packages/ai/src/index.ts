@@ -7,6 +7,7 @@ export {
   cityPoint,
   parseMoney,
   inferThemes,
+  matchThemes,
   inferEligibility,
   inferBeginnerFriendly,
   inferEventType,
