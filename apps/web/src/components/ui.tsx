@@ -54,7 +54,7 @@ export function SectionHeading({
 
 /**
  * Page header in the landing page style: white with a red fade (light theme) or charcoal
- * with a warm glow (dark), a serif title and a red-to-orange accent line, centered.
+ * with a warm glow (dark), a serif title and a red accent line, centered.
  */
 export function PageHero({
   title,
@@ -109,7 +109,7 @@ export function SampleNotice({ children, className }: { children?: React.ReactNo
   return (
     <p
       className={cn(
-        'flex items-start gap-2 rounded-[14px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-100',
+        'flex items-start gap-2 rounded-[14px] border border-ink/15 bg-card px-4 py-3 text-sm text-ink/80',
         className
       )}
     >

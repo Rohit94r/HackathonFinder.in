@@ -6,7 +6,10 @@ import useSWRInfinite from 'swr/infinite';
 import { CheckCircle2, MapPin, Plus, Search, SlidersHorizontal, Sparkles, UserRound, Users, X } from 'lucide-react';
 import { CITIES, cityName } from '@hackathonfinder/shared';
 import LocationChooser from '@/components/hackathon/LocationChooser';
-import { SampleNotice } from '@/components/ui';
+import { PHOTOS } from '@/components/landing/photos';
+import ChatPhoto from '@/components/messages/ChatPhoto';
+import { useConversations } from '@/components/messages/useChat';
+import ProfileSetupCard from '@/components/profile/ProfileSetupCard';
 import { SKILLS, type PeoplePage, type Student, type TeamPost, type TeamPostsPage } from '@/data/teamPosts';
 import { apiFetch, goToLogin } from '@/lib/apiClient';
 import { useMyLocation } from '@/lib/useMyLocation';
@@ -141,6 +144,7 @@ export default function TeamBoard({
   const { requests, ready: requestsReady, mutate: mutateRequests } = useMyRequests();
   const { invites, ready: invitesReady, mutate: mutateInvites } = useMyInvites();
   const { location, ready: locationReady, state: locateState, locate, pickCity, clear: clearLocation } = useMyLocation();
+  const { data: chats, mutate: mutateChats } = useConversations();
   const q = useDebounced(filters.q, 300);
 
   // Only the linkable filters go in the URL, so city and event pages can deep-link here.
@@ -218,6 +222,8 @@ export default function TeamBoard({
   const active = tab === 'teams' ? teams : people;
   const total = active.total;
   const requestFor = useMemo(() => new Map(requests.sent.map((r) => [r.post?.id ?? '', r])), [requests]);
+  // Students the viewer can already message, by handle.
+  const chatWith = useMemo(() => new Map((chats?.items ?? []).filter((c) => c.other.id).map((c) => [c.other.handle, c.id])), [chats]);
   const inviteFor = useMemo(() => new Map(invites.sent.map((i) => [i.to.handle, i])), [invites]);
   const inboxCount = requests.sent.length + requests.received.length + invites.sent.length + invites.received.length;
   const showInbox = signedIn && requestsReady && invitesReady && inboxCount > 0;
@@ -233,13 +239,17 @@ export default function TeamBoard({
   const draftFor = (post: TeamPost, match: SkillMatch | null) => {
     const hi = `Hi ${firstName(post.author.name)}! `;
     const help = match?.matched.length ? ` and I can help with ${joinList(match.matched)}` : '';
+    const what = post.hackathonSlug ? ` for ${post.hackathonTitle}` : '';
     return profile
-      ? `${hi}I’m ${firstName(profile.name)}${help}. Would love to join your team for ${post.hackathonTitle}.`
-      : `${hi}I’d love to join your team for ${post.hackathonTitle}.`;
+      ? `${hi}I’m ${firstName(profile.name)}${help}. Would love to join your team${what}.`
+      : `${hi}I’d love to join your team${what}.`;
   };
   const inviteDraft = (person: Student) => (post?: TeamPost) => {
     const hi = `Hi ${firstName(person.name)}! ${profile ? `I’m ${firstName(profile.name)}. ` : ''}`;
-    return post ? `${hi}I’m putting a team together for ${post.hackathonTitle}. Want to join us?` : `${hi}Want to team up for a hackathon?`;
+    if (!post) return `${hi}Want to team up for a hackathon?`;
+    return post.hackathonSlug
+      ? `${hi}I’m putting a team together for ${post.hackathonTitle}. Want to join us?`
+      : `${hi}I’m putting a team together for our next hackathon. Want to join us?`;
   };
 
   // Actions: the server checks everything and writes notifications; here we just refresh.
@@ -257,7 +267,8 @@ export default function TeamBoard({
   };
   const setRequest = async (id: string, status: Answer | 'withdrawn') => {
     await apiFetch(`/api/requests/${id}`, { method: 'PATCH', body: { status } });
-    await Promise.all([mutateRequests(), status === 'accepted' ? refreshTeams() : null]);
+    // Accepting opens a chat, so the Message buttons need the new conversation.
+    await Promise.all([mutateRequests(), status === 'accepted' ? Promise.all([refreshTeams(), mutateChats()]) : null]);
   };
   const sendInvite = async (person: Student, message: string, postId?: string) => {
     await apiFetch('/api/invites', { body: { toHandle: person.handle, postId, message } });
@@ -265,7 +276,7 @@ export default function TeamBoard({
   };
   const setInvite = async (id: string, status: Answer | 'withdrawn') => {
     await apiFetch(`/api/invites/${id}`, { method: 'PATCH', body: { status } });
-    await Promise.all([mutateInvites(), status === 'accepted' ? teams.mutate() : null]);
+    await Promise.all([mutateInvites(), status === 'accepted' ? Promise.all([teams.mutate(), mutateChats()]) : null]);
   };
   const togglePost = async (post: TeamPost) => {
     await apiFetch(`/api/team-posts/${post.id}`, { method: 'PATCH', body: { open: !post.open } });
@@ -275,8 +286,11 @@ export default function TeamBoard({
     await apiFetch(`/api/team-posts/${post.id}`, { method: 'DELETE' });
     await refreshTeams();
   };
+  // Posting, asking to join and inviting need a set-up profile first (the server checks too).
+  const setupHref = signedIn && me && !me.onboarded ? '/profile?next=%2Fteams' : undefined;
   const startPost = () => {
     if (!signedIn) return goToLogin();
+    if (setupHref) return window.location.assign(setupHref);
     setFormOpen(true);
     setJustPosted(false);
   };
@@ -443,7 +457,22 @@ export default function TeamBoard({
 
   return (
     <div>
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <h1 className="font-sans text-2xl font-bold normal-case tracking-normal sm:text-3xl">Team Finder</h1>
+          <p className="mt-1 text-sm text-ink/70">Join a team that needs your skills, or invite students to yours. Chat once they accept.</p>
+        </div>
+        {!formOpen && (
+          <button type="button" onClick={startPost} className="btn-primary shrink-0 py-2.5">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Post your team
+          </button>
+        )}
+      </div>
+
+      <ProfileSetupCard next="/teams" className="mb-6" />
+
+      <div className="mb-6">
         <div role="tablist" aria-label="Team Finder" className="grid grid-cols-2 gap-1 rounded-2xl border border-ink/10 bg-card p-1 sm:inline-grid">
           {tabs.map((t) => {
             const isActive = tab === t.value;
@@ -469,18 +498,7 @@ export default function TeamBoard({
             );
           })}
         </div>
-        {!formOpen && (
-          <button type="button" onClick={startPost} className="btn-primary">
-            <Plus className="h-4 w-4" />
-            Post your team
-          </button>
-        )}
       </div>
-
-      <SampleNotice className="mb-6">
-        Teams and students marked “Sample” show how Team Finder works and won’t answer. Real students get your requests and
-        invites as notifications.
-      </SampleNotice>
 
       {formOpen && profile && (
         <TeamPostForm
@@ -495,9 +513,9 @@ export default function TeamBoard({
       {justPosted && (
         <p
           role="status"
-          className="mb-6 flex items-center gap-2 rounded-[14px] bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-800 dark:bg-emerald-400/10 dark:text-emerald-200"
+          className="mb-6 flex items-center gap-2 rounded-[14px] bg-accent/10 px-4 py-3 text-sm font-medium text-ink"
         >
-          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          <CheckCircle2 className="h-4 w-4 shrink-0 text-accent" />
           Your team post is up. Students who match can now ask to join, and you’ll get a notification.
         </p>
       )}
@@ -689,6 +707,8 @@ export default function TeamBoard({
                           match={match}
                           signedIn={signedIn}
                           request={requestFor.get(post.id)}
+                          conversationId={chatWith.get(post.author.handle)}
+                          setupHref={setupHref}
                           draftMessage={draftFor(post, match)}
                           onRequest={(message) => sendRequest(post, message)}
                           onWithdraw={async () => {
@@ -708,6 +728,8 @@ export default function TeamBoard({
                         signedIn={signedIn}
                         myPosts={openPosts}
                         invite={inviteFor.get(person.handle)}
+                        conversationId={chatWith.get(person.handle)}
+                        setupHref={setupHref}
                         draftMessage={inviteDraft(person)}
                         onInvite={(message, postId) => sendInvite(person, message, postId)}
                         onWithdrawInvite={async () => {
@@ -726,23 +748,21 @@ export default function TeamBoard({
               )}
             </>
           ) : (
-            <div className="card flex flex-col items-center px-6 py-14 text-center">
-              <div className="mb-4 rounded-2xl bg-ink/5 p-4 text-ink">
-                <Users className="h-7 w-7" />
-              </div>
-              <h3 className="text-xl font-bold">{tab === 'teams' ? 'No teams match yet' : 'No students match yet'}</h3>
-              <p className="mt-2 max-w-md text-sm text-ink/70">
-                Try a wider distance or fewer filters. Or post your own team and let people find you.
-              </p>
-              <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <button type="button" onClick={reset} className="btn-secondary">
+            <div className="card">
+              <ChatPhoto
+                photo={PHOTOS.teamLaptops}
+                alt="A team of students coding on laptops around a table"
+                title={tab === 'teams' ? 'No teams match yet' : 'No students match yet'}
+                text="Try a wider distance or fewer filters. Or post your own team and let people find you."
+              >
+                <button type="button" onClick={reset} className="btn-secondary py-2.5 text-sm">
                   Clear filters
                 </button>
-                <button type="button" onClick={startPost} className="btn-primary">
-                  <Plus className="h-4 w-4" />
+                <button type="button" onClick={startPost} className="btn-primary py-2.5 text-sm">
+                  <Plus className="h-4 w-4" aria-hidden="true" />
                   Post your team
                 </button>
-              </div>
+              </ChatPhoto>
             </div>
           )}
         </div>

@@ -17,8 +17,7 @@ import {
   Users,
   Wifi,
 } from 'lucide-react';
-import { themeStyle } from '@/lib/themeStyles';
-import { cn } from '@/lib/cn';
+import EventArt from '@/components/hackathon/EventArt';
 
 // Original artwork for the landing page. It stands in for the photos, stickers and
 // mascots of the design this page is based on, none of which are ours to use.
@@ -52,13 +51,14 @@ export interface PosterData {
   when: string;
   /** "Pune" or "Online". */
   where: string;
+  /** The event's real banner, when it has one. */
+  imageUrl?: string;
 }
 
+/** A poster tile: the event's own banner (or a real event photo), with where we found it. */
 export function PosterArt({ poster, compact = false }: { poster: PosterData; compact?: boolean }) {
-  const { gradient } = themeStyle(poster.theme);
   return (
     <div
-      className={cn('bg-gradient-to-br', gradient)}
       style={{
         position: 'relative',
         width: '100%',
@@ -72,11 +72,13 @@ export function PosterArt({ poster, compact = false }: { poster: PosterData; com
         alignItems: 'flex-start',
       }}
     >
-      <DotTexture />
+      <EventArt title={poster.title} imageUrl={poster.imageUrl} className="!absolute inset-0" />
+      {/* Without a banner the photo gets the title; a real banner already carries its own. */}
+      {!poster.imageUrl && <span aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 60%)' }} />}
       <span
         style={{
           position: 'relative',
-          background: 'rgba(0,0,0,0.28)',
+          background: 'rgba(0,0,0,0.6)',
           borderRadius: 999,
           padding: compact ? '3px 9px' : '4px 12px',
           fontFamily: 'var(--lp-sans)',
@@ -89,26 +91,29 @@ export function PosterArt({ poster, compact = false }: { poster: PosterData; com
       >
         via {poster.source}
       </span>
-      <div style={{ position: 'relative' }}>
-        <p style={{ fontFamily: 'var(--lp-serif)', fontSize: compact ? 22 : 34, lineHeight: 1, margin: 0, textShadow: '0 2px 10px rgba(0,0,0,0.18)' }}>
-          {poster.title}
-        </p>
-        <p style={{ fontFamily: 'var(--lp-sans)', fontSize: compact ? 13 : 17, fontWeight: 600, margin: '8px 0 0', opacity: 0.95 }}>
-          {poster.when} · {poster.where}
-        </p>
-      </div>
+      {!poster.imageUrl && (
+        <div style={{ position: 'relative' }}>
+          <p style={{ fontFamily: 'var(--lp-serif)', fontSize: compact ? 22 : 34, lineHeight: 1, margin: 0, textShadow: '0 2px 10px rgba(0,0,0,0.18)' }}>
+            {poster.title}
+          </p>
+          <p style={{ fontFamily: 'var(--lp-sans)', fontSize: compact ? 13 : 17, fontWeight: 600, margin: '8px 0 0', opacity: 0.95 }}>
+            {poster.when} · {poster.where}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
 
+// Red and white only: the old tone names stay so callers don't change.
 const STICKER_TONES = {
   red: { bg: '#ec3750', fg: '#ffffff' },
-  orange: { bg: '#ff8c37', fg: '#17171d' },
-  yellow: { bg: '#f1c40f', fg: '#17171d' },
-  green: { bg: '#33d6a6', fg: '#17171d' },
-  blue: { bg: '#338eda', fg: '#ffffff' },
-  purple: { bg: '#a633d6', fg: '#ffffff' },
-  ink: { bg: '#17171d', fg: '#fff6eb' },
+  orange: { bg: '#ffffff', fg: '#be1e3a' },
+  yellow: { bg: '#ffffff', fg: '#17171d' },
+  green: { bg: '#17171d', fg: '#ffffff' },
+  blue: { bg: '#ec3750', fg: '#ffffff' },
+  purple: { bg: '#ffffff', fg: '#be1e3a' },
+  ink: { bg: '#17171d', fg: '#ffffff' },
 } as const;
 
 export type StickerTone = keyof typeof STICKER_TONES;
@@ -214,60 +219,5 @@ export function DoodleField({ color = '#ec3750', style }: { color?: string; styl
         );
       })}
     </div>
-  );
-}
-
-const INK = '#17171d';
-
-/** Our mascot: a cheerful magnifying glass, always out looking for hackathons. */
-export function FinderBuddy({ style, wave = true }: { style?: CSSProperties; wave?: boolean }) {
-  return (
-    <svg viewBox="0 0 320 300" aria-hidden="true" className="lp-mascot" style={style}>
-      <rect x="-24" y="0" width="48" height="128" rx="24" transform="translate(196 196) rotate(-45)" fill="#ec3750" stroke={INK} strokeWidth="7" />
-      <rect x="-30" y="-14" width="60" height="28" rx="8" transform="translate(196 196) rotate(-45)" fill={INK} />
-      {wave && (
-        <>
-          <path d="M44 150 Q8 132 20 92" fill="none" stroke={INK} strokeWidth="7" strokeLinecap="round" />
-          <circle cx="20" cy="86" r="12" fill="#fff6eb" stroke={INK} strokeWidth="6" />
-        </>
-      )}
-      <circle cx="130" cy="125" r="96" fill="#ff8c37" stroke={INK} strokeWidth="7" />
-      <circle cx="130" cy="125" r="72" fill="#e3f4ff" stroke={INK} strokeWidth="6" />
-      <path d="M84 104 A52 52 0 0 1 116 72" fill="none" stroke="#ffffff" strokeWidth="10" strokeLinecap="round" />
-      <ellipse cx="108" cy="124" rx="9" ry="12" fill={INK} />
-      <ellipse cx="152" cy="124" rx="9" ry="12" fill={INK} />
-      <circle cx="111" cy="119" r="3" fill="#ffffff" />
-      <circle cx="155" cy="119" r="3" fill="#ffffff" />
-      <path d="M112 150 Q130 168 148 150" fill="none" stroke={INK} strokeWidth="6" strokeLinecap="round" />
-      <circle cx="90" cy="146" r="9" fill="#ec3750" opacity="0.35" />
-      <circle cx="170" cy="146" r="9" fill="#ec3750" opacity="0.35" />
-      <path d="M262 30 l6 16 l16 6 l-16 6 l-6 16 l-6 -16 l-16 -6 l16 -6 Z" fill="#f1c40f" stroke={INK} strokeWidth="4" strokeLinejoin="round" />
-      <path d="M292 92 l4 10 l10 4 l-10 4 l-4 10 l-4 -10 l-10 -4 l10 -4 Z" fill="#33d6a6" stroke={INK} strokeWidth="3.5" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-/** A calendar page that just noticed the deadline is tomorrow. */
-export function DeadlineBuddy({ style }: { style?: CSSProperties }) {
-  return (
-    <svg viewBox="0 0 300 300" aria-hidden="true" className="lp-mascot" style={style}>
-      <rect x="50" y="62" width="200" height="200" rx="28" fill="#ffffff" stroke={INK} strokeWidth="7" />
-      <path d="M50 120 V90 A28 28 0 0 1 78 62 H222 A28 28 0 0 1 250 90 V120 Z" fill="#ec3750" stroke={INK} strokeWidth="7" strokeLinejoin="round" />
-      <rect x="92" y="40" width="20" height="44" rx="10" fill={INK} />
-      <rect x="188" y="40" width="20" height="44" rx="10" fill={INK} />
-      <text x="150" y="104" textAnchor="middle" fill="#ffffff" style={{ font: '800 21px var(--lp-sans)', letterSpacing: '0.12em' }}>
-        DEADLINE
-      </text>
-      <path d="M104 152 Q118 142 132 150" fill="none" stroke={INK} strokeWidth="5" strokeLinecap="round" />
-      <path d="M168 150 Q182 142 196 152" fill="none" stroke={INK} strokeWidth="5" strokeLinecap="round" />
-      <ellipse cx="120" cy="174" rx="9" ry="12" fill={INK} />
-      <ellipse cx="180" cy="174" rx="9" ry="12" fill={INK} />
-      <circle cx="123" cy="169" r="3" fill="#ffffff" />
-      <circle cx="183" cy="169" r="3" fill="#ffffff" />
-      <ellipse cx="150" cy="214" rx="13" ry="15" fill={INK} />
-      <circle cx="98" cy="200" r="10" fill="#ec3750" opacity="0.3" />
-      <circle cx="202" cy="200" r="10" fill="#ec3750" opacity="0.3" />
-      <path d="M262 46 L282 30 M268 70 L292 66 M250 30 L256 8" stroke={INK} strokeWidth="6" strokeLinecap="round" />
-    </svg>
   );
 }

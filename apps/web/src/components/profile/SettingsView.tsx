@@ -35,7 +35,7 @@ function Status({ tone, children }: { tone: 'ok' | 'error'; children: React.Reac
   return (
     <p
       role={tone === 'error' ? 'alert' : 'status'}
-      className={cn('text-sm font-medium', tone === 'ok' ? 'text-emerald-700 dark:text-emerald-300' : 'text-brand-700 dark:text-brand-300')}
+      className={cn('text-sm font-medium', tone === 'ok' ? 'text-ink/80' : 'text-brand-700 dark:text-brand-300')}
     >
       {children}
     </p>
@@ -138,7 +138,7 @@ function SignInMethods({ me }: { me: Me }) {
               {row.label}
             </span>
             {row.on ? (
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200">
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-2.5 py-1 text-xs font-semibold text-brand-700 dark:text-brand-300">
                 <Check className="h-3.5 w-3.5" aria-hidden="true" />
                 {row.id === 'credentials' ? 'On' : 'Connected'}
               </span>
@@ -203,7 +203,7 @@ function EmailPrefs({ me }: { me: MeWithPrefs }) {
   return (
     <div>
       {!me.emailVerified && me.email && (
-        <p className="mb-4 text-xs text-amber-800 dark:text-amber-200">Confirm your email first; we only send these to confirmed addresses.</p>
+        <p className="mb-4 text-xs text-brand-700 dark:text-brand-300">Confirm your email first; we only send these to confirmed addresses.</p>
       )}
       <ul className="space-y-3">
         {PREFS.map((p) => (
@@ -348,9 +348,9 @@ export default function SettingsView({ connected }: { connected?: string | null 
             <p className="flex flex-wrap items-center gap-2 text-sm text-ink">
               <strong>{me.email}</strong>
               {me.emailVerified ? (
-                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200">Confirmed</span>
+                <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs font-semibold text-brand-700 dark:text-brand-300">Confirmed</span>
               ) : (
-                <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800 dark:bg-amber-400/10 dark:text-amber-200">Not confirmed</span>
+                <span className="rounded-full bg-ink/[0.07] px-2 py-0.5 text-xs font-semibold text-ink/70">Not confirmed</span>
               )}
             </p>
             {!me.emailVerified && <VerifyEmailBanner email={me.email} verified={false} linkResult={null} />}

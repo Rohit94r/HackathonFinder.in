@@ -15,11 +15,11 @@ export const GET = route(
   { auth: 'optional', rate: { limit: 120, windowMs: 60_000, key: 'team-posts' } }
 );
 
-/** Posts a team for an open hackathon. */
+/** Posts a team for an open hackathon, or for any hackathon (hackathonSlug ''). */
 export const POST = route(
-  async ({ req, user }) => {
+  async ({ req, user, ip }) => {
     const body = await readBody(req, NewTeamPost);
-    return { post: await createTeamPost(user!, body) };
+    return { post: await createTeamPost(user!, body, ip) };
   },
   { auth: 'required', rate: { limit: 20, windowMs: 60 * 60_000, key: 'team-post-create' } }
 );

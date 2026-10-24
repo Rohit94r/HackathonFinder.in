@@ -25,12 +25,12 @@ export default function VerifyEmailBanner({
   if (verified) {
     if (linkResult !== 'ok' || dismissed) return null;
     return (
-      <div role="status" className="flex items-start gap-3 rounded-[14px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-100">
+      <div role="status" className="flex items-start gap-3 rounded-[14px] border border-accent/25 bg-accent/[0.07] px-4 py-3 text-sm text-ink">
         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
         <p className="flex-1">
           <strong>Email confirmed.</strong> You’ll now get deadline reminders and team requests at {email}.
         </p>
-        <button type="button" onClick={() => setDismissed(true)} className="rounded-lg p-1 hover:bg-emerald-100 dark:hover:bg-emerald-400/10" aria-label="Dismiss">
+        <button type="button" onClick={() => setDismissed(true)} className="rounded-lg p-1 hover:bg-ink/5" aria-label="Dismiss">
           <X className="h-4 w-4" />
         </button>
       </div>
@@ -52,7 +52,7 @@ export default function VerifyEmailBanner({
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-[14px] border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 sm:flex-row sm:items-center dark:border-amber-400/25 dark:bg-amber-400/10 dark:text-amber-100">
+    <div className="flex flex-col gap-3 rounded-[14px] border border-ink/15 bg-ink/[0.04] px-4 py-3 text-sm text-ink sm:flex-row sm:items-center">
       <MailWarning className="hidden h-5 w-5 shrink-0 sm:block" aria-hidden="true" />
       <p className="flex-1" aria-live="polite">
         {sent ? (

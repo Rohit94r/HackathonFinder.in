@@ -99,7 +99,7 @@ export default function WinCard({
       <div className="flex flex-1 flex-col p-5">
         <div className="flex flex-wrap items-center gap-2">
           <ResultBadge result={c.result} />
-          {isMine && <span className="rounded bg-pop px-1.5 py-0.5 text-[10px] font-bold uppercase text-navy">You</span>}
+          {isMine && <span className="rounded bg-accent px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">You</span>}
         </div>
         <h3 className="mt-3 break-words font-display text-xl font-bold leading-snug">
           <Link href={`/wins/${c.slug}`} className="after:absolute after:inset-0 after:content-[''] group-hover:underline">

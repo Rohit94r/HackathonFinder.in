@@ -6,7 +6,7 @@
   /*
    * Theme colours as RGB channels, used by the ink, surface and card Tailwind colours.
    * Same palette as the landing page (components/landing/landing.css): charcoal or white,
-   * with red and orange as the only brand colours.
+   * with red and white as the only brand colours.
    */
   :root {
     --hf-ink: 23 23 29;
@@ -86,13 +86,13 @@
   }
   /* Pill buttons, as on the landing page. */
   .btn {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-transparent px-6 py-3 text-base font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-pop focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-transparent px-6 py-3 text-base font-semibold transition focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-60;
   }
   .btn-primary {
     @apply btn border-accent bg-accent text-white hover:border-[#f04a61] hover:bg-[#f04a61] hover:shadow-glow;
   }
   .btn-lime {
-    @apply btn border-pop bg-pop text-navy hover:border-[#ff9d52] hover:bg-[#ff9d52];
+    @apply btn border-pop bg-pop text-navy hover:border-pop-soft hover:bg-pop-soft;
   }
   .btn-secondary {
     @apply btn border-ink/80 bg-transparent text-ink hover:border-ink hover:bg-ink hover:text-surface;
@@ -118,13 +118,13 @@
   /* Page header: white with a red fade (light) or charcoal with a warm glow (dark), like the landing hero. */
   .hf-hero {
     background:
-      radial-gradient(70% 60% at 50% 100%, rgba(255, 140, 55, 0.12) 0%, transparent 70%),
+      radial-gradient(70% 60% at 50% 100%, rgba(236, 55, 80, 0.1) 0%, transparent 70%),
       linear-gradient(180deg, rgba(236, 55, 80, 0.02) 0%, rgba(236, 55, 80, 0.05) 55%, rgba(236, 55, 80, 0.2) 100%),
       #ffffff;
   }
   [data-theme='dark'] .hf-hero {
     background:
-      radial-gradient(90% 55% at 50% 100%, rgba(255, 140, 55, 0.14) 0%, transparent 70%),
+      radial-gradient(90% 55% at 50% 100%, rgba(236, 55, 80, 0.14) 0%, transparent 70%),
       linear-gradient(180deg, rgba(236, 55, 80, 0.02) 0%, rgba(236, 55, 80, 0.06) 55%, rgba(236, 55, 80, 0.3) 100%),
       #17171d;
   }
@@ -163,22 +163,22 @@
   @apply my-6 rounded-r-xl border-l-4 border-brand-500 bg-brand-50 px-5 py-4 italic text-ink/80 dark:bg-brand-500/10;
 }
 
-/* Red-to-orange gradient text for the second line of big headers, on dark panels. */
+/* Red gradient text for the second line of big headers, on dark panels. */
 .text-neon {
-  background-image: linear-gradient(90deg, #ff5a70 0%, #ff8c37 100%);
+  background-image: linear-gradient(90deg, #ff5a70 0%, #ff9aab 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 /* Follows the theme: deeper on light backgrounds (same as the landing's --grad-deep). */
 .text-neon-dark {
-  background-image: linear-gradient(90deg, #b3203d 0%, #d96b1d 100%);
+  background-image: linear-gradient(90deg, #b3203d 0%, #ec3750 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
 }
 [data-theme='dark'] .text-neon-dark {
-  background-image: linear-gradient(90deg, #ff5a70 0%, #ff8c37 100%);
+  background-image: linear-gradient(90deg, #ff5a70 0%, #ff9aab 100%);
 }
 
 /* Flickering neon strips on buildings. */

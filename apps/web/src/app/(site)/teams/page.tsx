@@ -2,7 +2,6 @@ import type { Metadata } from 'next';
 import { CITIES } from '@hackathonfinder/shared';
 import TeamBoard from '@/components/teams/TeamBoard';
 import { DEFAULT_FILTERS, peopleQuery, teamPostsQuery, type TeamEvent, type TeamTab } from '@/components/teams/teamUtils';
-import { PageHero } from '@/components/ui';
 import { byDeadline, openOnly } from '@/lib/hackathons';
 import { getSessionUser } from '@/server/auth';
 import { getHackathons } from '@/server/hackathons';
@@ -40,25 +39,19 @@ export default async function TeamsPage({ searchParams }: { searchParams: Record
   const peopleQs = peopleQuery(filters, { near: null, match: [], lack: [] });
   const initial = await loadTeamBoard(teamsQs, peopleQs, user?.id);
 
+  // No page hero: the board, with its own one-line title, starts right under the navbar.
   return (
-    <>
-      <PageHero
-        title="Find your"
-        accent="hackathon team"
-        description="Good teammates are out there, from Pune to Kochi to Kolkata. Post the skills you have and the ones you need, join a team that needs you, or invite students who are looking."
-      />
-      <section className="bg-surface py-10">
-        <div className="container-page">
-          <TeamBoard
-            events={events}
-            initialTab={tab}
-            initialCity={city}
-            initialHackathon={hackathon}
-            initialTeams={{ query: teamsQs, page: initial.teams }}
-            initialPeople={{ query: peopleQs, page: initial.people }}
-          />
-        </div>
-      </section>
-    </>
+    <section className="bg-surface py-6 sm:py-8">
+      <div className="container-page">
+        <TeamBoard
+          events={events}
+          initialTab={tab}
+          initialCity={city}
+          initialHackathon={hackathon}
+          initialTeams={{ query: teamsQs, page: initial.teams }}
+          initialPeople={{ query: peopleQs, page: initial.people }}
+        />
+      </div>
+    </section>
   );
 }

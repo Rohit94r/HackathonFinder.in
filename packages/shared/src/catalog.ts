@@ -85,11 +85,13 @@ export const SOURCES: Source[] = [
   { slug: 'lablab', name: 'lablab.ai', kind: 'platform', url: 'https://lablab.ai' },
   { slug: 'kaggle', name: 'Kaggle', kind: 'platform', url: 'https://www.kaggle.com' },
   { slug: 'google', name: 'Google Search', kind: 'search', url: 'https://www.google.com' },
+  { slug: 'web', name: 'Web search', kind: 'search', url: 'https://duckduckgo.com' },
   { slug: 'instagram', name: 'Instagram', kind: 'social', url: 'https://www.instagram.com' },
   { slug: 'linkedin', name: 'LinkedIn', kind: 'social', url: 'https://www.linkedin.com' },
   { slug: 'facebook', name: 'Facebook', kind: 'social', url: 'https://www.facebook.com' },
   { slug: 'luma', name: 'Luma', kind: 'events', url: 'https://lu.ma' },
   { slug: 'eventbrite', name: 'Eventbrite', kind: 'events', url: 'https://www.eventbrite.com' },
+  { slug: 'knowafest', name: 'KnowAFest', kind: 'events', url: 'https://www.knowafest.com' },
   { slug: 'meetup', name: 'Meetup', kind: 'events', url: 'https://www.meetup.com' },
   { slug: 'college-sites', name: 'College websites', kind: 'college', url: '/how-it-works' },
   { slug: 'whatsapp', name: 'WhatsApp', kind: 'community', url: '/how-it-works' },
@@ -112,9 +114,25 @@ export function themeName(slug: string): string {
   return THEMES.find((t) => t.slug === slug)?.name ?? slug;
 }
 
-export function cityName(slug?: string): string {
-  if (!slug) return 'Online';
-  return CITIES.find((c) => c.slug === slug)?.name ?? slug;
+/** "navi-mumbai" → "Navi Mumbai", for city slugs outside the catalog. */
+function titleFromSlug(slug: string): string {
+  return slug
+    .split('-')
+    .filter(Boolean)
+    .map((w) => w[0].toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+/** A city's name: the catalog name, else the stored label, else the slug in title case. */
+export function cityName(slug?: string, label?: string): string {
+  if (!slug) return label || 'Online';
+  return CITIES.find((c) => c.slug === slug)?.name ?? (label || titleFromSlug(slug));
+}
+
+/** Where an event is, for cards: "Online", or its city. */
+export function placeName(h: { mode: string; city?: string; cityName?: string }): string {
+  if (h.mode === 'online') return 'Online';
+  return h.city || h.cityName ? cityName(h.city, h.cityName) : 'India';
 }
 
 export function eventTypeLabel(type: EventType): string {

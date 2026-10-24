@@ -4,8 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import { Bell, Bookmark, LogIn, LogOut, Settings, Shield, UserPlus, UserRound, type LucideIcon } from 'lucide-react';
+import { Bell, Bookmark, LogIn, LogOut, MessagesSquare, Settings, UserPlus, UserRound, type LucideIcon } from 'lucide-react';
 import Avatar from '@/components/Avatar';
+import { useUnreadMessages } from '@/components/messages/useChat';
 import { NOTIFICATION_ICONS, useMarkRead, useNotificationBell, whenLabel } from '@/components/profile/notificationParts';
 import { cn } from '@/lib/cn';
 import { withNext } from './authUtils';
@@ -153,17 +154,17 @@ interface MenuLink {
   badge?: number;
 }
 
+// The admin dashboard has no link here on purpose: admins open it by typing /admin.
 function useAccountLinks(): MenuLink[] {
-  const { data: session } = useSession();
   const { data } = useNotificationBell();
-  const links: MenuLink[] = [
+  const { data: chats } = useUnreadMessages();
+  return [
     { href: '/profile', label: 'Profile', icon: UserRound },
+    { href: '/messages', label: 'Messages', icon: MessagesSquare, badge: chats?.unread },
     { href: '/saved', label: 'My hackathons', icon: Bookmark },
     { href: '/notifications', label: 'Notifications', icon: Bell, badge: data?.unread },
     { href: '/settings', label: 'Settings', icon: Settings },
   ];
-  if (session?.user?.role === 'admin') links.push({ href: '/admin', label: 'Admin', icon: Shield });
-  return links;
 }
 
 /** Avatar button with the account menu. */
@@ -172,6 +173,8 @@ export function AccountMenu() {
   const [open, setOpen] = useState(false);
   const ref = useDismiss(open, () => setOpen(false));
   const links = useAccountLinks();
+  const { data: chats } = useUnreadMessages();
+  const unreadChats = chats?.unread ?? 0;
   const user = session?.user;
   if (!user) return null;
 
@@ -180,13 +183,14 @@ export function AccountMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="inline-flex rounded-full transition hover:ring-2 hover:ring-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="relative inline-flex rounded-full transition hover:ring-2 hover:ring-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-expanded={open}
         aria-controls="nav-account"
-        aria-label={`Your account, ${user.name}`}
+        aria-label={unreadChats ? `Your account, ${user.name}, ${unreadChats} unread messages` : `Your account, ${user.name}`}
         title="Your account"
       >
         <Avatar name={user.name || 'You'} image={user.image} size="sm" className="h-10 w-10 ring-0" />
+        {unreadChats > 0 && <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-surface bg-accent" aria-hidden="true" />}
       </button>
       {open && (
         <div id="nav-account" className={cn(PANEL, 'absolute right-0 top-full mt-3 w-64 p-2')}>

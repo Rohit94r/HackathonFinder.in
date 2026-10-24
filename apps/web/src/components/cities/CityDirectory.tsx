@@ -30,7 +30,7 @@ function NextDeadline({ events }: { events: HackathonView[] }) {
   const next = events[0];
   if (!next) return null;
   return (
-    <span className={cn('font-semibold', next.status === 'closing-soon' ? 'text-orange-600 dark:text-orange-300' : 'text-ink')}>
+    <span className={cn('font-semibold', next.status === 'closing-soon' ? 'text-brand-600 dark:text-brand-300' : 'text-ink')}>
       {deadlineLabel(next.daysToDeadline)}
     </span>
   );
@@ -259,7 +259,7 @@ export default function CityDirectory({ items }: CityDirectoryProps) {
           <div className="card h-44 animate-pulse" aria-hidden="true" />
         ) : shortlist.length === 0 ? (
           <div className="card flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center">
-            <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-pop text-navy">
+            <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-white">
               <Star className="h-6 w-6 fill-current" />
             </span>
             <div className="flex-1">

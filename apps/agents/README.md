@@ -1,0 +1,134 @@
+# Discovery agents
+
+The engine that finds hackathons and keeps HackathonFinder's listings real and current. It reads
+hackathon platforms, event sites and web search, turns what it finds into listings (dates in India
+time, place on the map, banner copied to Cloudinary, our own short summary), merges the same event
+found on several sites into one listing, and publishes it, or puts it in the admin review queue.
+
+One function, `runScrape()` in `src/run.ts`, does a whole run. The CLI, the website's **Scrape now**
+button, the scheduled runs and the cron route all call it.
+
+## Sources
+
+| Source | How we read it | Key needed | What it gives |
+|---|---|---|---|
+| Unstop (`unstop`) | Public listing API (`/api/public/*`, allowed by robots.txt), plus each competition's page for new listings | — | Open hackathons, venue, deadline, team size, fee, prizes, banner, event dates |
+| Devfolio (`devfolio`) | The search API devfolio.co uses (open for applications, and opening soon) | — | Dates with offsets, venue, team size, cover image |
+| Devpost (`devpost`) | Listing API (open and upcoming) | — | Mostly online, worldwide; in-person events only when clearly in India |
+| MLH (`mlh`) | The season page's embedded JSON (mlh.io → mlh.com) | — | Online events and those in India (in-person abroad is rejected) |
+| HackerEarth (`hackerearth`) | Public events feed | — | Online hackathons and challenges, cover images |
+| lablab.ai (`lablab`) | schema.org Events on the newest event pages | — | Online AI hackathons, banners |
+| KnowAFest (`knowafest`) | Public event-search JSON API, plus schema.org Event on each event page | — | College hackathons across India, posters, the organizer's own registration form |
+| Web search (`web`) | Google Custom Search (`GOOGLE_CSE_KEY` + `GOOGLE_CSE_CX`) or Brave Search (`BRAVE_SEARCH_API_KEY`) when set, else DuckDuckGo's HTML page; then each result page through the polite client | optional | College and event pages for our cities; results go to review |
+| Instagram (`instagram`) | Public posts found by web search (`site:instagram.com …`); with `INSTAGRAM_ACCESS_TOKEN` + `INSTAGRAM_BUSINESS_ACCOUNT_ID`, also hashtag posts from Meta's official Graph API | optional | Leads for the review queue (post link, caption dates, QR registration) |
+| LinkedIn (`linkedin`), Facebook (`facebook`) | Public posts and events found by web search | optional | Leads for the review queue |
+
+DuckDuckGo often shows crawlers a challenge page. We stop at the first one (no retries, no
+CAPTCHA solving, no browser user agent), mark the source **blocked** and try again next run. For
+reliable web and social discovery add a Google Custom Search or Brave Search API key.
+
+Not included yet: Hack2skill (its listings load with JavaScript only), DoraHacks (behind a bot
+challenge), Kaggle and Eventbrite (need keys; Eventbrite has no public event search any more).
+
+## Running it
+
+```bash
+pnpm agents:run                                  # every enabled source, written to MONGODB_URI
+pnpm agents:run --source unstop,devfolio --limit 20
+pnpm agents:run --dry-run                        # read and show what would happen; nothing is written or uploaded
+pnpm agents:sources                              # sources, missing keys, health; add --sync to create the Source docs
+pnpm agents:schedule                             # long-running worker: scrapes at 02:00 and 14:00 India time
+pnpm --filter @hackathonfinder/agents test       # tests (a throwaway MongoDB; never the real one)
+```
+
+The root `.env` is read by everything. The website imports the engine as `@hackathonfinder/agents`.
+
+## Schedule and "Scrape now"
+
+Scrapes run at **02:00 and 14:00 Asia/Kolkata**. Each time is a slot with an id like
+`2026-10-25T02:00+05:30`, and `AgentRun.slot` is unique, so a slot runs once even when several
+things fire for it:
+
+- **The website** (`apps/web/src/instrumentation.ts`): on a long-running Node server (`next start`
+  or `next dev`) it starts the timer when the server starts. Off with `SCRAPE_SCHEDULER=off`, and on
+  Vercel. In production it also catches up once on startup if the latest slot was missed while the
+  server was off (nothing ran since that slot, and the next slot is more than an hour away);
+  `SCRAPE_CATCHUP=on|off` overrides this, e.g. to try it in development.
+- **Vercel Cron** (`apps/web/vercel.json`): `GET /api/cron/scrape` at 20:30 and 08:30 UTC, with
+  `Authorization: Bearer $CRON_SECRET`. It waits for the run and stops taking new items after four
+  minutes (the function's limit is five); what's left is picked up by the next run.
+- **The worker** (`pnpm agents:schedule`): the same timer for hosts without the website, with the
+  same catch-up.
+
+**Scrape now** in the admin dashboard calls `startScrape()` (`apps/web/src/server/scrape.ts`): it
+records the run and returns at once; the work carries on in the background and writes its progress,
+counts and every item it created, updated, merged, sent to review or rejected into the `AgentRun`, so
+the dashboard can follow it.
+
+Only one scrape runs at a time: a unique index on `AgentRun` (one `running` run per agent) makes the
+database refuse a second one, so a click during a scheduled run gets that run back. A run still
+"running" after 45 minutes is taken as dead (the server restarted) and marked failed; runs stop taking
+new items after 40 minutes.
+
+## What a run does
+
+1. **Read** every enabled source in parallel. Each site gets one request at a time with a pause in
+   between, after robots.txt; a source that fails or is blocked doesn't stop the others (the run ends
+   `partial`, and the source's health shows it).
+2. **Normalize** each candidate: dates in India time, mode, our city slug (localities map to their city;
+   other cities keep their name, e.g. `bhopal` / "Bhopal"), team size, fee, prizes, eligibility, themes
+   (rule-based tagger in `packages/ai`) and type.
+3. **Skip what hasn't changed.** Every candidate's content is hashed (`RawItem`); if it is the same as
+   last time and the listing already has its banner, only "last checked" moves. Detail pages are read
+   only for new listings and ones still without an image, so a second run takes seconds per source.
+4. **Validate**: title, dates, deadline, a registration link and the mode are required; ended events,
+   new events whose registration closed, and in-person events outside India are rejected. Rules flag
+   high fees, URL shorteners, payment links, odd prizes and spam words.
+5. **Enrich**: in-person events in India are placed on the map with OpenStreetMap Nominatim (venue
+   first, then the city; one request a second; every answer cached in `GeoCache`; a hit in another
+   state is ignored). The banner (else the organizer's logo) is copied to Cloudinary. When
+   registration is by QR code, the poster's QR is read and its link used.
+6. **Dedupe** against recent listings (never the sample listings): same source id, same page, same
+   registration link, or a very similar title starting within two days in the same city.
+7. **Publish**: new listings from platforms and event sites go **live** when nothing is flagged;
+   everything else (search results, social posts, flagged listings) goes to the review queue
+   (`pending`). Existing listings get fresh dates, missing fields and the new source; titles,
+   summaries and admin edits are never overwritten, and removed listings stay removed.
+
+## Data rules
+
+- Every request goes through `src/http.ts`: robots.txt first, an honest user agent
+  (`CRAWLER_USER_AGENT`), one request per site at a time, backoff on 429/5xx, time and size limits.
+  Bot checks and CAPTCHAs stop the source; we never try to get around them.
+- An SSRF guard (`src/net.ts`) refuses localhost, private, link-local and internal hosts on every
+  request and redirect, and before any image is mirrored.
+- No logins, ever. We don't crawl Instagram, LinkedIn or Facebook: posts reach us through search
+  results, Meta's official Graph API (with a token), the browser extension and submissions.
+- Official APIs (Graph API, Custom Search, Brave, Nominatim, Cloudinary) follow their own terms and
+  limits instead of robots.txt. Geocoding data © OpenStreetMap contributors (ODbL).
+- Scraped text is only read, never shown: every listing gets our own template summary (or Claude's,
+  when `ANTHROPIC_API_KEY` is set) and links to the official registration page. Strings are capped
+  and HTML is stripped; nothing from a source is used as a database query operator.
+- Secrets never reach the logs: run logs mask tokens in URLs and credentials in connection strings.
+
+## Images
+
+Banners are uploaded to Cloudinary by URL (Cloudinary fetches them; when a site refuses Cloudinary we
+download the image politely and upload the bytes), signed, into `hackathonfinder/banners`, with a
+public id from the source, the event id and a hash of the image URL and `overwrite=false`, so a rerun
+never stores a copy twice. Listings use the Cloudinary URL with `f_auto,q_auto,c_limit,w_1200`; the
+original is kept in `sourceImageUrl`. If an upload fails, the source link is kept and the next run
+tries again. Without Cloudinary, banners link to their source. No banner and no logo: the website
+shows an event photo instead.
+
+## Adding a source
+
+1. Write `src/connectors/<slug>.ts` exporting a `Connector` (`src/types.ts`): `slug` (add it to
+   `SOURCES` in `packages/shared/src/catalog.ts`), `kind`, `trust`, a one-line `description`, and
+   `fetch(ctx)` returning `RawCandidate[]`. Map only what the source states; dates as ISO strings
+   (with an offset when the source has one), the official event page as `registrationUrl`, the banner
+   as `imageUrl`. Use `ctx.http` for every request.
+2. If the list leaves out the banner or dates, add `detail(candidate, ctx)`; the runner calls it only
+   when needed.
+3. Register it in `src/connectors/index.ts`, add a test with a small saved fixture in `test/`, and run
+   `pnpm agents:run --source <slug> --dry-run`.

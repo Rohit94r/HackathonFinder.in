@@ -9,6 +9,6 @@ export const GET = route(
 
 /** Start a discussion. */
 export const POST = route(
-  async ({ req, user }) => ({ thread: await createThread(user!, await readBody(req, NewThreadSchema)) }),
+  async ({ req, user, ip }) => ({ thread: await createThread(user!, await readBody(req, NewThreadSchema), ip) }),
   { auth: 'required', rate: { limit: 5, windowMs: 10 * 60_000, key: 'thread-post' } }
 );

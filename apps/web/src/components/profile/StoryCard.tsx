@@ -1,20 +1,22 @@
 import Link from 'next/link';
 import { Heart, MapPin } from 'lucide-react';
 import { cityName } from '@hackathonfinder/shared';
-import EventArt from '@/components/hackathon/EventArt';
+import { isPhotoUrl } from '@/data/people';
 import ResultBadge from '@/components/wins/ResultBadge';
-import { RESULT_LABELS } from '@/data/people';
 import { monthYear, type ProfileStory } from './profileTypes';
 
-/** A winning story on a profile. The title link covers the card. */
+/** A winning story on a profile, with its cover photo when it has one. The title link covers the card. */
 export default function StoryCard({ story, mine = false }: { story: ProfileStory; mine?: boolean }) {
   return (
     <article className="group card relative flex flex-col overflow-hidden transition duration-200 hover:-translate-y-1 hover:shadow-lift">
-      <EventArt theme={story.themes[0] ?? 'open-innovation'} title={story.projectName} label={RESULT_LABELS[story.result]} className="h-28" />
+      {isPhotoUrl(story.coverUrl) && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={story.coverUrl} alt="" className="aspect-[16/9] w-full object-cover" loading="lazy" />
+      )}
       <div className="flex flex-1 flex-col p-5">
         <div className="flex flex-wrap items-center gap-2">
           <ResultBadge result={story.result} />
-          {mine && <span className="rounded bg-pop px-1.5 py-0.5 text-[10px] font-bold uppercase text-navy">You</span>}
+          {mine && <span className="rounded bg-ink px-1.5 py-0.5 text-[10px] font-bold uppercase text-surface">You</span>}
         </div>
         <h3 className="mt-3 font-sans text-lg font-bold leading-snug">
           <Link href={`/wins/${story.slug}`} className="after:absolute after:inset-0 after:content-[''] group-hover:underline">

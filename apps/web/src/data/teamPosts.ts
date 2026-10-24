@@ -35,7 +35,9 @@ export interface TeamPost {
   /** City slug from CITIES, or 'online' for teams with no home city. */
   city: string;
   mode: TeamMode;
+  /** Empty when the team is open to any hackathon. */
   hackathonSlug: string;
+  /** The listing's title, or "Any hackathon". */
   hackathonTitle: string;
   /** ISO; empty when the listing is gone. */
   hackathonDeadline: string;
@@ -90,6 +92,7 @@ export interface PeoplePage {
 /** The team post a request or invite is about. */
 export interface PostSummary {
   id: string;
+  /** Empty when the team is open to any hackathon. */
   hackathonSlug: string;
   hackathonTitle: string;
   city: string;
@@ -111,6 +114,8 @@ export interface JoinRequest {
   from: TeamStudent;
   /** The post's author. */
   to: TeamStudent;
+  /** Once accepted: the chat between the two students. */
+  conversationId?: string;
 }
 
 /** A student inviting another student, optionally to one of their team posts. */
@@ -123,6 +128,8 @@ export interface TeamInvite {
   post: PostSummary | null;
   from: TeamStudent;
   to: TeamStudent;
+  /** Once accepted: the chat between the two students. */
+  conversationId?: string;
 }
 
 export interface Inbox<T> {

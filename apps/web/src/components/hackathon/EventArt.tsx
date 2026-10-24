@@ -1,13 +1,21 @@
-import { themeStyle } from '@/lib/themeStyles';
+import { PHOTOS } from '@/components/landing/photos';
 import { cn } from '@/lib/cn';
+import BannerImage from './BannerImage';
 
 interface EventArtProps {
-  theme: string;
+  /** Kept for callers that pass it; the cover no longer depends on the theme. */
+  theme?: string;
   title: string;
   label?: string;
   className?: string;
   size?: 'card' | 'hero';
+  /** The event's own banner or poster. Without one, a real event photo is shown. */
+  imageUrl?: string;
+  /** Load straight away (above the fold). */
+  eager?: boolean;
 }
+
+const FALLBACK_PHOTOS = Object.values(PHOTOS).map((p) => p.src);
 
 function hash(s: string): number {
   let h = 0;
@@ -15,56 +23,59 @@ function hash(s: string): number {
   return h;
 }
 
-/** Generated cover art: theme gradient, a soft pattern and the theme icon. */
-export default function EventArt({ theme, title, label, className, size = 'card' }: EventArtProps) {
-  const { icon: Icon, gradient } = themeStyle(theme);
-  const seed = hash(title);
-  const cx = 20 + (seed % 60);
-  const cy = 10 + ((seed >> 4) % 60);
-  const initials = title
-    .split(/\s+/)
-    .filter((w) => /^[A-Za-z]/.test(w))
-    .slice(0, 2)
-    .map((w) => w[0])
-    .join('')
-    .toUpperCase();
+/** A real event photo picked from the title, so the same event always gets the same one. */
+export function fallbackPhoto(title: string): string {
+  return FALLBACK_PHOTOS[hash(title) % FALLBACK_PHOTOS.length];
+}
+
+const CLOUDINARY_UPLOAD = /^(https:\/\/res\.cloudinary\.com\/[^/]+\/image\/upload\/)(?:[a-z]_[^/]*\/)?(v\d+\/.+)$/;
+
+/**
+ * Banners we store on Cloudinary are asked for at the size the box needs (a card is
+ * ~400px wide), so cards load fast. Other links are used as they are.
+ */
+export function sizedImage(url: string, width: number): string {
+  const m = url.match(CLOUDINARY_UPLOAD);
+  return m ? `${m[1]}f_auto,q_auto,c_limit,w_${width}/${m[2]}` : url;
+}
+
+/**
+ * Cover image for an event or story. The organizer's banner is shown whole (posters and
+ * wide banners both fit, over a blurred copy of themselves); without one, a real photo
+ * from a hackathon fills the box. Never an empty or generated box.
+ */
+export default function EventArt({ title, label, className, size = 'card', imageUrl: rawImage, eager = false }: EventArtProps) {
+  const photo = fallbackPhoto(title);
+  const imageUrl = rawImage ? sizedImage(rawImage, size === 'hero' ? 1400 : 640) : undefined;
 
   return (
-    <div className={cn('relative overflow-hidden bg-gradient-to-br', gradient, className)}>
-      <svg className="absolute inset-0 h-full w-full opacity-30" aria-hidden="true">
-        <defs>
-          <pattern id={`dots-${seed}`} width="16" height="16" patternUnits="userSpaceOnUse">
-            <circle cx="2" cy="2" r="1.2" fill="white" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill={`url(#dots-${seed})`} />
-      </svg>
-      <div
-        className="absolute h-56 w-56 rounded-full bg-white/20 blur-2xl"
-        style={{ left: `${cx}%`, top: `${cy}%`, transform: 'translate(-50%, -50%)' }}
-        aria-hidden="true"
-      />
-      <div className="relative flex h-full items-end justify-between p-4">
+    // Neutral grey while the banner downloads, so a loading card never looks like an empty black box.
+    <div className={cn('relative overflow-hidden bg-[#2a2930]', className)}>
+      {imageUrl ? (
+        <>
+          {/* Blurred copy behind, so a poster or an odd-sized banner never leaves bare bars. */}
+          <div aria-hidden="true" className="absolute inset-0 scale-110 opacity-60 blur-xl">
+            <BannerImage src={imageUrl} fallback={photo} alt="" className="object-cover" eager={eager} />
+          </div>
+          <div className="absolute inset-0">
+            <BannerImage src={imageUrl} fallback={photo} alt={`${title} banner`} className="object-contain" eager={eager} />
+          </div>
+        </>
+      ) : (
+        <div className="absolute inset-0">
+          <BannerImage src={photo} fallback={photo} alt="" className="object-cover" eager={eager} />
+        </div>
+      )}
+      {label && (
         <span
           className={cn(
-            'font-display font-bold leading-none text-white/90 drop-shadow-sm',
-            size === 'hero' ? 'text-7xl sm:text-8xl' : 'text-4xl'
+            'absolute left-3 top-3 rounded-md bg-black/70 px-2 py-1 font-semibold uppercase tracking-wider text-white',
+            size === 'hero' ? 'text-xs' : 'text-[10px]'
           )}
-          aria-hidden="true"
         >
-          {initials}
+          {label}
         </span>
-        <div className="flex flex-col items-end gap-2">
-          {label && (
-            <span className="rounded-full bg-black/25 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider text-white backdrop-blur">
-              {label}
-            </span>
-          )}
-          <span className="inline-flex rounded-2xl bg-white/20 p-2.5 text-white backdrop-blur">
-            <Icon className={size === 'hero' ? 'h-8 w-8' : 'h-5 w-5'} />
-          </span>
-        </div>
-      </div>
+      )}
     </div>
   );
 }

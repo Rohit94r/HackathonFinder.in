@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Check, ChevronDown, Inbox as InboxIcon, Undo2, X } from 'lucide-react';
+import { Check, ChevronDown, Inbox as InboxIcon, MessageCircle, Undo2, X } from 'lucide-react';
 import Avatar from '@/components/Avatar';
 import type { Inbox, JoinRequest, TeamInvite, TeamStudent } from '@/data/teamPosts';
 import { timeAgo } from '@/lib/format';
@@ -27,6 +27,8 @@ interface Row {
   message: string;
   at: string;
   status: JoinRequest['status'];
+  /** The chat that opened when this was accepted. */
+  chat?: string;
   onAnswer?: (status: Answer) => Promise<void>;
   onWithdraw?: () => Promise<void>;
 }
@@ -61,9 +63,9 @@ function RowItem({ row, now }: { row: Row; now: string }) {
   const pending = row.status === 'pending';
 
   return (
-    <li className="rounded-xl bg-ink/5 p-3">
+    <li className="rounded-xl border border-ink/10 p-3">
       <div className="flex items-start gap-3">
-        <Avatar name={row.person.name} size="sm" />
+        <Avatar name={row.person.name} image={row.person.image} size="md" className="ring-0" />
         <div className="min-w-0 flex-1">
           <p className="text-sm text-ink">
             {row.line} {row.person.isSample && <SampleBadge />}
@@ -73,6 +75,15 @@ function RowItem({ row, now }: { row: Row; now: string }) {
         </div>
         {!(pending && (row.onAnswer || row.onWithdraw)) && <StatusChip status={row.status} />}
       </div>
+      {row.status === 'accepted' && row.chat && (
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <p className="text-xs text-ink/60">You can chat now.</p>
+          <Link href={`/messages/${row.chat}`} className="btn-primary shrink-0 px-3 py-1.5 text-xs">
+            <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+            Message
+          </Link>
+        </div>
+      )}
       {pending && row.onAnswer && (
         <div className="mt-3 flex gap-2">
           <button type="button" disabled={busy} onClick={() => run(() => row.onAnswer!('accepted'))} className="btn-primary flex-1 px-3 py-1.5 text-xs">
@@ -134,7 +145,7 @@ export default function MyRequestsPanel({
 }: MyRequestsPanelProps) {
   const [open, setOpen] = useState(true);
   const now = new Date().toISOString();
-  const event = (r: JoinRequest | TeamInvite) => r.post?.hackathonTitle;
+  const event = (r: JoinRequest | TeamInvite) => (r.post ? (r.post.hackathonSlug ? r.post.hackathonTitle : 'any hackathon') : undefined);
 
   const received: Row[] = [
     ...requests.received.map<Row>((r) => ({
@@ -149,6 +160,7 @@ export default function MyRequestsPanel({
       message: r.message,
       at: r.updatedAt,
       status: r.status,
+      chat: r.conversationId,
       onAnswer: (status) => onAnswerRequest(r.id, status),
     })),
     ...invites.received.map<Row>((i) => ({
@@ -163,6 +175,7 @@ export default function MyRequestsPanel({
       message: i.message,
       at: i.updatedAt,
       status: i.status,
+      chat: i.conversationId,
       onAnswer: (status) => onAnswerInvite(i.id, status),
     })),
   ].sort(byPending);
@@ -182,6 +195,7 @@ export default function MyRequestsPanel({
       message: r.message,
       at: r.updatedAt,
       status: r.status,
+      chat: r.conversationId,
       onWithdraw: r.post?.removed ? undefined : () => onWithdrawRequest(r.id),
     })),
     ...invites.sent.map<Row>((i) => ({
@@ -196,6 +210,7 @@ export default function MyRequestsPanel({
       message: i.message,
       at: i.updatedAt,
       status: i.status,
+      chat: i.conversationId,
       onWithdraw: () => onWithdrawInvite(i.id),
     })),
   ].sort(byPending);

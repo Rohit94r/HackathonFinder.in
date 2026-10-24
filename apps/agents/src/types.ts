@@ -12,6 +12,8 @@ export interface CandidateData {
   organizerType?: OrganizerType;
   mode?: Mode;
   city?: string;
+  /** Indian state (or region abroad) as the source names it. */
+  region?: string;
   venue?: string;
   address?: string;
   country?: string;
@@ -42,8 +44,12 @@ export interface CandidateData {
   imageUrl?: string;
   logoUrl?: string;
   registrationUrl?: string;
+  /** "qr" when the source says registration is by scanning a QR code on the poster. */
+  registrationVia?: 'link' | 'qr';
   /** SOURCES slug shown on the listing when it differs from the connector (a Google result on linkedin.com → "linkedin"). */
   listingSource?: string;
+  /** Review notes from the connector (a search lead, a QR to check). Any flag keeps the listing in review. */
+  flags?: string[];
 }
 
 /** One thing the Scout found: an event from a platform, a post, a search result or a page. */
@@ -95,7 +101,17 @@ export interface Connector {
   extract: 'always' | 'missing';
   /** False when image URLs expire or may not be hotlinked (Instagram CDN); they're then only read, or mirrored. */
   storeImages?: boolean;
+  /** Env vars that add to the connector when set (an official API) but aren't needed. */
+  optionalEnv?: string[];
+  /** Off until an admin turns it on (new Source docs start disabled). */
+  disabledByDefault?: boolean;
   fetch(ctx: ConnectorContext): Promise<RawCandidate[]>;
+  /**
+   * Reads the event's own page for what the list leaves out (banner, start date, fee).
+   * The runner calls it only for new events and ones still missing an image, so repeat
+   * runs stay fast. Returns the candidate with the extra details filled in.
+   */
+  detail?(candidate: RawCandidate, ctx: ConnectorContext): Promise<RawCandidate>;
 }
 
 export interface RunCounts {

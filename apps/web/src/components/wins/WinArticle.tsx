@@ -17,8 +17,8 @@ import WinOwnerActions from './WinOwnerActions';
 import { daysBetween, type WinItem } from './model';
 
 const BANNER: Record<WinItem['result'], string> = {
-  winner: 'bg-amber-400 text-navy',
-  'runner-up': 'bg-pop text-navy',
+  winner: 'bg-accent text-white',
+  'runner-up': 'bg-white text-navy',
   finalist: 'bg-brand-600 text-white',
 };
 

@@ -72,7 +72,8 @@ const THEME_KEYWORDS: [ThemeSlug, RegExp][] = [
   ['web3', /\b(web3|web 3|blockchain|crypto|defi|nft|ethereum|solana|polygon|smart contract)s?\b/],
   ['fintech', /\b(fintech|finance|banking|payments?|upi|insurance|insurtech|trading)\b/],
   ['healthtech', /\b(health|healthcare|medtech|medical|hospital|wellness|mental health)\b/],
-  ['edtech', /\b(edtech|education|learning|students? tools?|teaching)\b/],
+  // "Machine learning" and "deep learning" are AI, not EdTech.
+  ['edtech', /\b(edtech|education|(?<!(machine|deep|reinforcement|federated|transfer) )learning|students? tools?|teaching)\b/],
   ['climate', /\b(climate|sustainab\w*|green|clean energy|renewable|carbon|environment\w*|ev\b|electric vehicle)\b/],
   ['social-impact', /\b(social impact|social good|ngo|community|accessibility|inclusion|sdg)\b/],
   ['iot', /\b(iot|internet of things|hardware|embedded|robotics|arduino|raspberry pi|esp32|drone)s?\b/],
@@ -82,12 +83,20 @@ const THEME_KEYWORDS: [ThemeSlug, RegExp][] = [
   ['web-dev', /\b(web dev\w*|web app|mobile app|app development|frontend|backend|full ?stack|android|ios|flutter|react)\b/],
 ];
 
-/** Up to three themes from free text; open-innovation when nothing matches. */
-export function inferThemes(text: string): ThemeSlug[] {
+const OPEN_THEME = /\b(open innovation|any theme|open theme|no theme|open track|open[- ]ended|build anything)\b/;
+
+/** Up to three themes the text names, open-innovation when it says there's no fixed theme; empty when it names none. */
+export function matchThemes(text: string): ThemeSlug[] {
   const t = text.toLowerCase();
   const found = THEME_KEYWORDS.filter(([, re]) => re.test(t)).map(([slug]) => slug);
-  if (/\b(open innovation|any theme|open theme|no theme|open track)\b/.test(t)) found.push('open-innovation');
-  return found.length ? [...new Set(found)].slice(0, 3) : ['open-innovation'];
+  if (OPEN_THEME.test(t)) found.push('open-innovation');
+  return [...new Set(found)].slice(0, 3);
+}
+
+/** Up to three themes from free text; open-innovation when nothing matches. */
+export function inferThemes(text: string): ThemeSlug[] {
+  const found = matchThemes(text);
+  return found.length ? found : ['open-innovation'];
 }
 
 export function inferEligibility(text: string): Eligibility[] {
@@ -122,14 +131,26 @@ export function inferMode(text: string): Mode {
   return offline ? 'offline' : online ? 'online' : 'offline';
 }
 
-/** Team size like "2-4", "up to 4 members", "solo or teams of 3". */
+const TEAM_RANGE = '(\\d{1,2})\\s*(?:-|–|—|to)\\s*(\\d{1,2})';
+
+/**
+ * Team size like "Team size: 2-4", "teams of 3–5 members", "up to 4 members", "solo".
+ * In longer text a range only counts next to the word team or members, so dates
+ * ("29–30 October") aren't read as team sizes; a short field ("2-4") is read as is.
+ */
 export function parseTeamSize(text: string | null | undefined): { min: number; max: number } | null {
   if (!text) return null;
-  const t = text.toLowerCase();
-  const range = t.match(/(\d{1,2})\s*(?:-|–|to)\s*(\d{1,2})\s*(?:members?|people|participants?)?/);
-  if (range) return { min: Math.max(1, +range[1]), max: Math.max(+range[1], +range[2]) };
-  const upTo = t.match(/(?:up ?to|max(?:imum)?(?: of)?)\s*(\d{1,2})/);
-  if (upTo) return { min: /solo|individual/.test(t) ? 1 : 1, max: +upTo[1] };
+  const t = text.toLowerCase().replace(/\s+/g, ' ');
+  const range =
+    t.match(new RegExp(`teams?(?: size)?(?: of)?(?: between)?\\s*[:\\-–]?\\s*${TEAM_RANGE}`)) ??
+    t.match(new RegExp(`${TEAM_RANGE}\\s*(?:members?|people|participants?|persons?|per team|students)\\b`)) ??
+    (t.length <= 40 ? t.match(new RegExp(`^\\D*${TEAM_RANGE}`)) : null);
+  if (range) {
+    const [min, max] = [+range[1], +range[2]];
+    if (min >= 1 && max >= min && max <= 20) return { min, max };
+  }
+  const upTo = t.match(/(?:up ?to|max(?:imum)?(?: of)?)\s*(\d{1,2})\s*(?:members?|people|participants?|per team)/) ?? t.match(/teams? of (?:up ?to )?(\d{1,2})\b(?! ?(?:-|–|to))/);
+  if (upTo && +upTo[1] >= 1 && +upTo[1] <= 20) return { min: 1, max: +upTo[1] };
   if (/\b(solo|individual)\b/.test(t) && !/team/.test(t)) return { min: 1, max: 1 };
   return null;
 }
@@ -140,21 +161,41 @@ export function templateSummary(e: {
   mode: Mode;
   organizer?: string;
   city?: string;
+  /** Label for a city outside the catalog ("Bhopal"). */
+  cityName?: string;
+  /** Empty when the source names no theme: then the summary says nothing about themes. */
   themes: ThemeSlug[];
   teamMin: number;
   teamMax: number;
+  /** False when the source doesn't state a team size: then the summary says nothing about teams. */
+  teamSizeKnown?: boolean;
   fee: number;
   beginnerFriendly: boolean;
+  /** A hybrid event abroad listed for its online part: where its venue is ("Brooklyn, New York"). */
+  basedIn?: string;
+  /** Listed online, but it is a hybrid event (its venue is abroad). */
+  hybridOnline?: boolean;
 }): string {
-  const where = e.mode === 'online' ? 'online' : e.mode === 'hybrid' ? `in ${cityName(e.city)} and online` : `in ${cityName(e.city)}`;
+  const kind = eventTypeLabel(e.type).toLowerCase();
+  const place = e.city || e.cityName ? cityName(e.city, e.cityName) : '';
   const by = e.organizer ? ` by ${e.organizer}` : '';
-  const themes = e.themes.filter((t) => t !== 'open-innovation').map(themeName);
-  const team = e.teamMax === 1 ? 'Solo entries only.' : e.teamMin === 1 ? `Go solo or bring a team of up to ${e.teamMax}.` : `Teams of ${e.teamMin}–${e.teamMax}.`;
+  const opening =
+    e.mode === 'online' && (e.hybridOnline || e.basedIn)
+      ? `A hybrid ${kind}${by}${e.basedIn ? ` based in ${e.basedIn}` : ''}; you can take part online.`
+      : e.mode === 'online'
+        ? `An online ${kind}${by}.`
+        : e.mode === 'hybrid'
+          ? `A hybrid ${kind}${by}: take part ${place ? `in ${place}` : 'in person'} or online.`
+          : `An in-person ${kind}${by}${place ? `, in ${place}` : ''}.`;
+  const named = e.themes.filter((t) => t !== 'open-innovation').map(themeName);
+  const themeLine = named.length ? `Tracks include ${named.join(', ')}.` : e.themes.includes('open-innovation') ? 'Build anything: there is no fixed theme.' : '';
+  const team =
+    e.teamSizeKnown === false ? '' : e.teamMax === 1 ? 'Solo entries only.' : e.teamMin === 1 ? `Go solo or bring a team of up to ${e.teamMax}.` : `Teams of ${e.teamMin}–${e.teamMax}.`;
   return [
-    `A${e.mode === 'online' ? 'n' : ''} ${e.mode} ${eventTypeLabel(e.type).toLowerCase()}${by}, ${where}.`,
-    themes.length ? `Tracks include ${themes.join(', ')}.` : 'Build anything: there is no fixed theme.',
+    opening,
+    themeLine,
     team,
-    e.fee === 0 ? 'Free to enter.' : `Entry fee ₹${e.fee}.`,
+    e.fee === 0 ? 'Free to enter.' : `Entry fee ₹${e.fee.toLocaleString('en-IN')}.`,
     e.beginnerFriendly ? 'First-timers are welcome.' : '',
   ]
     .filter(Boolean)
@@ -180,10 +221,10 @@ export function htmlToText(html: string): string {
 }
 
 /** A one-line tagline built from fields ("Offline hackathon in Pune on AI / ML and FinTech"), so we never copy the organizer's own line. */
-export function templateTagline(e: { type: EventType; mode: Mode; city?: string; themes: ThemeSlug[] }): string {
+export function templateTagline(e: { type: EventType; mode: Mode; city?: string; cityName?: string; themes: ThemeSlug[] }): string {
   const kind = eventTypeLabel(e.type).toLowerCase();
   const how = e.mode === 'online' ? 'Online' : e.mode === 'hybrid' ? 'Hybrid' : 'In-person';
-  const where = e.mode === 'online' || !e.city ? '' : ` in ${cityName(e.city)}`;
+  const where = e.mode === 'online' || (!e.city && !e.cityName) ? '' : ` in ${cityName(e.city, e.cityName)}`;
   const themes = e.themes.filter((t) => t !== 'open-innovation').slice(0, 2).map(themeName);
   const on = themes.length ? ` on ${themes.join(' and ')}` : e.themes.includes('open-innovation') ? ', open theme' : '';
   return `${how} ${kind}${where}${on}`.slice(0, 200);

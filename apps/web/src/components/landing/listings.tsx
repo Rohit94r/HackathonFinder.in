@@ -1,10 +1,9 @@
 import Link from 'next/link';
-import { IS_SAMPLE_DATA, cityName, eventTypeLabel, sourceBySlug } from '@hackathonfinder/shared';
+import { eventTypeLabel, placeName, sourceBySlug } from '@hackathonfinder/shared';
 import EventArt from '@/components/hackathon/EventArt';
 import { formatDateRange, formatPrizeShort } from '@/lib/format';
 import type { HackathonView } from '@/lib/hackathons';
 import { BtnArrow } from './btn-arrow';
-import { DeadlineBuddy } from './art';
 import { WaveDown } from './waves';
 import { InlineStyle } from './inline-style';
 
@@ -12,12 +11,13 @@ const CARD_W = 290;
 const GAP = 20;
 
 function ListingCard({ h, copy }: { h: HackathonView; copy: boolean }) {
-  const where = h.mode === 'online' ? 'online' : `in ${cityName(h.city)}`;
-  const prize = h.prizePool > 0 ? `${formatPrizeShort(h.prizePool, h.prizeCurrency)} in prizes.` : 'Swag and certificates.';
+  const where = h.mode === 'online' ? 'online' : `in ${placeName(h)}`;
+  const prize = h.prizePool > 0 ? `${formatPrizeShort(h.prizePool, h.prizeCurrency)} in prizes.` : '';
   const source = sourceBySlug(h.sources[0])?.name;
 
   return (
     <div
+      data-hf-impression={copy ? undefined : h.slug}
       style={{
         flexShrink: 0,
         width: CARD_W,
@@ -29,7 +29,7 @@ function ListingCard({ h, copy }: { h: HackathonView; copy: boolean }) {
         flexDirection: 'column',
       }}
     >
-      <EventArt theme={h.themes[0]} title={h.title} label={eventTypeLabel(h.type)} className="h-[200px] shrink-0" />
+      <EventArt title={h.title} imageUrl={h.imageUrl} label={eventTypeLabel(h.type)} className="h-[200px] shrink-0" />
 
       <div style={{ padding: '16px 18px 18px', flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
         <p style={{ fontFamily: 'var(--lp-sans)', fontSize: 19, color: 'var(--foreground)', margin: 0, lineHeight: 1.25, flex: 1 }}>
@@ -165,7 +165,7 @@ export function ListingsSection({ items, total }: { items: HackathonView[]; tota
           .carousel-pause-toggle:checked ~ .pause-icon { display: none; }
           .carousel-pause-toggle:checked ~ .play-icon { display: block; }
           .carousel-pause-toggle:focus-visible {
-            outline: 3px solid var(--orange);
+            outline: 3px solid var(--red);
             outline-offset: 2px;
           }
           .carousel-track {
@@ -246,27 +246,7 @@ export function ListingsSection({ items, total }: { items: HackathonView[]; tota
             </svg>
           </label>
         </div>
-        {IS_SAMPLE_DATA && (
-          <p style={{ fontFamily: 'var(--lp-sans)', fontStyle: 'italic', fontSize: 15, color: 'var(--muted)', margin: '20px 0 0' }}>
-            Preview: these are sample listings. Real hackathons appear as soon as our discovery agents go live.
-          </p>
-        )}
       </div>
-
-      {/* Mascot on the left, centred on the wave */}
-      <DeadlineBuddy
-        style={{
-          position: 'absolute',
-          left: 'calc(60 / 1920 * 100vw)',
-          bottom: -18,
-          width: 'calc(300 / 1920 * 100vw)',
-          minWidth: 96,
-          height: 'auto',
-          transform: 'translateY(70%) rotate(-8deg)',
-          zIndex: 15,
-          pointerEvents: 'none',
-        }}
-      />
 
       <WaveDown color="var(--background)" style={{ bottom: -40, zIndex: 10 }} />
     </section>

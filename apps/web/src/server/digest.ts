@@ -41,7 +41,7 @@ export function pickForSubscriber(items: HackathonView[], sub: Pick<IDigestSubsc
 function digestText(items: HackathonView[]): string {
   return items
     .map((h) => {
-      const where = h.mode === 'online' ? 'Online' : `${cityName(h.city)} · ${h.mode}`;
+      const where = h.mode === 'online' ? 'Online' : `${cityName(h.city, h.cityName)} · ${h.mode}`;
       const themes = h.themes.slice(0, 2).map(themeName).join(', ');
       return `${h.title}\n${where} · ${formatDateRange(h.startDate, h.endDate)} · ${formatPrizeShort(h.prizePool, h.prizeCurrency)} · ${themes}\n${deadlineLabel(h.daysToDeadline)} → ${siteUrl()}/hackathons/${h.slug}`;
     })

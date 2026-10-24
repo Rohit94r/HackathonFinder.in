@@ -10,12 +10,12 @@ export interface StatItem {
   tone?: StatTone;
 }
 
-// Tone names are kept for callers; the colours are the landing palette (gold stays for wins).
+// Tone names are kept for callers; the colours are the site palette: brand red and ink tints.
 const TONES: Record<StatTone, string> = {
-  amber: 'bg-amber-100 text-amber-800 dark:bg-amber-400/15 dark:text-amber-200',
-  pink: 'bg-pop-soft text-[#a4460a] dark:bg-pop/15 dark:text-[#ffc59a]',
-  violet: 'bg-brand-50 text-brand-700 dark:bg-brand-400/15 dark:text-brand-200',
-  cyan: 'bg-ink/[0.06] text-ink/80',
+  amber: 'bg-accent text-white',
+  pink: 'bg-accent/10 text-brand-700 dark:text-brand-300',
+  violet: 'bg-ink/[0.07] text-ink',
+  cyan: 'bg-ink/[0.07] text-ink/80',
 };
 
 /** A row of headline numbers, LeetCode style. */

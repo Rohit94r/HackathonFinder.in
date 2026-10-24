@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Gift,
   MapPin,
+  QrCode,
   ShieldCheck,
   Ticket,
   Trophy,
@@ -33,7 +34,6 @@ import SaveButton from '@/components/hackathon/SaveButton';
 import ShareButtons from '@/components/hackathon/ShareButtons';
 import StatusBadge from '@/components/hackathon/StatusBadge';
 import VenueMap from '@/components/hackathon/VenueMap';
-import { SampleNotice } from '@/components/ui';
 import { similarTo, type HackathonView } from '@/lib/hackathons';
 import { countView, getHackathon } from '@/server/hackathons';
 import {
@@ -42,6 +42,7 @@ import {
   formatDateRange,
   formatMoney,
   formatTeamSize,
+  ON_OFFICIAL_PAGE,
   formatTime,
   formatWeekday,
   timeAgo,
@@ -56,7 +57,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   if (!found) return { title: 'Hackathon not found' };
   const h = found.item;
   return {
-    title: `${h.title}: ${eventTypeLabel(h.type)} ${h.mode === 'online' ? 'online' : `in ${cityName(h.city)}`}`,
+    title: `${h.title}: ${eventTypeLabel(h.type)} ${h.mode === 'online' ? 'online' : `in ${cityName(h.city, h.cityName)}`}`,
     description: h.summary,
   };
 }
@@ -68,7 +69,7 @@ function googleCalendarUrl(h: HackathonView): string {
     text: h.title,
     dates: `${fmt(h.startDate)}/${fmt(h.endDate)}`,
     details: `${h.summary}\n\nRegister: ${h.registrationUrl}`,
-    location: h.mode === 'online' ? 'Online' : h.venue ?? cityName(h.city),
+    location: h.mode === 'online' ? 'Online' : h.venue ?? cityName(h.city, h.cityName),
   });
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
@@ -80,16 +81,16 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
   countView(h.slug);
   const open = isRegistrationOpen(h.status);
   const similar = similarTo(h, items);
-  const location = h.mode === 'online' ? 'Online' : `${h.venue ?? cityName(h.city)}${h.mode === 'hybrid' ? ' (hybrid)' : ''}`;
+  const location = h.mode === 'online' ? 'Online' : `${h.venue ?? cityName(h.city, h.cityName)}${h.mode === 'hybrid' ? ' (hybrid)' : ''}`;
   const point = eventPoint(h);
-  const destination = h.lat !== undefined && h.lng !== undefined ? `${h.lat},${h.lng}` : h.venue ?? cityName(h.city);
+  const destination = h.lat !== undefined && h.lng !== undefined ? `${h.lat},${h.lng}` : h.venue ?? cityName(h.city, h.cityName);
 
   const facts = [
     { icon: CalendarDays, label: 'When', value: formatDateRange(h.startDate, h.endDate) },
     { icon: MapPin, label: 'Where', value: location },
-    { icon: Users, label: 'Team', value: formatTeamSize(h.teamMin, h.teamMax) },
+    { icon: Users, label: 'Team', value: h.teamSizeKnown === false ? ON_OFFICIAL_PAGE : formatTeamSize(h.teamMin, h.teamMax) },
     { icon: Ticket, label: 'Entry fee', value: h.fee === 0 ? 'Free' : formatMoney(h.fee, 'INR') },
-    { icon: Trophy, label: 'Prize pool', value: h.prizePool > 0 ? formatMoney(h.prizePool, h.prizeCurrency) : 'Swag & certificates' },
+    { icon: Trophy, label: 'Prize pool', value: h.prizePool > 0 ? formatMoney(h.prizePool, h.prizeCurrency) : ON_OFFICIAL_PAGE },
     { icon: ShieldCheck, label: 'Who can join', value: h.eligibility.map(eligibilityLabel).join(', ') },
   ];
 
@@ -112,11 +113,12 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
           </nav>
 
           <EventArt
-            theme={h.themes[0]}
             title={h.title}
+            imageUrl={h.imageUrl}
             label={eventTypeLabel(h.type)}
             size="hero"
-            className="h-48 rounded-3xl sm:h-64"
+            eager
+            className="h-56 rounded-3xl sm:h-80"
           />
 
           <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
@@ -128,15 +130,15 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                   {modeLabel(h.mode)}
                 </span>
                 {h.beginnerFriendly && (
-                  <span className="rounded-full px-2.5 py-1 text-xs font-semibold bg-pop-soft text-[#a4460a] dark:bg-pop/15 dark:text-[#ffc59a]">
+                  <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 dark:bg-brand-400/15 dark:text-brand-200">
                     Beginner-friendly
                   </span>
                 )}
               </div>
               <h1 className="text-4xl sm:text-5xl">{h.title}</h1>
-              <p className="mt-3 text-lg text-ink/70">{h.tagline}</p>
+              {h.tagline && <p className="mt-3 text-lg text-ink/70">{h.tagline}</p>}
               <p className="mt-4 flex items-center gap-1.5 text-sm text-ink/70">
-                by <strong className="font-semibold text-ink">{h.organizer}</strong>
+                by <strong className="font-semibold text-ink">{h.organizer || sourceBySlug(h.sources[0])?.name || 'the organizer'}</strong>
                 {h.verified && (
                   <span className="inline-flex items-center gap-1 text-ink">
                     <BadgeCheck className="h-4 w-4" />
@@ -159,27 +161,29 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                 ))}
               </dl>
 
-              {point && <VenueMap point={point} venue={h.venue ?? cityName(h.city)} destination={destination} />}
+              {point && <VenueMap point={point} venue={h.venue ?? cityName(h.city, h.cityName)} destination={destination} />}
 
               <div className="card mt-8 p-6 sm:p-8">
                 <h2 className="text-xl font-bold">About this {eventTypeLabel(h.type).toLowerCase()}</h2>
-                <p className="mt-3 leading-7 text-ink/80">{h.summary}</p>
+                {h.summary && <p className="mt-3 leading-7 text-ink/80">{h.summary}</p>}
 
-                <div className="mt-6 flex flex-wrap gap-2">
-                  {h.themes.map((t) => {
-                    const style = themeStyle(t);
-                    return (
-                      <Link
-                        key={t}
-                        href={`/themes/${t}`}
-                        className={cn('inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium', style.soft)}
-                      >
-                        <style.icon className="h-4 w-4" />
-                        {themeName(t)}
-                      </Link>
-                    );
-                  })}
-                </div>
+                {h.themes.length > 0 && (
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {h.themes.map((t) => {
+                      const style = themeStyle(t);
+                      return (
+                        <Link
+                          key={t}
+                          href={`/themes/${t}`}
+                          className={cn('inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium', style.soft)}
+                        >
+                          <style.icon className="h-4 w-4" />
+                          {themeName(t)}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
 
                 <h2 className="mt-10 text-xl font-bold">Timeline</h2>
                 <ol className="mt-4 space-y-4 border-l-2 border-ink/15 pl-6">
@@ -194,42 +198,42 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                   ))}
                 </ol>
 
-                <div className="mt-10 grid gap-6 sm:grid-cols-2">
-                  <div>
-                    <h2 className="flex items-center gap-2 text-xl font-bold">
-                      <Trophy className="h-5 w-5 text-amber-500" />
-                      Prizes
-                    </h2>
-                    <ul className="mt-3 space-y-2">
-                      {h.prizes.map((p) => (
-                        <li key={p} className="rounded-xl bg-amber-50 px-4 py-2.5 text-sm font-medium text-amber-900 dark:bg-amber-400/10 dark:text-amber-200">
-                          {p}
-                        </li>
-                      ))}
-                    </ul>
+                {/* Scraped listings often have no prize or perk list; show only what we have. */}
+                {(h.prizes.length > 0 || h.perks.length > 0) && (
+                  <div className="mt-10 grid gap-6 sm:grid-cols-2">
+                    {h.prizes.length > 0 && (
+                      <div>
+                        <h2 className="flex items-center gap-2 text-xl font-bold">
+                          <Trophy className="h-5 w-5 text-accent" />
+                          Prizes
+                        </h2>
+                        <ul className="mt-3 space-y-2">
+                          {h.prizes.map((p) => (
+                            <li key={p} className="rounded-xl bg-ink/5 px-4 py-2.5 text-sm font-medium text-ink dark:bg-white/[0.06]">
+                              {p}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    {h.perks.length > 0 && (
+                      <div>
+                        <h2 className="flex items-center gap-2 text-xl font-bold">
+                          <Gift className="h-5 w-5 text-brand-600 dark:text-brand-300" />
+                          Perks
+                        </h2>
+                        <ul className="mt-3 space-y-2">
+                          {h.perks.map((p) => (
+                            <li key={p} className="rounded-xl bg-brand-50 px-4 py-2.5 text-sm font-medium text-brand-900 dark:bg-brand-500/15 dark:text-brand-200">
+                              {p}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <h2 className="flex items-center gap-2 text-xl font-bold">
-                      <Gift className="h-5 w-5 text-brand-600 dark:text-brand-300" />
-                      Perks
-                    </h2>
-                    <ul className="mt-3 space-y-2">
-                      {h.perks.map((p) => (
-                        <li key={p} className="rounded-xl bg-brand-50 px-4 py-2.5 text-sm font-medium text-brand-900 dark:bg-brand-500/15 dark:text-brand-200">
-                          {p}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
+                )}
               </div>
-
-              {h.sample && (
-                <SampleNotice className="mt-6">
-                  This is a sample listing for the preview. The register button opens the source
-                  platform’s homepage.
-                </SampleNotice>
-              )}
 
               <LatestDiscussions hackathonSlug={h.slug} city={h.city} limit={3} title="Talk about this event" className="mt-8" />
             </div>
@@ -250,6 +254,16 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                 <p className="mt-1 text-sm text-ink/70">
                   Deadline: {formatDate(h.registrationDeadline)}, {formatTime(h.registrationDeadline)} IST
                 </p>
+
+                {h.registrationVia === 'qr' && (
+                  <p className="mt-4 flex items-start gap-2 rounded-xl bg-ink/5 px-3 py-2.5 text-sm text-ink/80">
+                    <QrCode className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>
+                      {h.title} takes registrations through a QR code on its poster. The button opens the page it points to, or the
+                      organizer&rsquo;s post with the poster.
+                    </span>
+                  </p>
+                )}
 
                 <div className="mt-6 flex flex-col gap-3">
                   {open ? (
@@ -288,7 +302,7 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
 
               <Link
                 href={`/teams?hackathon=${h.slug}`}
-                className="mt-4 flex items-center justify-between rounded-2xl bg-gradient-to-r from-brand-600 to-pop-dark px-5 py-4 text-sm font-semibold text-white transition hover:brightness-110"
+                className="mt-4 flex items-center justify-between rounded-2xl bg-gradient-to-r from-brand-600 to-brand-800 px-5 py-4 text-sm font-semibold text-white transition hover:brightness-110"
               >
                 Need teammates for this?
                 <ChevronRight className="h-4 w-4" />

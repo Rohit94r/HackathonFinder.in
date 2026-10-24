@@ -2,7 +2,7 @@ import { cache } from 'react';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Activity, ArrowRight, Award, BadgeCheck, CalendarCheck, History, Medal, Pencil, Settings, Star, Trophy } from 'lucide-react';
+import { Activity, ArrowRight, Award, BadgeCheck, CalendarCheck, History, Info, Medal, MessageCircle, Pencil, Settings, Star, Trophy } from 'lucide-react';
 import ActivityHeatmap from '@/components/profile/ActivityHeatmap';
 import Badges from '@/components/profile/Badges';
 import InviteButton from '@/components/profile/InviteButton';
@@ -15,8 +15,9 @@ import StoryCard from '@/components/profile/StoryCard';
 import { myBadges } from '@/components/profile/badgeData';
 import { fromUser } from '@/components/profile/profileData';
 import { resultCounts, storyLinks } from '@/components/profile/profileTypes';
-import { SampleNotice } from '@/components/ui';
+import { SampleBadge } from '@/components/teams/TeamParts';
 import { getSessionUser } from '@/server/auth';
+import { conversationBetween } from '@/server/chat';
 import { getPublicProfile } from '@/server/profiles';
 
 export const dynamic = 'force-dynamic';
@@ -49,7 +50,9 @@ export default async function PersonPage({ params }: { params: { handle: string 
   const { user, record, stats, counts, stories } = profile;
   const isMe = viewer?.id === user.id;
   const firstName = user.name.split(' ')[0];
-  const sticker = stats.wins > 1 ? `${stats.wins}× winner` : stats.wins === 1 ? 'Winner' : user.lookingForTeam ? 'Team up' : undefined;
+  const highlight = stats.wins > 1 ? `${stats.wins}× winner` : stats.wins === 1 ? 'Winner' : undefined;
+  // Students who teamed up (an accepted invite or request) can message each other.
+  const chatId = viewer && !isMe && !user.isSample ? await conversationBetween(viewer.id, user.id) : null;
   const activityTotal = Object.values(profile.heatmap).reduce((a, b) => a + b, 0);
 
   return (
@@ -58,7 +61,7 @@ export default async function PersonPage({ params }: { params: { handle: string 
         <ProfileLayout
           side={
             <>
-              <ProfileCard profile={fromUser(user)} sticker={sticker}>
+              <ProfileCard profile={fromUser(user)} highlight={highlight} badge={user.isSample ? <SampleBadge /> : undefined}>
                 {isMe ? (
                   <>
                     <Link href="/profile?edit=1" className="btn-secondary w-full">
@@ -71,13 +74,24 @@ export default async function PersonPage({ params }: { params: { handle: string 
                     </Link>
                     <p className="text-xs text-ink/60">This is how other students see your profile.</p>
                   </>
+                ) : user.isSample ? (
+                  <p className="flex items-start gap-2 rounded-xl bg-ink/[0.05] px-3 py-2.5 text-xs leading-5 text-ink/70">
+                    <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                    {firstName} is a sample student, here so you can see how profiles look. Sample students can’t get invites or
+                    messages.
+                  </p>
                 ) : (
-                  <InviteButton handle={user.handle} name={user.name} />
+                  <>
+                    {chatId && (
+                      <Link href={`/messages/${chatId}`} className="btn-primary w-full">
+                        <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                        Message {firstName}
+                      </Link>
+                    )}
+                    <InviteButton handle={user.handle} name={user.name} secondary={Boolean(chatId)} />
+                  </>
                 )}
               </ProfileCard>
-              {user.isSample && (
-                <SampleNotice>Preview: {firstName} is a sample student, here so you can see how profiles look.</SampleNotice>
-              )}
             </>
           }
         >
@@ -149,16 +163,16 @@ export default async function PersonPage({ params }: { params: { handle: string 
             ))}
           </dl>
 
-          <div className="on-dark flex flex-col gap-5 rounded-3xl bg-ink p-7 sm:flex-row sm:items-center sm:justify-between sm:p-8">
+          <div className="card flex flex-col gap-5 p-7 sm:flex-row sm:items-center sm:justify-between sm:p-8">
             <div>
-              <h2 className="text-3xl text-surface">Looking for a team?</h2>
-              <p className="mt-2 max-w-md text-surface/80">
+              <h2 className="text-3xl">Looking for a team?</h2>
+              <p className="mt-2 max-w-md text-ink/70">
                 {user.lookingForTeam && !isMe
                   ? `${firstName} is open to joining one. Find more teammates near you on Team Finder.`
                   : 'Find teammates near you, or post what your team still needs.'}
               </p>
             </div>
-            <Link href="/teams" className="btn-lime shrink-0">
+            <Link href="/teams" className="btn-primary shrink-0">
               Find teammates
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </Link>

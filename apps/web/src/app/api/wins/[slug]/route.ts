@@ -14,9 +14,9 @@ export const GET = route<Params>(
 
 /** The author (or an admin) edits the story. Multipart works too, to replace the cover. */
 export const PATCH = route<Params>(
-  async ({ req, params, user }) => {
+  async ({ req, params, user, ip }) => {
     const { body, cover } = await readWinRequest(req, WinPatchSchema);
-    return { win: await updateWin(params.slug, user!, body, cover) };
+    return { win: await updateWin(params.slug, user!, body, cover, ip) };
   },
   { auth: 'required', rate: { limit: 20, windowMs: 10 * 60_000, key: 'win-edit' } }
 );

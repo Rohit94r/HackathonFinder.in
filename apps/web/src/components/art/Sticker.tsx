@@ -6,7 +6,7 @@ type Shape = 'pill' | 'circle' | 'burst';
 // The landing page's red and orange, plus its cream and charcoal. Tone names are kept from older markup.
 const TONES: Record<Tone, { bg: string; text: string }> = {
   green: { bg: '#ec3750', text: '#FFFFFF' },
-  yellow: { bg: '#ff8c37', text: '#17171d' },
+  yellow: { bg: '#ffffff', text: '#17171d' },
   turquoise: { bg: '#fff6eb', text: '#be1e3a' },
   cream: { bg: '#fff6eb', text: '#17171d' },
   dark: { bg: '#17171d', text: '#FFFFFF' },

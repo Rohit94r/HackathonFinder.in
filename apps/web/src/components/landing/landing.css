@@ -14,7 +14,8 @@
   --red: #ec3750;
   /* Brand red fails 4.5:1 for small text on white. Use --red-text for text under 24px. */
   --red-text: #be1e3a;
-  --orange: #ff8c37;
+  /* No orange in the palette: rules that ask for it get the brand red. */
+  --orange: #ec3750;
   --ink: #17171d;
   --paper: #ffffff;
   --cream: #fff6eb;
@@ -23,7 +24,7 @@
   /* Cards that float over art (search showcase, live stat badges). */
   --elevated: #ffffff;
   --hero-bg: linear-gradient(180deg, rgba(236, 55, 80, 0.04) 60%, rgba(236, 55, 80, 0.4) 100%);
-  --grad-deep: linear-gradient(90deg, #b3203d 0%, #d96b1d 100%);
+  --grad-deep: linear-gradient(90deg, #b3203d 0%, #ec3750 100%);
   --card-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
   --float-shadow: 0 24px 60px rgba(23, 23, 29, 0.25);
   --feature-card-shadow: none;
@@ -31,8 +32,8 @@
   --example-bg: #17171d;
   /* How it works illustration panels, and the mock listing card inside step 2. */
   --panel-warm: linear-gradient(160deg, #fff6eb 0%, #ffe3e7 100%);
-  --panel-cool: linear-gradient(160deg, #e9f6ff 0%, #f3ecff 100%);
-  --panel-sun: linear-gradient(160deg, #fff8dc 0%, #ffe9d6 100%);
+  --panel-cool: linear-gradient(160deg, #f6f6f7 0%, #ffe3e7 100%);
+  --panel-sun: linear-gradient(160deg, #ffffff 0%, #ffeef1 100%);
   --mock-card: #ffffff;
   --mock-card-shadow: 0 10px 30px rgba(23, 23, 29, 0.14);
   --mock-label: rgba(23, 23, 29, 0.55);
@@ -68,21 +69,21 @@
   --red-text: #ff6b81;
   --elevated: #252429;
   /*
-   * Same wine fade as light, plus an orange glow at the bottom so the hero stays warm.
+   * Same wine fade as light, plus a red glow at the bottom so the hero stays warm.
    * Starts almost untinted so it meets the mobile nav spacer without a seam.
    */
-  --hero-bg: radial-gradient(90% 55% at 50% 100%, rgba(255, 140, 55, 0.14) 0%, transparent 70%),
+  --hero-bg: radial-gradient(90% 55% at 50% 100%, rgba(236, 55, 80, 0.14) 0%, transparent 70%),
     linear-gradient(180deg, rgba(236, 55, 80, 0.02) 0%, rgba(236, 55, 80, 0.06) 55%, rgba(236, 55, 80, 0.38) 100%);
   /* The light gradient is darkened for white; on dark it needs the bright end of the brand. */
-  --grad-deep: linear-gradient(90deg, #ff5a70 0%, #ff8c37 100%);
+  --grad-deep: linear-gradient(90deg, #ff5a70 0%, #ff9aab 100%);
   --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 6px 20px rgba(0, 0, 0, 0.45);
   --float-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 60px rgba(0, 0, 0, 0.6);
   --feature-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px rgba(0, 0, 0, 0.35);
   --field-ring: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
   --example-bg: #121217;
   --panel-warm: linear-gradient(160deg, #2e2320 0%, #3d1d26 100%);
-  --panel-cool: linear-gradient(160deg, #1b2837 0%, #2e1c3b 100%);
-  --panel-sun: linear-gradient(160deg, #312c1b 0%, #3c2a21 100%);
+  --panel-cool: linear-gradient(160deg, #222127 0%, #3d1d26 100%);
+  --panel-sun: linear-gradient(160deg, #2a292f 0%, #36191f 100%);
   --mock-card: #2f2e35;
   --mock-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 12px 32px rgba(0, 0, 0, 0.5);
   --mock-label: rgba(255, 255, 255, 0.6);

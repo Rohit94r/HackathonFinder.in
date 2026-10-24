@@ -6,7 +6,7 @@ const config: Config = {
   darkMode: ['selector', '[data-theme="dark"]'],
   theme: {
     extend: {
-      // The landing page's two colours, red and orange, on charcoal or white (see components/landing/landing.css).
+      // Two colours only: brand red and white, on charcoal (dark, the default) or white (light).
       colors: {
         // Body text and dark sections. A CSS variable (globals.css) so it flips to light text in dark mode.
         ink: {
@@ -14,7 +14,7 @@ const config: Config = {
           800: 'rgb(var(--hf-ink-800) / <alpha-value>)',
           700: 'rgb(var(--hf-ink-700) / <alpha-value>)',
         },
-        // Fixed charcoal for text on bright fills (orange, amber) in both themes.
+        // Fixed charcoal for text on white fills in both themes.
         navy: '#17171d',
         // Brand red, as a scale for tints, borders and links.
         brand: {
@@ -35,16 +35,16 @@ const config: Config = {
           soft: '#fff1f3',
           dark: '#be1e3a',
         },
-        // Brand orange: featured badges and warm accents. Charcoal text on it.
+        // The second colour: white. Featured badges and highlights, with charcoal text on it.
         pop: {
-          DEFAULT: '#ff8c37',
-          soft: '#fff4ea',
-          dark: '#c2570c',
+          DEFAULT: '#ffffff',
+          soft: '#f4f4f5',
+          dark: '#52525b',
         },
         // Older accent names, kept as aliases.
         lime: {
-          DEFAULT: '#ff8c37',
-          soft: '#fff4ea',
+          DEFAULT: '#ffffff',
+          soft: '#f4f4f5',
         },
         turquoise: '#ec3750',
         // Page background, and the panel colour for cards, inputs and chips. Both flip in dark mode.
@@ -58,7 +58,7 @@ const config: Config = {
       boxShadow: {
         card: '0 2px 16px rgba(0, 0, 0, 0.08)',
         lift: '0 2px 4px rgba(23, 23, 29, 0.06), 0 18px 40px rgba(23, 23, 29, 0.16)',
-        glow: '0 0 0 3px rgba(236, 55, 80, 0.3), 0 12px 40px rgba(255, 140, 55, 0.25)',
+        glow: '0 0 0 3px rgba(236, 55, 80, 0.3), 0 12px 32px rgba(236, 55, 80, 0.2)',
       },
       keyframes: {
         marquee: {

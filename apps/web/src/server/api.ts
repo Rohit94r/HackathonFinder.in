@@ -1,7 +1,7 @@
 import 'server-only';
 import { NextResponse, type NextRequest } from 'next/server';
 import { z, type ZodType } from 'zod';
-import { connectDb, DbNotConfiguredError, isDbConfigured } from '@hackathonfinder/db';
+import { connectDb, DbNotConfiguredError, isDbConfigured, User } from '@hackathonfinder/db';
 import { getSessionUser, type SessionUser } from './auth';
 import { rateLimit } from './rateLimit';
 
@@ -40,6 +40,16 @@ export interface Ctx<P = Record<string, string>> {
 
 type Handler<P> = (ctx: Ctx<P>) => Promise<unknown>;
 
+const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+
+/** Banned accounts can't post or change anything; deleted ones are signed out. */
+async function assertActive(userId: string, allowBanned = false): Promise<void> {
+  if (!/^[a-f0-9]{24}$/i.test(userId)) throw unauthorized();
+  const doc = await User.findById(userId).select('banned deletedAt').lean();
+  if (!doc || doc.deletedAt) throw new ApiError(401, 'unauthorized', 'Please sign in again.');
+  if (doc.banned && !allowBanned) throw new ApiError(403, 'account_banned', 'Your account is suspended, so it can’t post or change anything.');
+}
+
 export function clientIp(req: NextRequest): string {
   return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'local';
 }
@@ -63,6 +73,9 @@ export function route<P = Record<string, string>>(handler: Handler<P>, options: 
       const user = auth === 'none' ? null : await getSessionUser();
       if ((auth === 'required' || auth === 'admin') && !user) throw unauthorized();
       if (auth === 'admin' && user?.role !== 'admin') throw forbidden('This is for admins only.');
+      // Sessions outlive a ban or a deleted account, so changes check the account itself.
+      // A banned student may still delete their own account.
+      if (user && !SAFE_METHODS.has(req.method)) await assertActive(user.id, req.method === 'DELETE' && req.nextUrl.pathname === '/api/me');
       const ip = clientIp(req);
       if (options.rate) {
         const key = `${options.rate.key ?? req.nextUrl.pathname}:${user?.id ?? ip}`;

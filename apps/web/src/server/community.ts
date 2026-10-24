@@ -40,6 +40,7 @@ import {
   type Viewer,
 } from '@/components/community/model';
 import { ApiError, badRequest, forbidden, notFound } from './api';
+import { assertRespectful } from './moderation';
 
 const HOUR = 3_600_000;
 
@@ -340,8 +341,9 @@ export interface NewThreadInput {
   hackathonSlug?: string;
 }
 
-export async function createThread(viewer: Viewer, input: NewThreadInput): Promise<ThreadItem> {
+export async function createThread(viewer: Viewer, input: NewThreadInput, ip?: string): Promise<ThreadItem> {
   await assertCanPost(viewer.id);
+  await assertRespectful({ userId: viewer.id, kind: 'thread', ip }, input.title, input.body, input.tags);
   if (input.hackathonSlug && !(await Hackathon.exists({ slug: input.hackathonSlug }))) {
     throw badRequest('Pick a hackathon from the list.', { hackathonSlug: 'We couldn’t find that hackathon.' });
   }
@@ -376,7 +378,7 @@ export interface ThreadPatch {
 }
 
 /** Authors edit the title, body and tags in the first 24 hours; admins pin and unpin. */
-export async function updateThread(slug: string, viewer: Viewer, patch: ThreadPatch): Promise<ThreadItem> {
+export async function updateThread(slug: string, viewer: Viewer, patch: ThreadPatch, ip?: string): Promise<ThreadItem> {
   const thread = await Thread.findOne({ slug, deletedAt: null }).lean();
   if (!thread) throw notFound('That discussion');
   const now = new Date();
@@ -392,6 +394,8 @@ export async function updateThread(slug: string, viewer: Viewer, patch: ThreadPa
     if (now.getTime() > canEditUntil(thread)) {
       throw new ApiError(403, 'edit_window_closed', `Discussions can only be edited in the first ${EDIT_WINDOW_HOURS} hours.`);
     }
+    await assertCanPost(viewer.id);
+    await assertRespectful({ userId: viewer.id, kind: 'thread', ip }, patch.title, patch.body, patch.tags);
     for (const k of edits) set[k] = patch[k];
     set.editedAt = now;
   }
@@ -411,10 +415,11 @@ export async function deleteThread(slug: string, viewer: Viewer): Promise<void> 
   await Thread.updateOne({ _id: thread._id }, { $set: { deletedAt: new Date(), deletedBy: viewer.id } });
 }
 
-export async function addReply(slug: string, viewer: Viewer, body: string): Promise<ReplyItem> {
+export async function addReply(slug: string, viewer: Viewer, body: string, ip?: string): Promise<ReplyItem> {
   const { name } = await assertCanPost(viewer.id);
   const thread = await Thread.findOne({ slug, deletedAt: null }).select('_id slug title authorId').lean();
   if (!thread) throw notFound('That discussion');
+  await assertRespectful({ userId: viewer.id, kind: 'reply', ip }, body);
 
   const reply = await Reply.create({ threadId: thread._id, authorId: viewer.id, body });
   await Thread.updateOne({ _id: thread._id }, { $inc: { replyCount: 1 }, $set: { lastActivityAt: reply.createdAt } });

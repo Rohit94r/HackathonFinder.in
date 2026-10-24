@@ -14,8 +14,8 @@ const COLUMNS: TrackStatus[] = ['saved', 'registered', 'submitted', 'done'];
 const COLUMN_STYLES: Record<TrackStatus, string> = {
   saved: 'bg-ink/[0.06] text-ink/80',
   registered: 'bg-brand-50 text-brand-700 dark:bg-brand-400/15 dark:text-brand-200',
-  submitted: 'bg-pop-soft text-[#a4460a] dark:bg-pop/15 dark:text-[#ffc59a]',
-  done: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-200',
+  submitted: 'bg-ink/5 text-ink dark:bg-white/10 dark:text-white',
+  done: 'bg-ink text-surface',
 };
 
 /** Signed-out students keep their list in this browser; it moves to the account when they sign in. */
@@ -85,7 +85,7 @@ export default function SavedList({ items }: { items: HackathonView[] }) {
               <ul className="space-y-3">
                 {inCol.map((h) => (
                   <li key={h.slug} className="card overflow-hidden">
-                    <EventArt theme={h.themes[0]} title={h.title} className="h-14" />
+                    <EventArt title={h.title} imageUrl={h.imageUrl} className="h-14" />
                     <div className="space-y-2 p-4">
                       <Link href={`/hackathons/${h.slug}`} className="block font-display font-bold leading-snug text-ink hover:underline">
                         {h.title}
@@ -96,7 +96,7 @@ export default function SavedList({ items }: { items: HackathonView[] }) {
                         {formatDateRange(h.startDate, h.endDate)}
                       </p>
                       {(h.status === 'open' || h.status === 'closing-soon') && (
-                        <p className="flex items-center gap-1.5 text-xs font-semibold text-orange-600 dark:text-orange-400">
+                        <p className="flex items-center gap-1.5 text-xs font-semibold text-brand-600 dark:text-brand-300">
                           <Clock className="h-3.5 w-3.5" />
                           {deadlineLabel(h.daysToDeadline)}
                         </p>

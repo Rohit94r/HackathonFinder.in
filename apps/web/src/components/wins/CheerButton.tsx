@@ -61,8 +61,8 @@ export default function CheerButton({ slug, cheers, cheered, title, size = 'sm',
         'inline-flex items-center gap-1.5 rounded-full border font-semibold transition',
         size === 'lg' ? 'px-4 py-2 text-sm' : 'px-2.5 py-1 text-xs',
         on
-          ? 'border-pop bg-pop text-navy hover:border-pop-dark hover:bg-pop-dark hover:text-white'
-          : 'border-ink/20 bg-card text-ink hover:border-pop-dark hover:text-pop-dark dark:hover:border-pop dark:hover:text-pop',
+          ? 'border-accent bg-accent text-white hover:border-brand-700 hover:bg-brand-700'
+          : 'border-ink/20 bg-card text-ink hover:border-accent hover:text-accent',
         className
       )}
     >

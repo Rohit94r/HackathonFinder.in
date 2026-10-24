@@ -36,8 +36,11 @@ import type {
   TeamPostsPage,
   TeamStudent,
 } from '@/data/teamPosts';
-import { badRequest, conflict, forbidden, notFound } from './api';
+import { ApiError, badRequest, conflict, forbidden, notFound } from './api';
 import type { SessionUser } from './auth';
+import { conversationsWith, openConversation } from './chat';
+import { assertCanPost } from './community';
+import { assertRespectful } from './moderation';
 
 type Id = Types.ObjectId | string;
 type Listing = Pick<IHackathon, 'slug' | 'title' | 'registrationDeadline' | 'startDate' | 'teamMax'>;
@@ -51,6 +54,24 @@ const iso = (d: Date | string | undefined | null) => (d ? new Date(d).toISOStrin
 const oid = (id: Id) => (typeof id === 'string' ? new Types.ObjectId(id) : id);
 const escapeRegex = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const cityPoint = (slug: string) => CITIES.find((c) => c.slug === slug);
+
+/** Posts open to any hackathon have no listing. */
+export const ANY_HACKATHON = 'Any hackathon';
+
+/** "kolkata-code-carnival" → "Kolkata Code Carnival", for posts whose listing is gone. */
+function titleFromSlug(slug: string): string {
+  return slug
+    .split('-')
+    .filter(Boolean)
+    .map((w) => (/^\d+$/.test(w) ? w : w[0].toUpperCase() + w.slice(1)))
+    .join(' ');
+}
+
+/** The hackathon a post is for: the live listing's title, the saved title, or a readable slug. */
+function postTitle(slug: string, listing?: Pick<IHackathon, 'title'>, saved?: string): string {
+  if (!slug) return ANY_HACKATHON;
+  return listing?.title ?? (saved || titleFromSlug(slug));
+}
 
 // ---------------------------------------------------------------------------
 // Query and body schemas (shared by the routes and the server-rendered pages)
@@ -131,7 +152,8 @@ const idea = z
   .max(500, 'Keep your idea under 500 characters.');
 
 export const NewTeamPost = z.object({
-  hackathonSlug: z.string().trim().min(1, 'Pick a hackathon.').max(120),
+  /** Empty for a team that's open to any hackathon. */
+  hackathonSlug: z.string().trim().max(120).default(''),
   city: z.string().trim().refine((v) => v === 'online' || CITY_SLUGS.includes(v), 'Pick where your team works from.'),
   mode: z.enum(['in-person', 'online', 'either']),
   members: z.number().int().min(1, 'Count yourself in.').max(19),
@@ -247,8 +269,8 @@ function toTeamPost(d: ITeamPost, author: IUser | undefined, listing: Listing | 
     author: student(author),
     city: d.city,
     mode: d.mode,
-    hackathonSlug: d.hackathonSlug,
-    hackathonTitle: listing?.title ?? 'A hackathon',
+    hackathonSlug: d.hackathonSlug ?? '',
+    hackathonTitle: postTitle(d.hackathonSlug ?? '', listing, d.hackathonTitle),
     hackathonDeadline: iso(listing?.registrationDeadline),
     members: d.members,
     teamMax: d.teamMax,
@@ -289,10 +311,10 @@ async function teamSearch(q: string): Promise<Record<string, unknown>[]> {
   ];
 }
 
-/** Open posts for open listings by students who are still around. */
+/** Open posts, for open listings or any hackathon, by students who are still around. */
 async function baseTeamMatch(now: Date, exclude: Types.ObjectId[] = []) {
   const [slugs, hidden] = await Promise.all([openListingSlugs(now), hiddenUserIds()]);
-  const match: Record<string, unknown> = { deletedAt: null, open: true, hackathonSlug: { $in: slugs } };
+  const match: Record<string, unknown> = { deletedAt: null, open: true, hackathonSlug: { $in: [...slugs, '', null] } };
   const out = [...hidden, ...exclude];
   if (out.length) match.authorId = { $nin: out };
   return match;
@@ -355,33 +377,44 @@ export async function teamPostCounts(now = new Date()): Promise<Record<string, n
   return Object.fromEntries(rows.map((r) => [r._id, r.n]));
 }
 
-export async function createTeamPost(user: SessionUser, input: z.infer<typeof NewTeamPost>): Promise<TeamPostView> {
+export async function createTeamPost(user: SessionUser, input: z.infer<typeof NewTeamPost>, ip?: string): Promise<TeamPostView> {
   const now = new Date();
-  const listing = await Hackathon.findOne({ slug: input.hackathonSlug, state: 'live' })
-    .select('slug title registrationDeadline startDate teamMax')
-    .lean();
-  if (!listing || !isOpenListing(listing, now)) {
-    throw badRequest('That hackathon isn’t taking registrations any more. Pick another one.', { hackathonSlug: 'Pick an open hackathon.' });
-  }
-  if (listing.teamMax < 2) {
-    throw badRequest('That hackathon is solo only, so it doesn’t need a team.', { hackathonSlug: 'This one is solo only.' });
-  }
-  if (input.teamMax > listing.teamMax) {
-    const msg = `Teams for ${listing.title} can have at most ${listing.teamMax} people.`;
-    throw badRequest(msg, { teamMax: msg });
+  await assertTeamReady(user.id);
+  let listing: Listing | null = null;
+  if (input.hackathonSlug) {
+    listing = await Hackathon.findOne({ slug: input.hackathonSlug, state: 'live' })
+      .select('slug title registrationDeadline startDate teamMax')
+      .lean();
+    if (!listing || !isOpenListing(listing, now)) {
+      throw badRequest('That hackathon isn’t taking registrations any more. Pick another one.', { hackathonSlug: 'Pick an open hackathon.' });
+    }
+    if (listing.teamMax < 2) {
+      throw badRequest('That hackathon is solo only, so it doesn’t need a team.', { hackathonSlug: 'This one is solo only.' });
+    }
+    if (input.teamMax > listing.teamMax) {
+      const msg = `Teams for ${listing.title} can have at most ${listing.teamMax} people.`;
+      throw badRequest(msg, { teamMax: msg });
+    }
   }
   if (input.members >= input.teamMax) {
     throw badRequest('Leave at least one spot open for someone to join.', { members: 'Leave at least one spot open.' });
   }
-  if (await TeamPost.exists({ authorId: user.id, hackathonSlug: listing.slug, deletedAt: null, open: true })) {
-    throw conflict('You already have an open team post for this hackathon. Update that one instead.');
+  const slug = listing?.slug ?? '';
+  if (await TeamPost.exists({ authorId: user.id, hackathonSlug: slug, deletedAt: null, open: true })) {
+    throw conflict(
+      slug
+        ? 'You already have an open team post for this hackathon. Update that one instead.'
+        : 'You already have an open team post for any hackathon. Update that one instead.'
+    );
   }
+  await assertRespectful({ userId: user.id, kind: 'team-post', ip }, input.idea);
 
   const doc = await TeamPost.create({
     authorId: user.id,
     city: input.city,
     mode: input.city === 'online' ? 'online' : input.mode,
-    hackathonSlug: listing.slug,
+    hackathonSlug: slug,
+    hackathonTitle: listing?.title,
     members: input.members,
     teamMax: input.teamMax,
     has: input.has,
@@ -389,7 +422,8 @@ export async function createTeamPost(user: SessionUser, input: z.infer<typeof Ne
     idea: input.idea,
     open: true,
   });
-  await logActivity(user.id, 'team-post', `Team post for ${listing.title}`, `/teams?hackathon=${listing.slug}`);
+  const title = postTitle(slug, listing ?? undefined);
+  await logActivity(user.id, 'team-post', slug ? `Team post for ${title}` : 'Team post, open to any hackathon', slug ? `/teams?hackathon=${slug}` : '/teams');
   const [post] = await decoratePosts([doc.toObject()]);
   return post;
 }
@@ -403,11 +437,12 @@ async function ownPost(user: SessionUser, id: string, { allowAdmin = false } = {
   return post;
 }
 
-export async function updateTeamPost(user: SessionUser, id: string, patch: z.infer<typeof TeamPostPatch>): Promise<TeamPostView> {
+export async function updateTeamPost(user: SessionUser, id: string, patch: z.infer<typeof TeamPostPatch>, ip?: string): Promise<TeamPostView> {
   const post = await ownPost(user, id);
+  if (patch.idea !== undefined) await assertRespectful({ userId: user.id, kind: 'team-post', ip }, patch.idea);
   const members = patch.members ?? post.members;
   const teamMax = patch.teamMax ?? post.teamMax;
-  if (patch.teamMax !== undefined) {
+  if (patch.teamMax !== undefined && post.hackathonSlug) {
     const listing = await Hackathon.findOne({ slug: post.hackathonSlug }).select('title teamMax').lean();
     if (listing && teamMax > listing.teamMax) {
       const msg = `Teams for ${listing.title} can have at most ${listing.teamMax} people.`;
@@ -467,8 +502,8 @@ async function postSummaries(ids: Id[]): Promise<Map<string, PostSummary>> {
       String(p._id),
       {
         id: String(p._id),
-        hackathonSlug: p.hackathonSlug,
-        hackathonTitle: listings.get(p.hackathonSlug)?.title ?? 'A hackathon',
+        hackathonSlug: p.hackathonSlug ?? '',
+        hackathonTitle: postTitle(p.hackathonSlug ?? '', listings.get(p.hackathonSlug), p.hackathonTitle),
         city: p.city,
         members: p.members,
         teamMax: p.teamMax,
@@ -483,9 +518,19 @@ type Link = Pick<ITeamRequest, '_id' | 'fromUserId' | 'toUserId' | 'message' | '
   postId?: Types.ObjectId | null;
 };
 
-async function decorateLinks(docs: Link[]): Promise<(JoinRequest & TeamInvite)[]> {
+/**
+ * Requests and invites in API shape. With `viewerId`, accepted ones carry the id of the
+ * chat between the viewer and the other student, for the "Message" button.
+ */
+async function decorateLinks(docs: Link[], viewerId?: string): Promise<(JoinRequest & TeamInvite)[]> {
   const postIds = docs.map((d) => d.postId).filter((id): id is Types.ObjectId => Boolean(id));
-  const [posts, users] = await Promise.all([postSummaries(postIds), usersById(docs.flatMap((d) => [d.fromUserId, d.toUserId]))]);
+  const otherOf = (d: Link) => (String(d.fromUserId) === viewerId ? d.toUserId : d.fromUserId);
+  const accepted = viewerId ? docs.filter((d) => d.status === 'accepted') : [];
+  const [posts, users, chats] = await Promise.all([
+    postSummaries(postIds),
+    usersById(docs.flatMap((d) => [d.fromUserId, d.toUserId])),
+    viewerId && accepted.length ? conversationsWith(viewerId, accepted.map(otherOf)) : Promise.resolve(new Map<string, string>()),
+  ]);
   return docs.map((d) => ({
     id: String(d._id),
     status: d.status,
@@ -495,16 +540,41 @@ async function decorateLinks(docs: Link[]): Promise<(JoinRequest & TeamInvite)[]
     post: d.postId ? posts.get(String(d.postId)) ?? null : null,
     from: student(users.get(String(d.fromUserId))),
     to: student(users.get(String(d.toUserId))),
+    conversationId: d.status === 'accepted' ? chats.get(String(otherOf(d))) : undefined,
   }));
 }
 
 const answeredAlready = (status: string) => conflict(`This was already ${status === 'withdrawn' ? 'withdrawn' : status}.`);
 
-export async function requestToJoin(user: SessionUser, postId: string, message: string): Promise<JoinRequest> {
+/**
+ * Team Finder actions (posting, asking to join, inviting) need a set-up profile, so the
+ * other student can see who's asking. Also stops banned or deleted accounts.
+ */
+async function assertTeamReady(userId: string): Promise<void> {
+  await assertCanPost(userId);
+  const me = await User.findById(userId).select('onboarded').lean();
+  if (!me?.onboarded) {
+    throw new ApiError(403, 'profile_needed', 'Set up your profile first (photo, college, city and skills), so students know who’s asking.');
+  }
+}
+
+/** Sample students are only there to show how things look; they can't take requests or invites. */
+const sampleOnly = (name: string) =>
+  badRequest(`${name} is a sample student, here to show how Team Finder works, so they can’t get requests, invites or messages.`);
+
+/** Where an "accepted" notification sends the student: the new chat when it opened. */
+const chatHref = (conversationId: string | null) => (conversationId ? `/messages/${conversationId}` : '/teams#my-requests');
+
+export async function requestToJoin(user: SessionUser, postId: string, message: string, ip?: string): Promise<JoinRequest> {
   const post = await TeamPost.findOne({ _id: postId, deletedAt: null }).lean();
   if (!post) throw notFound('That team post');
   if (String(post.authorId) === user.id) throw badRequest('That’s your own team.');
+  const author = await User.findById(post.authorId).select('name isSample deletedAt banned').lean();
+  if (!author || author.deletedAt || author.banned) throw notFound('That team post');
+  if (author.isSample) throw sampleOnly(author.name);
   if (!post.open || post.members >= post.teamMax) throw conflict('This team isn’t taking new members right now.');
+  await assertTeamReady(user.id);
+  await assertRespectful({ userId: user.id, kind: 'request', ip }, message);
 
   let doc = await TeamRequest.findOne({ postId: post._id, fromUserId: user.id });
   if (doc) {
@@ -519,10 +589,16 @@ export async function requestToJoin(user: SessionUser, postId: string, message: 
     doc = await TeamRequest.create({ postId: post._id, fromUserId: user.id, toUserId: post.authorId, message });
   }
 
-  const title = (await listingsBySlug([post.hackathonSlug])).get(post.hackathonSlug)?.title ?? 'a hackathon';
+  const title = await titleOfPost(post);
   await notify(post.authorId, 'team-request', `${user.name} asked to join your team`, message || `For ${title}.`, '/teams#my-requests');
-  const [view] = await decorateLinks([doc.toObject()]);
+  const [view] = await decorateLinks([doc.toObject()], user.id);
   return view;
+}
+
+/** "Smart India Hackathon", or "any hackathon" for open posts. */
+async function titleOfPost(post: Pick<ITeamPost, 'hackathonSlug' | 'hackathonTitle'> | null): Promise<string> {
+  if (!post?.hackathonSlug) return 'any hackathon';
+  return postTitle(post.hackathonSlug, (await listingsBySlug([post.hackathonSlug])).get(post.hackathonSlug), post.hackathonTitle);
 }
 
 export async function answerRequest(user: SessionUser, id: string, status: 'accepted' | 'declined' | 'withdrawn'): Promise<JoinRequest> {
@@ -545,20 +621,28 @@ export async function answerRequest(user: SessionUser, id: string, status: 'acce
       await TeamRequest.updateOne({ _id: request._id }, { $set: { status: 'pending' } });
       throw conflict('Your team is full or the post was removed. Raise the team size to take more people.');
     }
-    const title = post ? (await listingsBySlug([post.hackathonSlug])).get(post.hackathonSlug)?.title ?? 'a hackathon' : 'a hackathon';
+    const title = await titleOfPost(post);
     if (status === 'accepted') {
-      await notify(request.fromUserId, 'request-accepted', `${user.name} accepted your request`, `You’re on the team for ${title}.`, '/teams#my-requests');
+      // Joining a team opens a private chat between the two of them.
+      const chat = await openConversation(user, request.fromUserId, { kind: 'request', id: request._id });
+      await notify(
+        request.fromUserId,
+        'request-accepted',
+        `${user.name} accepted your request`,
+        `You’re on the team for ${title}. You can now chat with ${user.name}.`,
+        chatHref(chat)
+      );
     } else {
       await notify(
         request.fromUserId,
         'request-declined',
         `${user.name}’s team didn’t take your request`,
         `No worries, there are more teams for ${title}.`,
-        post ? `/teams?hackathon=${post.hackathonSlug}` : '/teams'
+        post?.hackathonSlug ? `/teams?hackathon=${post.hackathonSlug}` : '/teams'
       );
     }
   }
-  const [view] = await decorateLinks([updated]);
+  const [view] = await decorateLinks([updated], user.id);
   return view;
 }
 
@@ -567,18 +651,21 @@ export async function myRequests(userId: string): Promise<Inbox<JoinRequest>> {
     TeamRequest.find({ fromUserId: userId, status: { $ne: 'withdrawn' } }).sort({ updatedAt: -1 }).limit(INBOX_LIMIT).lean(),
     TeamRequest.find({ toUserId: userId, status: { $ne: 'withdrawn' } }).sort({ updatedAt: -1 }).limit(INBOX_LIMIT).lean(),
   ]);
-  const [sentViews, receivedViews] = await Promise.all([decorateLinks(sent), decorateLinks(received)]);
+  const [sentViews, receivedViews] = await Promise.all([decorateLinks(sent, userId), decorateLinks(received, userId)]);
   // Requests to a post the author removed are only noise for them.
   return { sent: sentViews, received: receivedViews.filter((r) => r.post && !r.post.removed) };
 }
 
 export async function sendInvite(
   user: SessionUser,
-  input: { toHandle: string; postId?: string; message: string }
+  input: { toHandle: string; postId?: string; message: string },
+  ip?: string
 ): Promise<TeamInvite> {
-  const target = await User.findOne({ handle: input.toHandle }).select('_id name deletedAt banned').lean();
+  const target = await User.findOne({ handle: input.toHandle }).select('_id name deletedAt banned isSample').lean();
   if (!target || target.deletedAt || target.banned) throw notFound('That student');
   if (String(target._id) === user.id) throw badRequest('You can’t invite yourself.');
+  if (target.isSample) throw sampleOnly(target.name);
+  await assertTeamReady(user.id);
 
   let title = '';
   if (input.postId) {
@@ -586,8 +673,9 @@ export async function sendInvite(
     if (!post) throw notFound('That team post');
     if (String(post.authorId) !== user.id) throw forbidden('You can only invite people to your own team.');
     if (!post.open || post.members >= post.teamMax) throw conflict('That team is full or closed. Open it again first.');
-    title = (await listingsBySlug([post.hackathonSlug])).get(post.hackathonSlug)?.title ?? '';
+    title = await titleOfPost(post);
   }
+  await assertRespectful({ userId: user.id, kind: 'invite', ip }, input.message);
 
   let doc = await Invite.findOne({ fromUserId: user.id, toUserId: target._id });
   if (doc) {
@@ -609,7 +697,7 @@ export async function sendInvite(
     input.message || (title ? `For ${title}.` : 'Take a look at their profile and say hi.'),
     '/teams#my-requests'
   );
-  const [view] = await decorateLinks([doc.toObject() as IInvite]);
+  const [view] = await decorateLinks([doc.toObject() as IInvite], user.id);
   return view;
 }
 
@@ -634,17 +722,19 @@ export async function answerInvite(user: SessionUser, id: string, status: 'accep
         await Invite.updateOne({ _id: invite._id }, { $set: { status: 'pending' } });
         throw conflict('That team is already full or the post was removed.');
       }
-      title = (await listingsBySlug([post.hackathonSlug])).get(post.hackathonSlug)?.title ?? '';
+      title = await titleOfPost(post);
     }
+    // Accepting an invite opens a private chat between the two of them.
+    const chat = await openConversation(user, invite.fromUserId, { kind: 'invite', id: invite._id });
     await notify(
       invite.fromUserId,
       'invite-accepted',
       `${user.name} accepted your invite`,
-      title ? `They’re on your team for ${title}.` : 'Say hi and plan your next hackathon together.',
-      '/teams#my-requests'
+      `${title ? `They’re on your team for ${title}. ` : ''}You can now chat with ${user.name}.`,
+      chatHref(chat)
     );
   }
-  const [view] = await decorateLinks([updated]);
+  const [view] = await decorateLinks([updated], user.id);
   return view;
 }
 
@@ -653,7 +743,7 @@ export async function myInvites(userId: string): Promise<Inbox<TeamInvite>> {
     Invite.find({ fromUserId: userId, status: { $ne: 'withdrawn' } }).sort({ updatedAt: -1 }).limit(INBOX_LIMIT).lean(),
     Invite.find({ toUserId: userId, status: { $ne: 'withdrawn' } }).sort({ updatedAt: -1 }).limit(INBOX_LIMIT).lean(),
   ]);
-  const [s, r] = await Promise.all([decorateLinks(sent), decorateLinks(received)]);
+  const [s, r] = await Promise.all([decorateLinks(sent, userId), decorateLinks(received, userId)]);
   return { sent: s, received: r };
 }
 

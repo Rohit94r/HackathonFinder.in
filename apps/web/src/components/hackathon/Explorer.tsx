@@ -85,6 +85,12 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
     () => new Map<string, number | undefined>(location ? items.map((h) => [h.slug, distanceFrom(h, location)]) : []),
     [items, location]
   );
+  // Our catalog cities, plus any other city a listed event is in (Bhopal, Ludhiana, …), A to Z.
+  const cityOptions = useMemo(() => {
+    const options = new Map(CITIES.map((c) => [c.slug, c.name]));
+    for (const h of items) if (h.city && !options.has(h.city)) options.set(h.city, cityName(h.city, h.cityName));
+    return [...options].map(([slug, name]) => ({ slug, name })).sort((a, b) => a.name.localeCompare(b.name));
+  }, [items]);
   const count = activeFilterCount(filters, base);
   const set = (patch: Partial<Filters>) => setFilters((f) => ({ ...f, ...patch }));
   const reset = () => setFilters({ ...base, q: '' });
@@ -100,8 +106,9 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
 
   const needsLocation = ready && !location && (filters.sort === 'nearest' || filters.km > 0);
   const byDistance = Boolean(location) && filters.sort === 'nearest';
-  const inPerson = byDistance ? results.filter((h) => distances.get(h.slug) !== undefined) : results;
-  const online = byDistance ? results.filter((h) => distances.get(h.slug) === undefined) : [];
+  // Nearest first: in-person and hybrid events by distance (any without a known place last), then online ones.
+  const inPerson = byDistance ? results.filter((h) => h.mode !== 'online') : results;
+  const online = byDistance ? results.filter((h) => h.mode === 'online') : [];
 
   const grid = (list: HackathonView[]) => (
     <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
@@ -114,7 +121,12 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
   const activeChips: { label: string; clear: () => void }[] = [
     ...(filters.km !== base.km ? [{ label: `Within ${filters.km} km`, clear: () => set({ km: base.km }) }] : []),
     ...(filters.city !== base.city
-      ? [{ label: filters.city === 'online' ? 'Online' : cityName(filters.city), clear: () => set({ city: base.city }) }]
+      ? [
+          {
+            label: filters.city === 'online' ? 'Online' : (cityOptions.find((c) => c.slug === filters.city)?.name ?? cityName(filters.city)),
+            clear: () => set({ city: base.city }),
+          },
+        ]
       : []),
     ...filters.modes.map((m) => ({ label: modeLabel(m), clear: () => set({ modes: filters.modes.filter((x) => x !== m) }) })),
     ...filters.types.map((t) => ({ label: eventTypeLabel(t), clear: () => set({ types: filters.types.filter((x) => x !== t) }) })),
@@ -189,7 +201,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
         >
           <option value="">Anywhere</option>
           <option value="online">Online only</option>
-          {CITIES.map((c) => (
+          {cityOptions.map((c) => (
             <option key={c.slug} value={c.slug}>
               {c.name}
             </option>

@@ -14,6 +14,17 @@ export class RobotsDisallowedError extends BlockedError {
   }
 }
 
+/** The URL points at this machine or a private network (SSRF guard). We never fetch those. */
+export class UnsafeUrlError extends Error {
+  constructor(
+    message: string,
+    public readonly url: string
+  ) {
+    super(message);
+    this.name = 'UnsafeUrlError';
+  }
+}
+
 export class HttpError extends Error {
   constructor(
     message: string,

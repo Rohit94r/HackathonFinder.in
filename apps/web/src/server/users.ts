@@ -22,14 +22,18 @@ export function isReservedHandle(handle: string): boolean {
   return RESERVED_HANDLES.has(handle);
 }
 
-/** Emails in ADMIN_EMAILS (comma-separated) get the admin role when they sign up or sign in. */
-export function isAdminEmail(email: string | null | undefined): boolean {
-  if (!email) return false;
+/** The emails in ADMIN_EMAILS (comma-separated), lowercased. */
+export function adminEmails(): string[] {
   return (process.env.ADMIN_EMAILS ?? '')
     .split(',')
     .map((e) => e.trim().toLowerCase())
-    .filter(Boolean)
-    .includes(email.toLowerCase());
+    .filter(Boolean);
+}
+
+/** Emails in ADMIN_EMAILS get the admin role when they sign up or sign in. */
+export function isAdminEmail(email: string | null | undefined): boolean {
+  if (!email) return false;
+  return adminEmails().includes(email.toLowerCase());
 }
 
 export const hashPassword = (password: string) => bcrypt.hash(password, 12);

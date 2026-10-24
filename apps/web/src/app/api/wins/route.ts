@@ -9,9 +9,9 @@ export const GET = route(
 
 /** Share a win. JSON, or multipart with the details as JSON in `data` and an optional `cover` image. */
 export const POST = route(
-  async ({ req, user }) => {
+  async ({ req, user, ip }) => {
     const { body, cover } = await readWinRequest(req, NewWinSchema);
-    return { win: await createWin(user!, body, cover) };
+    return { win: await createWin(user!, body, cover, ip) };
   },
   { auth: 'required', rate: { limit: 5, windowMs: 60 * 60_000, key: 'win-post' } }
 );

@@ -10,7 +10,18 @@ import { cn } from '@/lib/cn';
 const MAX = 500;
 
 /** "Invite to my team": a short note, sent through Team Finder (POST /api/invites). */
-export default function InviteButton({ handle, name, className }: { handle: string; name: string; className?: string }) {
+export default function InviteButton({
+  handle,
+  name,
+  className,
+  secondary = false,
+}: {
+  handle: string;
+  name: string;
+  className?: string;
+  /** Outline style, when another button (like Message) is the main action. */
+  secondary?: boolean;
+}) {
   const { status } = useSession();
   const firstName = name.split(' ')[0];
   const [open, setOpen] = useState(false);
@@ -47,7 +58,7 @@ export default function InviteButton({ handle, name, className }: { handle: stri
   if (state === 'sent' || state === 'already') {
     return (
       <div className={className}>
-        <p className="flex items-center justify-center gap-2 rounded-[10px] border-[3px] border-emerald-500/40 px-4 py-3 text-sm font-semibold text-emerald-800 dark:text-emerald-200">
+        <p className="flex items-center justify-center gap-2 rounded-full bg-accent/10 px-4 py-3 text-sm font-semibold text-brand-700 dark:text-brand-300">
           <Check className="h-4 w-4" aria-hidden="true" />
           {state === 'sent' ? `Invite sent to ${firstName}` : 'Already invited'}
         </p>
@@ -64,7 +75,7 @@ export default function InviteButton({ handle, name, className }: { handle: stri
   if (!open) {
     return (
       <div className={className}>
-        <button type="button" onClick={start} className="btn-primary w-full">
+        <button type="button" onClick={start} className={cn(secondary ? 'btn-secondary' : 'btn-primary', 'w-full')}>
           <UserPlus className="h-4 w-4" aria-hidden="true" />
           Invite to my team
         </button>

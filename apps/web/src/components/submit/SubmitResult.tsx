@@ -37,7 +37,7 @@ export default function SubmitResult({
 
   return (
     <div className="card flex flex-col items-center px-6 py-14 text-center" role="status">
-      {duplicate ? <Copy className="mb-4 h-14 w-14 text-pop" /> : <CheckCircle2 className="mb-4 h-14 w-14 text-emerald-500" />}
+      {duplicate ? <Copy className="mb-4 h-14 w-14 text-ink" /> : <CheckCircle2 className="mb-4 h-14 w-14 text-accent" />}
       <h2 className="text-3xl">
         {duplicate ? 'We already have this one' : title ? `Thanks! We’ve got “${title}”.` : 'Thanks for sharing!'}
       </h2>

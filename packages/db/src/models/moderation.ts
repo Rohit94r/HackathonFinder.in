@@ -1,4 +1,4 @@
-import { deleteModel, models, Schema, type Types } from 'mongoose';
+import { Schema, type Types } from 'mongoose';
 import { defineModel } from './define';
 
 export type SubmissionKind = 'quick' | 'organizer' | 'extension';
@@ -63,6 +63,21 @@ export interface IDigestSubscriber {
   lastSentAt?: Date | null;
   createdAt: Date;
   updatedAt: Date;
+}
+
+export type FlagKind = 'thread' | 'reply' | 'team-post' | 'message' | 'win' | 'profile' | 'request' | 'invite';
+
+/** Text the bad-word filter stopped before it was posted, for admins to review. */
+export interface IContentFlag {
+  _id: Types.ObjectId;
+  userId?: Types.ObjectId;
+  kind: FlagKind;
+  /** The start of what they tried to post. */
+  excerpt: string;
+  /** The words that matched, normalised. */
+  words: string[];
+  ip?: string;
+  createdAt: Date;
 }
 
 /** One-time tokens for email verification and password reset. Only the hash is stored. */
@@ -135,6 +150,19 @@ const digestSchema = new Schema<IDigestSubscriber>(
 digestSchema.index({ email: 1 }, { unique: true });
 digestSchema.index({ token: 1 }, { unique: true });
 
+const contentFlagSchema = new Schema<IContentFlag>(
+  {
+    userId: { type: Schema.Types.ObjectId, ref: 'User' },
+    kind: { type: String, enum: ['thread', 'reply', 'team-post', 'message', 'win', 'profile', 'request', 'invite'], required: true },
+    excerpt: { type: String, default: '', maxlength: 300 },
+    words: { type: [String], default: [] },
+    ip: String,
+  },
+  { timestamps: { createdAt: true, updatedAt: false } }
+);
+contentFlagSchema.index({ createdAt: -1 });
+contentFlagSchema.index({ userId: 1, createdAt: -1 });
+
 const authTokenSchema = new Schema<IAuthToken>(
   {
     type: { type: String, enum: ['verify-email', 'reset-password'], required: true },
@@ -149,17 +177,8 @@ authTokenSchema.index({ tokenHash: 1 }, { unique: true });
 // MongoDB deletes expired tokens on its own.
 authTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-/**
- * In development a reloaded module can find the model still registered with an older
- * schema, which silently drops new fields. Re-register only when fields were added.
- */
-function withNewFields<T>(name: string, schema: Schema<T>) {
-  const existing = models[name];
-  if (existing && Object.keys(schema.paths).some((p) => !existing.schema.path(p))) deleteModel(name);
-  return defineModel<T>(name, schema);
-}
-
-export const Submission = withNewFields<ISubmission>('Submission', submissionSchema);
-export const Report = withNewFields<IReport>('Report', reportSchema);
+export const Submission = defineModel<ISubmission>('Submission', submissionSchema);
+export const Report = defineModel<IReport>('Report', reportSchema);
+export const ContentFlag = defineModel<IContentFlag>('ContentFlag', contentFlagSchema);
 export const DigestSubscriber = defineModel<IDigestSubscriber>('DigestSubscriber', digestSchema);
 export const AuthToken = defineModel<IAuthToken>('AuthToken', authTokenSchema);

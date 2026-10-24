@@ -3,9 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
-import { Check, ExternalLink, Loader2, RotateCcw, Trash2, X } from 'lucide-react';
-import { apiFetch, ApiClientError } from '@/lib/apiClient';
-import { Ago, EmptyState, ErrorNote, Pill, StatePill, Tabs } from './parts';
+import { apiFetch } from '@/lib/apiClient';
+import { ActionStatus, Ago, Badge, Button, Empty, ErrorBox, ExtLink, inputClass, Loading, PageHeader, Segmented, StateBadge, useAction, useConfirm } from './ui';
 
 type Status = 'open' | 'resolved' | 'dismissed' | 'all';
 
@@ -35,99 +34,77 @@ const REASONS: Record<string, string> = {
 
 function ReportCard({ r, onDone }: { r: ReportItem; onDone: () => void }) {
   const [note, setNote] = useState('');
-  const [busy, setBusy] = useState('');
-  const [problem, setProblem] = useState('');
+  const { busy, error, run } = useAction();
+  const [dialog, confirm] = useConfirm();
 
   const act = async (status: 'open' | 'resolved' | 'dismissed', removeListing = false) => {
-    setBusy(`${status}${removeListing ? '-remove' : ''}`);
-    setProblem('');
-    try {
-      await apiFetch(`/api/admin/reports/${r.id}`, { method: 'PATCH', body: { status, note, removeListing } });
-      onDone();
-    } catch (err) {
-      setProblem(err instanceof ApiClientError ? err.message : 'That didn’t work. Please try again.');
-    } finally {
-      setBusy('');
+    if (removeListing) {
+      const ok = await confirm({ title: `Remove “${r.listing?.title}” from the site?`, body: 'Its other open reports are resolved too. You can restore the listing later.', confirmLabel: 'Resolve and remove' });
+      if (!ok) return;
     }
+    const res = await run(`${status}${removeListing ? '-remove' : ''}`, () => apiFetch(`/api/admin/reports/${r.id}`, { method: 'PATCH', body: { status, note, removeListing } }));
+    if (res) onDone();
   };
-  const spin = (key: string, Icon: typeof Check) => (busy === key ? <Loader2 className="h-4 w-4 animate-spin" /> : <Icon className="h-4 w-4" />);
 
   return (
-    <li className="card space-y-3 p-4">
+    <li className="space-y-2 border border-neutral-300 p-4">
+      {dialog}
       <div className="flex flex-wrap items-center gap-2">
-        <Pill tone={r.reason === 'scam' ? 'bad' : 'warn'}>{REASONS[r.reason] ?? r.reason}</Pill>
-        {r.status !== 'open' && <Pill>{r.status}</Pill>}
-        {r.openOnListing > 1 && r.status === 'open' && <Pill tone="bad">{r.openOnListing} open reports on this listing</Pill>}
-        <span className="text-xs text-ink/60">
+        <Badge tone={r.reason === 'scam' ? 'solid' : 'outline'}>{REASONS[r.reason] ?? r.reason}</Badge>
+        {r.status !== 'open' && <Badge tone="muted">{r.status}</Badge>}
+        {r.openOnListing > 1 && r.status === 'open' && <Badge tone="solid">{r.openOnListing} open reports on this listing</Badge>}
+        <span className="text-xs text-neutral-500">
           {r.reporter ? `@${r.reporter.handle}` : 'Signed out'} · <Ago at={r.createdAt} />
         </span>
       </div>
       {r.listing ? (
-        <div className="flex flex-wrap items-center gap-2">
-          <Link href={`/admin/listings/${r.listing.id}`} className="break-words font-semibold text-ink hover:underline">
+        <div className="flex flex-wrap items-center gap-2 text-sm">
+          <Link href={`/admin/hackathons/${r.listing.id}`} className="break-words font-medium hover:underline">
             {r.listing.title}
           </Link>
-          <StatePill state={r.listing.state} />
-          {r.listing.state === 'live' && (
-            <Link href={`/hackathons/${r.listing.slug}`} className="inline-flex items-center gap-1 text-xs font-semibold text-accent hover:underline">
-              On the site
-              <ExternalLink className="h-3 w-3" />
-            </Link>
-          )}
-          <a href={r.listing.registrationUrl} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex items-center gap-1 text-xs font-semibold text-ink/70 hover:underline">
+          <StateBadge state={r.listing.state} />
+          <ExtLink href={r.listing.registrationUrl} className="text-xs">
             Registration link
-            <ExternalLink className="h-3 w-3" />
-          </a>
+          </ExtLink>
         </div>
       ) : (
-        <p className="text-sm text-ink/60">The listing “{r.hackathonSlug}” no longer exists.</p>
+        <p className="text-sm text-neutral-500">The listing “{r.hackathonSlug}” no longer exists.</p>
       )}
-      {r.details ? <p className="whitespace-pre-wrap break-words rounded-xl bg-ink/5 p-3 text-sm text-ink/80">{r.details}</p> : <p className="text-sm text-ink/60">No details given.</p>}
+      {r.details ? <p className="whitespace-pre-wrap break-words border-l-2 border-black pl-3 text-sm">{r.details}</p> : <p className="text-sm text-neutral-500">No details given.</p>}
 
       {r.status === 'open' ? (
-        <div className="space-y-3">
-          <input className="input" value={note} onChange={(e) => setNote(e.target.value)} maxLength={1000} placeholder="What you did about it (optional)" aria-label="Resolution note" />
-          {problem && <ErrorNote>{problem}</ErrorNote>}
+        <div className="space-y-2">
+          <input className={inputClass} value={note} onChange={(e) => setNote(e.target.value)} maxLength={1000} placeholder="What you did about it (optional)" aria-label="Resolution note" />
+          {error && <ActionStatus error={error} done="" />}
           <div className="flex flex-wrap gap-2">
             {r.listing && (
-              <Link href={`/admin/listings/${r.listing.id}`} className="btn-secondary px-3 py-1.5 text-sm">
+              <Link href={`/admin/hackathons/${r.listing.id}`} className="inline-flex h-7 items-center rounded-[3px] border border-neutral-400 px-2.5 text-xs hover:border-black">
                 Fix the listing
               </Link>
             )}
-            <button type="button" className="btn-primary px-3 py-1.5 text-sm" disabled={Boolean(busy)} onClick={() => act('resolved')}>
-              {spin('resolved', Check)}
+            <Button size="sm" variant="primary" busy={busy === 'resolved'} disabled={Boolean(busy)} onClick={() => act('resolved')}>
               Resolved
-            </button>
+            </Button>
             {r.listing && r.listing.state !== 'removed' && (
-              <button
-                type="button"
-                className="btn-secondary px-3 py-1.5 text-sm"
-                disabled={Boolean(busy)}
-                onClick={() => {
-                  if (window.confirm(`Remove “${r.listing!.title}” from the site and resolve its reports?`)) act('resolved', true);
-                }}
-              >
-                {spin('resolved-remove', Trash2)}
+              <Button size="sm" busy={busy === 'resolved-remove'} disabled={Boolean(busy)} onClick={() => act('resolved', true)}>
                 Resolve and remove listing
-              </button>
+              </Button>
             )}
-            <button type="button" className="btn-secondary px-3 py-1.5 text-sm" disabled={Boolean(busy)} onClick={() => act('dismissed')}>
-              {spin('dismissed', X)}
+            <Button size="sm" busy={busy === 'dismissed'} disabled={Boolean(busy)} onClick={() => act('dismissed')}>
               Dismiss
-            </button>
+            </Button>
           </div>
         </div>
       ) : (
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-ink/60">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-neutral-500">
           <span>
             {r.status === 'resolved' ? 'Resolved' : 'Dismissed'}
             {r.resolvedBy ? ` by @${r.resolvedBy.handle}` : ''} <Ago at={r.resolvedAt} fallback="" />
             {r.resolutionNote ? `: ${r.resolutionNote}` : ''}
           </span>
-          <button type="button" className="inline-flex items-center gap-1 font-semibold text-ink/70 hover:text-ink" disabled={Boolean(busy)} onClick={() => act('open')}>
-            <RotateCcw className="h-3.5 w-3.5" />
+          <Button size="sm" variant="ghost" busy={busy === 'open'} disabled={Boolean(busy)} onClick={() => act('open')}>
             Reopen
-          </button>
+          </Button>
         </div>
       )}
     </li>
@@ -139,10 +116,12 @@ export default function ReportsList() {
   const [status, setStatus] = useState<Status>('open');
   const { data, error, mutate } = useSWR<{ items: ReportItem[]; counts: Record<string, number> }>(`/api/admin/reports?status=${status}`);
   return (
-    <div className="space-y-5">
-      <Tabs
+    <div className="space-y-4">
+      <PageHeader title="Reports" description="Students report wrong details, scams, expired events and broken links from event pages." />
+      <Segmented
+        label="Status"
         value={status}
-        onChange={(value) => setStatus(value)}
+        onChange={setStatus}
         options={[
           { value: 'open', label: 'Open', count: data?.counts.open },
           { value: 'resolved', label: 'Resolved', count: data?.counts.resolved },
@@ -150,16 +129,12 @@ export default function ReportsList() {
           { value: 'all', label: 'All' },
         ]}
       />
-      {error && <ErrorNote>{error.message}</ErrorNote>}
-      {!data && !error && <p className="text-sm text-ink/60">Loading reports…</p>}
-      {data && data.items.length === 0 && (
-        <EmptyState title={status === 'open' ? 'No open reports' : 'Nothing here'}>
-          Students report wrong details, scams, expired events and broken links from event pages.
-        </EmptyState>
-      )}
+      {error && <ErrorBox>{error.message}</ErrorBox>}
+      {!data && !error && <Loading>Loading reports…</Loading>}
+      {data && data.items.length === 0 && <Empty title={status === 'open' ? 'No open reports' : 'Nothing here'} />}
       <ul className="space-y-3">
         {data?.items.map((r) => (
-          <ReportCard key={r.id} r={r} onDone={() => mutate()} />
+          <ReportCard key={r.id} r={r} onDone={() => void mutate()} />
         ))}
       </ul>
     </div>

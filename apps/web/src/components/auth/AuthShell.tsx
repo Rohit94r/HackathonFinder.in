@@ -66,7 +66,7 @@ export default function AuthShell({
 export function FormNotice({ tone, children, id }: { tone: 'error' | 'success' | 'info'; children: React.ReactNode; id?: string }) {
   const styles = {
     error: 'border-brand-200 bg-brand-50 text-brand-800 dark:border-brand-400/25 dark:bg-brand-500/10 dark:text-brand-100',
-    success: 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-400/25 dark:bg-emerald-400/10 dark:text-emerald-100',
+    success: 'border-ink/15 bg-card text-ink',
     info: 'border-ink/10 bg-ink/5 text-ink/80',
   }[tone];
   return (

@@ -59,9 +59,12 @@ export function formatMoney(amount: number, currency: Currency): string {
   return `₹${amount.toLocaleString('en-IN')}`;
 }
 
-/** Short prize label for cards, e.g. "₹1L", "₹75K", "$5K". */
+/** When the source doesn't say: we never guess a prize or a team size. */
+export const ON_OFFICIAL_PAGE = 'On the official page';
+
+/** Short prize label for cards, e.g. "₹1L", "₹75K", "$5K"; an unknown prize says where to look. */
 export function formatPrizeShort(amount: number, currency: Currency): string {
-  if (amount <= 0) return 'Swag & certificates';
+  if (amount <= 0) return `Prizes: ${ON_OFFICIAL_PAGE.toLowerCase()}`;
   if (currency === 'USD') {
     return amount >= 1000 ? `$${trim(amount / 1000)}K` : `$${amount}`;
   }
@@ -74,7 +77,9 @@ function trim(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }
 
-export function formatTeamSize(min: number, max: number): string {
+/** "Solo or up to 4"; `known` is false when the source never stated a team size. */
+export function formatTeamSize(min: number, max: number, known = true): string {
+  if (!known) return `Team size: ${ON_OFFICIAL_PAGE.toLowerCase()}`;
   if (max === 1) return 'Solo';
   if (min === max) return `Team of ${min}`;
   return min === 1 ? `Solo or up to ${max}` : `${min}–${max} members`;

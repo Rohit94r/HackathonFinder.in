@@ -24,7 +24,7 @@ export default function FeaturedSlider({ items }: { items: HackathonView[] }) {
   return (
     <div>
       <div className="grid items-center gap-10 lg:grid-cols-2" aria-live="polite">
-        <EventArt theme={h.themes[0]} title={h.title} size="hero" className="h-72 rounded-[20px] sm:h-[420px]" />
+        <EventArt title={h.title} imageUrl={h.imageUrl} size="hero" className="h-72 rounded-[20px] sm:h-[420px]" />
         <div>
           <span className="eyebrow mb-5">Featured hackathon</span>
           <h2 className="text-5xl sm:text-6xl">{h.title}</h2>
@@ -32,19 +32,19 @@ export default function FeaturedSlider({ items }: { items: HackathonView[] }) {
           <ul className="mt-6 grid grid-cols-2 gap-3 text-sm font-medium text-ink/80">
             <li className="flex items-center gap-2">
               <MapPin className="h-4 w-4 text-brand-600" />
-              {h.mode === 'online' ? 'Online' : cityName(h.city)}
+              {h.mode === 'online' ? 'Online' : cityName(h.city, h.cityName)}
             </li>
             <li className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4 text-brand-600" />
               {formatDateRange(h.startDate, h.endDate)}
             </li>
             <li className="flex items-center gap-2">
-              <Trophy className="h-4 w-4 text-amber-500" />
+              <Trophy className="h-4 w-4 text-accent" />
               {formatPrizeShort(h.prizePool, h.prizeCurrency)}
             </li>
             <li className="flex items-center gap-2">
               <Users className="h-4 w-4 text-brand-600" />
-              {formatTeamSize(h.teamMin, h.teamMax)}
+              {formatTeamSize(h.teamMin, h.teamMax, h.teamSizeKnown !== false)}
             </li>
           </ul>
           <p className="mt-6 text-sm text-ink/60">by {h.organizer}</p>

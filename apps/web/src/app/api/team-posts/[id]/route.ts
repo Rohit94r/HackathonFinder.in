@@ -5,10 +5,10 @@ type Params = { id: string };
 
 /** The author updates their post: idea, skills, members, team size, open or closed. */
 export const PATCH = route<Params>(
-  async ({ req, params, user }) => {
+  async ({ req, params, user, ip }) => {
     if (!objectId.safeParse(params.id).success) throw notFound('That team post');
     const patch = await readBody(req, TeamPostPatch);
-    return { post: await updateTeamPost(user!, params.id, patch) };
+    return { post: await updateTeamPost(user!, params.id, patch, ip) };
   },
   { auth: 'required', rate: { limit: 60, windowMs: 60_000, key: 'team-post-edit' } }
 );

@@ -30,7 +30,18 @@ export interface IActivity {
 export interface INotification {
   _id: Types.ObjectId;
   userId: Types.ObjectId;
-  type: 'team-request' | 'request-accepted' | 'request-declined' | 'invite' | 'invite-accepted' | 'reply' | 'deadline' | 'listing-live' | 'system';
+  type:
+    | 'team-request'
+    | 'request-accepted'
+    | 'request-declined'
+    | 'invite'
+    | 'invite-accepted'
+    | 'reply'
+    | 'deadline'
+    | 'listing-live'
+    | 'system'
+    /** A chat opened with another student. */
+    | 'chat';
   title: string;
   body: string;
   href?: string;
@@ -69,7 +80,7 @@ const notificationSchema = new Schema<INotification>(
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     type: {
       type: String,
-      enum: ['team-request', 'request-accepted', 'request-declined', 'invite', 'invite-accepted', 'reply', 'deadline', 'listing-live', 'system'],
+      enum: ['team-request', 'request-accepted', 'request-declined', 'invite', 'invite-accepted', 'reply', 'deadline', 'listing-live', 'system', 'chat'],
       required: true,
     },
     title: { type: String, required: true, maxlength: 160 },

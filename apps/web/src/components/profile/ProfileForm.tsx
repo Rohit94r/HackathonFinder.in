@@ -7,6 +7,7 @@ import { SKILLS } from '@/data/skills';
 import { ApiClientError } from '@/lib/apiClient';
 import { toHandle, type MyProfile } from '@/lib/useProfile';
 import { cn } from '@/lib/cn';
+import AvatarUploader from './AvatarUploader';
 
 const EMPTY: MyProfile = {
   name: '',
@@ -124,7 +125,9 @@ export default function ProfileForm({
           <h2 id="pf-title" className="font-sans text-2xl font-bold normal-case tracking-normal">
             {editing ? 'Edit your profile' : 'Create your profile'}
           </h2>
-          <p className="mt-1 text-sm text-ink/70">Only your name and city are needed. Add the rest whenever you like.</p>
+          <p className="mt-1 text-sm text-ink/70">
+            Your name and city are required. A photo, your college and skills help teammates know who they’re inviting.
+          </p>
         </div>
         {onCancel && (
           <button type="button" onClick={onCancel} className="rounded-lg p-1.5 hover:bg-ink/5" aria-label="Close without saving">
@@ -132,6 +135,8 @@ export default function ProfileForm({
           </button>
         )}
       </div>
+
+      <AvatarUploader name={form.name} />
 
       <div className="grid gap-5 sm:grid-cols-2">
         <div>

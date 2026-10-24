@@ -1,33 +1,41 @@
 import { z } from 'zod';
 import { User } from '@hackathonfinder/db';
-import { forbidden, notFound, readBody } from '@/server/api';
-import { adminRoute, idParam, userRow } from '@/server/admin';
-import { isAdminEmail } from '@/server/users';
+import { badRequest, notFound, readBody } from '@/server/api';
+import { adminRoute, deleteUserAccount, getUserDetail, idParam, moderateUser } from '@/server/admin';
 
-const Body = z
+/** Everything about one account: profile, what they created and shared, analytics and a timeline. Never message contents. */
+export const GET = adminRoute<{ id: string }>(async ({ params }) => getUserDetail(idParam(params.id, 'That account')));
+
+const Patch = z
   .object({
     role: z.enum(['student', 'organizer', 'admin']).optional(),
     banned: z.boolean().optional(),
+    /** With a ban: also hide everything they posted. With an unban: put back what admins hid. */
+    content: z.boolean().default(false),
   })
+  .strict()
   .refine((v) => v.role !== undefined || v.banned !== undefined, 'Nothing to change.');
 
-/** Change a student's role, or ban / unban them. Banned accounts can't sign in. */
+/** Change a role, or ban / unban. Banned accounts can't sign in or post. Never yourself, never the last admin. */
 export const PATCH = adminRoute<{ id: string }>(async ({ req, params, user }) => {
-  const body = await readBody(req, Body);
+  const body = await readBody(req, Patch);
+  return moderateUser(idParam(params.id, 'That account'), body, user);
+});
+
+const Delete = z
+  .object({
+    /** The account's handle, typed to confirm. */
+    confirm: z.string().trim().max(40),
+    hideContent: z.boolean().default(false),
+  })
+  .strict();
+
+/** Deletes the account (personal details wiped, sign-in stops), like a student deleting their own. */
+export const DELETE = adminRoute<{ id: string }>(async ({ req, params, user }) => {
   const id = idParam(params.id, 'That account');
-  // Keeps at least one way back in: nobody can lock themselves out by accident.
-  if (id === user.id && (body.banned || (body.role && body.role !== 'admin'))) {
-    throw forbidden('You can’t remove your own admin access or ban yourself.');
-  }
-  const doc = await User.findById(id);
+  const { confirm, hideContent } = await readBody(req, Delete);
+  const doc = await User.findById(id).select('handle deletedAt').lean();
   if (!doc || doc.deletedAt) throw notFound('That account');
-  if (doc.isSample) throw forbidden('Sample students are seeded data and can’t sign in anyway.');
-  if (body.role) doc.role = body.role;
-  if (body.banned !== undefined) doc.banned = body.banned;
-  await doc.save();
-  const note =
-    body.role && body.role !== 'admin' && isAdminEmail(doc.email)
-      ? 'This email is in ADMIN_EMAILS, so it becomes admin again at the next sign-in. Remove it there to make this stick.'
-      : '';
-  return { user: userRow(doc.toObject()), note };
+  if (confirm.toLowerCase() !== doc.handle) throw badRequest(`Type ${doc.handle} to confirm.`, { confirm: `Type ${doc.handle} to confirm.` });
+  return deleteUserAccount(id, user, hideContent);
 });

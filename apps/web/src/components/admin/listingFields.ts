@@ -110,6 +110,8 @@ export const ListingInput = z
     featured: z.boolean().default(false),
     verified: z.boolean().default(false),
     registrationUrl: z.string().trim().max(2000).refine(isHttpUrl, 'Use the full registration link, starting with https://'),
+    /** "qr" when students register by scanning a QR code on the poster. */
+    registrationVia: z.enum(['link', 'qr']).default('link'),
     summary: z.string().trim().max(1200).default(''),
     imageUrl: imageRef.default(''),
     logoUrl: imageRef.default(''),
@@ -160,6 +162,7 @@ export interface ListingFormValues {
   featured: boolean;
   verified: boolean;
   registrationUrl: string;
+  registrationVia: 'link' | 'qr';
   summary: string;
   imageUrl: string;
   logoUrl: string;
@@ -194,6 +197,7 @@ export const EMPTY_LISTING_FORM: ListingFormValues = {
   featured: false,
   verified: false,
   registrationUrl: '',
+  registrationVia: 'link',
   summary: '',
   imageUrl: '',
   logoUrl: '',
@@ -303,6 +307,7 @@ export function draftToForm(d: Partial<Draft> | null | undefined, extra: { image
     themes: draft.themes ?? [],
     beginnerFriendly: Boolean(draft.beginnerFriendly),
     registrationUrl: draft.registrationUrl || extra.url || '',
+    registrationVia: draft.registrationVia === 'qr' ? 'qr' : 'link',
     summary: draft.summary ?? '',
     imageUrl: extra.imageUrl ?? '',
   };

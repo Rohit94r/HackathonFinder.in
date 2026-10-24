@@ -24,18 +24,18 @@ interface ThemeStyle {
   soft: string;
 }
 
-// Cover art and tints stay inside the landing palette: red, orange and charcoal, in a few mixes
+// Cover art and tints stay inside the palette: red, white and charcoal, in a few mixes
 // so neighbouring cards still look different. Full class strings so Tailwind keeps them in the build.
 const ART = {
-  signature: 'from-[#ec3750] to-[#ff8c37]',
+  signature: 'from-[#ec3750] to-[#ff6b81]',
   deepRed: 'from-[#9b1830] via-[#ec3750] to-[#ff6b81]',
-  sunset: 'from-[#ff8c37] via-[#f9663f] to-[#ec3750]',
+  sunset: 'from-[#ff6b81] via-[#f2465f] to-[#be1e3a]',
   nightRed: 'from-[#17171d] via-[#3d1d26] to-[#ec3750]',
-  nightOrange: 'from-[#17171d] via-[#a5481a] to-[#ff8c37]',
+  nightOrange: 'from-[#17171d] via-[#7d142a] to-[#ec3750]',
 };
 const TINT = {
   red: 'bg-brand-50 text-brand-700 dark:bg-brand-400/15 dark:text-brand-200',
-  orange: 'bg-pop-soft text-[#a4460a] dark:bg-pop/15 dark:text-[#ffc59a]',
+  orange: 'bg-ink/5 text-ink/80 dark:bg-white/10 dark:text-white/85',
 };
 
 export const THEME_STYLES: Record<ThemeSlug, ThemeStyle> = {

@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Bookmark, UserRound } from 'lucide-react';
 import Avatar from '@/components/Avatar';
-import { LogoMark } from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { NAV_COMMUNITY, NAV_HACKATHONS } from '@/data/navigation';
 import { useProfile } from '@/lib/useProfile';
@@ -25,13 +24,12 @@ const LINKS: Array<{ label: string; href?: string; dropdown?: Item[] }> = [
   { label: NAV_COMMUNITY.label, dropdown: NAV_COMMUNITY.items },
 ];
 
-/** Wordmark: our logo mark plus "HackathonFinder" in the landing serif. */
+/** Wordmark: just "HackathonFinder" in the landing serif, one colour, no icon. */
 export function LandingLogo({ light = false }: { light?: boolean }) {
   return (
-    <Link href="/" aria-label="HackathonFinder home" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
-      <LogoMark className="!h-10 !w-10" />
+    <Link href="/" aria-label="HackathonFinder home" style={{ display: 'inline-flex', alignItems: 'center', textDecoration: 'none' }}>
       <span className="lp-wordmark" style={{ fontFamily: 'var(--lp-serif)', fontSize: 26, lineHeight: 1, color: light ? 'var(--paper)' : 'var(--foreground)', whiteSpace: 'nowrap' }}>
-        Hackathon<span style={{ color: light ? '#ff8c37' : 'var(--red)' }}>Finder</span>
+        HackathonFinder
       </span>
     </Link>
   );

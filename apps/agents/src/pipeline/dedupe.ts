@@ -9,6 +9,8 @@ const DAY = 24 * 3600_000;
 export const TITLE_THRESHOLD = 0.85;
 /** …when they also start within this window, in the same city (or both online). */
 export const START_WINDOW_MS = 2 * DAY;
+/** Two listings with the same registration link are one event only if their titles are at least this alike. */
+export const REG_URL_TITLE_THRESHOLD = 0.5;
 
 export interface IndexEntry {
   id: string;
@@ -21,6 +23,9 @@ export interface IndexEntry {
   regUrl: string;
   refs: { source: string; externalId?: string; url: string }[];
   sources: string[];
+  /** The listing's banner and where it came from, so the runner knows when to look for one again. */
+  imageUrl?: string;
+  sourceImageUrl?: string;
 }
 
 export interface MatchQuery {
@@ -55,8 +60,13 @@ export function sameEvent(a: EventKey, b: EventKey): number | null {
   return score >= TITLE_THRESHOLD ? score : null;
 }
 
-export function entryFromDoc(doc: Pick<IHackathon, 'title' | 'startDate' | 'city' | 'mode' | 'registrationUrl' | 'sourceRefs' | 'sources'> & { _id: unknown }): IndexEntry {
+export function entryFromDoc(
+  doc: Pick<IHackathon, 'title' | 'startDate' | 'city' | 'mode' | 'registrationUrl' | 'sourceRefs' | 'sources'> &
+    Partial<Pick<IHackathon, 'imageUrl' | 'sourceImageUrl'>> & { _id: unknown }
+): IndexEntry {
   return {
+    imageUrl: doc.imageUrl || undefined,
+    sourceImageUrl: doc.sourceImageUrl || undefined,
     id: String(doc._id),
     title: doc.title,
     norm: normalizeTitle(doc.title),
@@ -76,7 +86,7 @@ export class DedupeIndex {
   static async load(now: Date): Promise<DedupeIndex> {
     // Sample listings are made up; never merge real events into them.
     const docs = await Hackathon.find({ flags: { $ne: 'sample' }, endDate: { $gte: new Date(now.getTime() - 60 * DAY) } })
-      .select('title startDate city mode registrationUrl sourceRefs sources')
+      .select('title startDate city mode registrationUrl sourceRefs sources imageUrl sourceImageUrl')
       .lean();
     return DedupeIndex.from(docs.map((d) => entryFromDoc(d)));
   }
@@ -104,11 +114,15 @@ export class DedupeIndex {
       if (hit) return { entry: hit, reason: 'source-id', score: 1 };
     }
     if (url) {
-      const hit = all.find((e) => e.refs.some((r) => r.url === url));
+      // The same page, unless the source itself says it is a different event (another id).
+      const hit = all.find((e) => e.refs.some((r) => r.url === url && !(r.source === q.listingSource && r.externalId && q.externalId && r.externalId !== q.externalId)));
       if (hit) return { entry: hit, reason: 'source-url', score: 1 };
     }
     if (reg) {
-      const hit = all.find((e) => e.regUrl === reg || e.refs.some((r) => r.url === reg));
+      // Organizers reuse one generic page ("/events", a club's form) for several events, so a
+      // shared registration link only counts when the titles are alike too.
+      const norm = normalizeTitle(q.title);
+      const hit = all.find((e) => (e.regUrl === reg || e.refs.some((r) => r.url === reg)) && dice(norm, e.norm) >= REG_URL_TITLE_THRESHOLD);
       if (hit) return { entry: hit, reason: 'registration-url', score: 1 };
     }
     let best: Match | null = null;

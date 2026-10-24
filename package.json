@@ -16,7 +16,7 @@
     "test": "pnpm -r --if-present test",
     "db:seed": "pnpm --filter @hackathonfinder/db seed",
     "db:local": "pnpm --filter @hackathonfinder/db mongo",
-    "agents:run": "pnpm --filter @hackathonfinder/agents run",
+    "agents:run": "pnpm --filter @hackathonfinder/agents run run",
     "agents:schedule": "pnpm --filter @hackathonfinder/agents schedule",
     "agents:sources": "pnpm --filter @hackathonfinder/agents sources"
   },

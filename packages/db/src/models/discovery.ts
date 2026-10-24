@@ -57,16 +57,45 @@ export interface IRawItem {
   updatedAt: Date;
 }
 
-/** One run of an agent over a source. */
+export type RunItemAction = 'created' | 'updated' | 'merged' | 'review' | 'rejected' | 'error';
+
+/** What a run did with one thing it found, so admins can see exactly what was added. */
+export interface IRunItem {
+  action: RunItemAction;
+  /** Source slug (unstop, devfolio, instagram, …). */
+  source: string;
+  title: string;
+  /** Where we found it. */
+  url: string;
+  slug?: string;
+  hackathonId?: Types.ObjectId;
+  imageUrl?: string;
+  city?: string;
+  mode?: string;
+  /** Why it went to review or was rejected, or what changed. */
+  reason?: string;
+}
+
+/** One run of an agent. A "scrape" run covers several sources in one go. */
 export interface IAgentRun {
   _id: Types.ObjectId;
-  agent: 'scout' | 'pipeline' | 'verifier' | 'alerts' | 'digest';
+  agent: 'scrape' | 'scout' | 'pipeline' | 'verifier' | 'alerts' | 'digest';
   source?: string;
+  /** Sources a scrape run covers. */
+  sources: string[];
   status: RunStatus;
   trigger: 'schedule' | 'manual' | 'api';
+  /** "2026-10-25T02:00+05:30" for scheduled runs, so one time slot never runs twice. */
+  slot?: string;
+  /** The admin who pressed "Scrape now". */
+  startedBy?: Types.ObjectId;
   startedAt: Date;
   finishedAt?: Date;
   counts: { found: number; new: number; created: number; updated: number; merged: number; review: number; rejected: number; errors: number };
+  /** Live progress for the admin dashboard. */
+  progress: { done: number; total: number; current: string };
+  /** What happened to each item (capped), newest last. */
+  items: IRunItem[];
   /** Error messages from the run ("errors" is reserved by Mongoose). */
   errorLog: string[];
   log: string[];
@@ -122,20 +151,53 @@ rawItemSchema.index({ hackathonId: 1 });
 
 const zeroCounts = { found: 0, new: 0, created: 0, updated: 0, merged: 0, review: 0, rejected: 0, errors: 0 };
 
-const agentRunSchema = new Schema<IAgentRun>({
-  agent: { type: String, enum: ['scout', 'pipeline', 'verifier', 'alerts', 'digest'], required: true },
-  source: String,
-  status: { type: String, enum: ['queued', 'running', 'success', 'partial', 'failed', 'skipped'], default: 'running' },
-  trigger: { type: String, enum: ['schedule', 'manual', 'api'], default: 'manual' },
-  startedAt: { type: Date, default: () => new Date() },
-  finishedAt: Date,
-  counts: { type: Schema.Types.Mixed, default: () => ({ ...zeroCounts }) },
-  errorLog: { type: [String], default: [] },
-  log: { type: [String], default: [] },
-});
+const runItemSchema = new Schema<IRunItem>(
+  {
+    action: { type: String, enum: ['created', 'updated', 'merged', 'review', 'rejected', 'error'], required: true },
+    source: { type: String, required: true },
+    title: { type: String, default: '' },
+    url: { type: String, default: '' },
+    slug: String,
+    hackathonId: { type: Schema.Types.ObjectId, ref: 'Hackathon' },
+    imageUrl: String,
+    city: String,
+    mode: String,
+    reason: String,
+  },
+  { _id: false }
+);
+
+const agentRunSchema = new Schema<IAgentRun>(
+  {
+    agent: { type: String, enum: ['scrape', 'scout', 'pipeline', 'verifier', 'alerts', 'digest'], required: true },
+    source: String,
+    sources: { type: [String], default: [] },
+    status: { type: String, enum: ['queued', 'running', 'success', 'partial', 'failed', 'skipped'], default: 'running' },
+    trigger: { type: String, enum: ['schedule', 'manual', 'api'], default: 'manual' },
+    slot: String,
+    startedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    startedAt: { type: Date, default: () => new Date() },
+    finishedAt: Date,
+    counts: { type: Schema.Types.Mixed, default: () => ({ ...zeroCounts }) },
+    progress: {
+      done: { type: Number, default: 0 },
+      total: { type: Number, default: 0 },
+      current: { type: String, default: '' },
+    },
+    items: { type: [runItemSchema], default: [] },
+    errorLog: { type: [String], default: [] },
+    log: { type: [String], default: [] },
+  },
+  { minimize: false }
+);
 agentRunSchema.index({ startedAt: -1 });
 agentRunSchema.index({ source: 1, startedAt: -1 });
 agentRunSchema.index({ status: 1, startedAt: -1 });
+agentRunSchema.index({ agent: 1, startedAt: -1 });
+// One scheduled scrape per time slot, even with several servers or a cron and a timer both firing.
+agentRunSchema.index({ slot: 1 }, { unique: true, partialFilterExpression: { slot: { $type: 'string' } } });
+// At most one running run per agent, so two scrapes never overlap (the database decides, not a timer).
+agentRunSchema.index({ agent: 1 }, { unique: true, partialFilterExpression: { status: 'running' }, name: 'one_running_per_agent' });
 
 export const Source = defineModel<ISource>('Source', sourceSchema);
 export const RawItem = defineModel<IRawItem>('RawItem', rawItemSchema);

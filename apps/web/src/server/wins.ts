@@ -24,6 +24,7 @@ import {
 } from '@/components/wins/model';
 import { badRequest, forbidden, notFound, readBody } from './api';
 import { assertCanPost, citySchema, handleSchema, limitSchema, loadAuthors, optional, pageSchema, slugSchema } from './community';
+import { assertRespectful } from './moderation';
 import { readUpload, storeImage } from './storage';
 
 type WinDoc = Omit<IWin, never>;
@@ -282,6 +283,13 @@ export async function moreWins(win: Pick<WinItem, 'id' | 'themes' | 'author'>, v
 
 // ── Writing ────────────────────────────────────────────────────────────────
 
+/** Every piece of text in a story (or a story edit), for the bad-word filter. */
+function storyText(w: Partial<Pick<NewWinInput, 'hackathon' | 'prize' | 'projectName' | 'tagline' | 'techStack' | 'team'>> & { sections?: Partial<NewWinInput['sections']> }): string[] {
+  return [w.hackathon, w.prize, w.projectName, w.tagline, ...(w.techStack ?? []), ...(w.team ?? []), ...SECTIONS.map((s) => w.sections?.[s])].filter(
+    (t): t is string => Boolean(t)
+  );
+}
+
 /** The author's name first, then teammates (without repeating the author). */
 function teamWith(authorName: string, teammates: string[]): string[] {
   const me = authorName.trim().toLowerCase();
@@ -294,8 +302,9 @@ async function findListing(slug: string) {
   return listing;
 }
 
-export async function createWin(viewer: Viewer, input: NewWinInput, cover: Buffer | null): Promise<WinItem> {
+export async function createWin(viewer: Viewer, input: NewWinInput, cover: Buffer | null, ip?: string): Promise<WinItem> {
   const { name } = await assertCanPost(viewer.id);
+  await assertRespectful({ userId: viewer.id, kind: 'win', ip }, storyText(input));
   const listing = input.hackathonSlug ? await findListing(input.hackathonSlug) : null;
   // Checked and stored before anything is written, so a bad image fails the whole post.
   const coverUrl = cover ? (await storeImage(cover, 'covers')).url : undefined;
@@ -347,8 +356,9 @@ async function ownWin(slug: string, viewer: Viewer) {
 }
 
 /** The author (or an admin) edits a story. The link stays the same. */
-export async function updateWin(slug: string, viewer: Viewer, patch: WinPatch, cover: Buffer | null): Promise<WinItem> {
+export async function updateWin(slug: string, viewer: Viewer, patch: WinPatch, cover: Buffer | null, ip?: string): Promise<WinItem> {
   const win = await ownWin(slug, viewer);
+  await assertRespectful({ userId: viewer.id, kind: 'win', ip }, storyText(patch));
   const set: Record<string, unknown> = {};
   const unset: Record<string, ''> = {};
 

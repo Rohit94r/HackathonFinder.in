@@ -18,10 +18,12 @@ if (fs.existsSync(rootEnv)) {
 const nextConfig = {
   reactStrictMode: true,
   // Workspace packages ship TypeScript source, so Next compiles them.
-  transpilePackages: ['@hackathonfinder/shared', '@hackathonfinder/db', '@hackathonfinder/ai'],
+  transpilePackages: ['@hackathonfinder/shared', '@hackathonfinder/db', '@hackathonfinder/ai', '@hackathonfinder/agents'],
   experimental: {
     // Server-only packages with native or dynamic requires; keep them out of the bundle.
     serverComponentsExternalPackages: ['mongoose', 'mongodb', 'bcryptjs', '@anthropic-ai/sdk'],
+    // src/instrumentation.ts starts the 02:00 / 14:00 scrape scheduler on long-running servers.
+    instrumentationHook: true,
   },
   poweredByHeader: false,
   async headers() {

@@ -2,19 +2,19 @@ import { Award, Medal, Star, Trophy } from 'lucide-react';
 import { RESULT_LABELS, type ResultKind } from '@/data/people';
 import { cn } from '@/lib/cn';
 
-// Same hue per result everywhere (badges, the profile ring, banners): gold, red, orange, grey.
+// Same look per result everywhere (badges, the profile ring, banners), in red and white: solid red, white, red tint, grey.
 export const RESULT_STYLES: Record<ResultKind, string> = {
-  winner: 'bg-amber-400 text-navy ring-amber-500/40',
-  'runner-up': 'bg-brand-50 text-brand-700 ring-accent/25 dark:bg-brand-400/15 dark:text-brand-200',
-  finalist: 'bg-pop-soft text-[#a4460a] ring-pop/30 dark:bg-pop/15 dark:text-[#ffc59a]',
+  winner: 'bg-accent text-white ring-accent',
+  'runner-up': 'bg-white text-navy ring-black/10',
+  finalist: 'bg-brand-50 text-brand-700 ring-accent/25 dark:bg-brand-400/15 dark:text-brand-200',
   participant: 'bg-ink/[0.06] text-ink/70 ring-ink/15',
 };
 
 /** Hex colours for chart marks, matching the badges. The legend always names each one. */
 export const RESULT_COLORS: Record<ResultKind, string> = {
-  winner: '#E5A00D',
-  'runner-up': '#ec3750',
-  finalist: '#ff8c37',
+  winner: '#ec3750',
+  'runner-up': '#d4d4d8',
+  finalist: '#ff9aab',
   participant: '#8a8a93',
 };
 

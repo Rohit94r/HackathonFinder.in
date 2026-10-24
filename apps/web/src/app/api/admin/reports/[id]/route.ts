@@ -1,14 +1,16 @@
 import { z } from 'zod';
 import { Hackathon, Report, Types } from '@hackathonfinder/db';
 import { notFound, readBody } from '@/server/api';
-import { adminRoute, idParam } from '@/server/admin';
+import { adminRoute, audit, idParam } from '@/server/admin';
 
-const Body = z.object({
-  status: z.enum(['open', 'resolved', 'dismissed']),
-  note: z.string().trim().max(1000).default(''),
-  /** Also take the listing down (state "removed"); its other open reports are resolved too. */
-  removeListing: z.boolean().default(false),
-});
+const Body = z
+  .object({
+    status: z.enum(['open', 'resolved', 'dismissed']),
+    note: z.string().trim().max(1000).default(''),
+    /** Also take the listing down (state "removed"); its other open reports are resolved too. */
+    removeListing: z.boolean().default(false),
+  })
+  .strict();
 
 /** Resolve or dismiss a report (or reopen it), optionally removing the listing. */
 export const PATCH = adminRoute<{ id: string }>(async ({ req, params, user }) => {
@@ -26,6 +28,9 @@ export const PATCH = adminRoute<{ id: string }>(async ({ req, params, user }) =>
     if (listing && listing.state !== 'removed') {
       listing.state = 'removed';
       listing.flags = [...(listing.flags ?? []), `Removed by @${user.handle} after a “${report.reason}” report${note ? `: ${note}` : ''}`];
+      listing.removedReason = (note || `Reported: ${report.reason}`).slice(0, 300);
+      listing.removedBy = by;
+      listing.removedAt = new Date();
       await listing.save();
       removed = true;
     }
@@ -34,5 +39,12 @@ export const PATCH = adminRoute<{ id: string }>(async ({ req, params, user }) =>
       { $set: { status: 'resolved', resolvedBy: by, resolvedAt: new Date(), resolutionNote: 'Listing removed' } }
     );
   }
+  await audit(
+    user,
+    `report.${status === 'open' ? 'reopen' : status === 'resolved' ? 'resolve' : 'dismiss'}`,
+    'report',
+    String(report._id),
+    `${status === 'open' ? 'Reopened' : status === 'resolved' ? 'Resolved' : 'Dismissed'} a “${report.reason}” report on ${report.hackathonSlug}${removed ? ' and removed the listing' : ''}${note ? `: ${note}` : ''}`
+  );
   return { ok: true, removed };
 });

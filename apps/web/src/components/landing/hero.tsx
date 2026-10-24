@@ -3,10 +3,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
-import { BtnArrowSvg } from './btn-arrow';
 import { SmartSearchInput } from './smart-search-input';
 import { SubmitEnvelopeLink } from './submit-envelope';
-import { DoodleField, FinderBuddy, TextSticker } from './art';
+import { DoodleField, TextSticker } from './art';
 import { PHOTOS, type Photo } from './photos';
 import { WaveUp } from './waves';
 import { InlineStyle } from './inline-style';
@@ -224,8 +223,6 @@ export function HeroSection({ sourceCount }: { sourceCount: number }) {
   const heroTopRef = useRef(0);
   const isHeroVisibleRef = useRef(true);
   const prefersReducedMotionRef = useRef(false);
-  const [announceHover, setAnnounceHover] = useState<'idle' | 'in' | 'out'>('idle');
-  const announceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const resetParallax = () => {
@@ -400,20 +397,7 @@ export function HeroSection({ sourceCount }: { sourceCount: number }) {
         @media (max-width: 1023px) {
           .hero-center { padding-left: 24px; padding-right: 24px; }
         }
-        @keyframes lp-announce-in  { from { transform: translateX(-101%); } to { transform: translateX(0%); } }
-        @keyframes lp-announce-out { from { transform: translateX(0%); } to { transform: translateX(101%); } }
-        .announce-link { position: relative; overflow: hidden; padding: 0 1px; transition: color 0.15s; }
-        .announce-link::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: #ec3750;
-          transform: translateX(-101%);
-          z-index: -1;
-        }
-        .announce-link[data-state="in"]::before  { animation: lp-announce-in  0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-        .announce-link[data-state="out"]::before { animation: lp-announce-out 0.25s cubic-bezier(0.55, 0, 1, 0.45) forwards; }
-        .announce-link .btn-arrow { display: inline-flex; align-items: center; }`} />
+`} />
       <div
         className="hero-center"
         style={{
@@ -429,43 +413,6 @@ export function HeroSection({ sourceCount }: { sourceCount: number }) {
           pointerEvents: 'none',
         }}
       >
-        {/* Announcement */}
-        <Link
-          href="/cities/pune"
-          className="announce-link"
-          data-state={announceHover}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexWrap: 'wrap',
-            gap: 8,
-            fontFamily: 'var(--lp-sans)',
-            fontSize: 'clamp(16px, 4.2vw, 20px)',
-            color: announceHover === 'in' ? '#ffffff' : 'var(--muted)',
-            textDecoration: 'none',
-            textAlign: 'center',
-            marginBottom: 18,
-            pointerEvents: 'auto',
-            isolation: 'isolate',
-          }}
-          onMouseEnter={() => {
-            announceTimer.current = setTimeout(() => setAnnounceHover('in'), 10);
-          }}
-          onMouseLeave={() => {
-            if (announceTimer.current) clearTimeout(announceTimer.current);
-            setAnnounceHover(announceHover === 'in' ? 'out' : 'idle');
-          }}
-        >
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" style={{ flexShrink: 0 }}>
-            <path d="M12 2l2.6 7.4L22 12l-7.4 2.6L12 22l-2.6-7.4L2 12l7.4-2.6z" fill={announceHover === 'in' ? '#ffffff' : '#f1c40f'} />
-          </svg>
-          Now live: Pune and online hackathons
-          <span className="btn-arrow" aria-hidden="true">
-            <BtnArrowSvg />
-          </span>
-        </Link>
-
         {/* Headline: forced 2-line wrap */}
         <h1
           style={{
@@ -484,7 +431,7 @@ export function HeroSection({ sourceCount }: { sourceCount: number }) {
             className="lp-rainbow"
             style={{
               background:
-                'repeating-linear-gradient(105deg, #ec3750 0%, #ff8c37 16%, #f1c40f 32%, #33d6a6 48%, #338eda 64%, #a633d6 80%, #ec3750 100%)',
+                'repeating-linear-gradient(105deg, #ec3750 0%, #ff6b81 25%, #ffc6cf 50%, #ff6b81 75%, #ec3750 100%)',
               backgroundSize: '200% 100%',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
@@ -591,21 +538,6 @@ export function HeroSection({ sourceCount }: { sourceCount: number }) {
           <SubmitEnvelopeLink />
         </div>
       </div>
-
-      {/* Mascot, sitting on the wave on the right */}
-      <FinderBuddy
-        style={{
-          position: 'absolute',
-          right: 'calc(40 / 1920 * 100vw)',
-          bottom: 20,
-          width: 'calc(330 / 1920 * 100vw)',
-          minWidth: 110,
-          height: 'auto',
-          transform: 'translateY(calc(50% - 8px))',
-          zIndex: 25,
-          pointerEvents: 'none',
-        }}
-      />
 
       <WaveUp color="var(--background)" style={{ bottom: -2, zIndex: 20 }} />
     </section>

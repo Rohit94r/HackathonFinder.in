@@ -9,6 +9,7 @@ import {
   Handshake,
   Mail,
   Megaphone,
+  MessagesSquare,
   Reply,
   UserCheck,
   UserPlus,
@@ -26,7 +27,8 @@ export type NotificationType =
   | 'reply'
   | 'deadline'
   | 'listing-live'
-  | 'system';
+  | 'system'
+  | 'chat';
 
 /** One item from GET /api/me/notifications. */
 export interface NotificationItem {
@@ -55,6 +57,7 @@ export const NOTIFICATION_ICONS: Record<NotificationType, LucideIcon> = {
   deadline: Clock,
   'listing-live': Megaphone,
   system: Bell,
+  chat: MessagesSquare,
 };
 
 /** The bell's list: the latest few, refreshed every minute while signed in. */

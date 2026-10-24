@@ -3,7 +3,7 @@ import { ListingInput } from '@/components/admin/listingFields';
 import { readBody } from '@/server/api';
 import { adminRoute, approveSubmission, idParam } from '@/server/admin';
 
-const Body = z.object({ listing: ListingInput, note: z.string().trim().max(500).default('') });
+const Body = z.object({ listing: ListingInput, note: z.string().trim().max(500).default('') }).strict();
 
 /** Approve: creates the live listing from the edited fields and tells the submitter. */
 export const POST = adminRoute<{ id: string }>(async ({ req, params, user }) => {

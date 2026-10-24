@@ -6,7 +6,6 @@ import type { CSSProperties, ReactNode } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Bookmark, Building2, CalendarClock, Globe2, Layers, Megaphone, Search, Users } from 'lucide-react';
 import { BtnArrowSvg } from './btn-arrow';
-import { DeadlineBuddy } from './art';
 import { PHOTOS, type Photo } from './photos';
 import { WaveUp } from './waves';
 import { InlineStyle } from './inline-style';
@@ -228,9 +227,9 @@ function LiveStatBadges({ stats }: { stats: LiveStat[] }) {
 /** Mock of the "My hackathons" tracker, hanging off the card's right edge. */
 function TrackerMock() {
   const rows = [
-    ['CodeStorm 2026', 'Registered', '#33d6a6'],
-    ['HackHer Pune', 'Saved', '#f1c40f'],
-    ['GreenCode Climate Hack', 'Submitted', '#338eda'],
+    ['AI hackathon, Pune', 'Registered', '#ec3750'],
+    ['Web3 weekend, online', 'Saved', '#ffffff'],
+    ['Climate hack, Bengaluru', 'Submitted', '#ffffff'],
   ];
   return (
     <div
@@ -255,7 +254,7 @@ function TrackerMock() {
       {rows.map(([name, status, color]) => (
         <div key={name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '10px 0', borderTop: '1px solid var(--mock-rule)' }}>
           <span style={{ fontSize: 16 }}>{name}</span>
-          <span style={{ background: color, color: '#17171d', borderRadius: 999, padding: '3px 10px', fontSize: 13, fontWeight: 700 }}>{status}</span>
+          <span style={{ background: color, color: color === '#ffffff' ? '#17171d' : '#ffffff', border: '1px solid rgba(23,23,29,0.15)', borderRadius: 999, padding: '3px 10px', fontSize: 13, fontWeight: 700 }}>{status}</span>
         </div>
       ))}
     </div>
@@ -266,20 +265,6 @@ function TrackerMock() {
 export function FeaturesSection({ stats }: { stats: LiveStat[] }) {
   return (
     <section style={{ background: 'var(--surface)', paddingTop: 80, paddingBottom: 48, position: 'relative' }}>
-      <DeadlineBuddy
-        style={{
-          position: 'absolute',
-          right: 'calc(60 / 1920 * 100vw)',
-          top: -22,
-          width: 'calc(300 / 1920 * 100vw)',
-          minWidth: 96,
-          height: 'auto',
-          transform: 'translateY(calc(-50% - 8px)) rotate(6deg)',
-          zIndex: 30,
-          pointerEvents: 'none',
-        }}
-      />
-
       <WaveUp color="var(--surface)" style={{ top: -54, zIndex: 25 }} />
 
       <div
@@ -317,11 +302,11 @@ export function FeaturesSection({ stats }: { stats: LiveStat[] }) {
 
           {/* Card 2: tracker and reminders */}
           <div style={cardWrapStyle}>
-            <CardBg photo={PHOTOS.openHall} glow="rgba(51,142,218,0.6)" />
+            <CardBg photo={PHOTOS.openHall} glow="rgba(236,55,80,0.55)" />
             <TrackerMock />
             <div className="features-card-content" style={{ ...cardContentStyle, zIndex: 2 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
-                <CardIcon color="#338eda">
+                <CardIcon color="#ec3750">
                   <Bookmark size={24} aria-hidden="true" />
                 </CardIcon>
                 <h3 className="features-card-title" style={cardTitleStyle}>My hackathons</h3>
@@ -336,10 +321,10 @@ export function FeaturesSection({ stats }: { stats: LiveStat[] }) {
 
           {/* Card 3: Team Finder */}
           <div style={cardWrapStyle}>
-            <CardBg photo={PHOTOS.longTable} glow="rgba(166,51,214,0.6)" />
+            <CardBg photo={PHOTOS.longTable} glow="rgba(236,55,80,0.55)" />
             <div className="features-card-content" style={{ ...cardContentStyle, maxWidth: 'calc(100% - 88px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
-                <CardIcon color="#a633d6">
+                <CardIcon color="#ec3750">
                   <Users size={24} aria-hidden="true" />
                 </CardIcon>
                 <h3 className="features-card-title" style={cardTitleStyle}>Great idea, no team?</h3>
@@ -352,10 +337,10 @@ export function FeaturesSection({ stats }: { stats: LiveStat[] }) {
 
           {/* Card 4: organizers */}
           <div style={cardWrapStyle}>
-            <CardBg photo={PHOTOS.stageLights} glow="rgba(255,140,55,0.6)" />
+            <CardBg photo={PHOTOS.stageLights} glow="rgba(236,55,80,0.55)" />
             <div className="features-card-content" style={{ ...cardContentStyle, maxWidth: 'calc(100% - 88px)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
-                <CardIcon color="#ff8c37">
+                <CardIcon color="#ec3750">
                   <Megaphone size={24} aria-hidden="true" />
                 </CardIcon>
                 <h3 className="features-card-title" style={cardTitleStyle}>Running a hackathon?</h3>

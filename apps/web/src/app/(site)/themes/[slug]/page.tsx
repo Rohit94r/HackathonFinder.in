@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { THEMES } from '@hackathonfinder/shared';
 import Explorer from '@/components/hackathon/Explorer';
-import { PageHero, SampleNotice } from '@/components/ui';
+import { PageHero } from '@/components/ui';
 import { DEFAULT_FILTERS, parseFilters } from '@/lib/filters';
 import { getHackathons } from '@/server/hackathons';
 
@@ -34,7 +34,6 @@ export default async function ThemePage({
       <PageHero title={theme.name} accent="hackathons" description={theme.description} />
       <section className="bg-surface py-10">
         <div className="container-page">
-          {items.some((h) => h.sample) && <SampleNotice className="mb-6" />}
           <Explorer items={items} initial={parseFilters(searchParams, base)} base={base} />
         </div>
       </section>

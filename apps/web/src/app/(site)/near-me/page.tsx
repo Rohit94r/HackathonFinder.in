@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Explorer from '@/components/hackathon/Explorer';
-import { PageHero, SampleNotice } from '@/components/ui';
 import { NEAR_ME_FILTERS, parseFilters } from '@/lib/filters';
 import { getHackathons } from '@/server/hackathons';
 
@@ -12,6 +11,7 @@ export const metadata: Metadata = {
     'Find the hackathons closest to you. Share your location or pick your city to see in-person events nearest first, plus online events you can join from anywhere.',
 };
 
+/** Straight to the listings: nearest in-person events first, then online ones. */
 export default async function NearMePage({
   searchParams,
 }: {
@@ -20,18 +20,11 @@ export default async function NearMePage({
   const { items } = await getHackathons();
 
   return (
-    <>
-      <PageHero
-        title="Hackathons"
-        accent="near you"
-        description="Share your location or pick your city. We show the closest in-person events first with how far each one is, then online events you can join from anywhere."
-      />
-      <section className="bg-surface py-10">
-        <div className="container-page">
-          {items.some((h) => h.sample) && <SampleNotice className="mb-6" />}
-          <Explorer items={items} initial={parseFilters(searchParams, NEAR_ME_FILTERS)} base={NEAR_ME_FILTERS} autoLocate />
-        </div>
-      </section>
-    </>
+    <section className="bg-surface py-8">
+      <div className="container-page">
+        <h1 className="sr-only">Hackathons near you</h1>
+        <Explorer items={items} initial={parseFilters(searchParams, NEAR_ME_FILTERS)} base={NEAR_ME_FILTERS} autoLocate />
+      </div>
+    </section>
   );
 }

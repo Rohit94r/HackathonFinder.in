@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import CalendarView from '@/components/calendar/CalendarView';
-import { PageHero, SampleNotice } from '@/components/ui';
+import { PageHero } from '@/components/ui';
 import { getHackathons } from '@/server/hackathons';
 
 export const dynamic = 'force-dynamic';
@@ -21,7 +21,6 @@ export default async function CalendarPage() {
       />
       <section className="bg-surface py-10">
         <div className="container-page">
-          {items.some((h) => h.sample) && <SampleNotice className="mb-6" />}
           <CalendarView items={items} nowIso={nowIso} />
         </div>
       </section>

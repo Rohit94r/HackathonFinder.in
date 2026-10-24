@@ -1,0 +1,90 @@
+{
+ "hits": {
+  "total": {
+   "value": 3
+  },
+  "hits": [
+   {
+    "_source": {
+     "slug": "version-beta-9",
+     "uuid": "235fc76a63434ffe9b5aa63dea440833",
+     "name": "Version Beta 9.0",
+     "tagline": "Central India's Biggest Hackathon",
+     "desc": "IDE for your code\n\nGet ready for Version Beta, the ultimate 36-hour hackathon organized by ISTE SC MANIT! This is your chance to break away from the ordinary and dive into an exciting world of innovation, collaboration, and problem-solving.\n\nWith expert-led guidance and a dynamic environment, you’ll learn, grow, and connect with tech enthusiasts from across India. Plus, with amazing rewards and ca",
+     "is_online": false,
+     "city": "Bhopal",
+     "state": "Madhya Pradesh",
+     "country": "India",
+     "location": "MANIT, Maulana Azad National Institute of Technology, Bhopal, Madhya Pradesh, India",
+     "starts_at": "2026-10-30T14:30:00+00:00",
+     "ends_at": "2026-11-01T02:30:00+00:00",
+     "timezone": "Asia/Calcutta",
+     "team_min": 2,
+     "team_size": 4,
+     "themes": [],
+     "hashtags": [],
+     "cover_img": "https://assets.devfolio.co/hackathons/235fc76a63434ffe9b5aa63dea440833/assets/cover/424.png",
+     "hackathon_setting": {
+      "reg_ends_at": "2026-10-24T18:29:00+00:00",
+      "women_only": false,
+      "logo": "https://assets.devfolio.co/hackathons/235fc76a63434ffe9b5aa63dea440833/assets/logo/832.png"
+     }
+    }
+   },
+   {
+    "_source": {
+     "slug": "agentverse",
+     "uuid": "4c311506be0e4a6e9299199c09efe290",
+     "name": "AgentVerse",
+     "tagline": "UCL's Premier AI Hackathon",
+     "desc": "Welcome to AgentVerse, UCL's premier AI-centric  Hackathon",
+     "is_online": false,
+     "city": null,
+     "state": "England",
+     "country": "United Kingdom",
+     "location": "UCL East - Marshgate, Sidings Street, London, UK",
+     "starts_at": "2026-11-07T09:00:00+00:00",
+     "ends_at": "2026-11-08T13:00:00+00:00",
+     "timezone": "Europe/London",
+     "team_min": 2,
+     "team_size": 4,
+     "themes": [],
+     "hashtags": [],
+     "cover_img": "https://assets.devfolio.co/hackathons/4c311506be0e4a6e9299199c09efe290/assets/cover/39.png",
+     "hackathon_setting": {
+      "reg_ends_at": "2026-10-29T00:00:00+00:00",
+      "women_only": false,
+      "logo": "https://assets.devfolio.co/hackathons/4c311506be0e4a6e9299199c09efe290/assets/logo/630.png"
+     }
+    }
+   },
+   {
+    "_source": {
+     "slug": "hackodisha-6a",
+     "uuid": "c84b90d65eff4ae083366fc1cc549e81",
+     "name": "hackodisha-6.0",
+     "tagline": "Eastern India's one of the largest hackathon organized by Webwiz, NIT Rourkela.",
+     "desc": "Welcome to HackOdisha 6.0\nA 36-hour hybrid hackathon organized by Webwiz, the official tech club of NIT Rourkela\n\nAfter five successful seasons, HackOdisha returns bigger and better uniting developers and creatives from across the globe to tackle real-world challenges.\n\nWhether you’re a beginner or an expert, if you thrive on problem‑solving and innovation, this is your arena.\n\nYou can participate",
+     "is_online": true,
+     "city": null,
+     "state": null,
+     "country": null,
+     "location": null,
+     "starts_at": "2026-10-30T18:30:00+00:00",
+     "ends_at": "2026-11-01T06:30:00+00:00",
+     "timezone": "Asia/Calcutta",
+     "team_min": 1,
+     "team_size": 5,
+     "themes": [],
+     "hashtags": [],
+     "cover_img": "https://assets.devfolio.co/hackathons/c84b90d65eff4ae083366fc1cc549e81/assets/cover/38.jpeg",
+     "hackathon_setting": {
+      "reg_ends_at": "2026-10-30T18:29:00+00:00",
+      "women_only": false,
+      "logo": "https://assets.devfolio.co/hackathons/c84b90d65eff4ae083366fc1cc549e81/assets/logo/565.png"
+     }
+    }
+   }
+  ]
+ }
+}

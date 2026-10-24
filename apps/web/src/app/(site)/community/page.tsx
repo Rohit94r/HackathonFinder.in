@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, Award, BookOpen, Facebook, Linkedin, Megaphone, MessageCircle, Send, Trophy, Users } from 'lucide-react';
+import { ArrowRight, Award, BookOpen, Facebook, Linkedin, Megaphone, MessageCircle, Send, ShieldCheck, Trophy, Users } from 'lucide-react';
 import { CITIES } from '@hackathonfinder/shared';
 import NewsletterForm from '@/components/NewsletterForm';
 import DiscussionBoard, { type BoardFilters } from '@/components/community/DiscussionBoard';
 import { SORTS } from '@/components/community/model';
-import { PageHero, SectionHeading } from '@/components/ui';
+import { PHOTOS } from '@/components/landing/photos';
+import { SectionHeading } from '@/components/ui';
 import { isCategoryId } from '@/data/discussions';
 import { siteConfig } from '@/data/siteConfig';
 import { openOnly } from '@/lib/hackathons';
@@ -18,7 +19,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Community discussions',
   description:
-    'Talk with students across India: ask about hackathons, find teammates, get feedback on your project and share free resources. Plus WhatsApp city groups, Instagram, LinkedIn and Telegram channels, campus ambassadors and the weekly digest.',
+    'Discussions for students across India: ask about hackathons, find teammates, get feedback on your project and share free resources. Anyone can read; sign in to post.',
 };
 
 const CHANNELS = [
@@ -53,6 +54,15 @@ const WAYS = [
     cta: 'Submit an event',
   },
 ];
+
+const GUIDELINES = [
+  'Talk about anything: hackathons, projects, internships, college tech life.',
+  'Be kind and respectful. Abusive words and slurs are blocked automatically.',
+  'No spam or paid promotion. Organizers can list events for free.',
+  'Don’t post phone numbers or personal details. Connect through Team Finder.',
+];
+
+const AMBASSADOR_PHOTO = PHOTOS.classroomDesks;
 
 const AMBASSADOR_PERKS = [
   'Get new hackathons for your college before anyone else',
@@ -96,28 +106,44 @@ export default async function CommunityPage({ searchParams }: { searchParams: Se
     user
   );
 
+  // No page hero: the discussions start right under the navbar. Reading is open to
+  // everyone; posting, replying and voting need an account.
   return (
     <>
-      <PageHero
-        title="Talk with students"
-        accent="across India"
-        description="Ask about a hackathon, find teammates, get honest feedback on your project and swap tips with students from Pune to Kochi to Kolkata."
-      >
-        <div className="flex flex-wrap justify-center gap-3">
-          <a href="#discussions" className="btn-primary">
-            Browse discussions
-          </a>
-          <Link href="/teams" className="btn-ghost-dark">
-            Find teammates
-          </Link>
-        </div>
-      </PageHero>
-
-      <section id="discussions" className="scroll-mt-16 bg-surface py-10 sm:py-14">
+      <section id="discussions" className="scroll-mt-16 bg-surface py-6 sm:py-8">
         <div className="container-page grid grid-cols-1 gap-8 xl:grid-cols-[minmax(0,1fr)_300px]">
-          <DiscussionBoard events={events} titles={titles} initial={initial} initialData={initialData} compose={one(searchParams.new) === '1'} />
+          <DiscussionBoard
+            events={events}
+            titles={titles}
+            initial={initial}
+            initialData={initialData}
+            compose={one(searchParams.new) === '1'}
+            signedIn={Boolean(user)}
+          />
 
-          <aside className="grid grid-cols-1 content-start gap-6 sm:grid-cols-2 xl:grid-cols-1" aria-label="Channels and city groups">
+          <aside className="grid grid-cols-1 content-start gap-6 sm:grid-cols-2 xl:grid-cols-1" aria-label="Guidelines, channels and city groups">
+            <div className="card p-5">
+              <h2 className="flex items-center gap-2 font-sans text-base font-bold normal-case tracking-normal">
+                <ShieldCheck className="h-5 w-5 text-accent" aria-hidden="true" />
+                Community guidelines
+              </h2>
+              <ul className="mt-3 space-y-2.5">
+                {GUIDELINES.map((g) => (
+                  <li key={g} className="flex items-start gap-2 text-sm leading-6 text-ink/75">
+                    <span className="mt-2.5 h-1.5 w-1.5 shrink-0 rounded-full bg-accent" aria-hidden="true" />
+                    {g}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-3 text-xs text-ink/60">
+                See something wrong?{' '}
+                <a href={`mailto:${siteConfig.email}?subject=Community%20report`} className="font-semibold text-brand-700 hover:underline dark:text-brand-300">
+                  Tell us
+                </a>
+                .
+              </p>
+            </div>
+
             <div className="card p-5">
               <h2 className="font-sans text-base font-bold normal-case tracking-normal">Join a channel</h2>
               <p className="mt-1 text-sm text-ink/70">Never miss a new hackathon.</p>
@@ -125,7 +151,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Se
                 {CHANNELS.map((c) => (
                   <li key={c.name}>
                     <a href={c.href} className="group -mx-2 flex items-start gap-3 rounded-xl px-2 py-2 transition hover:bg-ink/5">
-                      <span className="mt-0.5 inline-flex shrink-0 rounded-lg bg-brand-600 p-1.5 text-white">
+                      <span className="mt-0.5 inline-flex shrink-0 rounded-lg bg-accent/10 p-1.5 text-brand-700 dark:text-brand-300">
                         <c.icon className="h-4 w-4" />
                       </span>
                       <span className="min-w-0 flex-1">
@@ -179,7 +205,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Se
           <div data-reveal-stagger className="grid gap-5 md:grid-cols-3">
             {WAYS.map((w) => (
               <Link key={w.title} href={w.href} className="card group p-7 transition hover:-translate-y-1 hover:shadow-lift">
-                <span className="mb-4 inline-flex rounded-xl bg-brand-600 p-2.5 text-white">
+                <span className="mb-4 inline-flex rounded-xl bg-accent p-2.5 text-white">
                   <w.icon className="h-5 w-5" />
                 </span>
                 <h3 className="text-xl font-bold">{w.title}</h3>
@@ -221,17 +247,27 @@ export default async function CommunityPage({ searchParams }: { searchParams: Se
               Apply to be an ambassador
             </a>
           </div>
-          <div className="on-dark relative overflow-hidden rounded-3xl bg-ink p-10 text-surface" data-reveal="up">
-            <div className="absolute -right-10 -top-10 h-56 w-56 rounded-full bg-brand-600/40 blur-3xl" aria-hidden="true" />
-            <div className="relative">
-              <p className="font-display text-6xl font-bold text-lime">1 college</p>
-              <p className="mt-2 text-xl font-semibold">is all it takes to start.</p>
-              <p className="mt-4 text-surface/80">
-                Ambassadors share new events in their college groups, run a prep session each
-                semester and tell us what students need.
+          <figure className="card overflow-hidden" data-reveal="up">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={AMBASSADOR_PHOTO.src}
+              alt="Engineering students listening in a college classroom"
+              className="aspect-[4/3] w-full object-cover"
+              loading="lazy"
+            />
+            <figcaption className="p-5">
+              <p className="text-lg font-semibold text-ink">One college is all it takes to start.</p>
+              <p className="mt-1 text-sm text-ink/70">
+                Ambassadors share new events in their college groups, run a prep session each semester and tell us what students need.
               </p>
-            </div>
-          </div>
+              <p className="mt-3 text-[11px] text-ink/45">
+                Photo:{' '}
+                <a href={AMBASSADOR_PHOTO.page} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                  {AMBASSADOR_PHOTO.by} on Unsplash
+                </a>
+              </p>
+            </figcaption>
+          </figure>
         </div>
       </section>
 

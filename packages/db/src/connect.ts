@@ -1,4 +1,27 @@
+import dns from 'node:dns';
 import mongoose from 'mongoose';
+
+const PUBLIC_DNS = ['1.1.1.1', '8.8.8.8'];
+
+/**
+ * Atlas `mongodb+srv://` URIs need a DNS SRV lookup. Some Windows setups give Node a
+ * local resolver (127.0.0.1) that refuses SRV queries even though the OS resolves
+ * them, which fails with `querySrv ECONNREFUSED`. When that happens, use public
+ * resolvers for SRV/TXT lookups (host lookups still go through the OS).
+ */
+async function ensureSrvResolves(uri: string): Promise<void> {
+  if (!uri.startsWith('mongodb+srv://')) return;
+  const host = uri.slice('mongodb+srv://'.length).split(/[/?]/)[0].split('@').pop()!;
+  try {
+    await dns.promises.resolveSrv(`_mongodb._tcp.${host}`);
+  } catch (err) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === 'ECONNREFUSED' || code === 'ETIMEOUT' || code === 'ESERVFAIL') {
+      console.warn(`[db] DNS SRV lookup failed (${code}); using public DNS for Atlas.`);
+      dns.setServers(PUBLIC_DNS);
+    }
+  }
+}
 
 /** Thrown when MONGODB_URI is missing, so callers can show a setup message instead of crashing. */
 export class DbNotConfiguredError extends Error {
@@ -28,12 +51,14 @@ export async function connectDb(): Promise<typeof mongoose> {
 
   if (!cache.promise) {
     mongoose.set('strictQuery', true);
-    cache.promise = mongoose
-      .connect(uri, {
-        dbName: process.env.MONGODB_DB || 'hackathonfinder',
-        maxPoolSize: Number(process.env.MONGODB_POOL_SIZE) || 10,
-        serverSelectionTimeoutMS: 10_000,
-      })
+    cache.promise = ensureSrvResolves(uri)
+      .then(() =>
+        mongoose.connect(uri, {
+          dbName: process.env.MONGODB_DB || 'hackathonfinder',
+          maxPoolSize: Number(process.env.MONGODB_POOL_SIZE) || 10,
+          serverSelectionTimeoutMS: 10_000,
+        })
+      )
       .catch((err) => {
         // Let the next request try again instead of caching the failure.
         cache.promise = null;

@@ -22,7 +22,7 @@ export default function ResetPasswordForm({ token }: { token: string | null }) {
   if (!token || expired) {
     return (
       <div className="flex h-full flex-col items-start justify-center">
-        <span className="inline-flex rounded-2xl bg-amber-100 p-3 text-amber-800 dark:bg-amber-400/15 dark:text-amber-200">
+        <span className="inline-flex rounded-2xl bg-accent/10 p-3 text-accent">
           <LinkIcon className="h-7 w-7" aria-hidden="true" />
         </span>
         <h2 className="mt-4 font-sans text-2xl font-bold normal-case tracking-normal">

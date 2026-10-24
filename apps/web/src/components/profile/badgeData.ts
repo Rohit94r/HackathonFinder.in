@@ -44,13 +44,13 @@ export const BADGES: BadgeDef[] = [
   { id: 'shipped', name: 'Shipped', description: 'Submitted a project', icon: Rocket, tone: 'bg-accent text-white' },
   { id: 'finisher', name: 'Finisher', description: 'Finished a hackathon', icon: Flag, tone: 'bg-accent text-white' },
   { id: 'explorer', name: 'Explorer', description: 'Saved 5 hackathons', icon: Compass, tone: 'bg-accent text-white' },
-  { id: 'city-scout', name: 'City scout', description: 'Follows 3 cities', icon: MapPin, tone: 'bg-pop text-navy' },
-  { id: 'team-player', name: 'Team player', description: 'Posted in Team Finder', icon: Users, tone: 'bg-pop text-navy' },
-  { id: 'voice', name: 'Voice', description: 'Started a discussion', icon: MessageSquare, tone: 'bg-pop text-navy' },
-  { id: 'helper', name: 'Helper', description: 'Replied 5 times in discussions', icon: HeartHandshake, tone: 'bg-pop text-navy' },
-  { id: 'podium', name: 'Podium', description: 'Won or came second', icon: Medal, tone: 'bg-amber-400 text-navy' },
-  { id: 'winner', name: 'Winner', description: 'Won a hackathon', icon: Trophy, tone: 'bg-amber-400 text-navy' },
-  { id: 'hat-trick', name: 'Hat-trick', description: 'Won 3 hackathons', icon: Crown, tone: 'bg-amber-400 text-navy' },
+  { id: 'city-scout', name: 'City scout', description: 'Follows 3 cities', icon: MapPin, tone: 'bg-ink text-surface' },
+  { id: 'team-player', name: 'Team player', description: 'Posted in Team Finder', icon: Users, tone: 'bg-ink text-surface' },
+  { id: 'voice', name: 'Voice', description: 'Started a discussion', icon: MessageSquare, tone: 'bg-ink text-surface' },
+  { id: 'helper', name: 'Helper', description: 'Replied 5 times in discussions', icon: HeartHandshake, tone: 'bg-ink text-surface' },
+  { id: 'podium', name: 'Podium', description: 'Won or came second', icon: Medal, tone: 'bg-brand-800 text-white' },
+  { id: 'winner', name: 'Winner', description: 'Won a hackathon', icon: Trophy, tone: 'bg-brand-800 text-white' },
+  { id: 'hat-trick', name: 'Hat-trick', description: 'Won 3 hackathons', icon: Crown, tone: 'bg-brand-800 text-white' },
 ];
 
 export interface BadgeState {

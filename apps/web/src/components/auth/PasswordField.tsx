@@ -5,7 +5,7 @@ import { Check, Eye, EyeOff, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { passwordStrength } from './authUtils';
 
-const BAR = ['bg-ink/15', 'bg-amber-400', 'bg-emerald-400', 'bg-emerald-600'];
+const BAR = ['bg-ink/15', 'bg-brand-300', 'bg-brand-500', 'bg-brand-700'];
 
 /** Password input with a show/hide toggle and, for new passwords, a strength hint. */
 export default function PasswordField({
@@ -82,7 +82,7 @@ export default function PasswordField({
           </div>
           <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
             {strength.rules.map((r) => (
-              <li key={r.text} className={cn('flex items-center gap-1', r.ok ? 'text-emerald-700 dark:text-emerald-300' : 'text-ink/60')}>
+              <li key={r.text} className={cn('flex items-center gap-1', r.ok ? 'text-ink' : 'text-ink/50')}>
                 {r.ok ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <X className="h-3.5 w-3.5" aria-hidden="true" />}
                 {r.text}
                 <span className="sr-only">{r.ok ? '(done)' : '(not yet)'}</span>

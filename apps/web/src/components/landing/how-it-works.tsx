@@ -99,7 +99,7 @@ function CleanCardPanel({ h }: { h: HackathonView }) {
     ['When', formatDateRange(h.startDate, h.endDate)],
     ['Deadline', formatDay(h.registrationDeadline)],
     ['Where', h.mode === 'online' ? 'Online' : `${cityName(h.city)} · ${modeLabel(h.mode)}`],
-    ['Team', formatTeamSize(h.teamMin, h.teamMax)],
+    ['Team', formatTeamSize(h.teamMin, h.teamMax, h.teamSizeKnown !== false)],
     ['Prizes', formatPrizeShort(h.prizePool, h.prizeCurrency)],
   ];
   return (
@@ -132,7 +132,7 @@ function CleanCardPanel({ h }: { h: HackathonView }) {
           ))}
         </div>
       </div>
-      <span style={{ ...chip, right: '3%', bottom: '5%', background: '#33d6a6', border: 'none', transform: 'rotate(4deg)' }}>
+      <span style={{ ...chip, right: '3%', bottom: '5%', background: '#ec3750', color: '#ffffff', border: 'none', transform: 'rotate(4deg)' }}>
         {sourceNames.length} sources → 1 listing
       </span>
     </Panel>

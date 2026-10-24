@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Explorer from '@/components/hackathon/Explorer';
-import { PageHero, SampleNotice } from '@/components/ui';
+import { PageHero } from '@/components/ui';
 import { openOnly } from '@/lib/hackathons';
 import { getHackathons } from '@/server/hackathons';
 import { parseFilters } from '@/lib/filters';
@@ -30,7 +30,6 @@ export default async function HackathonsPage({
       />
       <section className="bg-surface py-10">
         <div className="container-page">
-          {items.some((h) => h.sample) && <SampleNotice className="mb-6" />}
           <Explorer items={items} initial={initial} />
         </div>
       </section>

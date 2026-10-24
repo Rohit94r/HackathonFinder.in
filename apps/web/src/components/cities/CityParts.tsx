@@ -3,7 +3,7 @@ import { Star } from 'lucide-react';
 import { modeLabel } from '@hackathonfinder/shared';
 import type { HackathonView } from '@/lib/hackathons';
 import { deadlineLabel, formatDateRange, formatKm } from '@/lib/format';
-import { themeStyle } from '@/lib/themeStyles';
+import EventArt from '@/components/hackathon/EventArt';
 import { cn } from '@/lib/cn';
 
 /** City centres are the only points we have, so anything close is "your city". */
@@ -52,8 +52,8 @@ export function FollowCityButton({ name, following, onToggle, variant = 'icon', 
       className={cn(
         'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition',
         following
-          ? 'border-pop bg-pop text-navy hover:bg-[#ff9d52]'
-          : 'border-ink/20 text-ink/60 hover:border-pop hover:text-pop',
+          ? 'border-accent bg-accent text-white hover:bg-brand-700'
+          : 'border-ink/20 text-ink/60 hover:border-accent hover:text-accent',
         className
       )}
     >
@@ -62,15 +62,11 @@ export function FollowCityButton({ name, following, onToggle, variant = 'icon', 
   );
 }
 
-/** A small cover tile in the event's theme colours, matching the card art. */
+/** A small square of the event's banner (or a real event photo), matching the card. */
 export function MiniCover({ h, className }: { h: HackathonView; className?: string }) {
-  const { icon: Icon, gradient } = themeStyle(h.themes[0]);
   return (
-    <span
-      className={cn('inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white', gradient, className)}
-      aria-hidden="true"
-    >
-      <Icon className="h-5 w-5" />
+    <span aria-hidden="true" className={cn('block h-11 w-11 shrink-0 overflow-hidden rounded-xl', className)}>
+      <EventArt title={h.title} imageUrl={h.imageUrl} className="h-full w-full" />
     </span>
   );
 }
@@ -90,7 +86,7 @@ export function MiniEvent({ h, showDeadline = true }: { h: HackathonView; showDe
         <span
           className={cn(
             'shrink-0 text-right text-[11px] font-semibold',
-            h.status === 'closing-soon' ? 'text-orange-600 dark:text-orange-300' : 'text-ink/60'
+            h.status === 'closing-soon' ? 'text-brand-600 dark:text-brand-300' : 'text-ink/60'
           )}
         >
           {deadlineLabel(h.daysToDeadline)}

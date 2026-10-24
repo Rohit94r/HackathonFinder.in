@@ -48,6 +48,8 @@ export interface ProfileStory {
   tagline: string;
   themes: ThemeSlug[];
   cheers: number;
+  /** The story's uploaded cover photo, if it has one. */
+  coverUrl?: string;
   createdAt: string;
 }
 

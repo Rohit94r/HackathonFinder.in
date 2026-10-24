@@ -40,7 +40,7 @@ export default function ForgotPasswordForm({ initialEmail = '' }: { initialEmail
   if (sentTo) {
     return (
       <div className="flex h-full flex-col items-start justify-center">
-        <span className="inline-flex rounded-2xl bg-emerald-100 p-3 text-emerald-700 dark:bg-emerald-400/15 dark:text-emerald-200">
+        <span className="inline-flex rounded-2xl bg-accent/10 p-3 text-accent">
           <MailCheck className="h-7 w-7" aria-hidden="true" />
         </span>
         <h2 className="mt-4 font-sans text-2xl font-bold normal-case tracking-normal">Check your inbox</h2>

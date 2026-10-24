@@ -20,9 +20,9 @@ interface MySubmission {
 }
 
 const STATUS: Record<MySubmission['status'], { label: string; className: string }> = {
-  pending: { label: 'In review', className: 'bg-amber-100 text-amber-900 dark:bg-amber-400/15 dark:text-amber-200' },
-  approved: { label: 'Live', className: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-400/15 dark:text-emerald-200' },
-  merged: { label: 'Already listed', className: 'bg-emerald-100 text-emerald-900 dark:bg-emerald-400/15 dark:text-emerald-200' },
+  pending: { label: 'In review', className: 'bg-ink/5 text-ink dark:bg-white/10 dark:text-white' },
+  approved: { label: 'Live', className: 'bg-brand-50 text-brand-800 dark:bg-brand-400/15 dark:text-brand-200' },
+  merged: { label: 'Already listed', className: 'bg-brand-50 text-brand-800 dark:bg-brand-400/15 dark:text-brand-200' },
   rejected: { label: 'Not listed', className: 'bg-ink/5 text-ink/80' },
 };
 

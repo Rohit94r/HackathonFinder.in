@@ -1,6 +1,6 @@
 import Link from 'next/link';
-import { BadgeCheck, CalendarDays, Clock, MapPin, Navigation, Sparkles, Trophy, Users } from 'lucide-react';
-import { cityName, eventTypeLabel, modeLabel, sourceBySlug, themeName } from '@hackathonfinder/shared';
+import { BadgeCheck, CalendarDays, Clock, MapPin, Navigation, QrCode, Sparkles, Trophy, Users } from 'lucide-react';
+import { eventTypeLabel, modeLabel, placeName, sourceBySlug, themeName } from '@hackathonfinder/shared';
 import type { HackathonView } from '@/lib/hackathons';
 import { deadlineLabel, formatDateRange, formatKm, formatPrizeShort, formatTeamSize } from '@/lib/format';
 import { themeStyle } from '@/lib/themeStyles';
@@ -17,19 +17,20 @@ interface HackathonCardProps {
 }
 
 export default function HackathonCard({ h, distanceKm, className }: HackathonCardProps) {
-  const location = h.mode === 'online' ? 'Online' : `${cityName(h.city)} · ${modeLabel(h.mode)}`;
+  const location = h.mode === 'online' ? 'Online' : `${placeName(h)} · ${modeLabel(h.mode)}`;
   const open = h.status === 'open' || h.status === 'closing-soon';
 
   return (
     <Link
       href={`/hackathons/${h.slug}`}
+      data-hf-impression={h.slug}
       className={cn(
         'group card flex flex-col overflow-hidden transition duration-200 hover:-translate-y-1 hover:shadow-lift',
         className
       )}
     >
       <div className="relative">
-        <EventArt theme={h.themes[0]} title={h.title} className="h-32" />
+        <EventArt title={h.title} imageUrl={h.imageUrl} className="h-40" />
         <div className="absolute left-3 top-3 flex gap-1.5">
           <StatusBadge status={h.status} />
           {h.featured && (
@@ -78,7 +79,7 @@ export default function HackathonCard({ h, distanceKm, className }: HackathonCar
           </li>
           <li className="flex items-center gap-1.5">
             <Users className="h-4 w-4 shrink-0 text-ink/45" />
-            <span className="truncate">{formatTeamSize(h.teamMin, h.teamMax)}</span>
+            <span className="truncate">{formatTeamSize(h.teamMin, h.teamMax, h.teamSizeKnown !== false)}</span>
           </li>
         </ul>
 
@@ -92,8 +93,14 @@ export default function HackathonCard({ h, distanceKm, className }: HackathonCar
             {h.fee === 0 ? 'Free' : `₹${h.fee} fee`}
           </span>
           {h.beginnerFriendly && (
-            <span className="rounded-md px-2 py-0.5 text-xs font-medium bg-pop-soft text-[#a4460a] dark:bg-pop/15 dark:text-[#ffc59a]">
+            <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-400/15 dark:text-brand-200">
               Beginner-friendly
+            </span>
+          )}
+          {h.registrationVia === 'qr' && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-ink/5 px-2 py-0.5 text-xs font-medium text-ink/70">
+              <QrCode className="h-3 w-3" />
+              Register by QR
             </span>
           )}
         </div>
@@ -102,7 +109,7 @@ export default function HackathonCard({ h, distanceKm, className }: HackathonCar
           <span
             className={cn(
               'inline-flex items-center gap-1 font-semibold',
-              h.status === 'closing-soon' ? 'text-orange-600 dark:text-orange-400' : open ? 'text-ink/80' : 'text-ink/60'
+              h.status === 'closing-soon' ? 'text-brand-600 dark:text-brand-300' : open ? 'text-ink/80' : 'text-ink/60'
             )}
           >
             <Clock className="h-3.5 w-3.5" />

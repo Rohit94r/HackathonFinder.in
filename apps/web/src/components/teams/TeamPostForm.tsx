@@ -7,6 +7,7 @@ import { CITIES, cityName } from '@hackathonfinder/shared';
 import Avatar from '@/components/Avatar';
 import { SKILLS, TEAM_MODES, type TeamMode } from '@/data/teamPosts';
 import { ApiClientError } from '@/lib/apiClient';
+import { useMe } from '@/lib/useMe';
 import type { MyProfile } from '@/lib/useProfile';
 import { cn } from '@/lib/cn';
 import type { TeamEvent } from './teamUtils';
@@ -16,6 +17,7 @@ type Errors = Partial<Record<ErrorKey | 'form', string>>;
 
 /** Body for POST /api/team-posts. */
 export interface NewTeamPostInput {
+  /** '' for a team open to any hackathon. */
   hackathonSlug: string;
   city: string;
   mode: TeamMode;
@@ -37,6 +39,8 @@ interface TeamPostFormProps {
 
 const IDEA_MIN = 20;
 const IDEA_MAX = 500;
+/** Team size limit when the post isn't for a particular listing. */
+const ANY_MAX = 6;
 
 // The API names fields after the body; the form names them after its inputs.
 const FIELD_KEYS: Record<string, ErrorKey> = {
@@ -53,7 +57,9 @@ function toggle(list: string[], value: string): string[] {
 }
 
 export default function TeamPostForm({ events, profile, defaultHackathon, onCancel, onSubmit }: TeamPostFormProps) {
-  const first = events.find((e) => e.slug === defaultHackathon) ?? events[0];
+  const { me } = useMe();
+  // A hackathon picked in the filters, otherwise "any hackathon".
+  const first = events.find((e) => e.slug === defaultHackathon);
   const [hackathonSlug, setHackathonSlug] = useState(first?.slug ?? '');
   const [city, setCity] = useState(first?.mode === 'online' ? 'online' : profile.city);
   const [mode, setMode] = useState<TeamMode>(first?.mode === 'online' ? 'online' : 'in-person');
@@ -71,16 +77,15 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
   }, []);
 
   const event = events.find((e) => e.slug === hackathonSlug);
-  const eventMax = Math.max(2, event?.teamMax ?? 6);
+  const eventMax = Math.max(2, event?.teamMax ?? ANY_MAX);
 
   const pickEvent = (slug: string) => {
     setHackathonSlug(slug);
     const next = events.find((e) => e.slug === slug);
-    if (!next) return;
-    const max = Math.max(2, Math.min(teamMax, next.teamMax));
+    const max = Math.max(2, Math.min(teamMax, next?.teamMax ?? ANY_MAX));
     setTeamMax(max);
     setMembers((m) => Math.min(m, max - 1));
-    if (next.mode === 'online') setMode('online');
+    if (next?.mode === 'online') setMode('online');
   };
 
   const focusFirst = (found: Errors) => {
@@ -91,7 +96,7 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     const found: Errors = {};
-    if (!event) found.hackathon = 'Pick a hackathon.';
+    if (hackathonSlug && !event) found.hackathon = 'That hackathon isn’t open any more. Pick another, or any hackathon.';
     if (!city) found.city = 'Pick where your team works from.';
     if (needs.length === 0) found.needs = 'Pick at least one skill you need.';
     if (idea.trim().length < IDEA_MIN) found.idea = `Tell people your idea in a line or two (at least ${IDEA_MIN} characters).`;
@@ -127,7 +132,7 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
 
   const errorText = (key: keyof Errors) =>
     errors[key] && (
-      <p id={`tp-${key}-error`} className="mt-1 text-xs font-medium text-rose-600 dark:text-rose-300">
+      <p id={`tp-${key}-error`} className="mt-1 text-xs font-medium text-brand-700 dark:text-brand-300">
         {errors[key]}
       </p>
     );
@@ -151,7 +156,7 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
       </div>
 
       <div className="flex items-center gap-3 rounded-xl bg-ink/5 px-4 py-3">
-        <Avatar name={profile.name} size="sm" />
+        <Avatar name={profile.name} image={me?.image} size="sm" />
         <p className="min-w-0 flex-1 text-sm text-ink/80">
           Posting as <strong className="text-ink">{profile.name}</strong>
           {profile.city && <> · {cityName(profile.city)}</>}
@@ -168,12 +173,12 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
           </label>
           <select
             id="tp-hackathon"
-            className={cn('input', errors.hackathon && 'border-rose-400')}
+            className={cn('input', errors.hackathon && 'border-brand-500')}
             value={hackathonSlug}
             onChange={(e) => pickEvent(e.target.value)}
             {...invalid('hackathon')}
           >
-            {events.length === 0 && <option value="">No open hackathons right now</option>}
+            <option value="">Any upcoming hackathon</option>
             {events.map((e) => (
               <option key={e.slug} value={e.slug}>
                 {e.title}
@@ -188,7 +193,7 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
           </label>
           <select
             id="tp-city"
-            className={cn('input', errors.city && 'border-rose-400')}
+            className={cn('input', errors.city && 'border-brand-500')}
             value={city}
             onChange={(e) => setCity(e.target.value)}
             {...invalid('city')}
@@ -294,7 +299,7 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
         </label>
         <textarea
           id="tp-idea"
-          className={cn('input min-h-[96px]', errors.idea && 'border-rose-400')}
+          className={cn('input min-h-[96px]', errors.idea && 'border-brand-500')}
           value={idea}
           onChange={(e) => setIdea(e.target.value)}
           maxLength={IDEA_MAX}
@@ -310,7 +315,7 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
       </div>
 
       {errors.form && (
-        <p role="alert" className="rounded-xl bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700 dark:bg-rose-400/10 dark:text-rose-200">
+        <p role="alert" className="rounded-xl bg-accent/10 px-4 py-3 text-sm font-medium text-brand-800 dark:text-brand-200">
           {errors.form}
         </p>
       )}
@@ -319,7 +324,7 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
         <button type="button" onClick={onCancel} className="btn-secondary">
           Cancel
         </button>
-        <button type="submit" disabled={busy || events.length === 0} className="btn-primary">
+        <button type="submit" disabled={busy} className="btn-primary">
           <Send className="h-4 w-4" />
           {busy ? 'Posting…' : 'Post team'}
         </button>

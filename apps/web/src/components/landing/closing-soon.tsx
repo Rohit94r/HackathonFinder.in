@@ -2,10 +2,9 @@
 
 import Link from 'next/link';
 import { useRef } from 'react';
-import { themeStyle } from '@/lib/themeStyles';
-import { cn } from '@/lib/cn';
+import EventArt from '@/components/hackathon/EventArt';
 import { BtnArrow } from './btn-arrow';
-import { DoodleField, DotTexture } from './art';
+import { DoodleField } from './art';
 import { InlineStyle } from './inline-style';
 
 export interface ClosingCardData {
@@ -18,11 +17,12 @@ export interface ClosingCardData {
   badge: string;
   /** "Unstop and Instagram". */
   foundOn: string;
+  /** The event's real banner, when it has one. */
+  imageUrl?: string;
 }
 
 function ClosingCard({ event }: { event: ClosingCardData }) {
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const { gradient } = themeStyle(event.theme);
 
   return (
     <div
@@ -50,7 +50,7 @@ function ClosingCard({ event }: { event: ClosingCardData }) {
       style={{ position: 'relative', transition: 'transform 0.06s ease', willChange: 'transform' }}
     >
       <div
-        className={cn('bg-gradient-to-br', gradient)}
+        data-hf-impression={event.slug}
         style={{
           position: 'relative',
           borderRadius: 16,
@@ -65,7 +65,9 @@ function ClosingCard({ event }: { event: ClosingCardData }) {
           color: '#ffffff',
         }}
       >
-        <DotTexture opacity={0.22} />
+        {/* The event's banner (or a real event photo) under a dark wash, so the white text stays readable. */}
+        <EventArt title={event.title} imageUrl={event.imageUrl} className="!absolute inset-0" />
+        <span aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'rgba(15,15,18,0.62)' }} />
 
         {/* Pin for featured listings */}
         {event.featured && (
@@ -220,7 +222,7 @@ export function ClosingSoonSection({ events }: { events: ClosingCardData[] }) {
             lineHeight: 1.15,
             fontWeight: 'normal',
             display: 'inline-block',
-            background: 'linear-gradient(90deg, #ec3750 0%, #ff8c37 100%)',
+            background: 'linear-gradient(90deg, #ec3750 0%, #ff6b81 100%)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',

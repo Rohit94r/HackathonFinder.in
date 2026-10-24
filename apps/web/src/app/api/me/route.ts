@@ -12,8 +12,10 @@ import {
   TeamRequest,
   User,
 } from '@hackathonfinder/db';
+import { SKILLS } from '@/data/skills';
 import { ApiError, badRequest, notFound, readBody, route } from '@/server/api';
 import { loadMe } from '@/server/me';
+import { assertRespectful } from '@/server/moderation';
 import { isReservedHandle } from '@/server/users';
 
 const CITY_SLUGS = CITIES.map((c) => c.slug);
@@ -38,12 +40,17 @@ const Patch = z.object({
     .trim()
     .refine((v) => v === '' || CITY_SLUGS.includes(v), 'Pick a city from the list.')
     .optional(),
-  skills: z.array(z.string().trim().min(1).max(40)).max(12).optional(),
+  /** Skills from the list; anything else is dropped. */
+  skills: z
+    .array(z.string().trim().max(40))
+    .max(24)
+    .transform((list) => [...new Set(list.filter((s) => SKILLS.includes(s)))].slice(0, 12))
+    .optional(),
   bio: z.string().trim().max(280).optional(),
   github: url.optional(),
   linkedin: url.optional(),
   lookingForTeam: z.boolean().optional(),
-  image: url.optional(),
+  // The photo is changed through /api/me/avatar (upload or remove), never set to an outside link.
   onboarded: z.boolean().optional(),
   /** Email preferences; send only the ones that change. */
   prefs: z
@@ -56,10 +63,11 @@ const Patch = z.object({
 /** The signed-in student's account, or { user: null } when signed out. */
 export const GET = route(async ({ user }) => ({ user: user ? await loadMe(user.id) : null }), { auth: 'optional' });
 
-/** Updates profile fields. Changing the handle checks it's free. */
+/** Updates profile fields. Changing the handle checks it's free; the text has to be respectful. */
 export const PATCH = route(
-  async ({ req, user }) => {
+  async ({ req, user, ip }) => {
     const { prefs, ...body } = await readBody(req, Patch);
+    await assertRespectful({ userId: user!.id, kind: 'profile', ip }, body.name, body.handle, body.about, body.college, body.bio, body.skills);
     if (body.handle) {
       if (isReservedHandle(body.handle) || body.handle.startsWith('deleted-')) {
         throw badRequest('That handle is reserved. Try another.', { handle: 'That handle is reserved.' });

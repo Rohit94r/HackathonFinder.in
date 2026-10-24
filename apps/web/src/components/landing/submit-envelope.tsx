@@ -29,7 +29,7 @@ export function SubmitEnvelopeLink() {
           position: 'relative',
           zIndex: 1,
           borderRadius: 10,
-          background: 'repeating-linear-gradient(45deg, #ec3750 0 7px, #fffdf8 7px 14px, #338eda 14px 21px, #fffdf8 21px 28px)',
+          background: 'repeating-linear-gradient(45deg, #ec3750 0 7px, #fffdf8 7px 14px, #17171d 14px 21px, #fffdf8 21px 28px)',
           padding: 8,
           aspectRatio: '10 / 6.2',
         }}
@@ -91,9 +91,9 @@ export function SubmitEnvelopeLink() {
                 justifyContent: 'center',
               }}
             >
+              {/* The "H" from our favicon; the old magnifier logo is retired. */}
               <svg viewBox="0 0 32 32" style={{ width: '62%', height: 'auto', display: 'block' }}>
-                <circle cx="14" cy="14" r="7.5" fill="none" stroke="#ffffff" strokeWidth="3.2" />
-                <path d="M19.5 19.5l6 6" stroke="#ffffff" strokeWidth="3.6" strokeLinecap="round" />
+                <path d="M9 8h3.4v6.3h7.2V8H23v16h-3.4v-6.6h-7.2V24H9z" fill="#ffffff" />
               </svg>
             </div>
           </div>

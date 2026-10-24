@@ -27,6 +27,10 @@ export interface IHackathon {
   mode: Mode;
   /** City slug; empty for online events. */
   city?: string;
+  /** Display name when the city isn't one of our catalog cities (e.g. "Bhopal"). */
+  cityName?: string;
+  /** Indian state (or region abroad), when known. */
+  region?: string;
   venue?: string;
   country: string;
   /** GeoJSON point [lng, lat] of the venue, for "near me" queries. */
@@ -49,13 +53,17 @@ export interface IHackathon {
   /** Organizer or listing checked by a person. */
   verified: boolean;
   registrationUrl: string;
+  /** link: register on the page. qr: the poster has a QR code (registrationUrl is what it points to, or the post). */
+  registrationVia: 'link' | 'qr';
   /** Source slugs, first one is where we found it first. */
   sources: string[];
   sourceRefs: ISourceRef[];
   /** Our own short summary; never the organizer's full text. */
   summary: string;
-  /** Banner or poster image (scraped or uploaded). */
+  /** Banner or poster image (scraped or uploaded), served from Cloudinary when it is set up. */
   imageUrl?: string;
+  /** Where the banner came from before we stored a copy. */
+  sourceImageUrl?: string;
   logoUrl?: string;
   lastChecked: Date;
   state: ListingState;
@@ -63,6 +71,10 @@ export interface IHackathon {
   confidence: number;
   /** Why the verifier flagged it, shown in the review queue. */
   flags: string[];
+  /** Why an admin removed or rejected it, and who. */
+  removedReason?: string;
+  removedBy?: Types.ObjectId;
+  removedAt?: Date;
   submittedBy?: Types.ObjectId;
   claimedBy?: Types.ObjectId;
   stats: { views: number; saves: number; registerClicks: number };
@@ -103,6 +115,8 @@ const hackathonSchema = new Schema<IHackathon>(
     organizerType: { type: String, enum: ['college', 'company', 'community', 'government'], default: 'community' },
     mode: { type: String, enum: ['online', 'offline', 'hybrid'], required: true },
     city: { type: String, trim: true },
+    cityName: { type: String, trim: true, maxlength: 80 },
+    region: { type: String, trim: true, maxlength: 80 },
     venue: { type: String, trim: true, maxlength: 200 },
     country: { type: String, trim: true, default: 'India' },
     // No default: a 2dsphere index rejects half-filled points, so unknown places stay unset.
@@ -123,15 +137,20 @@ const hackathonSchema = new Schema<IHackathon>(
     featured: { type: Boolean, default: false },
     verified: { type: Boolean, default: false },
     registrationUrl: { type: String, required: true, trim: true },
+    registrationVia: { type: String, enum: ['link', 'qr'], default: 'link' },
     sources: { type: [String], default: [] },
     sourceRefs: { type: [sourceRefSchema], default: [] },
     summary: { type: String, trim: true, maxlength: 1200, default: '' },
     imageUrl: { type: String, trim: true },
+    sourceImageUrl: { type: String, trim: true },
     logoUrl: { type: String, trim: true },
     lastChecked: { type: Date, default: () => new Date() },
     state: { type: String, enum: ['live', 'pending', 'rejected', 'removed'], default: 'pending' },
     confidence: { type: Number, min: 0, max: 1, default: 1 },
     flags: { type: [String], default: [] },
+    removedReason: { type: String, trim: true, maxlength: 300 },
+    removedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    removedAt: Date,
     submittedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     claimedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     stats: {
@@ -148,6 +167,7 @@ hackathonSchema.index({ location: '2dsphere' });
 hackathonSchema.index({ state: 1, registrationDeadline: 1 });
 hackathonSchema.index({ state: 1, city: 1 });
 hackathonSchema.index({ state: 1, themes: 1 });
+hackathonSchema.index({ state: 1, createdAt: -1 });
 hackathonSchema.index({ 'sourceRefs.source': 1, 'sourceRefs.externalId': 1 });
 hackathonSchema.index({ 'sourceRefs.url': 1 });
 hackathonSchema.index(

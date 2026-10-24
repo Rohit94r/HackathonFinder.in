@@ -1,0 +1,129 @@
+{
+ "hackathons": [
+  {
+   "id": 30790,
+   "title": "Nebius x NVIDIA Global AI Hackathon",
+   "displayed_location": {
+    "icon": "globe",
+    "location": "Online"
+   },
+   "open_state": "open",
+   "thumbnail_url": "//d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/173/025/datas/medium_square.png",
+   "url": "https://nebiusglobalaihackathon.devpost.com/",
+   "submission_period_dates": "Aug 26 - Oct 30, 2026",
+   "themes": [
+    {
+     "id": 6,
+     "name": "Machine Learning/AI"
+    },
+    {
+     "id": 23,
+     "name": "Beginner Friendly"
+    },
+    {
+     "id": 27,
+     "name": "Robotic Process Automation"
+    }
+   ],
+   "prize_amount": "$<span data-currency-value>50,000</span>",
+   "organization_name": "nebius",
+   "invite_only": false
+  },
+  {
+   "id": 31302,
+   "title": "PayPal AI Hackathon",
+   "displayed_location": {
+    "icon": "globe",
+    "location": "Online"
+   },
+   "open_state": "open",
+   "thumbnail_url": "//d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/288/985/datas/medium_square.png",
+   "url": "https://paypalaihackathon.devpost.com/",
+   "submission_period_dates": "Oct 01 - Nov 12, 2026",
+   "themes": [
+    {
+     "id": 17,
+     "name": "Low/No Code"
+    },
+    {
+     "id": 6,
+     "name": "Machine Learning/AI"
+    },
+    {
+     "id": 25,
+     "name": "Web"
+    }
+   ],
+   "prize_amount": "$<span data-currency-value>67,500</span>",
+   "organization_name": "PayPal",
+   "invite_only": false
+  },
+  {
+   "id": 29871,
+   "title": "Cal Hacks 13.0",
+   "displayed_location": {
+    "icon": "map-marker-alt",
+    "location": "Palace of Fine Arts"
+   },
+   "open_state": "open",
+   "thumbnail_url": "//d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/519/078/datas/medium_square.png",
+   "url": "https://cal-hacks-13-0.devpost.com/",
+   "submission_period_dates": "Oct 23 - 25, 2026",
+   "themes": [
+    {
+     "id": 23,
+     "name": "Beginner Friendly"
+    }
+   ],
+   "prize_amount": "$<span data-currency-value>83,328</span>",
+   "organization_name": "Cal Hacks",
+   "invite_only": false
+  },
+  {
+   "id": 99999,
+   "title": "Invite Only Hack",
+   "displayed_location": {
+    "icon": "globe",
+    "location": "Online"
+   },
+   "open_state": "open",
+   "thumbnail_url": "//d112y698adiu2z.cloudfront.net/photos/production/challenge_thumbnails/005/288/985/datas/medium_square.png",
+   "analytics_identifier": "PayPal AI Hackathon (31302)",
+   "url": "https://invite-only-hack.devpost.com/",
+   "time_left_to_submission": "19 days left",
+   "submission_period_dates": "Oct 01 - Nov 12, 2026",
+   "themes": [
+    {
+     "id": 17,
+     "name": "Low/No Code"
+    },
+    {
+     "id": 6,
+     "name": "Machine Learning/AI"
+    },
+    {
+     "id": 25,
+     "name": "Web"
+    }
+   ],
+   "prize_amount": "$<span data-currency-value>67,500</span>",
+   "prizes_counts": {
+    "cash": 14,
+    "other": 3
+   },
+   "registrations_count": 20197,
+   "featured": true,
+   "organization_name": "PayPal",
+   "winners_announced": false,
+   "submission_gallery_url": "https://paypalaihackathon.devpost.com/project-gallery",
+   "start_a_submission_url": "https://paypalaihackathon.devpost.com/challenges/start_a_submission",
+   "invite_only": true,
+   "eligibility_requirement_invite_only_description": null,
+   "managed_by_devpost_badge": true
+  }
+ ],
+ "meta": {
+  "total_count": 4,
+  "per_page": 40
+ }
+}

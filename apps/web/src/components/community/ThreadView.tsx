@@ -3,15 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Loader2, LogIn, MapPin, MessageSquare, Pencil, PenLine, Pin, PinOff, Send, Trash2 } from 'lucide-react';
+import { Loader2, MapPin, MessageSquare, Pencil, PenLine, Pin, PinOff, Send, Trash2 } from 'lucide-react';
 import { cityName } from '@hackathonfinder/shared';
 import Avatar from '@/components/Avatar';
-import EventArt from '@/components/hackathon/EventArt';
+import SignInPrompt from '@/components/auth/SignInPrompt';
 import ShareButtons from '@/components/hackathon/ShareButtons';
-import { categoryById, isThemeTag } from '@/data/discussions';
 import { ApiClientError, apiFetch, goToLogin } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
-import { CATEGORY_ART } from './categories';
 import {
   BODY_MAX,
   BODY_MIN,
@@ -47,8 +45,6 @@ export default function ThreadView({ initial, viewer }: { initial: ThreadDetailD
   const isAdmin = viewer?.role === 'admin';
   const canDelete = thread.mine || isAdmin;
 
-  const category = categoryById(thread.category);
-  const art = thread.tags.find(isThemeTag) ?? CATEGORY_ART[thread.category];
   const tv = votes.view('thread', thread);
   const replyCount = replies.length;
 
@@ -93,7 +89,6 @@ export default function ThreadView({ initial, viewer }: { initial: ThreadDetailD
   return (
     <div className="min-w-0 space-y-6">
       <article className="card overflow-hidden">
-        <EventArt theme={art} title={thread.title} label={category?.label} className="h-28 sm:h-36" />
         <div className="p-5 sm:p-8">
           {editing ? (
             <EditThreadForm
@@ -126,6 +121,11 @@ export default function ThreadView({ initial, viewer }: { initial: ThreadDetailD
               <h1 className="break-words font-sans text-2xl font-bold normal-case leading-tight tracking-normal sm:text-3xl">{thread.title}</h1>
               <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-ink/60">
                 <AuthorLink author={thread.author} mine={thread.mine} size="md" />
+                {thread.author.isSample && (
+                  <span className="rounded border border-ink/15 bg-ink/[0.06] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink/65">
+                    Sample
+                  </span>
+                )}
                 {thread.author.about && <span className="hidden sm:inline">{thread.author.about}</span>}
                 <span aria-hidden="true">·</span>
                 <span>{ago(thread.createdAt, now)}</span>
@@ -246,19 +246,13 @@ export default function ThreadView({ initial, viewer }: { initial: ThreadDetailD
           }}
         />
       ) : (
-        <div className="card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
-          <div>
-            <h2 className="flex items-center gap-2 font-sans text-lg font-bold normal-case tracking-normal">
-              <PenLine className="h-5 w-5" />
-              Add a reply
-            </h2>
-            <p className="mt-1 text-sm text-ink/70">Sign in to reply and upvote. It takes a minute and it’s free.</p>
-          </div>
-          <button type="button" onClick={() => goToLogin(`/community/${thread.slug}#replies`)} className="btn-primary shrink-0 py-2.5">
-            <LogIn className="h-4 w-4" />
-            Sign in to reply
-          </button>
-        </div>
+        <SignInPrompt
+          compact
+          next={`/community/${thread.slug}#replies`}
+          icon={PenLine}
+          title="Sign in to reply"
+          text="Anyone can read this discussion. Sign in to reply and upvote; it takes a minute and it’s free."
+        />
       )}
     </div>
   );
@@ -318,7 +312,7 @@ function ReplyForm({ slug, onPosted }: { slug: string; onPosted: (reply: ReplyIt
         )}
       </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-xs text-ink/60">Be kind and specific. Don’t post phone numbers.</p>
+        <p className="text-xs text-ink/60">Be kind and specific. Abusive words are blocked. Don’t post phone numbers.</p>
         <button type="submit" className="btn-primary py-2.5" disabled={sending}>
           {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
           {sending ? 'Posting…' : 'Post reply'}

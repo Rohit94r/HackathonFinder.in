@@ -10,7 +10,10 @@ export interface ITeamPost {
   /** City slug from CITIES, or 'online' for teams with no home city. */
   city: string;
   mode: TeamMode;
+  /** The listing the team is for; empty when they're open to any hackathon. */
   hackathonSlug: string;
+  /** The listing's title when the post was made, so the post still reads right if the listing goes away. */
+  hackathonTitle?: string;
   /** Current team size, including the author. */
   members: number;
   teamMax: number;
@@ -54,7 +57,8 @@ const teamPostSchema = new Schema<ITeamPost>(
     authorId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     city: { type: String, required: true, trim: true },
     mode: { type: String, enum: ['in-person', 'online', 'either'], required: true },
-    hackathonSlug: { type: String, required: true, trim: true },
+    hackathonSlug: { type: String, trim: true, default: '' },
+    hackathonTitle: { type: String, trim: true, maxlength: 200 },
     members: { type: Number, min: 1, max: 20, default: 1 },
     teamMax: { type: Number, min: 1, max: 20, default: 4 },
     has: { type: [String], default: [] },

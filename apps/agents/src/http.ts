@@ -1,6 +1,7 @@
 import robotsParser from 'robots-parser';
-import { BlockedError, HttpError, RobotsDisallowedError, errorMessage } from './errors';
+import { BlockedError, HttpError, RobotsDisallowedError, UnsafeUrlError, errorMessage } from './errors';
 import { parsePage, type HtmlPage } from './html';
+import { PublicUrlGuard } from './net';
 
 // Every request the agents make goes through here: robots.txt first, one request
 // at a time per host with a pause between them, backoff when a site asks us to slow
@@ -44,6 +45,11 @@ export interface HttpOptions {
   robotsTtlMs?: number;
   fetchImpl?: typeof fetch;
   sleep?: (ms: number) => Promise<void>;
+  /**
+   * SSRF guard run before every request (each redirect hop and robots.txt too).
+   * Defaults to refusing localhost, private and link-local addresses. Tests pass a stub.
+   */
+  guard?: ((url: URL) => Promise<void>) | false;
 }
 
 export interface RequestOptions {
@@ -91,6 +97,8 @@ export function detectChallenge(status: number, headers: Headers, body: string):
   const waf = headers.get('x-amzn-waf-action');
   if (waf && /captcha|challenge/i.test(waf)) return `AWS WAF ${waf} (bot check)`;
   if ((headers.get('cf-mitigated') ?? '').toLowerCase() === 'challenge') return 'Cloudflare challenge (bot check)';
+  // DuckDuckGo answers bot traffic with 202 and an "anomaly" challenge page.
+  if (status === 202 && /anomaly-modal|bots use DuckDuckGo/i.test(body)) return 'search challenge page (anomaly check)';
   if ([403, 405, 429, 503].includes(status) && body.length < 200_000) {
     if (/<title>\s*(human verification|just a moment|attention required|access denied|are you a robot|verify you are human)/i.test(body)) {
       return 'bot verification page';
@@ -169,6 +177,7 @@ export class Http {
   private readonly robotsTtlMs: number;
   private readonly fetchImpl: typeof fetch;
   private readonly sleep: (ms: number) => Promise<void>;
+  private readonly guard: ((url: URL) => Promise<void>) | null;
   private readonly hosts = new Map<string, HostState>();
   private readonly robots = new Map<string, Promise<RobotsEntry>>();
   private readonly cache = new Map<string, CachedBody>();
@@ -185,6 +194,18 @@ export class Http {
     this.robotsTtlMs = opts.robotsTtlMs ?? 12 * 3600_000;
     this.fetchImpl = opts.fetchImpl ?? fetch;
     this.sleep = opts.sleep ?? sleepReal;
+    if (opts.guard === false) this.guard = null;
+    else if (opts.guard) this.guard = opts.guard;
+    else {
+      const guard = new PublicUrlGuard();
+      this.guard = (u) => guard.check(u);
+    }
+  }
+
+  /** A longer pause for one host (search engines, geocoders); never shorter than the default. */
+  setHostDelay(hostname: string, delayMs: number): void {
+    const h = this.host(hostname);
+    h.delayMs = Math.max(h.delayMs, delayMs);
   }
 
   private host(hostname: string): HostState {
@@ -273,6 +294,7 @@ export class Http {
     const retries = opts.retries ?? this.retries;
     const method = opts.method ?? 'GET';
     const maxBytes = opts.maxBytes ?? this.maxBytes;
+    if (this.guard) await this.guard(u);
     for (let attempt = 0; ; attempt++) {
       try {
         const res = await this.slot(u.hostname, async () => {
@@ -291,6 +313,8 @@ export class Http {
             headers,
             body: opts.body,
             redirect: 'manual',
+            // Inside Next.js fetch is patched with a data cache; scraping must always hit the network.
+            cache: 'no-store',
             signal: AbortSignal.timeout(opts.timeoutMs ?? this.timeoutMs),
           });
           if (r.status === 304 && cached) {
@@ -308,7 +332,7 @@ export class Http {
           }
           return response(url, r.status, r.headers, body);
         });
-        const challenge = res.status >= 400 ? detectChallenge(res.status, res.headers, res.text().slice(0, 200_000)) : null;
+        const challenge = res.status >= 400 || res.status === 202 ? detectChallenge(res.status, res.headers, res.text().slice(0, 200_000)) : null;
         if (challenge) throw new BlockedError(`${u.hostname}: ${challenge}. We don't solve CAPTCHAs or bypass bot checks.`);
         if (RETRY_STATUS.has(res.status) && attempt < retries) {
           this.backoff(u.hostname, attempt, retryAfterMs(res.headers));
@@ -382,6 +406,7 @@ export class Http {
     } catch (err) {
       if (err instanceof RobotsDisallowedError) return { ok: null, reason: 'robots.txt disallows checking this link' };
       if (err instanceof BlockedError) return { ok: null, reason: err.message };
+      if (err instanceof UnsafeUrlError) return { ok: false, reason: err.message };
       const code = networkCode(err);
       if (code === 'ENOTFOUND') return { ok: false, reason: 'domain not found' };
       if (code === 'ECONNREFUSED') return { ok: false, reason: 'connection refused' };

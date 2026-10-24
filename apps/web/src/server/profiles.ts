@@ -91,6 +91,7 @@ export async function getPublicProfile(handle: string, now: Date = new Date()): 
     tagline: w.tagline ?? '',
     themes: (w.themes ?? []) as ThemeSlug[],
     cheers: w.cheers ?? 0,
+    coverUrl: w.coverUrl || undefined,
     createdAt: new Date(w.createdAt).toISOString(),
   }));
 

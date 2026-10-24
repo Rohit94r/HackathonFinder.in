@@ -10,6 +10,8 @@ const DEFAULT_TIME: Record<DateKind, [number, number]> = { start: [9, 0], end: [
 
 const MONTHS: Record<string, number> = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
 const MONTH = '(jan(?:uary)?|feb(?:ruary)?|mar(?:ch)?|apr(?:il)?|may|june?|july?|aug(?:ust)?|sept?(?:ember)?|oct(?:ober)?|nov(?:ember)?|dec(?:ember)?)\\.?';
+/** Month-name pattern (one capture group), for finding date phrases in free text. */
+export const MONTH_PATTERN = MONTH;
 const DAY_FIRST = new RegExp(`\\b(\\d{1,2})(?:st|nd|rd|th)?(?:\\s+of)?[\\s\\-/.,]*${MONTH}(?:[\\s\\-/.,']+(\\d{4}))?`, 'i');
 const MONTH_FIRST = new RegExp(`\\b${MONTH}[\\s\\-/.,]*(\\d{1,2})(?:st|nd|rd|th)?\\b(?:[\\s,]+(\\d{4}))?`, 'i');
 const MONTH_ANY = new RegExp(`\\b${MONTH}`, 'i');

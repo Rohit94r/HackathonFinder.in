@@ -1,0 +1,82 @@
+{
+ "data": [
+  {
+   "id": 66721,
+   "title": "(Fullstackathon 2026) - 20 Hour Workshop & Hackathon on Full Stack Development",
+   "full_title": "(Fullstackathon 2026) - 20 Hour Workshop & Hackathon on Full Stack Development",
+   "url": "https://www.knowafest.com/event/fullstackathon-2026-20-hour-workshop-hackathon-on-full-stack-development",
+   "category": "Hackathons",
+   "mode": "Offline",
+   "city": "Chennai",
+   "location": "Chennai",
+   "date": "24 Oct 2026",
+   "thumbnail_url": "https://www.knowafest.com/storage/67/conversions/2-card-thumbnail.webp",
+   "price_label": "₹2,099",
+   "past": false,
+   "organization": {
+    "name": "Top Engineers",
+    "url": "https://www.knowafest.com/organizations/top-engineers-759b85dab3d4"
+   }
+  },
+  {
+   "id": 66707,
+   "title": "HORIZONXT 2026",
+   "full_title": "HORIZONXT 2026",
+   "url": "https://www.knowafest.com/event/horizonxt",
+   "category": "Technical Events",
+   "mode": "Offline",
+   "city": "TRICHY",
+   "location": "TRICHY",
+   "date": "26 Oct 2026",
+   "thumbnail_url": "https://www.knowafest.com/storage/55/conversions/HorizonXT-Space-Hackathon-Poster-2-card-thumbnail.webp",
+   "price_label": "Paid",
+   "past": false,
+   "organization": {
+    "name": "SRM TRP Engineering College",
+    "url": "https://www.knowafest.com/organizations/srm-trp-engineering-college-018c46a1fb1e"
+   }
+  },
+  {
+   "id": 66765,
+   "title": "Hacknovia 2026",
+   "full_title": "Hacknovia 2026",
+   "url": "https://www.knowafest.com/event/hacknovia",
+   "category": "Hackathons",
+   "mode": "Offline",
+   "city": "Tiruchirappalli",
+   "location": "Tiruchirappalli",
+   "date": "29 Oct 2026",
+   "thumbnail_url": "https://www.knowafest.com/storage/141/conversions/60789-card-thumbnail.webp",
+   "price_label": "Paid",
+   "past": false,
+   "organization": {
+    "name": "K.Ramakrishnan College of Engineering",
+    "url": "https://www.knowafest.com/organizations/kramakrishnan-college-of-engineering-50bc83bdf46b"
+   }
+  },
+  {
+   "id": 1,
+   "title": "SIH 2026 Finalist Webinar: From Shortlisting to Grand Finale",
+   "full_title": "SIH 2026 Finalist Webinar: From Shortlisting to Grand Finale",
+   "url": "https://www.knowafest.com/event/sih-webinar",
+   "category": "Hackathons",
+   "mode": "Offline",
+   "city": "Tiruchirappalli",
+   "location": "Tiruchirappalli",
+   "date": "29 Oct 2026",
+   "thumbnail_url": "https://www.knowafest.com/storage/141/conversions/60789-card-thumbnail.webp",
+   "price_label": "Paid",
+   "past": false,
+   "organization": {
+    "name": "K.Ramakrishnan College of Engineering",
+    "url": "https://www.knowafest.com/organizations/kramakrishnan-college-of-engineering-50bc83bdf46b"
+   }
+  }
+ ],
+ "meta": {
+  "total": 4,
+  "current_page": 1,
+  "last_page": 1,
+  "per_page": 9
+ }
+}

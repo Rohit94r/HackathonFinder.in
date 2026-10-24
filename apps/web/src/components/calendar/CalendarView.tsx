@@ -127,7 +127,7 @@ export default function CalendarView({ items, nowIso }: { items: HackathonView[]
                           href={`/hackathons/${h.slug}`}
                           className={cn(
                             'flex items-center gap-1 truncate rounded-md px-1.5 py-1 text-[11px] font-semibold',
-                            kind === 'deadline' ? 'bg-amber-100 text-amber-800 dark:bg-amber-400/15 dark:text-amber-200' : 'bg-brand-50 text-brand-700 dark:bg-brand-500/20 dark:text-brand-200'
+                            kind === 'deadline' ? 'bg-accent text-white' : 'bg-ink/5 text-ink dark:bg-white/10 dark:text-white'
                           )}
                           title={`${kind === 'deadline' ? 'Deadline' : 'Starts'}: ${h.title}`}
                         >
@@ -165,7 +165,7 @@ export default function CalendarView({ items, nowIso }: { items: HackathonView[]
                     <span
                       className={cn(
                         'rounded-md px-2 py-0.5 text-[11px] font-semibold',
-                        kind === 'deadline' ? 'bg-amber-100 text-amber-800 dark:bg-amber-400/15 dark:text-amber-200' : 'bg-brand-50 text-brand-700 dark:bg-brand-500/20 dark:text-brand-200'
+                        kind === 'deadline' ? 'bg-accent text-white' : 'bg-ink/5 text-ink dark:bg-white/10 dark:text-white'
                       )}
                     >
                       {kind === 'deadline' ? 'Deadline' : 'Starts'}
@@ -184,7 +184,7 @@ export default function CalendarView({ items, nowIso }: { items: HackathonView[]
           <Flag className="h-3.5 w-3.5 text-ink" /> Event starts
         </span>
         <span className="flex items-center gap-1.5">
-          <Clock className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" /> Registration deadline
+          <Clock className="h-3.5 w-3.5 text-accent" /> Registration deadline
         </span>
       </div>
     </div>

@@ -2,7 +2,6 @@ import Link from 'next/link';
 import { Facebook, Instagram, Linkedin, Mail, MessageCircle, Send } from 'lucide-react';
 import { CITIES } from '@hackathonfinder/shared';
 import { siteConfig } from '@/data/siteConfig';
-import { FinderBuddy } from './art';
 import { LandingLogo } from './navbar';
 import { InlineStyle } from './inline-style';
 
@@ -105,19 +104,6 @@ export function LandingFooter() {
         position: 'relative',
       }}
     >
-      <FinderBuddy
-        style={{
-          position: 'absolute',
-          right: 'clamp(24px, 8vw, 140px)',
-          top: 0,
-          transform: 'translateY(-62%) rotate(-6deg)',
-          width: 'clamp(150px, 16vw, 240px)',
-          height: 'auto',
-          pointerEvents: 'none',
-          zIndex: 2,
-        }}
-      />
-
       <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: '48px 64px', marginBottom: 64 }}>
         <div style={{ display: 'flex', flexDirection: 'column', flexShrink: 0, width: 300, maxWidth: '100%' }}>
           <div style={{ marginBottom: 24 }}>

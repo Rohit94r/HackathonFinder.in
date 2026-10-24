@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { connectDb, isDbConfigured, User, type Role } from '@hackathonfinder/db';
+import { recordSignIn } from './analytics';
 import { checkPassword, isAdminEmail, uniqueHandle } from './users';
 
 export interface SessionUser {
@@ -153,10 +154,12 @@ export const authOptions: NextAuthOptions = {
     },
   },
   events: {
-    async signIn({ user }) {
+    async signIn({ user, account }) {
       if (!user?.id || !isDbConfigured()) return;
       await connectDb();
-      await User.updateOne({ _id: user.id }, { $set: { lastLoginAt: new Date() } });
+      // ADMIN_EMAILS accounts are stored as admins too, so the admin pages and counts agree with the session.
+      await User.updateOne({ _id: user.id }, { $set: { lastLoginAt: new Date(), ...(isAdminEmail(user.email) ? { role: 'admin' } : {}) } });
+      await recordSignIn(user.id, account?.provider).catch((err) => console.error('[auth] Could not record the sign-in:', err));
     },
   },
 };

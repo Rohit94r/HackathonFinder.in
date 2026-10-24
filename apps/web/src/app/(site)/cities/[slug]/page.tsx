@@ -4,7 +4,7 @@ import { CITIES } from '@hackathonfinder/shared';
 import CityStrip from '@/components/cities/CityStrip';
 import LatestDiscussions from '@/components/community/LatestDiscussions';
 import Explorer from '@/components/hackathon/Explorer';
-import { PageHero, SampleNotice } from '@/components/ui';
+import { PageHero } from '@/components/ui';
 import { DEFAULT_FILTERS, parseFilters } from '@/lib/filters';
 import { cityCounts } from '@/lib/hackathons';
 import { getHackathons } from '@/server/hackathons';
@@ -48,7 +48,6 @@ export default async function CityPage({
       <section className="bg-surface py-10">
         <div className="container-page">
           <CityStrip slug={city.slug} snapshot={snapshot} />
-          <SampleNotice className="mb-6" />
           <Explorer items={items} initial={parseFilters(searchParams, base)} base={base} />
           <LatestDiscussions city={city.slug} title={`Talk with students in ${city.name}`} className="mt-12" />
         </div>

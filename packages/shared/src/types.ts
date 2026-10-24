@@ -48,6 +48,8 @@ export interface Hackathon {
   mode: Mode;
   /** City slug; undefined for online events. */
   city?: string;
+  /** Display name for a city outside our catalog (e.g. "Bhopal"). */
+  cityName?: string;
   venue?: string;
   /** Venue coordinates for offline and hybrid events; the city centre is used when missing. */
   lat?: number;
@@ -61,6 +63,8 @@ export interface Hackathon {
   lastChecked: string;
   teamMin: number;
   teamMax: number;
+  /** False when the source never stated a team size (teamMin/teamMax are then only defaults). */
+  teamSizeKnown?: boolean;
   eligibility: Eligibility[];
   /** Entry fee in INR; 0 means free. */
   fee: number;
@@ -73,9 +77,11 @@ export interface Hackathon {
   featured: boolean;
   verified: boolean;
   registrationUrl: string;
+  /** 'qr' when the organizer shares a QR code on the poster instead of a link. */
+  registrationVia?: 'link' | 'qr';
   sources: string[];
   summary: string;
-  /** Banner or poster from the source, when we have one; cards fall back to generated art. */
+  /** Banner or poster from the source, when we have one; cards fall back to an event photo. */
   imageUrl?: string;
   logoUrl?: string;
   /** One of the built-in preview listings rather than a real event. */

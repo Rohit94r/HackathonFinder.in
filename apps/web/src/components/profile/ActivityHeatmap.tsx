@@ -8,13 +8,13 @@ import { HEATMAP_WEEKS, addDays, gridStart, heatLevel, heatmapStats, type DayCou
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const DAY_LABELS = ['', 'Mon', '', 'Wed', '', 'Fri', ''];
 
-// One hue, light to dark in light mode and dark to bright in dark mode; empty days stay neutral.
+// Brand red, light to dark in light mode and dark to bright in dark mode; empty days stay neutral.
 const LEVELS = [
   'bg-ink/10',
-  'bg-emerald-200 dark:bg-emerald-900',
-  'bg-emerald-400 dark:bg-emerald-700',
-  'bg-emerald-600 dark:bg-emerald-500',
-  'bg-emerald-800 dark:bg-emerald-300',
+  'bg-brand-200 dark:bg-brand-900',
+  'bg-brand-400 dark:bg-brand-700',
+  'bg-brand-600 dark:bg-brand-500',
+  'bg-brand-800 dark:bg-brand-300',
 ];
 
 function dateLabel(key: string): string {
@@ -73,12 +73,12 @@ export default function ActivityHeatmap({ counts, todayKey, unit = 'action' }: {
             <dd className="font-semibold text-ink">{stats.activeDays}</dd>
           </div>
           <div className="flex items-center gap-1">
-            <Flame className="h-3.5 w-3.5 text-orange-500" aria-hidden="true" />
+            <Flame className="h-3.5 w-3.5 text-accent" aria-hidden="true" />
             <dt>Current streak:</dt>
             <dd className="font-semibold text-ink">{plural(stats.currentStreak, 'day')}</dd>
           </div>
           <div className="flex items-center gap-1">
-            <Trophy className="h-3.5 w-3.5 text-amber-500" aria-hidden="true" />
+            <Trophy className="h-3.5 w-3.5 text-ink/60" aria-hidden="true" />
             <dt>Max streak:</dt>
             <dd className="font-semibold text-ink">{plural(stats.maxStreak, 'day')}</dd>
           </div>

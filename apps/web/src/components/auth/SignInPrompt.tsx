@@ -1,26 +1,53 @@
 import Link from 'next/link';
 import { LogIn, UserPlus, type LucideIcon } from 'lucide-react';
-import Sticker from '@/components/art/Sticker';
+import { cn } from '@/lib/cn';
 import { withNext } from './authUtils';
 
-/** Shown on account pages to signed-out visitors: what they get, and the way in. */
+/** Shown to signed-out visitors where an account is needed: what they get, and the way in. */
 export default function SignInPrompt({
   next,
   title,
   text,
   icon: Icon = LogIn,
-  sticker = 'Free',
+  compact = false,
+  className,
 }: {
   next: string;
   title: string;
   text: string;
   icon?: LucideIcon;
-  sticker?: string;
+  /** A slim row for inside a page (e.g. in place of a reply form) instead of a centred card. */
+  compact?: boolean;
+  className?: string;
 }) {
+  if (compact) {
+    return (
+      <div className={cn('card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6', className)}>
+        <div className="flex items-start gap-3">
+          <span className="inline-flex shrink-0 rounded-xl bg-accent/10 p-2.5 text-brand-700 dark:text-brand-300">
+            <Icon className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div>
+            <h2 className="font-sans text-base font-bold normal-case tracking-normal">{title}</h2>
+            <p className="mt-0.5 text-sm text-ink/70">{text}</p>
+          </div>
+        </div>
+        <div className="flex shrink-0 gap-2">
+          <Link href={withNext('/login', next)} className="btn-primary px-4 py-2 text-sm">
+            <LogIn className="h-4 w-4" aria-hidden="true" />
+            Sign in
+          </Link>
+          <Link href={withNext('/signup', next)} className="btn-secondary px-4 py-2 text-sm">
+            Create account
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="mx-auto max-w-xl">
-      <div className="card relative overflow-hidden p-7 text-center sm:p-10">
-        <Sticker text={sticker} tone="yellow" className="right-4 top-4 rotate-6" />
+    <div className={cn('mx-auto max-w-xl', className)}>
+      <div className="card p-7 text-center sm:p-10">
         <span className="mx-auto inline-flex rounded-2xl bg-accent p-4 text-white">
           <Icon className="h-7 w-7" aria-hidden="true" />
         </span>

@@ -90,7 +90,7 @@ export function CategoryChip({ id, className }: { id: CategoryId; className?: st
 
 export function PinnedChip() {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-pop px-2.5 py-0.5 text-xs font-bold text-navy">
+    <span className="inline-flex items-center gap-1 rounded-full bg-ink px-2.5 py-0.5 text-xs font-bold text-surface">
       <Pin className="h-3 w-3" />
       Pinned
     </span>

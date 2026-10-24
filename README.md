@@ -9,7 +9,7 @@ See [concept.md](concept.md) for the full product plan.
 | Part | Path | What it does |
 |---|---|---|
 | Website + API | `apps/web` | Next.js 14 site and REST API (`src/app/api`): listings, near me, cities, accounts, profiles, community, winning stories, Team Finder, submissions, admin |
-| Discovery agents | `apps/agents` | Scout → Extract → Dedupe → Verify → Tag → Publish. Connectors for platforms, Google search, Instagram (official API) and watched college pages. See [apps/agents/README.md](apps/agents/README.md) |
+| Discovery agents | `apps/agents` | Scout → Extract → Dedupe → Verify → Tag → Publish, twice a day (02:00 and 14:00 IST) and on "Scrape now". Connectors for Unstop, Devfolio, Devpost, MLH, HackerEarth, lablab.ai, KnowAFest, web search, and Instagram/LinkedIn/Facebook posts (via search or the official Graph API); banners stored on Cloudinary, venues on the map. See [apps/agents/README.md](apps/agents/README.md) |
 | Browser extension | `apps/extension` | "Add to HackathonFinder" for Chrome: send any page or Instagram/LinkedIn post to the review queue. See [apps/extension/README.md](apps/extension/README.md) |
 | Database | `packages/db` | MongoDB models (Mongoose), indexes, seed data, local MongoDB for development |
 | AI | `packages/ai` | Claude-powered extraction from pages and posters, smart search, plus rule-based fallbacks |
@@ -47,7 +47,8 @@ One `.env` at the repo root serves the website, the agents and the scripts. Ever
 | Email | `RESEND_API_KEY`, `EMAIL_FROM` | Emails print in the server log |
 | AI | `ANTHROPIC_API_KEY`, `AI_MODEL` | Rule-based extraction and smart search |
 | Images | `CLOUDINARY_*` | Local uploads in development, links to the source for scraped images |
-| Discovery | `GOOGLE_CSE_KEY/CX`, `INSTAGRAM_ACCESS_TOKEN`, `INSTAGRAM_BUSINESS_ACCOUNT_ID`, `KAGGLE_*`, `EVENTBRITE_TOKEN` | Those connectors are skipped; key-free platform connectors still run |
+| Discovery | `GOOGLE_CSE_KEY/CX` or `BRAVE_SEARCH_API_KEY`, `INSTAGRAM_ACCESS_TOKEN`, `INSTAGRAM_BUSINESS_ACCOUNT_ID` | Platform and event-site connectors need no keys. Without a search key, web and social search use DuckDuckGo, which often blocks crawlers; without the Instagram token there are no Graph API hashtag posts |
+| Discovery schedule | `SCRAPE_SCHEDULER`, `SCRAPE_CATCHUP` | The website scrapes at 02:00 and 14:00 IST on a long-running server; `off` turns that off |
 | Scheduled jobs | `CRON_SECRET` | Jobs only run in development |
 
 ## Scripts
@@ -60,21 +61,23 @@ One `.env` at the repo root serves the website, the agents and the scripts. Ever
 | `pnpm test` | Runs the test suites |
 | `pnpm db:seed` / `pnpm db:seed -- --reset` | Loads (or reloads) the sample content into `MONGODB_URI` |
 | `pnpm db:local` | Just the local MongoDB |
-| `pnpm agents:sources -- --sync` | Registers the discovery sources and shows their health |
-| `pnpm agents:run -- --source devpost --limit 20` | Runs one connector through the whole pipeline |
-| `pnpm agents:schedule` | Long-running scheduler for every source (and "Run now" requests from the admin dashboard) |
+| `pnpm agents:sources --sync` | Registers the discovery sources and shows their health and missing keys |
+| `pnpm agents:run` | A full scrape of every enabled source into `MONGODB_URI` (`--source devpost --limit 20` for one, `--dry-run` to only look) |
+| `pnpm agents:schedule` | Long-running worker that scrapes at 02:00 and 14:00 IST (for hosts without the website) |
 
 ## Deploying
 
 - **Website:** any Node host or Vercel (`apps/web`). Set the variables above. `apps/web/vercel.json` schedules
-  deadline reminders daily and the weekly digest on Mondays (`/api/cron/reminders`, `/api/cron/digest`,
-  authorised with `CRON_SECRET`).
+  deadline reminders daily, the weekly digest on Mondays and the discovery scrape at 02:00 and 14:00 IST
+  (`/api/cron/reminders`, `/api/cron/digest`, `/api/cron/scrape`, authorised with `CRON_SECRET`). On a
+  long-running Node server the website runs the scrape timer itself (`src/instrumentation.ts`).
 - **Database:** MongoDB Atlas. Indexes are created by `pnpm db:seed` (it skips the sample content if any is
   already there) or on first use. Atlas → **Network Access** must allow your host: Vercel functions use
   dynamic egress IPs, so add `0.0.0.0/0` (or Vercel Secure Compute if you have it). Without this every page
   fails with `MongooseServerSelectionError` / `tlsv1 alert internal error`.
-- **Agents:** a small always-on worker (Railway, Render, a VM, …) running `pnpm agents:schedule` with the
-  same `.env`.
+- **Agents:** nothing extra when the website runs on a long-running server or on Vercel (see above).
+  Otherwise, a small always-on worker (Railway, Render, a VM, …) running `pnpm agents:schedule` with the
+  same `.env`. Each slot runs once even if several of these fire.
 
 ## API at a glance
 

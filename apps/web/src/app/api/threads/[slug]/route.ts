@@ -15,7 +15,7 @@ export const GET = route<Params>(
 
 /** The author edits title, body or tags (first 24 hours); admins pin or unpin. */
 export const PATCH = route<Params>(
-  async ({ req, params, user }) => ({ thread: await updateThread(params.slug, user!, await readBody(req, ThreadPatchSchema)) }),
+  async ({ req, params, user, ip }) => ({ thread: await updateThread(params.slug, user!, await readBody(req, ThreadPatchSchema), ip) }),
   { auth: 'required', rate: { limit: 20, windowMs: 10 * 60_000, key: 'thread-edit' } }
 );
 

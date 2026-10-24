@@ -10,6 +10,10 @@ export interface Draft {
   mode?: Mode;
   /** City slug (one of ours, or a slug of the stated city). */
   city?: string;
+  /** Display name for a city outside our catalog ("Bhopal"); empty for catalog cities. */
+  cityName?: string;
+  /** State (or region abroad). */
+  region?: string;
   venue?: string;
   country: string;
   /** Venue point; `exact` false when it is only the city centre. */
@@ -28,9 +32,13 @@ export interface Draft {
   themes: ThemeSlug[];
   beginnerFriendly: boolean;
   registrationUrl?: string;
+  /** "qr" when registration is by scanning the poster's QR code (registrationUrl is what it points to, or the post). */
+  registrationVia: 'link' | 'qr';
   /** Our own words (AI or template). Never the organizer's text. */
   summary: string;
   imageUrl?: string;
+  /** The banner's original URL when imageUrl is our stored copy. */
+  sourceImageUrl?: string;
   logoUrl?: string;
   /** SOURCES slug shown on the listing. */
   listingSource: string;

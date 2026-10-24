@@ -9,11 +9,11 @@ const Body = z.object({
   message: Message,
 });
 
-/** Invites another student to team up. One invite per pair of students. */
+/** Invites another student to team up. One invite per pair of students; sample students can't be invited. */
 export const POST = route(
-  async ({ req, user }) => {
+  async ({ req, user, ip }) => {
     const body = await readBody(req, Body);
-    return { invite: await sendInvite(user!, body) };
+    return { invite: await sendInvite(user!, body, ip) };
   },
   { auth: 'required', rate: { limit: 30, windowMs: 60 * 60_000, key: 'team-invite' } }
 );

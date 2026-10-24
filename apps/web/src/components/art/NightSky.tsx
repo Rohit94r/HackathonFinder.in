@@ -65,7 +65,7 @@ export default function NightSky({ className }: { className?: string }) {
           <stop offset="1" stopColor="#000000" />
         </linearGradient>
         <radialGradient id="ns-cityglow" cx="0.5" cy="1" r="0.75">
-          <stop offset="0" stopColor="#ff8c37" stopOpacity="0.14" />
+          <stop offset="0" stopColor="#ec3750" stopOpacity="0.14" />
           <stop offset="1" stopColor="#ec3750" stopOpacity="0" />
         </radialGradient>
         <linearGradient id="ns-trail" x1="0" y1="0" x2="1" y2="0">

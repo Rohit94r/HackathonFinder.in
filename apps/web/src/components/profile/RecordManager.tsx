@@ -123,7 +123,7 @@ function RecordForm({
           </datalist>
           {err('event') ??
             (listing ? (
-              <p className="mt-1 text-xs text-emerald-700 dark:text-emerald-300">Linked to our listing for {listing.title}.</p>
+              <p className="mt-1 text-xs text-ink/60">Linked to our listing for {listing.title}.</p>
             ) : (
               <p className="mt-1 text-xs text-ink/60">Pick one of ours from the list to link it, or type any hackathon.</p>
             ))}

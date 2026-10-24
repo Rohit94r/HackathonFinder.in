@@ -28,8 +28,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { cityName } from '@hackathonfinder/shared';
-import Sticker from '@/components/art/Sticker';
 import SignInPrompt from '@/components/auth/SignInPrompt';
+import { PHOTOS } from '@/components/landing/photos';
 import { useActivity, type Activity, type ActivityType } from '@/lib/activity';
 import { timeAgo } from '@/lib/format';
 import { useFollowedCities } from '@/lib/useFollowedCities';
@@ -44,6 +44,7 @@ import { countsFromTimestamps, istDayKey } from './heatmap';
 import { EmptyNudge, Panel, ProfileLayout } from './Panel';
 import ProfileCard from './ProfileCard';
 import ProfileForm from './ProfileForm';
+import ProfileSetupCard from './ProfileSetupCard';
 import { fromUser } from './profileData';
 import { recordStats, resultCounts, storyLinks, type ProfileRecord, type ProfileStory, type PublicProfile } from './profileTypes';
 import RecordManager from './RecordManager';
@@ -73,9 +74,11 @@ const STATUS_ORDER: TrackStatus[] = ['done', 'submitted', 'registered', 'saved']
 const STATUS_STYLES: Record<TrackStatus, string> = {
   saved: 'bg-ink/5 text-ink/80',
   registered: 'bg-accent/10 text-brand-700 dark:text-brand-300',
-  submitted: 'bg-amber-50 text-amber-800 dark:bg-amber-400/10 dark:text-amber-200',
-  done: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-200',
+  submitted: 'bg-accent/20 text-brand-800 dark:text-brand-200',
+  done: 'bg-accent text-white',
 };
+
+const ONBOARDING_PHOTO = PHOTOS.collegeGroupProject;
 
 /** A story from GET /api/wins (owned by the wins area); read defensively. */
 interface WinApiItem {
@@ -90,6 +93,7 @@ interface WinApiItem {
   tagline?: string;
   themes?: string[];
   cheers?: number;
+  coverUrl?: string;
   createdAt?: string;
 }
 
@@ -108,6 +112,7 @@ function toStory(w: WinApiItem): ProfileStory | null {
     tagline: w.tagline ?? '',
     themes: (Array.isArray(w.themes) ? w.themes : []) as ProfileStory['themes'],
     cheers: Number(w.cheers) || 0,
+    coverUrl: typeof w.coverUrl === 'string' ? w.coverUrl : undefined,
     createdAt: w.createdAt ?? '',
   };
 }
@@ -121,19 +126,27 @@ function Onboarding({ firstName, welcome, initial, onSave }: { firstName: string
   ];
   return (
     <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-      <section className="on-dark noir relative overflow-hidden rounded-[20px] bg-ink p-7 sm:p-9">
-        <Sticker text={welcome ? 'You’re in' : 'Level up'} tone="yellow" className="right-5 top-5 hidden rotate-6 sm:inline-flex" />
-        <div className="relative z-[3]">
-          <h1 className="text-5xl text-surface sm:text-6xl">{welcome ? `Welcome, ${firstName}` : 'Your hackathon'}</h1>
-          <p className="font-display text-5xl leading-[0.95] tracking-tight text-neon sm:text-6xl">{welcome ? 'let’s set you up' : 'profile'}</p>
-          <p className="mt-5 max-w-md text-surface/80">
-            Like a LeetCode profile, but for hackathons. Pick your city so we show the nearest hackathons first. It takes a minute,
-            and you can change it any time.
+      <section className="card overflow-hidden">
+        <figure>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={ONBOARDING_PHOTO.src} alt="Five students laughing together around a table" className="aspect-[16/10] w-full object-cover" />
+          <figcaption className="px-6 pt-2 text-[11px] text-ink/45">
+            Photo:{' '}
+            <a href={ONBOARDING_PHOTO.page} target="_blank" rel="noopener noreferrer" className="hover:underline">
+              {ONBOARDING_PHOTO.by} on Unsplash
+            </a>
+          </figcaption>
+        </figure>
+        <div className="p-6 sm:p-7">
+          <h1 className="font-sans text-3xl font-bold normal-case tracking-normal">{welcome ? `Welcome, ${firstName}` : 'Your hackathon profile'}</h1>
+          <p className="mt-3 text-sm leading-6 text-ink/70">
+            Like a LeetCode profile, but for hackathons. Add a photo, your college and skills so teammates know who you are, and
+            pick your city so we show the nearest hackathons first. It takes a minute, and you can change it any time.
           </p>
-          <ul className="mt-6 space-y-3">
+          <ul className="mt-5 space-y-3">
             {perks.map(({ icon: Icon, text }) => (
-              <li key={text} className="flex items-start gap-3 text-sm text-surface/90">
-                <span className="inline-flex rounded-lg bg-accent p-1.5 text-white">
+              <li key={text} className="flex items-start gap-3 text-sm text-ink/80">
+                <span className="inline-flex shrink-0 rounded-lg bg-accent/10 p-1.5 text-brand-700 dark:text-brand-300">
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 </span>
                 {text}
@@ -226,7 +239,8 @@ export default function MyProfileView({
           onSave={async (p) => {
             await save(p);
             setEditing(false);
-            if (edit) router.replace('/profile', { scroll: false });
+            if (next) router.push(next);
+            else if (edit) router.replace('/profile', { scroll: false });
           }}
           onCancel={() => setEditing(false)}
         />
@@ -265,7 +279,7 @@ export default function MyProfileView({
   const titleFor = (slug: string) => events.find((e) => e.slug === slug)?.title ?? slug;
   const myHackathons = Object.entries(saved).sort(([, a], [, b]) => STATUS_ORDER.indexOf(a) - STATUS_ORDER.indexOf(b));
   const recent: Activity[] = items.slice(0, 8);
-  const sticker = recStats.wins > 1 ? `${recStats.wins}× winner` : recStats.wins === 1 ? 'Winner' : me.lookingForTeam ? 'Team up' : undefined;
+  const highlight = recStats.wins > 1 ? `${recStats.wins}× winner` : recStats.wins === 1 ? 'Winner' : undefined;
 
   const onRecordChange = async (next: ProfileRecord[]) => {
     await mutateMe((data) => (data?.user ? { user: { ...data.user, record: next } } : data), { revalidate: false });
@@ -276,7 +290,7 @@ export default function MyProfileView({
     <ProfileLayout
       side={
         <>
-          <ProfileCard profile={fromUser(me)} sticker={sticker}>
+          <ProfileCard profile={fromUser(me)} highlight={highlight}>
             <button type="button" onClick={() => setEditing(true)} className="btn-secondary w-full">
               <Pencil className="h-4 w-4" aria-hidden="true" />
               Edit profile
@@ -313,6 +327,8 @@ export default function MyProfileView({
       }
     >
       <VerifyEmailBanner email={me.email} verified={me.emailVerified} linkResult={verified} />
+
+      <ProfileSetupCard onEdit={() => setEditing(true)} />
 
       <StatTiles
         items={[

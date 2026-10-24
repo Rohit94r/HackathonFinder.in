@@ -110,6 +110,8 @@ function pick<T extends string>(value: string, allowed: readonly T[], fallback: 
 }
 
 const CITY_VALUES = ['online', ...CITIES.map((c) => c.slug)];
+/** Any city slug: catalog cities plus the ones scraped events name (e.g. bhopal, navi-mumbai). */
+const CITY_SLUG = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 export function parseFilters(params: Params, preset: Partial<Filters> = {}): Filters {
   const base = { ...DEFAULT_FILTERS, ...preset };
@@ -118,7 +120,7 @@ export function parseFilters(params: Params, preset: Partial<Filters> = {}): Fil
   const km = Number(one(params, 'km'));
   return {
     q: one(params, 'q').slice(0, 120),
-    city: CITY_VALUES.includes(city) ? city : base.city,
+    city: CITY_VALUES.includes(city) || (CITY_SLUG.test(city) && city.length <= 60) ? city : base.city,
     modes: list(params, 'mode', MODES.map((m) => m.value)).length
       ? list(params, 'mode', MODES.map((m) => m.value))
       : base.modes,
@@ -169,7 +171,7 @@ function matchesText(h: HackathonView, q: string): boolean {
     h.tagline,
     h.organizer,
     h.summary,
-    cityName(h.city),
+    cityName(h.city, h.cityName),
     h.venue ?? '',
     eventTypeLabel(h.type),
     ...h.themes.map(themeName),
@@ -209,7 +211,8 @@ export function applyFilters(items: HackathonView[], f: Filters, origin?: LatLng
       (!f.types.length || f.types.includes(h.type)) &&
       (!f.themes.length || f.themes.some((t) => h.themes.includes(t))) &&
       (f.fee === 'any' || (f.fee === 'free' ? h.fee === 0 : h.fee > 0)) &&
-      (f.team === 'any' || (f.team === 'solo' ? h.teamMin === 1 : h.teamMax > 1)) &&
+      // An unknown team size matches neither 'solo' nor 'team'.
+      (f.team === 'any' || (h.teamSizeKnown !== false && (f.team === 'solo' ? h.teamMin === 1 : h.teamMax > 1))) &&
       matchesEligibility(h, f.eligibility) &&
       (!f.beginner || h.beginnerFriendly) &&
       prizeInInr(h.prizePool, h.prizeCurrency) >= f.minPrize &&

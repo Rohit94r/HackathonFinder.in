@@ -1,0 +1,301 @@
+{
+ "data": {
+  "current_page": 1,
+  "last_page": 1,
+  "per_page": 100,
+  "total": 3,
+  "data": [
+   {
+    "id": 1773842,
+    "public_url": "hackathons/next-horizon-2026-the-institution-of-engineers-and-scientists-1773842",
+    "title": "Next Horizon 2026",
+    "region": "online",
+    "seo_url": "https://unstop.com/hackathons/next-horizon-2026-the-institution-of-engineers-and-scientists-1773842",
+    "organisation": {
+     "name": "The Institution of Engineers and Scientists",
+     "logoUrl": "https://d8it4huxumps7.cloudfront.net/images/partners/new_organisation_image-1x200uucLc21150893783zxDSsWeBe.png",
+     "logoUrl2": "https://d8it4huxumps7.cloudfront.net/images/partners/new_organisation_image-1x200uucLc21150893783zxDSsWeBe.png"
+    },
+    "logoUrl2": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6adafe3b49ab3_eis_logo_246_x_246_px.png",
+    "isPaid": false,
+    "prizes": [
+     {
+      "rank": "Prize Pool",
+      "cash": 150000,
+      "currency": "fa-rupee",
+      "currencyCode": null,
+      "prize_type": "cash"
+     }
+    ],
+    "address_with_country_logo": {
+     "id": 1872204,
+     "address": "",
+     "city": "",
+     "state": "",
+     "country": null,
+     "zip": null,
+     "lat": null,
+     "lng": null,
+     "addressable_id": 1773842,
+     "addressable_type": "App\\Model\\Opportunity",
+     "created_at": "2026-10-23T12:13:17+05:30",
+     "updated_at": "2026-10-24T00:15:19+05:30",
+     "deleted_at": null,
+     "address_title": "event_location",
+     "city_id": null,
+     "sort_order": 1,
+     "state_code": null,
+     "country_code": null
+    },
+    "workfunction": [
+     {
+      "name": "Applied AI"
+     }
+    ],
+    "required_skills": [
+     {
+      "skill": "Creativity"
+     },
+     {
+      "skill": "Teamwork and Collaboration"
+     }
+    ],
+    "filters": [
+     {
+      "name": "Experienced Professionals",
+      "type": "eligible"
+     },
+     {
+      "name": "Engineering Students",
+      "type": "eligible"
+     },
+     {
+      "name": "Postgraduate",
+      "type": "eligible"
+     }
+    ],
+    "payment_services": [],
+    "end_date": "2026-11-06T00:00:00+05:30",
+    "regnRequirements": {
+     "opportunity_id": 1773842,
+     "start_regn_dt": "2026-10-23T00:00:00+05:30",
+     "end_regn_dt": "2026-11-06T00:00:00+05:30",
+     "show_deadline": 1,
+     "min_team_size": 2,
+     "max_team_size": 4,
+     "work_location_type": "city",
+     "eligibility": "{\"sector\":[\"students\",\"fresher\",\"corporates\"],\"engineering\":[],\"bSchools\":[],\"arts\":[],\"medicine\":[],\"law\":[],\"others\":[\"all\"],\"experience\":[\"all\"],\"studentPassoutYearsSelected\":[\"all\"],\"fresherPassoutYearsSelected\":[\"all\"],\"schoolFilteredClasses\":[\"all\"],\"minMarks\":{\"high_school_perc\":0,\"high_school_cgpa\":0},\"locations\":[],\"location_type\":\"all\",\"professionalEligibility\":null,\"fresherEligibility\":null}",
+     "reg_status": "STARTED",
+     "remainingDaysArray": {
+      "durations": 12,
+      "text": " days left"
+     },
+     "remain_days": "12 days left",
+     "remaining_time": 1057338
+    },
+    "details": "<p><strong>Overview</strong></p>\n<p>Presenting The Next Horizon 2026, an exciting online innovation marathon organized by the <strong>International Enterprise and Innovation Society, Florida </strong>and&nbsp;<strong>The Institution of Engineers and Scientists</strong> on <strong>28&ndash;29 November, 2026.</strong></p>\n<p>This hackathon is a dynamic platform where students, professionals, and tech enthusiasts come together to brainstorm, build, and showcase cutting-edge solutions to real-world challenges. Whether you&rsquo;re a seasoned coder, a design prodigy, or a curious beginner, the even"
+   },
+   {
+    "id": 1773178,
+    "public_url": "hackathons/yantravedh-hardware-hackathon-marathwada-mitra-mandals-college-of-engineering-mmcoe-pune-1773178",
+    "title": "Yantravedh Hardware Hackathon",
+    "region": "offline",
+    "seo_url": "https://unstop.com/hackathons/yantravedh-hardware-hackathon-marathwada-mitra-mandals-college-of-engineering-mmcoe-pune-1773178",
+    "organisation": {
+     "name": "Marathwada Mitra Mandal's College of Engineering (MMCOE), Pune",
+     "logoUrl": "https://d8it4huxumps7.cloudfront.net/images/partners/partners75/5e4b8eb96f1f1_mmcoe-logo.jpg",
+     "logoUrl2": "https://d8it4huxumps7.cloudfront.net/images/partners/partners125/5e4b8eb96f1f1_mmcoe-logo.jpg"
+    },
+    "logoUrl2": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6adc646367309_whatsapp_image_2026-10-24_at_12_11_58_pm.jpeg",
+    "isPaid": true,
+    "prizes": [],
+    "address_with_country_logo": {
+     "id": 1871187,
+     "address": "Marathwada Mitramandal College of Engineering, Vadar Vasti Rd, Hingane Home Colony, Karvenagar, Pune, Maharashtra 411052",
+     "city": "Pune",
+     "state": "Maharashtra",
+     "country": {
+      "id": 94,
+      "name": "India",
+      "alpha_2": "in",
+      "alpha_3": "ind",
+      "iso": "IN",
+      "iso3": "IND",
+      "numcode": 356,
+      "phonecode": "+91   ",
+      "logos": {
+       "very_small": "https://d8it4huxumps7.cloudfront.net/images/flags/16x16/in.png",
+       "small": "https://d8it4huxumps7.cloudfront.net/images/flags/24x24/in.png",
+       "medium": "https://d8it4huxumps7.cloudfront.net/images/flags/32x32/in.png",
+       "large": "https://d8it4huxumps7.cloudfront.net/images/flags/48x48/in.png",
+       "xlarge": "https://d8it4huxumps7.cloudfront.net/images/flags/64x64/in.png",
+       "xxlarge": "https://d8it4huxumps7.cloudfront.net/images/flags/128x128/in.png"
+      }
+     },
+     "zip": null,
+     "lat": null,
+     "lng": null,
+     "addressable_id": 1773178,
+     "addressable_type": "App\\Model\\Opportunity",
+     "created_at": "2026-10-21T21:57:21+05:30",
+     "updated_at": "2026-10-24T13:25:20+05:30",
+     "deleted_at": null,
+     "address_title": "event_location",
+     "city_id": 133504,
+     "sort_order": 1,
+     "state_code": null,
+     "country_code": null
+    },
+    "workfunction": [
+     {
+      "name": "Ethical Hacking"
+     },
+     {
+      "name": "Embedded Systems Engineer"
+     }
+    ],
+    "required_skills": [
+     {
+      "skill": "Electronics Engineering"
+     },
+     {
+      "skill": "IoT in Healthcare"
+     }
+    ],
+    "filters": [
+     {
+      "name": "Engineering Students",
+      "type": "eligible"
+     },
+     {
+      "name": "Postgraduate",
+      "type": "eligible"
+     },
+     {
+      "name": "Undergraduate",
+      "type": "eligible"
+     }
+    ],
+    "payment_services": [
+     {
+      "id": 741600,
+      "amount": 590,
+      "required": 1,
+      "entity_id": 1773178,
+      "entity_type": "App\\Model\\Opportunity"
+     }
+    ],
+    "end_date": "2026-10-28T00:59:00+05:30",
+    "regnRequirements": {
+     "opportunity_id": 1773178,
+     "start_regn_dt": "2026-10-10T00:00:00+05:30",
+     "end_regn_dt": "2026-10-28T00:59:00+05:30",
+     "show_deadline": 1,
+     "min_team_size": 2,
+     "max_team_size": 4,
+     "work_location_type": "city",
+     "eligibility": "{\"sector\":[\"students\"],\"engineering\":[],\"bSchools\":[],\"arts\":[],\"medicine\":[],\"law\":[],\"others\":[\"all\"],\"experience\":[\"all\"],\"studentPassoutYearsSelected\":[\"all\"],\"fresherPassoutYearsSelected\":[\"all\"],\"schoolFilteredClasses\":[\"all\"],\"minMarks\":{\"high_school_perc\":0,\"high_school_cgpa\":0},\"locations\":[],\"location_type\":\"all\",\"professionalEligibility\":null,\"fresherEligibility\":null}",
+     "reg_status": "STARTED",
+     "remainingDaysArray": {
+      "durations": 3,
+      "text": " days left"
+     },
+     "remain_days": "3 days left",
+     "remaining_time": 283274
+    },
+    "details": "<p class=\"x1yc453h xngnso2 x7amdea x1i21sxh xhacrq1 x1iykcro x1mshyef x1fie51u xgyxj25 x1xobyvs x1fv8qjw xdj266r x1alsn5q x1pjt2rx x160d6zm xqsupf2 xrxpjvj\" dir=\"ltr\" data-assistant-stream-block-index=\"0\"><strong>Yantravedh 2026 &ndash; National Level Hardware Hackathon</strong></p>\n<p class=\"x1yc453h xma8rkl xgoqxah xutxfr x1fie51u xgyxj25 x1xobyvs x1elgs31 x1fv8qjw xcy5tzr x1ht4adc xnvauns x1c2l018 x14l7nz5 xuw7688 x1pjt2rx x160d6zm xrxpjvj\" dir=\"ltr\" data-assistant-stream-block=\"\" data-assistant-stream-block-index=\"1\"><strong class=\"x7amdea\">Build. Create. Innovate.</strong></p>\n<p class=\"x"
+   },
+   {
+    "id": 1773705,
+    "public_url": "hackathons/campus-quest-rajiv-gandhi-institute-of-petroleum-technology-rgipt-jais-uttar-pradesh-1773705",
+    "title": "Campus Quest",
+    "region": "hybrid",
+    "seo_url": "https://unstop.com/hackathons/campus-quest-rajiv-gandhi-institute-of-petroleum-technology-rgipt-jais-uttar-pradesh-1773705",
+    "organisation": {
+     "name": "Rajiv Gandhi Institute of Petroleum Technology (RGIPT), Jais, Uttar Pradesh",
+     "logoUrl": "https://d8it4huxumps7.cloudfront.net/images/partners/partners75/5d8084752634f_RGPIT.jpeg",
+     "logoUrl2": "https://d8it4huxumps7.cloudfront.net/images/partners/partners125/5d8084752634f_RGPIT.jpeg"
+    },
+    "logoUrl2": "https://d8it4huxumps7.cloudfront.net/uploads/images/150x150/uploadedManual-6ada5acc4cc9d_campus_quest_logo_1.png",
+    "isPaid": false,
+    "prizes": [],
+    "address_with_country_logo": {
+     "id": 1872054,
+     "address": "Rajiv Gandhi Institute of Petroleum Technology",
+     "city": "Raebareli",
+     "state": "Uttar Pradesh",
+     "country": {
+      "id": 94,
+      "name": "India",
+      "alpha_2": "in",
+      "alpha_3": "ind",
+      "iso": "IN",
+      "iso3": "IND",
+      "numcode": 356,
+      "phonecode": "+91   ",
+      "logos": {
+       "very_small": "https://d8it4huxumps7.cloudfront.net/images/flags/16x16/in.png",
+       "small": "https://d8it4huxumps7.cloudfront.net/images/flags/24x24/in.png",
+       "medium": "https://d8it4huxumps7.cloudfront.net/images/flags/32x32/in.png",
+       "large": "https://d8it4huxumps7.cloudfront.net/images/flags/48x48/in.png",
+       "xlarge": "https://d8it4huxumps7.cloudfront.net/images/flags/64x64/in.png",
+       "xxlarge": "https://d8it4huxumps7.cloudfront.net/images/flags/128x128/in.png"
+      }
+     },
+     "zip": null,
+     "lat": null,
+     "lng": null,
+     "addressable_id": 1773705,
+     "addressable_type": "App\\Model\\Opportunity",
+     "created_at": "2026-10-22T23:37:29+05:30",
+     "updated_at": "2026-10-23T17:02:11+05:30",
+     "deleted_at": null,
+     "address_title": "event_location",
+     "city_id": 133580,
+     "sort_order": 1,
+     "state_code": null,
+     "country_code": null
+    },
+    "workfunction": [
+     {
+      "name": "Quizzes & Treasure Hunt"
+     }
+    ],
+    "required_skills": [
+     {
+      "skill": "Logical Reasoning"
+     },
+     {
+      "skill": "Problem Solving"
+     }
+    ],
+    "filters": [
+     {
+      "name": "School Students",
+      "type": "eligible"
+     }
+    ],
+    "payment_services": [],
+    "end_date": "2026-11-01T21:00:00+05:30",
+    "regnRequirements": {
+     "opportunity_id": 1773705,
+     "start_regn_dt": "2026-10-22T00:00:00+05:30",
+     "end_regn_dt": "2026-10-25T00:00:00+05:30",
+     "show_deadline": 1,
+     "min_team_size": 1,
+     "max_team_size": 1,
+     "work_location_type": "city",
+     "eligibility": "{\"sector\":[\"school\"],\"engineering\":[],\"bSchools\":[],\"arts\":[],\"medicine\":[],\"law\":[],\"others\":[\"all\"],\"experience\":[\"all\"],\"studentPassoutYearsSelected\":[\"all\"],\"fresherPassoutYearsSelected\":[\"all\"],\"schoolFilteredClasses\":[11,12],\"minMarks\":{\"high_school_perc\":0,\"high_school_cgpa\":0},\"locations\":[],\"location_type\":\"all\",\"professionalEligibility\":null,\"fresherEligibility\":null}",
+     "reg_status": "STARTED",
+     "remainingDaysArray": {
+      "durations": "5",
+      "text": "hours left"
+     },
+     "remain_days": "5 hours left",
+     "remaining_time": 20424
+    },
+    "details": "<h2>CampusQuest &ndash; Innovation Hackathon 2026</h2>\n<p><strong>Organized by:</strong> Rajiv Gandhi Institute of Petroleum Technology (RGIPT), in collaboration with the approved student organizing communities.</p>\n<h2>About CampusQuest</h2>\n<p>CampusQuest is a beginner-friendly innovation challenge designed to introduce school students to technology, creativity, and real-world problem-solving. Participants will explore problem statements, develop innovative ideas, and experience the process of turning an idea into a practical solution.</p>\n<p>No prior coding experience is required. Curiosity"
+   }
+  ]
+ }
+}

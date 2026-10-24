@@ -1,8 +1,12 @@
 'use client';
 
+import { useRef, useState } from 'react';
+import { Upload } from 'lucide-react';
 import { CITIES, ELIGIBILITY, EVENT_TYPES, MODES, THEMES } from '@hackathonfinder/shared';
+import { apiFetch, ApiClientError } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
 import { ORGANIZER_TYPES, type ListingFormValues } from './listingFields';
+import { Button, inputClass, labelClass, Thumb } from './ui';
 
 type Errors = Record<string, string>;
 
@@ -10,14 +14,14 @@ function Field({ name, label, hint, errors, children, className }: { name: strin
   const error = errors[name];
   return (
     <div className={cn('min-w-0', className)}>
-      <label htmlFor={`le-${name}`} className="label">
+      <label htmlFor={`le-${name}`} className={labelClass}>
         {label}
       </label>
       {children}
-      {hint && !error && <p className="mt-1 text-xs text-ink/60">{hint}</p>}
+      {hint && !error && <p className="mt-1 text-xs text-neutral-500">{hint}</p>}
       {error && (
-        <p id={`le-${name}-error`} className="mt-1 text-xs font-medium text-red-600 dark:text-red-400">
-          {error}
+        <p id={`le-${name}-error`} className="mt-1 text-xs font-semibold text-black">
+          ! {error}
         </p>
       )}
     </div>
@@ -26,10 +30,61 @@ function Field({ name, label, hint, errors, children, className }: { name: strin
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <fieldset className="space-y-4 border-t border-ink/10 pt-5 first:border-0 first:pt-0">
-      <legend className="float-left mb-1 w-full text-base font-bold text-ink">{title}</legend>
-      <div className="clear-both space-y-4">{children}</div>
+    <fieldset className="space-y-3 border-t border-neutral-200 pt-4 first:border-0 first:pt-0">
+      <legend className="float-left mb-1 w-full text-sm font-semibold">{title}</legend>
+      <div className="clear-both space-y-3">{children}</div>
     </fieldset>
+  );
+}
+
+function Chip({ on, onClick, children }: { on: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button type="button" aria-pressed={on} onClick={onClick} className={cn('rounded-[2px] border px-2 py-0.5 text-xs', on ? 'border-black bg-black text-white' : 'border-neutral-400 hover:border-black')}>
+      {children}
+    </button>
+  );
+}
+
+/** Uploads an image to Cloudinary (through /api/admin/upload) and hands back its link. */
+function UploadButton({ onUploaded }: { onUploaded: (url: string) => void }) {
+  const input = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState('');
+  return (
+    <div>
+      <input
+        ref={input}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="sr-only"
+        aria-label="Upload a banner image"
+        onChange={async (e) => {
+          const file = e.target.files?.[0];
+          e.target.value = '';
+          if (!file) return;
+          if (file.size > 8 * 1024 * 1024) {
+            setProblem('Use an image under 8 MB.');
+            return;
+          }
+          setBusy(true);
+          setProblem('');
+          try {
+            const form = new FormData();
+            form.set('file', file);
+            const res = await apiFetch<{ url: string }>('/api/admin/upload', { body: form });
+            onUploaded(res.url);
+          } catch (err) {
+            setProblem(err instanceof ApiClientError ? err.message : 'The upload didn’t work.');
+          } finally {
+            setBusy(false);
+          }
+        }}
+      />
+      <Button size="sm" icon={Upload} busy={busy} onClick={() => input.current?.click()}>
+        Upload image
+      </Button>
+      {problem && <p className="mt-1 text-xs font-semibold">! {problem}</p>}
+    </div>
   );
 }
 
@@ -53,14 +108,15 @@ export default function ListingEditor({
     id: `le-${name}`,
     'aria-invalid': Boolean(errors[name]) || undefined,
     'aria-describedby': errors[name] ? `le-${name}-error` : undefined,
-    className: cn('input', errors[name] && 'border-red-400'),
+    className: cn(inputClass, errors[name] && 'border-2 border-black'),
   });
+  const area = (name: keyof ListingFormValues) => ({ ...input(name), className: cn(inputClass, 'h-auto min-h-[84px] py-2', errors[name] && 'border-2 border-black') });
   const toggle = <T extends string>(list: T[], item: T) => (list.includes(item) ? list.filter((x) => x !== item) : [...list, item]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <Section title="The basics">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field name="title" label="Title" errors={errors}>
             <input {...input('title')} value={value.title} onChange={(e) => set('title', e.target.value)} maxLength={140} />
           </Field>
@@ -91,8 +147,24 @@ export default function ListingEditor({
         </Field>
       </Section>
 
+      <Section title="Registration">
+        <Field name="registrationUrl" label="Registration link" hint="The official page students register on, or where the QR code points." errors={errors}>
+          <input {...input('registrationUrl')} type="url" value={value.registrationUrl} onChange={(e) => set('registrationUrl', e.target.value)} placeholder="https://" />
+        </Field>
+        <div className="flex flex-wrap gap-4 text-sm">
+          <label className="flex items-center gap-2">
+            <input type="radio" name="registrationVia" checked={value.registrationVia !== 'qr'} onChange={() => set('registrationVia', 'link')} className="h-4 w-4" />
+            Register on a website
+          </label>
+          <label className="flex items-center gap-2">
+            <input type="radio" name="registrationVia" checked={value.registrationVia === 'qr'} onChange={() => set('registrationVia', 'qr')} className="h-4 w-4" />
+            Register by QR code on the poster
+          </label>
+        </div>
+      </Section>
+
       <Section title="When (India time)">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Field name="startDate" label="Starts" errors={errors}>
             <input {...input('startDate')} type="datetime-local" value={value.startDate} onChange={(e) => set('startDate', e.target.value)} />
           </Field>
@@ -100,18 +172,13 @@ export default function ListingEditor({
             <input {...input('endDate')} type="datetime-local" value={value.endDate} onChange={(e) => set('endDate', e.target.value)} />
           </Field>
           <Field name="registrationDeadline" label="Registration deadline" errors={errors}>
-            <input
-              {...input('registrationDeadline')}
-              type="datetime-local"
-              value={value.registrationDeadline}
-              onChange={(e) => set('registrationDeadline', e.target.value)}
-            />
+            <input {...input('registrationDeadline')} type="datetime-local" value={value.registrationDeadline} onChange={(e) => set('registrationDeadline', e.target.value)} />
           </Field>
         </div>
       </Section>
 
       <Section title="Where">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <Field name="mode" label="Mode" errors={errors}>
             <select {...input('mode')} value={value.mode} onChange={(e) => set('mode', e.target.value as ListingFormValues['mode'])}>
               {MODES.map((m) => (
@@ -148,7 +215,7 @@ export default function ListingEditor({
           )}
         </div>
         {value.mode !== 'online' && (
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[2fr_1fr_1fr]">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-[2fr_1fr_1fr]">
             <Field name="venue" label="Venue" errors={errors}>
               <input {...input('venue')} value={value.venue} onChange={(e) => set('venue', e.target.value)} maxLength={200} placeholder="Campus or address" />
             </Field>
@@ -163,7 +230,7 @@ export default function ListingEditor({
       </Section>
 
       <Section title="Who can join">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-3 gap-3">
           <Field name="teamMin" label="Min team" errors={errors}>
             <input {...input('teamMin')} type="number" min={1} max={20} value={value.teamMin} onChange={(e) => set('teamMin', e.target.value)} />
           </Field>
@@ -175,41 +242,35 @@ export default function ListingEditor({
           </Field>
         </div>
         <div>
-          <p className="label">Eligibility</p>
-          <div className="flex flex-wrap gap-2">
-            {ELIGIBILITY.map((el) => {
-              const on = value.eligibility.includes(el.value);
-              return (
-                <button key={el.value} type="button" aria-pressed={on} onClick={() => set('eligibility', toggle(value.eligibility, el.value))} className={cn('chip text-xs', on && 'chip-active')}>
-                  {el.label}
-                </button>
-              );
-            })}
+          <p className={labelClass}>Eligibility</p>
+          <div className="flex flex-wrap gap-1.5">
+            {ELIGIBILITY.map((el) => (
+              <Chip key={el.value} on={value.eligibility.includes(el.value)} onClick={() => set('eligibility', toggle(value.eligibility, el.value))}>
+                {el.label}
+              </Chip>
+            ))}
           </div>
-          {errors.eligibility && <p className="mt-1 text-xs font-medium text-red-600 dark:text-red-400">{errors.eligibility}</p>}
+          {errors.eligibility && <p className="mt-1 text-xs font-semibold">! {errors.eligibility}</p>}
         </div>
-        <label className="flex items-center gap-2 text-sm text-ink/80">
-          <input type="checkbox" checked={value.beginnerFriendly} onChange={(e) => set('beginnerFriendly', e.target.checked)} className="h-4 w-4 accent-brand-600" />
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={value.beginnerFriendly} onChange={(e) => set('beginnerFriendly', e.target.checked)} className="h-4 w-4" />
           Beginner-friendly
         </label>
       </Section>
 
       <Section title="Themes">
-        <div className="flex flex-wrap gap-2">
-          {THEMES.map((t) => {
-            const on = value.themes.includes(t.slug);
-            return (
-              <button key={t.slug} type="button" aria-pressed={on} onClick={() => set('themes', toggle(value.themes, t.slug))} className={cn('chip text-xs', on && 'chip-active')}>
-                {t.name}
-              </button>
-            );
-          })}
+        <div className="flex flex-wrap gap-1.5">
+          {THEMES.map((t) => (
+            <Chip key={t.slug} on={value.themes.includes(t.slug)} onClick={() => set('themes', toggle(value.themes, t.slug))}>
+              {t.name}
+            </Chip>
+          ))}
         </div>
-        {errors.themes && <p className="mt-1 text-xs font-medium text-red-600 dark:text-red-400">{errors.themes}</p>}
+        {errors.themes && <p className="mt-1 text-xs font-semibold">! {errors.themes}</p>}
       </Section>
 
       <Section title="Prizes">
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           <Field name="prizePool" label="Prize pool" hint="Total cash, as a number." errors={errors}>
             <input {...input('prizePool')} type="number" min={0} value={value.prizePool} onChange={(e) => set('prizePool', e.target.value)} />
           </Field>
@@ -220,46 +281,50 @@ export default function ListingEditor({
             </select>
           </Field>
         </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field name="prizes" label="Prize lines" hint="One per line, e.g. “Winner: ₹50,000”." errors={errors}>
-            <textarea {...input('prizes')} className={cn('input min-h-[90px]', errors.prizes && 'border-red-400')} value={value.prizes} onChange={(e) => set('prizes', e.target.value)} />
+            <textarea {...area('prizes')} value={value.prizes} onChange={(e) => set('prizes', e.target.value)} />
           </Field>
           <Field name="perks" label="Perks" hint="One per line, e.g. “Food and stay”." errors={errors}>
-            <textarea {...input('perks')} className={cn('input min-h-[90px]', errors.perks && 'border-red-400')} value={value.perks} onChange={(e) => set('perks', e.target.value)} />
+            <textarea {...area('perks')} value={value.perks} onChange={(e) => set('perks', e.target.value)} />
           </Field>
         </div>
       </Section>
 
-      <Section title="Links, image and summary">
-        <Field name="registrationUrl" label="Registration link" hint="The official page students register on." errors={errors}>
-          <input {...input('registrationUrl')} type="url" value={value.registrationUrl} onChange={(e) => set('registrationUrl', e.target.value)} placeholder="https://" />
-        </Field>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto]">
-          <Field name="imageUrl" label="Image URL" hint="Banner or poster. Leave empty for generated art." errors={errors}>
-            <input {...input('imageUrl')} value={value.imageUrl} onChange={(e) => set('imageUrl', e.target.value)} placeholder="https:// or /uploads/…" />
-          </Field>
-          {value.imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={value.imageUrl} alt="" className="h-20 w-32 rounded-lg object-cover ring-1 ring-ink/10 sm:mt-6" />
-          )}
+      <Section title="Banner, logo and summary">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+          <Thumb src={value.imageUrl} className="h-24 w-40" />
+          <div className="min-w-0 flex-1 space-y-2">
+            <Field name="imageUrl" label="Banner image" hint="Upload one (stored on Cloudinary) or paste a link. Empty shows generated art." errors={errors}>
+              <input {...input('imageUrl')} value={value.imageUrl} onChange={(e) => set('imageUrl', e.target.value)} placeholder="https://" />
+            </Field>
+            <div className="flex flex-wrap items-start gap-2">
+              <UploadButton onUploaded={(url) => set('imageUrl', url)} />
+              {value.imageUrl && (
+                <Button size="sm" variant="ghost" onClick={() => set('imageUrl', '')}>
+                  Clear
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
-        <Field name="logoUrl" label="Logo URL (optional)" errors={errors}>
+        <Field name="logoUrl" label="Logo link (optional)" errors={errors}>
           <input {...input('logoUrl')} value={value.logoUrl} onChange={(e) => set('logoUrl', e.target.value)} placeholder="https://" />
         </Field>
         <Field name="summary" label="Summary" hint="2–3 plain sentences in our own words. Leave empty to write one from the fields." errors={errors}>
-          <textarea {...input('summary')} className={cn('input min-h-[110px]', errors.summary && 'border-red-400')} value={value.summary} onChange={(e) => set('summary', e.target.value)} maxLength={1200} />
+          <textarea {...area('summary')} rows={5} value={value.summary} onChange={(e) => set('summary', e.target.value)} maxLength={1200} />
         </Field>
       </Section>
 
       {showFlags && (
         <Section title="On the site">
-          <div className="flex flex-wrap gap-6">
-            <label className="flex items-center gap-2 text-sm text-ink/80">
-              <input type="checkbox" checked={value.verified} onChange={(e) => set('verified', e.target.checked)} className="h-4 w-4 accent-brand-600" />
+          <div className="flex flex-wrap gap-5 text-sm">
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={value.verified} onChange={(e) => set('verified', e.target.checked)} className="h-4 w-4" />
               Verified (checked by a person)
             </label>
-            <label className="flex items-center gap-2 text-sm text-ink/80">
-              <input type="checkbox" checked={value.featured} onChange={(e) => set('featured', e.target.checked)} className="h-4 w-4 accent-brand-600" />
+            <label className="flex items-center gap-2">
+              <input type="checkbox" checked={value.featured} onChange={(e) => set('featured', e.target.checked)} className="h-4 w-4" />
               Featured
             </label>
           </div>

@@ -2,6 +2,11 @@
   "name": "@hackathonfinder/agents",
   "version": "1.0.0",
   "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "run": "tsx src/cli.ts run",
@@ -14,13 +19,20 @@
     "@hackathonfinder/db": "workspace:*",
     "@hackathonfinder/shared": "workspace:*",
     "cheerio": "^1.2.0",
+    "jpeg-js": "^0.4.4",
+    "jsqr": "^1.4.0",
     "node-cron": "^4.6.0",
     "p-limit": "^7.3.3",
+    "pngjs": "^7.0.0",
     "robots-parser": "^3.0.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@types/node": "^20",
+    "@types/pngjs": "^6.0.5",
+    "@types/qrcode": "^1.5.5",
+    "mongodb-memory-server": "^11.3.0",
+    "qrcode": "^1.5.4",
     "tsx": "^4.23.15",
     "typescript": "^5",
     "vitest": "^5.0.5"

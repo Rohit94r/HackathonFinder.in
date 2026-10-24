@@ -1,4 +1,4 @@
-import { CITIES, SOURCES, cityName, sourceBySlug } from '@hackathonfinder/shared';
+import { CITIES, SOURCES, placeName, sourceBySlug } from '@hackathonfinder/shared';
 import { landingSans, landingSerif } from '@/components/landing/fonts';
 import { LandingNavbar } from '@/components/landing/navbar';
 import { HeroSection } from '@/components/landing/hero';
@@ -20,7 +20,7 @@ import { cityCounts, closingSoon, openOnly, type HackathonView } from '@/lib/hac
 import { getHackathons } from '@/server/hackathons';
 import { parseSmartQuery } from '@/lib/smartSearch';
 
-// Statuses and sample dates depend on today, so render per request.
+// Statuses depend on today, so render per request.
 export const dynamic = 'force-dynamic';
 
 const SMART_EXAMPLE = 'Free online AI hackathon for students, deadline this month';
@@ -36,7 +36,8 @@ function toPoster(h: HackathonView): PosterData {
     theme: h.themes[0],
     source: sourceNames(h)[0],
     when: formatDateRange(h.startDate, h.endDate),
-    where: h.mode === 'online' ? 'Online' : cityName(h.city),
+    where: placeName(h),
+    imageUrl: h.imageUrl,
   };
 }
 
@@ -50,6 +51,7 @@ function toClosingCard(h: HackathonView): ClosingCardData {
     featured: h.featured,
     badge: deadlineLabel(h.daysToDeadline),
     foundOn: names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names[0],
+    imageUrl: h.imageUrl,
   };
 }
 
@@ -94,14 +96,17 @@ export default async function HomePage() {
       <LandingNavbar />
       <main id="main" tabIndex={-1} style={{ outline: 'none' }}>
         <HeroSection sourceCount={SOURCES.length} />
-        <ListingsSection items={newestFirst} total={open.length} />
+        {/* Sections built from listings only show once there are real ones to show. */}
+        {newestFirst.length > 0 && <ListingsSection items={newestFirst} total={open.length} />}
         <NearYouSection cities={topCities} totalCities={CITIES.length} />
-        <ClosingSoonSection events={closingSoon(items, 4).map(toClosingCard)} />
-        <HowItWorksSection example={[...newestFirst].sort((a, b) => b.sources.length - a.sources.length)[0]} />
-        <SmartSearchShowcase
-          posters={posters}
-          example={{ query: SMART_EXAMPLE, understood: smart.understood, matches: applyFilters(items, smart.filters).length }}
-        />
+        {open.length > 0 && <ClosingSoonSection events={closingSoon(items, 4).map(toClosingCard)} />}
+        {newestFirst.length > 0 && <HowItWorksSection example={[...newestFirst].sort((a, b) => b.sources.length - a.sources.length)[0]} />}
+        {posters.length > 0 && (
+          <SmartSearchShowcase
+            posters={posters}
+            example={{ query: SMART_EXAMPLE, understood: smart.understood, matches: applyFilters(items, smart.filters).length }}
+          />
+        )}
         <SourcesSection />
         <FeaturesSection stats={stats} />
         <ReadySection />

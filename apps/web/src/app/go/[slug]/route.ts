@@ -1,6 +1,8 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { connectDb, Hackathon, isDbConfigured } from '@hackathonfinder/db';
 import { createSampleHackathons } from '@hackathonfinder/shared';
+import { recordRegisterClick } from '@/server/analytics';
+import { getSessionUser } from '@/server/auth';
 
 /** "Register on official site": counts the click for the organizer, then sends the student there. */
 export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
@@ -11,6 +13,15 @@ export async function GET(req: NextRequest, { params }: { params: { slug: string
       .select('registrationUrl')
       .lean();
     url = doc?.registrationUrl;
+    if (doc) {
+      // For the admin analytics (who clicked through, from which page). Never blocks the redirect on failure.
+      try {
+        const user = await getSessionUser().catch(() => null);
+        await recordRegisterClick(req, params.slug, user?.id);
+      } catch (err) {
+        console.error('[go] Could not record the register click:', err);
+      }
+    }
   } else {
     url = createSampleHackathons(new Date()).find((h) => h.slug === params.slug)?.registrationUrl;
   }

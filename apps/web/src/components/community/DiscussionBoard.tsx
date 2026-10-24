@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import useSWRInfinite from 'swr/infinite';
 import { Flame, LayoutList, Loader2, LogIn, MapPin, MessageSquare, PenLine, Search, Sparkles, Ticket, TrendingUp, X } from 'lucide-react';
 import { CITIES, cityName } from '@hackathonfinder/shared';
+import SignInPrompt from '@/components/auth/SignInPrompt';
+import { PHOTOS } from '@/components/landing/photos';
+import ChatPhoto from '@/components/messages/ChatPhoto';
 import { CATEGORIES, categoryById, excerpt, type CategoryId } from '@/data/discussions';
 import { goToLogin } from '@/lib/apiClient';
 import { cn } from '@/lib/cn';
@@ -43,6 +46,7 @@ export default function DiscussionBoard({
   initial,
   initialData,
   compose = false,
+  signedIn: signedInOnServer = false,
 }: {
   /** Open listings, offered when starting a discussion. */
   events: EventOption[];
@@ -53,6 +57,8 @@ export default function DiscussionBoard({
   initialData: ThreadList;
   /** Open the "Start a discussion" form on arrival. */
   compose?: boolean;
+  /** Whether the server saw a session, so the sign-in prompt renders before the session loads. */
+  signedIn?: boolean;
 }) {
   const router = useRouter();
   const { viewer, ready: viewerReady } = useViewer();
@@ -61,6 +67,7 @@ export default function DiscussionBoard({
   const [q, setQ] = useState(initial.q);
   const [formOpen, setFormOpen] = useState(false);
   const set = (patch: Partial<BoardFilters>) => setFilters((f) => ({ ...f, ...patch }));
+  const signedOut = viewerReady ? !viewer : !signedInOnServer;
 
   // Search as the student types, without a request per key.
   useEffect(() => {
@@ -134,7 +141,7 @@ export default function DiscussionBoard({
             onClick={() => set({ category: c.id })}
             className={cn(
               'flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm font-medium transition lg:w-full lg:py-2.5',
-              active ? 'border border-brand-600 bg-brand-600 text-white' : 'border border-ink/15 text-ink/80 hover:bg-ink/5 lg:border-transparent'
+              active ? 'border border-accent bg-accent text-white' : 'border border-ink/15 text-ink/80 hover:bg-ink/5 lg:border-transparent'
             )}
           >
             <Icon className="h-4 w-4 shrink-0" />
@@ -159,18 +166,29 @@ export default function DiscussionBoard({
       <div className="min-w-0">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-4">
           <div className="min-w-0">
-            <h2 className="font-sans text-2xl font-bold normal-case leading-tight tracking-normal">
-              {category ? category.label : 'All discussions'}
-            </h2>
+            <h1 className="font-sans text-2xl font-bold normal-case leading-tight tracking-normal sm:text-3xl">
+              {category ? category.label : 'Community'}
+            </h1>
             <p className="mt-1 text-sm text-ink/70">
-              {category ? category.description : 'Questions, tips and team-ups from students across India.'}
+              {category ? category.description : 'Ask anything, share what you’re building and help other students across India.'}
             </p>
           </div>
           <button type="button" onClick={openForm} className="btn-primary py-2.5">
-            {viewerReady && !viewer ? <LogIn className="h-4 w-4" /> : <PenLine className="h-4 w-4" />}
-            {viewerReady && !viewer ? 'Sign in to start a discussion' : 'Start a discussion'}
+            {signedOut ? <LogIn className="h-4 w-4" /> : <PenLine className="h-4 w-4" />}
+            {signedOut ? 'Sign in to post' : 'Start a discussion'}
           </button>
         </div>
+
+        {signedOut && (
+          <SignInPrompt
+            compact
+            className="mb-5"
+            next="/community"
+            icon={PenLine}
+            title="Join the conversation"
+            text="Anyone can read. Sign in to start a discussion, reply or upvote."
+          />
+        )}
 
         <div className="mb-4 flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
@@ -308,25 +326,23 @@ export default function DiscussionBoard({
             )}
           </>
         ) : (
-          <div className="card flex flex-col items-center px-6 py-14 text-center">
-            <span className="mb-4 rounded-2xl bg-ink/5 p-4 text-ink">
-              <MessageSquare className="h-7 w-7" />
-            </span>
-            <h3 className="text-xl font-bold">No discussions here yet</h3>
-            <p className="mt-2 max-w-md text-sm text-ink/70">
-              {filtered ? 'Try another topic or city, or clear the search. Or be the first to ask.' : 'Be the first to start one.'}
-            </p>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <div className="card">
+            <ChatPhoto
+              photo={PHOTOS.studentsLaptop}
+              alt="Students gathered around a laptop in a lecture hall"
+              title="No discussions here yet"
+              text={filtered ? 'Try another topic or city, or clear the search. Or be the first to ask.' : 'Be the first to start one.'}
+            >
               {filtered && (
-                <button type="button" onClick={reset} className="btn-secondary py-2.5">
+                <button type="button" onClick={reset} className="btn-secondary py-2.5 text-sm">
                   Clear filters
                 </button>
               )}
-              <button type="button" onClick={openForm} className="btn-primary py-2.5">
-                <PenLine className="h-4 w-4" />
-                Start a discussion
+              <button type="button" onClick={openForm} className="btn-primary py-2.5 text-sm">
+                <PenLine className="h-4 w-4" aria-hidden="true" />
+                {signedOut ? 'Sign in to post' : 'Start a discussion'}
               </button>
-            </div>
+            </ChatPhoto>
           </div>
         )}
       </div>
@@ -344,6 +360,9 @@ function ThreadRow({ t, now, hackathonTitle, onVote }: { t: ThreadItem; now: str
           {t.pinned && <PinnedChip />}
           <CategoryChip id={t.category} />
           {t.mine && <span className="rounded bg-accent px-1.5 py-0.5 text-[10px] font-bold uppercase text-white">Your post</span>}
+          {t.author.isSample && (
+            <span className="rounded border border-ink/15 bg-ink/[0.06] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink/65">Sample</span>
+          )}
         </div>
         <h3 className="break-words text-base font-semibold leading-snug sm:text-lg">
           <Link href={`/community/${t.slug}`} className="hover:underline">

@@ -12,7 +12,7 @@ import { useSaved } from '@/lib/useSaved';
 import { cn } from '@/lib/cn';
 
 const iconBtn =
-  'inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink/80 transition hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-pop';
+  'inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink/80 transition hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
 
 function pill(active: boolean) {
   return cn(
@@ -149,7 +149,7 @@ export default function Navbar() {
           >
             <Bookmark className="h-[18px] w-[18px]" />
             {ready && count > 0 && (
-              <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-pop px-1 text-[11px] font-bold text-navy">
+              <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-white">
                 {count}
               </span>
             )}

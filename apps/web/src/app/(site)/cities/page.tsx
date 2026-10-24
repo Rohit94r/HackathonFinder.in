@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import CityDirectory from '@/components/cities/CityDirectory';
-import { PageHero, SampleNotice } from '@/components/ui';
+import { PageHero } from '@/components/ui';
 import { openOnly } from '@/lib/hackathons';
 import { getHackathons } from '@/server/hackathons';
 
@@ -24,7 +24,6 @@ export default async function CitiesPage() {
       />
       <section className="bg-surface py-10 sm:py-14">
         <div className="container-page">
-          <SampleNotice className="mb-10" />
           <CityDirectory items={items} />
         </div>
       </section>

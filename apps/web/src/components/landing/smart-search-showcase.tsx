@@ -80,7 +80,7 @@ export function SmartSearchShowcase({
             </span>
             <span
               style={{
-                background: 'linear-gradient(90deg, #ec3750 0%, #ff8c37 100%)',
+                background: 'linear-gradient(90deg, #ec3750 0%, #ff6b81 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -151,7 +151,7 @@ export function SmartSearchShowcase({
           height: 1.05em;
           margin-left: 3px;
           vertical-align: -0.15em;
-          background: #ff8c37;
+          background: #ec3750;
           animation: lp-caret 1s steps(1) infinite;
         }
         @keyframes lp-caret { 50% { opacity: 0; } }
