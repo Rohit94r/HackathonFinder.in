@@ -12,7 +12,7 @@ export const siteConfig = {
     linkedin: '#',
     facebook: '#',
     telegram: '#',
-    whatsapp: '#',
+    whatsapp: 'https://chat.whatsapp.com/DrKUp0GtWx9JLmAyX57rNX',
     discord: '#',
   },
   /** WhatsApp group per city slug. Cities without one show as "starting soon". */

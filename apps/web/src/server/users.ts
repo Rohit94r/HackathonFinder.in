@@ -1,6 +1,7 @@
 import 'server-only';
 import bcrypt from 'bcryptjs';
 import { slugify, User } from '@hackathonfinder/db';
+import { normalizeAdminEmails } from '@/lib/adminAccess';
 
 const RESERVED_HANDLES = new Set([
   'admin', 'api', 'login', 'signup', 'logout', 'settings', 'profile', 'me', 'u', 'new', 'edit', 'help', 'support',
@@ -22,18 +23,15 @@ export function isReservedHandle(handle: string): boolean {
   return RESERVED_HANDLES.has(handle);
 }
 
-/** The emails in ADMIN_EMAILS (comma-separated), lowercased. */
+/** The emails in ADMIN_EMAILS (comma-separated), lowercased, plus the required fallback email. */
 export function adminEmails(): string[] {
-  return (process.env.ADMIN_EMAILS ?? '')
-    .split(',')
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
+  return normalizeAdminEmails(process.env.ADMIN_EMAILS);
 }
 
 /** Emails in ADMIN_EMAILS get the admin role when they sign up or sign in. */
 export function isAdminEmail(email: string | null | undefined): boolean {
   if (!email) return false;
-  return adminEmails().includes(email.toLowerCase());
+  return adminEmails().includes(email.trim().toLowerCase());
 }
 
 export const hashPassword = (password: string) => bcrypt.hash(password, 12);

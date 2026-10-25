@@ -7,6 +7,7 @@ import { Bookmark, UserRound } from 'lucide-react';
 import Avatar from '@/components/Avatar';
 import ThemeToggle from '@/components/ThemeToggle';
 import { NAV_COMMUNITY, NAV_HACKATHONS } from '@/data/navigation';
+import { isAdminAccessEmail } from '@/lib/adminAccess';
 import { useProfile } from '@/lib/useProfile';
 import { useSaved } from '@/lib/useSaved';
 import { InlineStyle } from './inline-style';
@@ -56,7 +57,8 @@ export function LandingNavbar() {
   const openFrame = useRef<number | null>(null);
   const path = usePathname();
   const { count, ready } = useSaved();
-  const { profile } = useProfile();
+  const { profile, me } = useProfile();
+  const isAdmin = isAdminAccessEmail(me?.email);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 80);
@@ -188,6 +190,12 @@ export function LandingNavbar() {
           >
             {profile ? <Avatar name={profile.name} size="sm" className="h-11 w-11 ring-0" /> : <UserRound size={18} aria-hidden="true" />}
           </Link>
+
+          {isAdmin && (
+            <Link href="/admin" className="lp-nav-cta dark-btn">
+              Admin
+            </Link>
+          )}
 
           <ThemeToggle className="lp-theme-toggle" />
 

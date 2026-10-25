@@ -34,7 +34,9 @@ const COLUMNS = [
       { href: '/wins', label: 'Winning stories' },
       { href: '/profile', label: 'My profile' },
       { href: '/blog', label: 'Blog & guides' },
+      { href: siteConfig.social.whatsapp, label: 'WhatsApp community' },
       { href: '/submit', label: 'Submit a hackathon' },
+      { href: '/privacy', label: 'Privacy' },
     ],
   },
   {

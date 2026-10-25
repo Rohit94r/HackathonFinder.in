@@ -8,6 +8,7 @@ import { Bell, Bookmark, LogIn, LogOut, MessagesSquare, Settings, UserPlus, User
 import Avatar from '@/components/Avatar';
 import { useUnreadMessages } from '@/components/messages/useChat';
 import { NOTIFICATION_ICONS, useMarkRead, useNotificationBell, whenLabel } from '@/components/profile/notificationParts';
+import { isAdminAccessEmail } from '@/lib/adminAccess';
 import { cn } from '@/lib/cn';
 import { withNext } from './authUtils';
 
@@ -176,6 +177,7 @@ export function AccountMenu() {
   const { data: chats } = useUnreadMessages();
   const unreadChats = chats?.unread ?? 0;
   const user = session?.user;
+  const isAdmin = isAdminAccessEmail(user?.email);
   if (!user) return null;
 
   return (
@@ -217,6 +219,18 @@ export function AccountMenu() {
                 </Link>
               </li>
             ))}
+            {isAdmin && (
+              <li>
+                <Link
+                  href="/admin"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition hover:bg-ink/[0.05]"
+                >
+                  <Settings className="h-4 w-4 text-ink/70" aria-hidden="true" />
+                  <span className="flex-1">Admin</span>
+                </Link>
+              </li>
+            )}
           </ul>
           <div className="mt-2 border-t border-ink/10 pt-2">
             <button

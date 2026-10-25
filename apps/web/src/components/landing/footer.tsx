@@ -56,6 +56,8 @@ const columns = [
       { label: 'Team Finder', href: '/teams' },
       { label: 'Winning stories', href: '/wins' },
       { label: 'My profile', href: '/profile' },
+      { label: 'WhatsApp community', href: siteConfig.social.whatsapp },
+      { label: 'Privacy', href: '/privacy' },
       { label: 'Blog & guides', href: '/blog' },
     ],
   },
