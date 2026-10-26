@@ -1,6 +1,7 @@
-// End-to-end check of the running site (temporary; deleted after the run).
+// End-to-end check of a running site: `pnpm test:e2e` (E2E_BASE defaults to http://127.0.0.1:3000).
 // Creates two throwaway students and one throwaway admin directly in the DB, signs in through
 // next-auth like a browser, exercises the flows, then deletes everything it created.
+// For the admin-email check, start the site with E2E_ADMIN_CLAIM's address in ADMIN_EMAILS.
 import { loadEnv } from './env';
 loadEnv();
 import crypto from 'node:crypto';
@@ -27,6 +28,7 @@ const bcrypt = require('bcryptjs') as { hash: (s: string, r: number) => Promise<
 const BASE = process.env.E2E_BASE ?? 'http://127.0.0.1:3000';
 const tag = crypto.randomBytes(3).toString('hex');
 const PASSWORD = `E2e-${crypto.randomBytes(6).toString('hex')}!`;
+const ADMIN_CLAIM = process.env.E2E_ADMIN_CLAIM ?? 'e2e-admin-claim@example.invalid';
 const results: { ok: boolean; name: string; detail?: string }[] = [];
 
 function check(name: string, ok: boolean, detail = '') {
@@ -106,10 +108,33 @@ async function main() {
   const anon = new Client('anon');
   try {
     // ── Public pages and data ───────────────────────────────────────────────
-    for (const p of ['/', '/hackathons', '/near-me', '/calendar', '/cities', '/cities/pune', '/teams', '/community', '/wins', '/blog', '/how-it-works', '/submit', '/login', '/signup', '/organizers', '/privacy', '/terms']) {
+    for (const p of ['/', '/hackathons', '/near-me', '/calendar', '/cities', '/cities/pune', '/themes/ai-ml', '/teams', '/community', '/wins', '/blog', '/how-it-works', '/about', '/submit', '/login', '/signup', '/organizers', '/privacy', '/terms']) {
       const r = await anon.req(p);
       check(`page ${p} loads`, r.status === 200, `HTTP ${r.status}`);
     }
+
+    // ── Search engines and AI assistants ────────────────────────────────────
+    for (const slug of ['upcoming-hackathons-in-india', 'hackathons-near-me', 'free-online-hackathons-for-beginners', 'ai-ml-hackathons-india', 'hackathon-resume-and-internships', 'what-is-a-hackathon', 'how-to-win-your-first-hackathon']) {
+      const r = await anon.req(`/blog/${slug}`);
+      const html = String(r.data);
+      check(`guide /blog/${slug} has article JSON-LD and its canonical`, r.status === 200 && html.includes('"BlogPosting"') && html.includes(`<link rel="canonical" href="https://hackathonfinder.in/blog/${slug}"`), `HTTP ${r.status}`);
+    }
+    const home = String((await anon.req('/')).data);
+    check('home page has Organization + founder JSON-LD', home.includes('"Organization"') && home.includes('Rohit Jadhav'));
+    check('home page canonical is hackathonfinder.in', home.includes('<link rel="canonical" href="https://hackathonfinder.in"'));
+    const about = String((await anon.req('/about')).data);
+    check('about page names the founder and links', about.includes('Rohit Jadhav') && about.includes('linkedin.com/in/rohit-jadhav94') && about.includes('github.com/rohit94r') && about.includes('dev.by.rohit'));
+    const sitemap = await anon.req('/sitemap.xml');
+    const urls = (String(sitemap.data).match(/<loc>/g) ?? []).length;
+    check('sitemap.xml lists pages, guides and listings', sitemap.status === 200 && urls > 100 && String(sitemap.data).includes('https://hackathonfinder.in/blog/what-is-a-hackathon'), `${urls} URLs`);
+    const robots = await anon.req('/robots.txt');
+    check('robots.txt points to the sitemap, blocks /admin, welcomes AI crawlers', robots.status === 200 && String(robots.data).includes('Sitemap: https://hackathonfinder.in/sitemap.xml') && String(robots.data).includes('Disallow: /admin') && String(robots.data).includes('GPTBot'));
+    const llms = await anon.req('/llms.txt');
+    check('llms.txt describes the site', llms.status === 200 && String(llms.data).startsWith('# HackathonFinder'));
+    const og = await fetch(`${BASE}/opengraph-image`);
+    check('share image renders', og.ok && (og.headers.get('content-type') ?? '').startsWith('image/png'), `HTTP ${og.status}`);
+    const manifest = await anon.req('/manifest.webmanifest');
+    check('web manifest', manifest.status === 200 && String(manifest.data?.name).includes('HackathonFinder'));
     const list = await anon.req('/api/hackathons?status=all&limit=100');
     const total = list.data?.total ?? 0;
     check('real hackathons listed by the API', total > 50, `${total} listings`);
@@ -117,6 +142,7 @@ async function main() {
     if (sample) {
       const page = await anon.req(`/hackathons/${sample.slug}`);
       check('hackathon detail page shows the same event', page.status === 200 && String(page.data).includes(sample.title.slice(0, 20).replace(/&/g, '&amp;')), sample.title);
+      check('hackathon detail page has Event JSON-LD', String(page.data).includes('"@type":"Event"'));
       const go = await anon.req(`/go/${sample.slug}`);
       check('register link redirects to the official page', [302, 307, 308].includes(go.status) && go.location.startsWith('http'), go.location.slice(0, 80));
       const img = await fetch(sample.imageUrl);
@@ -139,6 +165,36 @@ async function main() {
     check('/admin/login page loads', adminLogin.status === 200, `HTTP ${adminLogin.status}`);
     const cron = await anon.req('/api/cron/scrape');
     check('cron scrape refuses without the secret', cron.status === 401 || cron.status === 403, `HTTP ${cron.status}`);
+    const cronQuery = await anon.req(`/api/cron/reminders?secret=${encodeURIComponent(process.env.CRON_SECRET ?? 'x')}`);
+    check('cron secret in the URL is not accepted', cronQuery.status === 401 || cronQuery.status === 403, `HTTP ${cronQuery.status}`);
+    const headers = await fetch(`${BASE}/`);
+    check(
+      'security headers are sent',
+      Boolean(headers.headers.get('content-security-policy')?.includes("frame-ancestors 'self'")) && headers.headers.get('x-content-type-options') === 'nosniff' && !headers.headers.get('x-powered-by')
+    );
+
+    // ── Nobody can claim admin by signing up with an admin's email ──────────
+    const claim = new Client('claim');
+    await User.deleteMany({ email: ADMIN_CLAIM });
+    const reg = await claim.req('/api/auth/register', { method: 'POST', json: { name: 'Admin Claim', email: ADMIN_CLAIM, password: PASSWORD } });
+    const claimed = await User.findOne({ email: ADMIN_CLAIM }).select('_id role').lean();
+    if (claimed) created.push(String(claimed._id));
+    const claimSession = await claim.signIn(ADMIN_CLAIM, PASSWORD);
+    const claimAdmin = await claim.req('/api/admin/users');
+    check(
+      'signing up with an ADMIN_EMAILS address does not make you admin before the email is verified',
+      reg.status === 200 && claimed?.role === 'student' && claimSession.user?.role === 'student' && claimAdmin.status === 403,
+      `register ${reg.status}, stored ${claimed?.role}, session ${claimSession.user?.role}, admin API ${claimAdmin.status}`
+    );
+
+    // ── Password guessing is limited ────────────────────────────────────────
+    const guesser = new Client('guesser');
+    for (let i = 0; i < 11; i++) {
+      const csrf = await guesser.req('/api/auth/csrf');
+      const form = new URLSearchParams({ csrfToken: csrf.data.csrfToken, email: `nobody-${tag}@example.invalid`, password: `wrong-${i}`, json: 'true', callbackUrl: BASE });
+      const r = await guesser.req('/api/auth/callback/credentials', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: form.toString() });
+      if (i === 10) check('the 11th wrong password in 15 minutes is refused as too many attempts', `${r.location}${JSON.stringify(r.data)}`.includes('TooManyAttempts'), `HTTP ${r.status} ${r.location.slice(0, 80)}`);
+    }
 
     // ── Students ────────────────────────────────────────────────────────────
     const a = await makeUser('student', 'a');
@@ -151,6 +207,9 @@ async function main() {
     const sa = await A.signIn(a.email, PASSWORD);
     const sb = await B.signIn(b.email, PASSWORD);
     check('student A signs in', sa.user?.id === a.id);
+    // A second browser for A: it must be signed out when A changes the password.
+    const A2 = new Client('A2');
+    await A2.signIn(a.email, PASSWORD);
     check('student B signs in', sb.user?.id === b.id);
 
     const form = new FormData();
@@ -216,8 +275,17 @@ async function main() {
     check('admin user details never include password hashes', !JSON.stringify(userDetail.data).includes('passwordHash'));
     const ban = await X.req(`/api/admin/users/${b.id}`, { method: 'PATCH', json: { banned: true } });
     check('admin bans a student', ban.status === 200, ban.data?.error?.message ?? '');
+    const newPassword = `${PASSWORD}-new1`;
+    const change = await A.req('/api/me/password', { method: 'POST', json: { current: PASSWORD, next: newPassword } });
+    check('A changes the password', change.status === 200, change.data?.error?.message ?? '');
     // Sessions re-check the account at most once a minute.
     await new Promise((r) => setTimeout(r, 65_000));
+    // An ended session keeps a cookie but carries no account (empty id), like a banned one.
+    const oldSession = await A2.req('/api/auth/session');
+    const oldMe = await A2.req('/api/me');
+    check('a password change signs out the other browser', !oldSession.data?.user?.id && !oldMe.data?.user, `id=${JSON.stringify(oldSession.data?.user?.id)} me=${Boolean(oldMe.data?.user)}`);
+    const fresh = await new Client('A3').signIn(a.email, newPassword);
+    check('A signs in with the new password', fresh.user?.id === a.id);
     const bannedTry = await B.req('/api/me');
     const bannedSignIn = await new Client('B2').signIn(b.email, PASSWORD);
     check('a banned student is signed out and cannot sign in again', !bannedSignIn.user && !bannedTry.data?.user, `me=${Boolean(bannedTry.data?.user)}`);

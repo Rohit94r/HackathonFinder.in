@@ -18,7 +18,17 @@ export function safeNext(value: string | string[] | undefined | null): string | 
       return null;
     }
   }
-  if (!path.startsWith('/') || path.startsWith('//') || path.startsWith('/\\')) return null;
+  if (!path.startsWith('/') || path.startsWith('//')) return null;
+  // Browsers drop tabs and newlines and read "\" as "/", so "/\t/evil.com" would leave the site.
+  if (/[\u0000- \\\u007f]/.test(path)) return null;
+  try {
+    const base = 'https://hackathonfinder.invalid';
+    const url = new URL(path, base);
+    if (url.origin !== base) return null;
+    path = `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return null;
+  }
   if (AUTH_PAGES.test(path) || path.startsWith('/api/')) return null;
   return path.slice(0, 500);
 }
@@ -34,6 +44,8 @@ export function authErrorMessage(code: string | null | undefined): string | null
   switch (code) {
     case 'CredentialsSignin':
       return 'That email and password don’t match. Check them, or reset your password.';
+    case 'TooManyAttempts':
+      return 'Too many sign-in attempts. Wait 15 minutes and try again, or reset your password.';
     case 'AccountBanned':
       return 'This account has been suspended. If you think that’s a mistake, write to us from the email on your account.';
     case 'OAuthAccountNotLinked':

@@ -13,3 +13,8 @@ export function isAdminAccessEmail(email?: string | null): boolean {
   if (!email) return false;
   return normalizeAdminEmails(process.env.ADMIN_EMAILS).includes(email.trim().toLowerCase());
 }
+
+/** Being on the list grants admin only once the account's email is confirmed. */
+export function grantsAdminAccess(doc?: { email?: string | null; emailVerified?: Date | null } | null): boolean {
+  return Boolean(doc?.emailVerified) && isAdminAccessEmail(doc?.email);
+}

@@ -2,6 +2,9 @@
 
 Every hackathon. One place. HackathonFinder finds hackathons from Unstop, Devfolio, Devpost, MLH, Google,
 Instagram, LinkedIn, Facebook, college sites and more, and lists them in one searchable place, nearest first.
+Live at **[hackathonfinder.in](https://hackathonfinder.in)**. Founded by **Rohit Jadhav**
+([LinkedIn](https://www.linkedin.com/in/rohit-jadhav94/) · [GitHub](https://github.com/rohit94r) ·
+[Instagram](https://www.instagram.com/dev.by.rohit/) · rjdhav67@gmail.com).
 See [concept.md](concept.md) for the full product plan.
 
 ## What's in the box
@@ -10,8 +13,7 @@ See [concept.md](concept.md) for the full product plan.
 |---|---|---|
 | Website + API | `apps/web` | Next.js 14 site and REST API (`src/app/api`): listings, near me, cities, accounts, profiles, community, winning stories, Team Finder, submissions, admin |
 | Discovery agents | `apps/agents` | Scout → Extract → Dedupe → Verify → Tag → Publish, twice a day (02:00 and 14:00 IST) and on "Scrape now". Connectors for Unstop, Devfolio, Devpost, MLH, HackerEarth, lablab.ai, KnowAFest, web search, and Instagram/LinkedIn/Facebook posts (via search or the official Graph API); banners stored on Cloudinary, venues on the map. See [apps/agents/README.md](apps/agents/README.md) |
-| Browser extension | `apps/extension` | "Add to HackathonFinder" for Chrome: send any page or Instagram/LinkedIn post to the review queue. See [apps/extension/README.md](apps/extension/README.md) |
-| Database | `packages/db` | MongoDB models (Mongoose), indexes, seed data, local MongoDB for development |
+| Database | `packages/db` | MongoDB models (Mongoose), collections and indexes (`pnpm db:setup`), local MongoDB for development, end-to-end check |
 | AI | `packages/ai` | Claude-powered extraction from pages and posters, smart search, plus rule-based fallbacks |
 | Shared | `packages/shared` | Types, cities, themes, sources, status rules, distance helpers |
 
@@ -22,12 +24,12 @@ Needs Node 20.19+ and pnpm 10 (`npx pnpm@10` works if pnpm isn't installed).
 ```bash
 pnpm install
 cp .env.example .env      # everything is optional locally
-pnpm dev                  # starts a local MongoDB (data in .data/mongo), seeds it, then http://localhost:3000
+pnpm dev                  # starts a local MongoDB (data in .data/mongo), sets it up, then http://localhost:3000
 ```
 
-`pnpm dev` starts a real MongoDB on your machine when `MONGODB_URI` is empty, and loads the sample students,
-hackathons, discussions, winning stories and team posts on first run. Set `MONGODB_URI` in `.env` to use
-MongoDB Atlas instead.
+`pnpm dev` starts a real MongoDB on your machine when `MONGODB_URI` is empty and creates every collection
+and index. There is no sample data: listings come from the discovery agents (`pnpm agents:run`) and student
+submissions. Set `MONGODB_URI` in `.env` to use MongoDB Atlas instead.
 
 Emails (verification, password reset, reminders, digest) are printed in the terminal until `RESEND_API_KEY`
 is set, so you can click the links locally. To get the admin dashboard locally, put your email in
@@ -58,12 +60,14 @@ One `.env` at the repo root serves the website, the agents and the scripts. Ever
 | `pnpm dev` | Local MongoDB (if needed) + website |
 | `pnpm build` / `pnpm start` | Production build and server for the website |
 | `pnpm typecheck` | Type-checks every package |
-| `pnpm test` | Runs the test suites |
-| `pnpm db:seed` / `pnpm db:seed -- --reset` | Loads (or reloads) the sample content into `MONGODB_URI` |
+| `pnpm test` | Runs the unit test suites |
+| `pnpm test:e2e` | End-to-end check of a running site (`pnpm start` first; `E2E_BASE` to point elsewhere): pages, SEO files, sign-in, permissions, chat, moderation, admin. Creates throwaway accounts and deletes them |
+| `pnpm db:setup` | Creates every collection and index in `MONGODB_URI` and removes leftover sample data (safe to re-run) |
 | `pnpm db:local` | Just the local MongoDB |
 | `pnpm agents:sources --sync` | Registers the discovery sources and shows their health and missing keys |
 | `pnpm agents:run` | A full scrape of every enabled source into `MONGODB_URI` (`--source devpost --limit 20` for one, `--dry-run` to only look) |
 | `pnpm agents:schedule` | Long-running worker that scrapes at 02:00 and 14:00 IST (for hosts without the website) |
+| `pnpm agents:repair` | Brings existing scraped listings in line with the current accuracy rules (`--dry-run` to preview) |
 
 ## Deploying
 
@@ -71,13 +75,35 @@ One `.env` at the repo root serves the website, the agents and the scripts. Ever
   deadline reminders daily, the weekly digest on Mondays and the discovery scrape at 02:00 and 14:00 IST
   (`/api/cron/reminders`, `/api/cron/digest`, `/api/cron/scrape`, authorised with `CRON_SECRET`). On a
   long-running Node server the website runs the scrape timer itself (`src/instrumentation.ts`).
-- **Database:** MongoDB Atlas. Indexes are created by `pnpm db:seed` (it skips the sample content if any is
-  already there) or on first use. Atlas → **Network Access** must allow your host: Vercel functions use
+- **Database:** MongoDB Atlas. Run `pnpm db:setup` once against the production database: it creates all
+  27 collections and their indexes (also created on first use). Atlas → **Network Access** must allow your host: Vercel functions use
   dynamic egress IPs, so add `0.0.0.0/0` (or Vercel Secure Compute if you have it). Without this every page
   fails with `MongooseServerSelectionError` / `tlsv1 alert internal error`.
 - **Agents:** nothing extra when the website runs on a long-running server or on Vercel (see above).
   Otherwise, a small always-on worker (Railway, Render, a VM, …) running `pnpm agents:schedule` with the
   same `.env`. Each slot runs once even if several of these fire.
+
+## Production checklist (hackathonfinder.in)
+
+1. Host env: everything in `.env.example`, with `NEXTAUTH_URL=https://hackathonfinder.in`, a fresh
+   `NEXTAUTH_SECRET`, `CRON_SECRET`, and `ADMIN_EMAILS` (admins are only granted once their email is verified).
+2. Google OAuth redirect URI `https://hackathonfinder.in/api/auth/callback/google`; GitHub callback
+   `https://hackathonfinder.in/api/auth/callback/github`. Resend: verify the `hackathonfinder.in` domain.
+3. `pnpm db:setup` once against the production database.
+4. Search: add the site in Google Search Console and Bing Webmaster Tools (put their codes in
+   `GOOGLE_SITE_VERIFICATION` / `BING_SITE_VERIFICATION`) and submit `https://hackathonfinder.in/sitemap.xml`.
+
+## SEO
+
+- Per-page titles, descriptions, keywords and canonical URLs (`src/lib/seo.tsx`), Open Graph and Twitter cards,
+  generated share images (`opengraph-image.tsx`).
+- schema.org JSON-LD: Organization + founder + WebSite search box on every page, Event on each hackathon,
+  BlogPosting + FAQPage on guides, BreadcrumbList and ItemList on city and theme hubs, AboutPage on `/about`.
+- `sitemap.xml` (pages, cities, themes, guides, every listing, stories, discussions; hourly), `robots.txt`
+  (private pages blocked; Google, Bing and AI search crawlers such as GPTBot, PerplexityBot and ClaudeBot
+  allowed), `llms.txt` for AI assistants, `manifest.webmanifest`.
+- Finished events and personal pages are `noindex`. Guides live in `apps/web/src/data/blogData.ts` and
+  `blogSeoPosts.ts`.
 
 ## API at a glance
 

@@ -5,13 +5,17 @@ import EventArt from '@/components/hackathon/EventArt';
 import { PageHero, SectionHeading } from '@/components/ui';
 import WinCard from '@/components/wins/WinCard';
 import { blogPosts } from '@/data/blogData';
+import { pageMetadata } from '@/lib/seo';
 import { getSessionUser } from '@/server/auth';
 import { latestWins } from '@/server/wins';
 
-export const metadata: Metadata = {
-  title: 'Blog & guides',
-  description: 'Guides for students: how to win your first hackathon, find teammates, pitch your project and pick the right events.',
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Hackathon Guides & Tips for Students in India',
+  description:
+    'Free hackathon guides for Indian students: what a hackathon is, how to find hackathons near you, win your first one, find teammates, pitch to judges and use wins for internships.',
+  path: '/blog',
+  keywords: ['hackathon tips', 'how to win a hackathon', 'hackathon guide', 'what is a hackathon', 'hackathons for beginners', 'hackathon resume'],
+});
 
 export default async function BlogPage() {
   const [featured, ...rest] = blogPosts;

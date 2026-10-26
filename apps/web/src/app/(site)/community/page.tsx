@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { ArrowRight, Award, BookOpen, Facebook, Linkedin, Megaphone, MessageCircle, Send, ShieldCheck, Trophy, Users } from 'lucide-react';
 import { CITIES } from '@hackathonfinder/shared';
@@ -8,7 +9,7 @@ import { SORTS } from '@/components/community/model';
 import { PHOTOS } from '@/components/landing/photos';
 import { SectionHeading } from '@/components/ui';
 import { isCategoryId } from '@/data/discussions';
-import { siteConfig } from '@/data/siteConfig';
+import { activeSocials, siteConfig } from '@/data/siteConfig';
 import { openOnly } from '@/lib/hackathons';
 import { getSessionUser } from '@/server/auth';
 import { listThreads } from '@/server/community';
@@ -16,20 +17,21 @@ import { getHackathons } from '@/server/hackathons';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Community discussions',
-  description:
-    'Discussions for students across India: ask about hackathons, find teammates, get feedback on your project and share free resources. Anyone can read; sign in to post.',
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Hackathon Community for Students in India',
+  description: 'Discussions for students across India: ask about hackathons, find teammates, get feedback on your project and share free resources. Anyone can read; sign in to post.',
+  path: '/community',
+  keywords: ['hackathon community', 'hackathon discussion', 'student developer community India'],
+});
 
-const CHANNELS = [
+const CHANNELS = activeSocials([
   { name: 'WhatsApp community', text: 'New hackathons in your city, plus deadline nudges.', href: siteConfig.social.whatsapp, icon: MessageCircle },
   { name: 'Instagram', text: 'Weekly roundups, winner stories and quick tips.', href: siteConfig.social.instagram, icon: Megaphone },
   { name: 'LinkedIn', text: 'Big hackathons, company challenges and winners.', href: siteConfig.social.linkedin, icon: Linkedin },
   { name: 'Facebook group', text: 'Share events from your college and ask questions.', href: siteConfig.social.facebook, icon: Facebook },
   { name: 'Telegram channel', text: 'New hackathons the moment we find them.', href: siteConfig.social.telegram, icon: Send },
   { name: 'Discord', text: 'Find teammates, ask questions and share what you build.', href: siteConfig.social.discord, icon: Users },
-];
+]);
 
 const WAYS = [
   {

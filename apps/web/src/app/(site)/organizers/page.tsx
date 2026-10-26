@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { BadgeCheck, BarChart3, Check, Eye, Megaphone, PenLine, Rocket, Sparkles, Target } from 'lucide-react';
 import FAQ from '@/components/FAQ';
@@ -7,10 +8,12 @@ import { organizerFaqs } from '@/data/faqData';
 import { siteConfig } from '@/data/siteConfig';
 import { cn } from '@/lib/cn';
 
-export const metadata: Metadata = {
-  title: 'For organizers',
-  description: 'List your hackathon for free and reach students who are actively looking. Featured placement available.',
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'List Your Hackathon for Free: For Organizers',
+  description: 'List your hackathon on HackathonFinder for free and reach students across India who are actively looking. Featured placement available.',
+  path: '/organizers',
+  keywords: ['promote hackathon', 'list hackathon', 'hackathon marketing', 'hackathon organizers India'],
+});
 
 const BENEFITS = [
   { icon: Target, title: 'The right students', text: 'Reach students filtering for your city, theme, team size and eligibility.' },

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Explorer from '@/components/hackathon/Explorer';
 import { PageHero } from '@/components/ui';
 import { openOnly } from '@/lib/hackathons';
@@ -7,11 +8,12 @@ import { parseFilters } from '@/lib/filters';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Explore hackathons',
-  description:
-    'Search every open hackathon by city, online or offline, deadline, team size, prize, fee, theme and eligibility.',
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Upcoming Hackathons in India 2026: Online & Offline',
+  description: 'Every open hackathon in India in one place: search by city, online or offline, deadline, team size, prize, fee, theme and eligibility. Updated twice a day.',
+  path: '/hackathons',
+  keywords: ['upcoming hackathons', 'hackathons in India', 'hackathons 2026', 'online hackathons', 'offline hackathons', 'hackathons for students', 'coding competitions'],
+});
 
 export default async function HackathonsPage({
   searchParams,

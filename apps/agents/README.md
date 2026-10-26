@@ -38,6 +38,7 @@ pnpm agents:run --source unstop,devfolio --limit 20
 pnpm agents:run --dry-run                        # read and show what would happen; nothing is written or uploaded
 pnpm agents:sources                              # sources, missing keys, health; add --sync to create the Source docs
 pnpm agents:schedule                             # long-running worker: scrapes at 02:00 and 14:00 India time
+pnpm agents:repair                               # bring existing listings in line with the current rules (--dry-run to preview)
 pnpm --filter @hackathonfinder/agents test       # tests (a throwaway MongoDB; never the real one)
 ```
 
@@ -66,9 +67,11 @@ counts and every item it created, updated, merged, sent to review or rejected in
 the dashboard can follow it.
 
 Only one scrape runs at a time: a unique index on `AgentRun` (one `running` run per agent) makes the
-database refuse a second one, so a click during a scheduled run gets that run back. A run still
-"running" after 45 minutes is taken as dead (the server restarted) and marked failed; runs stop taking
-new items after 40 minutes.
+database refuse a second one, so a click during a scheduled run gets that run back. A running run
+writes `heartbeatAt` at least once a minute; one silent for 30 minutes is taken as dead (its server
+stopped or restarted) and marked failed with that reason, the next time anything starts a scrape or
+the dashboard reads the runs. Runs stop taking new items after 40 minutes; the rest waits for the next
+run.
 
 ## What a run does
 
@@ -82,8 +85,9 @@ new items after 40 minutes.
    last time and the listing already has its banner, only "last checked" moves. Detail pages are read
    only for new listings and ones still without an image, so a second run takes seconds per source.
 4. **Validate**: title, dates, deadline, a registration link and the mode are required; ended events,
-   new events whose registration closed, and in-person events outside India are rejected. Rules flag
-   high fees, URL shorteners, payment links, odd prizes and spam words.
+   new events whose registration closed, and in-person or hybrid events outside India are rejected.
+   Events that aren't hackathon-type are rejected too (see below). Rules flag high fees, URL
+   shorteners, payment links, odd prizes and spam words.
 5. **Enrich**: in-person events in India are placed on the map with OpenStreetMap Nominatim (venue
    first, then the city; one request a second; every answer cached in `GeoCache`; a hit in another
    state is ignored). The banner (else the organizer's logo) is copied to Cloudinary. When
@@ -94,6 +98,46 @@ new items after 40 minutes.
    everything else (search results, social posts, flagged listings) goes to the review queue
    (`pending`). Existing listings get fresh dates, missing fields and the new source; titles,
    summaries and admin edits are never overwritten, and removed listings stay removed.
+
+## Accuracy rules
+
+Everything on a listing comes from the source; when the source doesn't say, we don't either.
+
+- **Dates** are the source's own. Unstop's timeline is read from the competition page: the start is
+  the first round or "important date" that is the event itself (hackathon, finale, offline round,
+  presentations); else the dates the description gives for the hackathon ("Hackathon: 28–29
+  October"); else the first round or date after registration closes that isn't paperwork; else
+  Unstop's own `start_date` (when the competition opened; online challenges run from then). The end
+  is the latest round end, `end_date` or the description's end date that isn't before the start
+  (results announcements don't count); with nothing after the start it is a one-day event. The
+  registration deadline is never used as a stand-in for the start. Devfolio, MLH, HackerEarth,
+  lablab.ai and KnowAFest give start and end directly; Devpost gives the submission period.
+- **Team size**: when neither the data nor the description states one, `teamSizeKnown` is false
+  (`teamMin`/`teamMax` hold a 1–4 default only so the record is complete) and the summary says
+  nothing about teams.
+- **Themes** come only from strong signals: the source's own tags, the title, or an explicit track
+  list in the description ("Themes: …"). A word somewhere in a long description doesn't count. With
+  no signal, there is no theme (or open innovation when the source says so) and the summary makes no
+  theme claim.
+- **Prizes**: only amounts the source states (platform prize fields, or a prize line with a currency
+  in the description). Unknown stays 0.
+- **Hybrid events abroad** are in-person first and rejected like any in-person event outside India.
+  Only remote-first ones (MLH `hybrid_digital`, lablab.ai's online build with an optional on-site day)
+  are listed online, and their summary says where they are based.
+- **Hackathon-type only**: platform categories are loose (Unstop's "hackathons" include drone races).
+  An event is rejected as "not a hackathon-type event" only when its title is clearly another kind
+  (robotics or drone races, sports and esports, quizzes, cultural events, fest passes) or its tags are
+  mostly robotics/drones/esports, and nothing in the title or tags says hackathon, ideathon, hack,
+  code, build or a tech challenge. When unsure, it stays.
+- **Placeholder banners** (a site's default picture, like KnowAFest's `knowafest-event-default.png`)
+  count as no image.
+
+When these rules change, bump `PIPELINE_VERSION` in `src/run.ts`: the next scrape reads every source
+event again in full and rewrites what it derives (dates, team size, themes, our summary, prizes)
+on the listings it made, and takes down listings the rules now turn away. `pnpm agents:repair`
+(`--dry-run` to preview) does the same from the stored source data without asking the sources again
+(everything but dates), and splits listings that wrongly merged two events of one platform.
+Listings an admin has verified keep their copy and themes.
 
 ## Data rules
 
@@ -117,7 +161,8 @@ Banners are uploaded to Cloudinary by URL (Cloudinary fetches them; when a site 
 download the image politely and upload the bytes), signed, into `hackathonfinder/banners`, with a
 public id from the source, the event id and a hash of the image URL and `overwrite=false`, so a rerun
 never stores a copy twice. Listings use the Cloudinary URL with `f_auto,q_auto,c_limit,w_1200`; the
-original is kept in `sourceImageUrl`. If an upload fails, the source link is kept and the next run
+640 px and 1400 px versions (cards, hero) are generated at upload time (eager), so the first visitor
+doesn't wait for them. The original is kept in `sourceImageUrl`. If an upload fails, the source link is kept and the next run
 tries again. Without Cloudinary, banners link to their source. No banner and no logo: the website
 shows an event photo instead.
 

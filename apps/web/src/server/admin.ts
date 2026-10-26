@@ -61,7 +61,7 @@ import { rateLimit } from './rateLimit';
 import { listScrapeRuns, SCRAPE_SCHEDULE, type ScrapeItem, type ScrapeRunSummary } from './scrape';
 import { storageMode } from './storage';
 import { isSocialLink, sourceFor, submissionTitle } from './submissions';
-import { adminEmails, isAdminEmail } from './users';
+import { adminEmails, grantsAdmin, isAdminEmail } from './users';
 
 const DAY = 24 * 60 * 60 * 1000;
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
@@ -76,9 +76,9 @@ async function stillAdmin(user: SessionUser): Promise<boolean> {
   if (!isDbConfigured()) return user.role === 'admin';
   if (!/^[a-f0-9]{24}$/i.test(user.id)) return false;
   await connectDb();
-  const doc = await User.findById(user.id).select('role email banned deletedAt').lean();
+  const doc = await User.findById(user.id).select('role email emailVerified banned deletedAt').lean();
   if (!doc || doc.banned || doc.deletedAt) return false;
-  return doc.role === 'admin' || isAdminEmail(doc.email);
+  return doc.role === 'admin' || grantsAdmin(doc);
 }
 
 /** Where to go after the admin sign-in: only pages inside /admin (never the sign-in page itself). */

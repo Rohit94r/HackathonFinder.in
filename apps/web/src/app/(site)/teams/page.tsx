@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import { CITIES } from '@hackathonfinder/shared';
 import TeamBoard from '@/components/teams/TeamBoard';
 import { DEFAULT_FILTERS, peopleQuery, teamPostsQuery, type TeamEvent, type TeamTab } from '@/components/teams/teamUtils';
@@ -9,11 +10,12 @@ import { loadTeamBoard } from '@/server/teams';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Team Finder',
-  description:
-    'Find hackathon teammates anywhere in India. Browse teams looking for members or students looking for a team, filter by city, distance, skills and hackathon, and see who matches your skills.',
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Hackathon Team Finder: Find Teammates in India',
+  description: 'Find hackathon teammates anywhere in India. Browse teams looking for members or students looking for a team, filter by city, distance, skills and hackathon.',
+  path: '/teams',
+  keywords: ['hackathon team finder', 'find hackathon teammates', 'hackathon team', 'looking for team hackathon'],
+});
 
 function one(value: string | string[] | undefined): string {
   return (Array.isArray(value) ? value[0] : value) ?? '';

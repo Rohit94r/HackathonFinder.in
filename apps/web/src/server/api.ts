@@ -50,8 +50,12 @@ async function assertActive(userId: string, allowBanned = false): Promise<void> 
   if (doc.banned && !allowBanned) throw new ApiError(403, 'account_banned', 'Your account is suspended, so it can’t post or change anything.');
 }
 
+/**
+ * The visitor's address. X-Real-IP comes first: Vercel and a typical nginx set it from the
+ * connection, while the first X-Forwarded-For entry can be typed by the visitor.
+ */
 export function clientIp(req: NextRequest): string {
-  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || req.headers.get('x-real-ip') || 'local';
+  return req.headers.get('x-real-ip')?.trim() || req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'local';
 }
 
 /** Converts ObjectIds and Dates so responses are plain JSON. */

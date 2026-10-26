@@ -20,6 +20,8 @@ export interface IUser {
   emailVerified?: Date | null;
   /** bcrypt hash; never selected unless asked for. */
   passwordHash?: string;
+  /** Sessions signed in before this are ended (set on password change and reset). */
+  passwordChangedAt?: Date | null;
   name: string;
   /** URL name, unique, used at /u/[handle]. */
   handle: string;
@@ -67,6 +69,7 @@ const userSchema = new Schema<IUser>(
     email: { type: String, lowercase: true, trim: true },
     emailVerified: { type: Date, default: null },
     passwordHash: { type: String, select: false },
+    passwordChangedAt: { type: Date, default: null },
     name: { type: String, required: true, trim: true, maxlength: 80 },
     handle: { type: String, required: true, lowercase: true, trim: true, match: /^[a-z0-9](?:[a-z0-9-]{0,28}[a-z0-9])?$/ },
     image: { type: String, trim: true },

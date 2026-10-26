@@ -10,7 +10,8 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "seed": "tsx src/seed/cli.ts",
+    "setup-db": "tsx src/seed/cli.ts",
+    "e2e": "tsx src/e2e.ts",
     "mongo": "tsx src/local-mongo.ts"
   },
   "dependencies": {

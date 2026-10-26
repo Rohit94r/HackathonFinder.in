@@ -11,6 +11,9 @@ describe('accuracy rules', () => {
   it('turns away fest events that are not hackathons, keeps the ones that are', () => {
     expect(notHackathonReason('Drone Soccer | TECHKRITI | IIT KANPUR', ['Drone', 'Robotics'])).toMatch(/^not a hackathon-type event/);
     expect(notHackathonReason('Multirotor | TECHKRITI | IIT KANPUR')).toMatch(/not a hackathon-type event/);
+    expect(notHackathonReason('Skysparks - Boeing National Aeromodelling Competition | TECHKRITI | IIT KANPUR')).toMatch(/aeromodelling/);
+    expect(notHackathonReason('Capture The Flag | TECHKRITI | IIT KANPUR', ['Quizzes & Treasure Hunt', 'Cyber Security'])).toBeUndefined();
+    expect(notHackathonReason('Pitch Premier | Techkriti | IIT KANPUR', ['Entrepreneurship'])).toBeUndefined();
     expect(notHackathonReason('Techkriti Grand Prix | TECHKRITI | IIT KANPUR')).toMatch(/grand prix/);
     expect(notHackathonReason('IARC | TECHKRITI | IIT KANPUR', ['Drone', 'Robotics', 'Games & Sports'])).toMatch(/not a hackathon-type event/);
     expect(notHackathonReason('BGMI Tournament 2026', ['Esports'])).toBeTruthy();

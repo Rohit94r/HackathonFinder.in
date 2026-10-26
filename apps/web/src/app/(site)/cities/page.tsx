@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import CityDirectory from '@/components/cities/CityDirectory';
 import { PageHero } from '@/components/ui';
 import { openOnly } from '@/lib/hackathons';
@@ -6,11 +7,12 @@ import { getHackathons } from '@/server/hackathons';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Hackathons by city',
-  description:
-    'Hackathons city by city across India. Follow the cities you care about to build a shortlist, see open events and the next deadline in each, and how far each city is from you.',
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Hackathons by City in India: Pune, Mumbai, Bengaluru & More',
+  description: 'Hackathons city by city across India. See open events and the next deadline in Pune, Mumbai, Bengaluru, Delhi NCR, Hyderabad, Chennai and more, and how far each city is from you.',
+  path: '/cities',
+  keywords: ['hackathons by city', 'hackathons in Pune', 'hackathons in Mumbai', 'hackathons in Bengaluru', 'hackathons in Delhi', 'hackathons in Hyderabad'],
+});
 
 export default async function CitiesPage() {
   const items = openOnly((await getHackathons()).items);

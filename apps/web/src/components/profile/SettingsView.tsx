@@ -70,6 +70,8 @@ function PasswordSection({ me, onChanged }: { me: Me; onChanged: () => void }) {
     setBusy(true);
     try {
       await apiFetch('/api/me/password', { body: me.hasPassword ? { current, next } : { next } });
+      // The change signs out every session, this one included; sign straight back in with the new password.
+      if (me.email) await signIn('credentials', { email: me.email, password: next, redirect: false });
       setCurrent('');
       setNext('');
       setConfirm('');

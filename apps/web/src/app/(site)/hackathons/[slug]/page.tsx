@@ -47,6 +47,7 @@ import {
   formatWeekday,
   timeAgo,
 } from '@/lib/format';
+import { breadcrumbJsonLd, eventJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
 import { themeStyle } from '@/lib/themeStyles';
 import { cn } from '@/lib/cn';
 
@@ -56,10 +57,16 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   const found = await getHackathon(params.slug);
   if (!found) return { title: 'Hackathon not found' };
   const h = found.item;
-  return {
-    title: `${h.title}: ${eventTypeLabel(h.type)} ${h.mode === 'online' ? 'online' : `in ${cityName(h.city, h.cityName)}`}`,
-    description: h.summary,
-  };
+  const where = h.mode === 'online' ? 'online' : `in ${cityName(h.city, h.cityName)}`;
+  return pageMetadata({
+    title: `${h.title}: ${eventTypeLabel(h.type)} ${where}`,
+    description: (h.summary || `${h.title}, a ${eventTypeLabel(h.type).toLowerCase()} ${where} by ${h.organizer}. Dates, deadline, prizes, team size and how to register.`).slice(0, 300),
+    path: `/hackathons/${h.slug}`,
+    keywords: [h.title, `${h.title} registration`, `hackathon ${where}`, ...h.themes.map((t) => `${themeName(t)} hackathon`)],
+    image: h.imageUrl,
+    // Finished events stay reachable but drop out of search results.
+    noindex: h.status === 'completed',
+  });
 }
 
 function googleCalendarUrl(h: HackathonView): string {
@@ -100,8 +107,18 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
     { label: 'Event ends', iso: h.endDate },
   ];
 
+  const jsonLd = [
+    eventJsonLd(h),
+    breadcrumbJsonLd([
+      { name: 'Hackathons', path: '/hackathons' },
+      ...(h.city && h.mode !== 'online' ? [{ name: cityName(h.city, h.cityName), path: `/cities/${h.city}` }] : []),
+      { name: h.title, path: `/hackathons/${h.slug}` },
+    ]),
+  ];
+
   return (
     <>
+      <JsonLd data={jsonLd} />
       <section className="bg-surface">
         <div className="container-page pb-10 pt-6">
           <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-1 text-sm text-ink/60">

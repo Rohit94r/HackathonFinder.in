@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { User } from '@hackathonfinder/db';
 import { badRequest, conflict, readBody, route } from '@/server/api';
 import { sendVerificationEmail } from '@/server/accountEmails';
-import { hashPassword, isAdminEmail, passwordProblem, uniqueHandle } from '@/server/users';
+import { hashPassword, passwordProblem, uniqueHandle } from '@/server/users';
 
 const Body = z.object({
   name: z.string().trim().min(2, 'Add your name.').max(80),
@@ -24,7 +24,8 @@ export const POST = route(
       email: body.email,
       passwordHash: await hashPassword(body.password),
       handle: await uniqueHandle(body.name),
-      role: isAdminEmail(body.email) ? 'admin' : 'student',
+      // Always a student: an ADMIN_EMAILS address is promoted only after the email is confirmed.
+      role: 'student',
     });
     await sendVerificationEmail(user);
     return { ok: true, handle: user.handle };

@@ -16,7 +16,8 @@ export const POST = route(
     // Opening the emailed link proves they own the address.
     await User.updateOne(
       { _id: userId },
-      { $set: { passwordHash: await hashPassword(password), emailVerified: new Date() } }
+      // passwordChangedAt ends every existing session, e.g. one opened with the old, leaked password.
+      { $set: { passwordHash: await hashPassword(password), emailVerified: new Date(), passwordChangedAt: new Date() } }
     );
     const user = await User.findById(userId).select('email').lean();
     return { ok: true, email: user?.email };

@@ -350,7 +350,7 @@ export async function listTeamPosts(q: TeamPostQueryInput, viewerId?: string | n
   const fields: Record<string, unknown> = {};
   if (q.near) fields._km = kmExpression(q.near);
   if (q.sort === 'match' && q.match?.length) {
-    fields._hits = { $size: { $setIntersection: ['$needs', q.match] } };
+    fields._hits = { $size: { $setIntersection: ['$needs', { $literal: q.match }] } };
     extra.push({ $addFields: fields });
     extra.push({
       $addFields: { _pct: { $cond: [{ $gt: [{ $size: '$needs' }, 0] }, { $divide: ['$_hits', { $size: '$needs' }] }, -1] } },
@@ -790,11 +790,11 @@ export async function listPeople(q: PeopleQueryInput, viewerId?: string | null):
   if (q.sort === 'match' && (q.match?.length || q.lack?.length)) {
     if (q.match?.length) {
       // Share of the skills a team needs that this student has.
-      fields._hits = { $size: { $setIntersection: [skills, q.match] } };
+      fields._hits = { $size: { $setIntersection: [skills, { $literal: q.match }] } };
       extra.push({ $addFields: fields }, { $addFields: { _pct: { $divide: ['$_hits', q.match.length] } } });
     } else {
       // Share of this student's skills the viewer doesn't have.
-      fields._hits = { $size: { $setDifference: [skills, q.lack] } };
+      fields._hits = { $size: { $setDifference: [skills, { $literal: q.lack }] } };
       extra.push(
         { $addFields: fields },
         { $addFields: { _pct: { $cond: [{ $gt: [{ $size: skills }, 0] }, { $divide: ['$_hits', { $size: skills }] }, -1] } } }

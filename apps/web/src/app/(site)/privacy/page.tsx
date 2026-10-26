@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import { PageHero } from '@/components/ui';
 import { privacyHtml } from '@/data/legalData';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Privacy policy',
   description: 'What HackathonFinder collects, why, and the choices you have.',
-};
+  path: '/privacy',
+});
 
 export default function PrivacyPage() {
   return (

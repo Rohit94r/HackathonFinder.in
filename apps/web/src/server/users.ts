@@ -1,7 +1,7 @@
 import 'server-only';
 import bcrypt from 'bcryptjs';
 import { slugify, User } from '@hackathonfinder/db';
-import { normalizeAdminEmails } from '@/lib/adminAccess';
+import { grantsAdminAccess, normalizeAdminEmails } from '@/lib/adminAccess';
 
 const RESERVED_HANDLES = new Set([
   'admin', 'api', 'login', 'signup', 'logout', 'settings', 'profile', 'me', 'u', 'new', 'edit', 'help', 'support',
@@ -28,11 +28,18 @@ export function adminEmails(): string[] {
   return normalizeAdminEmails(process.env.ADMIN_EMAILS);
 }
 
-/** Emails in ADMIN_EMAILS get the admin role when they sign up or sign in. */
+/** Whether the email is on the admin list. On its own this grants nothing: see grantsAdmin. */
 export function isAdminEmail(email: string | null | undefined): boolean {
   if (!email) return false;
   return adminEmails().includes(email.trim().toLowerCase());
 }
+
+/**
+ * An account on the admin list becomes an admin only once its email is confirmed
+ * (by the verification link or by Google/GitHub), so nobody can sign up with an
+ * admin's address and walk in.
+ */
+export const grantsAdmin = grantsAdminAccess;
 
 export const hashPassword = (password: string) => bcrypt.hash(password, 12);
 export const checkPassword = (password: string, hash: string) => bcrypt.compare(password, hash);

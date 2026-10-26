@@ -14,16 +14,34 @@ interface Counts {
   scraping: boolean;
 }
 
-const NAV = [
-  { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
-  { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
-  { href: '/admin/hackathons', label: 'Hackathons', icon: ListChecks },
-  { href: '/admin/scraper', label: 'Scraper', icon: Radar, badge: 'scraping' as const },
-  { href: '/admin/review', label: 'Review', icon: Inbox, badge: 'review' as const },
-  { href: '/admin/users', label: 'Users', icon: Users },
-  { href: '/admin/community', label: 'Community', icon: MessagesSquare },
-  { href: '/admin/reports', label: 'Reports', icon: Flag, badge: 'openReports' as const },
-  { href: '/admin/settings', label: 'Settings', icon: Settings },
+const NAV_GROUPS = [
+  {
+    label: 'Overview',
+    items: [
+      { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
+      { href: '/admin/analytics', label: 'Analytics', icon: BarChart3 },
+    ],
+  },
+  {
+    label: 'Listings',
+    items: [
+      { href: '/admin/review', label: 'Review queue', icon: Inbox, badge: 'review' as const },
+      { href: '/admin/hackathons', label: 'Hackathons', icon: ListChecks },
+      { href: '/admin/scraper', label: 'Scraper', icon: Radar, badge: 'scraping' as const },
+    ],
+  },
+  {
+    label: 'People',
+    items: [
+      { href: '/admin/users', label: 'Users', icon: Users },
+      { href: '/admin/community', label: 'Community', icon: MessagesSquare },
+      { href: '/admin/reports', label: 'Reports', icon: Flag, badge: 'openReports' as const },
+    ],
+  },
+  {
+    label: 'System',
+    items: [{ href: '/admin/settings', label: 'Settings', icon: Settings }],
+  },
 ];
 
 /** The admin frame: a sidebar on wide screens, a top bar with a menu on phones. */
@@ -60,24 +78,31 @@ export default function AdminShell({ admin, children }: { admin: { handle: strin
           </button>
         </div>
         <nav id="admin-nav" aria-label="Admin" className={cn('border-t border-neutral-200 lg:flex lg:flex-1 lg:flex-col lg:border-0', open ? 'block' : 'hidden')}>
-          <ul className="py-1 lg:py-0">
-            {NAV.map((item) => {
-              const active = item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
-              return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    aria-current={active ? 'page' : undefined}
-                    className={cn('flex items-center gap-2.5 px-4 py-2 text-sm', active ? 'bg-black text-white' : 'text-black hover:bg-neutral-100')}
-                  >
-                    <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
-                    <span className="flex-1">{item.label}</span>
-                    {badge(item.badge)}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="py-1 lg:py-0">
+            {NAV_GROUPS.map((group) => (
+              <div key={group.label} className="pb-2">
+                <p className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-neutral-400">{group.label}</p>
+                <ul>
+                  {group.items.map((item) => {
+                    const active = 'exact' in item && item.exact ? pathname === item.href : pathname === item.href || pathname.startsWith(`${item.href}/`);
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          aria-current={active ? 'page' : undefined}
+                          className={cn('flex items-center gap-2.5 px-4 py-2 text-sm', active ? 'bg-black text-white' : 'text-black hover:bg-neutral-100')}
+                        >
+                          <item.icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                          <span className="flex-1">{item.label}</span>
+                          {badge('badge' in item ? item.badge : undefined)}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
           <div className="mt-auto space-y-2 border-t border-neutral-200 px-4 py-4 text-xs">
             <p className="truncate text-neutral-500" title={admin.name}>
               Signed in as <span className="text-black">@{admin.handle}</span>

@@ -1,3 +1,5 @@
+import { seoBlogPosts } from './blogSeoPosts';
+
 export type BlogCategory = 'Guides' | 'Teams' | 'Pitching' | 'Inside HackathonFinder';
 
 export interface BlogPost {
@@ -10,9 +12,12 @@ export interface BlogPost {
   readMinutes: number;
   theme: string; // cover-art theme slug
   contentHtml: string; // article body HTML
+  keywords?: string[]; // search phrases the post targets (meta keywords, JSON-LD)
+  faqs?: { q: string; a: string }[]; // also in the body; sent as FAQPage JSON-LD
+  updated?: string; // display date of the last real revision
 }
 
-export const blogPosts: BlogPost[] = [
+const guidePosts: BlogPost[] = [
   {
     slug: 'how-to-win-your-first-hackathon',
     title: 'How to win your first hackathon',
@@ -325,3 +330,12 @@ export const blogPosts: BlogPost[] = [
 <p>If you organise a hackathon or spot one we’ve missed, add it through <a href="/submit">Submit a hackathon</a>. If a listing looks wrong, tell us in the <a href="/community">community</a> so we can recheck it. A weekly digest and deadline reminders are coming soon; for now, save events to <a href="/saved">My hackathons</a> to keep track of them. For more on the process, see <a href="/how-it-works">How it works</a>.</p>`,
   },
 ];
+
+/** A post's display date ('18 Oct 2026') as an ISO date, for sitemaps and structured data. */
+export function postIsoDate(date: string): string {
+  const t = Date.parse(`${date} 00:00:00 GMT+0530`);
+  return Number.isNaN(t) ? new Date().toISOString() : new Date(t).toISOString();
+}
+
+/** Every post, newest first. */
+export const blogPosts: BlogPost[] = [...seoBlogPosts, ...guidePosts].sort((a, b) => Date.parse(postIsoDate(b.date)) - Date.parse(postIsoDate(a.date)));

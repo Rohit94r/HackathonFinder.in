@@ -3,6 +3,7 @@ import { User } from '@hackathonfinder/db';
 import { route, unauthorized } from '@/server/api';
 import { sendVerificationEmail } from '@/server/accountEmails';
 import { consumeToken } from '@/server/tokens';
+import { grantsAdmin } from '@/server/users';
 
 /** The link in the confirmation email lands here, then goes to the profile. */
 export const GET = route(
@@ -14,7 +15,9 @@ export const GET = route(
       target.searchParams.set('verified', 'expired');
       return NextResponse.redirect(target);
     }
-    await User.updateOne({ _id: userId }, { $set: { emailVerified: new Date() } });
+    const doc = await User.findByIdAndUpdate(userId, { $set: { emailVerified: new Date() } }, { new: true }).select('email emailVerified').lean();
+    // A confirmed ADMIN_EMAILS address becomes an admin now, not at sign-up.
+    if (grantsAdmin(doc)) await User.updateOne({ _id: userId }, { $set: { role: 'admin' } });
     target.searchParams.set('verified', '1');
     return NextResponse.redirect(target);
   },

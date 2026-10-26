@@ -1,15 +1,16 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { CheckCircle2 } from 'lucide-react';
 import MySubmissions from '@/components/submit/MySubmissions';
 import SubmitChooser from '@/components/submit/SubmitChooser';
 import { PageHero } from '@/components/ui';
 
-export const metadata: Metadata = {
-  title: 'Submit a hackathon',
-  description:
-    'Add a hackathon to HackathonFinder for free. Spotted one on Instagram, WhatsApp, Facebook or LinkedIn? Paste the link. Organizers can add full details.',
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Submit a Hackathon',
+  description: 'Add a hackathon to HackathonFinder for free. Spotted one on Instagram, WhatsApp, Facebook or LinkedIn? Paste the link. Organizers can add full details.',
+  path: '/submit',
+});
 
 const POINTS = [
   'Free for every organizer and student',

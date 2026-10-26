@@ -1,6 +1,4 @@
-// The four sample students shown in the preview. They live in the database (loaded by
-// packages/db/src/seed); this copy only backs the sample-story helpers in data/wins.ts.
-// They are made up and marked "Sample" everywhere; real profiles come with student accounts.
+// Result labels, the Person shape and avatar helpers shared by profiles, teams and wins.
 
 export type ResultKind = 'winner' | 'runner-up' | 'finalist' | 'participant';
 
@@ -42,81 +40,6 @@ export interface Person {
   record: HackathonRecord[];
 }
 
-export const PEOPLE: Person[] = [
-  {
-    handle: 'aarav-patil',
-    name: 'Aarav Patil',
-    image: '/photos/people/aarav-patil.jpg',
-    about: '3rd year, Computer Engineering',
-    college: 'Deccan Institute of Technology, Pune',
-    city: 'pune',
-    skills: ['Backend', 'ML / AI'],
-    bio: 'I build backends and small ML models. Looking for designers who care about details.',
-    github: 'https://github.com',
-    linkedin: 'https://www.linkedin.com',
-    joinedMonthsAgo: 14,
-    lookingForTeam: true,
-    record: [
-      { event: 'Monsoon Hack 2026', result: 'finalist', project: 'FloodWatch', monthsAgo: 2 },
-      { event: 'Deccan Hack 2025', result: 'winner', project: 'NoteQuiz AI', monthsAgo: 6 },
-      { event: 'Pune Open Build Night', result: 'participant', project: 'BusBuddy', monthsAgo: 10 },
-    ],
-  },
-  {
-    handle: 'sneha-kulkarni',
-    name: 'Sneha Kulkarni',
-    image: '/photos/people/sneha-kulkarni.jpg',
-    about: '2nd year, Information Technology',
-    college: 'Sahyadri College of Engineering, Pune',
-    city: 'pune',
-    skills: ['UI/UX design', 'Pitching', 'Frontend'],
-    bio: 'Designer who pitches. I like apps that make cities safer for women.',
-    linkedin: 'https://www.linkedin.com',
-    joinedMonthsAgo: 8,
-    lookingForTeam: true,
-    record: [
-      { event: 'Design Sprint Pune', result: 'runner-up', project: 'SafeRoute', monthsAgo: 3 },
-      { event: 'Ideathon West 2025', result: 'participant', project: 'Canteen Queue', monthsAgo: 7 },
-    ],
-  },
-  {
-    handle: 'dev-shah',
-    name: 'Dev Shah',
-    image: '/photos/people/dev-shah.jpg',
-    about: '3rd year, Information Technology',
-    college: 'Sabarmati Institute of Technology, Ahmedabad',
-    city: 'ahmedabad',
-    skills: ['Mobile', 'Backend'],
-    bio: 'Flutter and Firebase. Building money tools for small shops.',
-    github: 'https://github.com',
-    joinedMonthsAgo: 7,
-    lookingForTeam: true,
-    record: [
-      { event: 'Gujarat Fintech Day', result: 'runner-up', project: 'DukaanPay', monthsAgo: 2 },
-      { event: 'Mobile Dev Jam 2025', result: 'participant', project: 'ChaiCount', monthsAgo: 6 },
-    ],
-  },
-  {
-    handle: 'riya-sen',
-    name: 'Riya Sen',
-    image: '/photos/people/riya-sen.jpg',
-    about: '2nd year, Computer Science',
-    college: 'Hooghly Institute of Technology, Kolkata',
-    city: 'kolkata',
-    skills: ['Frontend', 'UI/UX design'],
-    bio: 'Pixel-pusher and Tailwind fan. I make demos look finished.',
-    linkedin: 'https://www.linkedin.com',
-    joinedMonthsAgo: 4,
-    lookingForTeam: true,
-    record: [{ event: 'Bengal Build Weekend', result: 'participant', project: 'BookSwap', monthsAgo: 3 }],
-  },
-];
-
-export function personByHandle(handle: string): Person | undefined {
-  return PEOPLE.find((p) => p.handle === handle);
-}
-
-/** A photo we can show: our own files (/photos, /uploads), an https link, or a local preview (blob:). */
 export function isPhotoUrl(image?: string | null): image is string {
   return Boolean(image && (/^https:\/\//i.test(image) || /^\/(photos|uploads)\/[\w./-]+$/.test(image) || image.startsWith('blob:')));
 }

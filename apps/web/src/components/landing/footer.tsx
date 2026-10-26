@@ -1,7 +1,7 @@
 import Link from 'next/link';
-import { Facebook, Instagram, Linkedin, Mail, MessageCircle, Send } from 'lucide-react';
+import { Facebook, Github, Instagram, Linkedin, Mail, MessageCircle, Send } from 'lucide-react';
 import { CITIES } from '@hackathonfinder/shared';
-import { siteConfig } from '@/data/siteConfig';
+import { activeSocials, siteConfig } from '@/data/siteConfig';
 import { LandingLogo } from './navbar';
 import { InlineStyle } from './inline-style';
 
@@ -24,14 +24,15 @@ const sectionHeadingStyles = {
   lineHeight: 1.2,
 } as const;
 
-const socials = [
+const socials = activeSocials([
   { label: 'Instagram', href: siteConfig.social.instagram, Icon: Instagram },
   { label: 'LinkedIn', href: siteConfig.social.linkedin, Icon: Linkedin },
+  { label: 'GitHub', href: siteConfig.social.github, Icon: Github },
   { label: 'Facebook', href: siteConfig.social.facebook, Icon: Facebook },
   { label: 'WhatsApp', href: siteConfig.social.whatsapp, Icon: MessageCircle },
   { label: 'Telegram', href: siteConfig.social.telegram, Icon: Send },
   { label: 'Email', href: `mailto:${siteConfig.email}`, Icon: Mail },
-];
+]);
 
 const columns = [
   {
@@ -57,13 +58,13 @@ const columns = [
       { label: 'Winning stories', href: '/wins' },
       { label: 'My profile', href: '/profile' },
       { label: 'WhatsApp community', href: siteConfig.social.whatsapp },
-      { label: 'Privacy', href: '/privacy' },
       { label: 'Blog & guides', href: '/blog' },
     ],
   },
   {
     title: 'HackathonFinder',
     links: [
+      { label: 'About', href: '/about' },
       { label: 'How it works', href: '/how-it-works' },
       { label: 'For organizers', href: '/organizers' },
       { label: 'Submit a hackathon', href: '/submit' },
@@ -121,6 +122,7 @@ export function LandingFooter() {
                 key={label}
                 href={href}
                 aria-label={label}
+                {...(href.startsWith('mailto:') ? {} : { target: '_blank', rel: 'noopener noreferrer' })}
                 className="footer-social-link"
                 style={{
                   display: 'flex',
@@ -149,7 +151,11 @@ export function LandingFooter() {
 
       <div style={{ paddingTop: 32, maxWidth: 1200, margin: '0 auto', display: 'flex', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
         <p style={{ fontSize: 16, color: 'var(--paper)', opacity: 0.8, margin: 0, lineHeight: 1.5 }}>
-          © {new Date().getFullYear()} {siteConfig.domain}. Made for students who build.
+          © {new Date().getFullYear()} {siteConfig.domain}. Founded by{' '}
+          <Link href="/about" className="footer-link" style={{ color: 'var(--paper)' }}>
+            {siteConfig.founder.name}
+          </Link>
+          . Made for students who build.
         </p>
         <p style={{ fontSize: 16, color: 'var(--paper)', opacity: 0.8, margin: 0, lineHeight: 1.5 }}>
           We link to official organizer pages. Always check details before you register.

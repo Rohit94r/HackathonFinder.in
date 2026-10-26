@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import {
   ArrowRight,
@@ -17,10 +18,11 @@ import { AGENTS, SOURCES, SOURCE_KIND_LABELS, STATUS_LABELS, type SourceKind, ty
 import StatusBadge from '@/components/hackathon/StatusBadge';
 import { PageHero, SectionHeading } from '@/components/ui';
 
-export const metadata: Metadata = {
-  title: 'How it works',
-  description: 'How HackathonFinder finds hackathons across the internet, cleans up the details and keeps listings accurate.',
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'How HackathonFinder Finds Every Hackathon',
+  description: 'How HackathonFinder finds hackathons across Unstop, Devfolio, Devpost, MLH, college sites and social media, cleans up the details and keeps listings accurate.',
+  path: '/how-it-works',
+});
 
 const AGENT_ICONS: Record<string, LucideIcon> = {
   scout: Radar,

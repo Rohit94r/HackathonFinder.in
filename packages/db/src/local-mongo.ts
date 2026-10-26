@@ -4,7 +4,7 @@ import path from 'node:path';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { disconnectDb } from './connect';
 import { loadEnv, repoRoot } from './env';
-import { seedDatabase } from './seed';
+import { setupDatabase } from './seed';
 
 // A real MongoDB for local development: no install, no Docker. Data lives in
 // .data/mongo at the repo root, so it survives restarts. Production uses MONGODB_URI.
@@ -38,7 +38,7 @@ async function main() {
   }
 
   process.env.MONGODB_URI = LOCAL_URI;
-  await seedDatabase();
+  await setupDatabase();
   await disconnectDb();
   // dev.mjs waits for this exact line before starting the website.
   console.log(`[mongo] Local MongoDB ready at ${LOCAL_URI} (data in .data/mongo)`);

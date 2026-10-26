@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import { PageHero } from '@/components/ui';
 import { termsHtml } from '@/data/legalData';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: 'Terms of use',
   description: 'The terms for using HackathonFinder.',
-};
+  path: '/terms',
+});
 
 export default function TermsPage() {
   return (

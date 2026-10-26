@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'My hackathons',
   description: 'Track the hackathons you saved, registered for and submitted to.',
+  robots: { index: false, follow: false },
 };
 
 export default async function SavedPage() {

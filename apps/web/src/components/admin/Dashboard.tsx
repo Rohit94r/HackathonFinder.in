@@ -6,7 +6,8 @@ import useSWR from 'swr';
 import { ArrowRight, RefreshCw } from 'lucide-react';
 import { BarList, TrafficChart } from './charts';
 import TrafficTiles from './TrafficTiles';
-import type { Breakdowns, ScrapeRunSummary, SeriesPoint, TrafficSummary } from './types';
+import type { ScrapeRunSummary, SeriesPoint, TrafficSummary } from './types';
+import { cn } from '@/lib/cn';
 import { Ago, Badge, Button, ErrorBox, Loading, num, PageHeader, Panel, Segmented, Table, Td, Th, When } from './ui';
 
 interface Period {
@@ -27,7 +28,6 @@ interface DashboardData {
   generatedAt: string;
   summaries: { today: Period; week: Period; month: Period };
   series: SeriesPoint[];
-  breakdowns: Breakdowns;
   topHackathons: { impressions: TopRow[]; views: TopRow[]; registerClicks: TopRow[] };
   ops: {
     live: number;
@@ -45,32 +45,34 @@ interface DashboardData {
   recentPosts: { kind: string; title: string; href: string; author: string; at: string }[];
 }
 
-const DEVICE_LABEL: Record<string, string> = { mobile: 'Phone', tablet: 'Tablet', desktop: 'Computer' };
-
+/** The four things a person may need to act on, as large linked numbers. */
 function Attention({ ops }: { ops: DashboardData['ops'] }) {
-  const rows = [
-    { label: 'Waiting for review', value: ops.pending + ops.pendingSubs, sub: `${num(ops.pending)} listings, ${num(ops.pendingSubs)} submissions`, href: '/admin/review' },
-    { label: 'Open reports', value: ops.openReports, sub: 'Wrong details, scams, broken links', href: '/admin/reports' },
-    { label: 'Live hackathons', value: ops.live, sub: 'Shown on the site now', href: '/admin/hackathons?state=live' },
-    { label: 'Accounts', value: ops.users, sub: 'Signed-up people, not sample students', href: '/admin/users' },
+  const cards = [
+    { label: 'Waiting for review', value: ops.pending + ops.pendingSubs, sub: `${num(ops.pending)} listings · ${num(ops.pendingSubs)} submissions`, href: '/admin/review', urgent: ops.pending + ops.pendingSubs > 0 },
+    { label: 'Open reports', value: ops.openReports, sub: 'Wrong details, scams, broken links', href: '/admin/reports', urgent: ops.openReports > 0 },
+    { label: 'Live hackathons', value: ops.live, sub: 'Shown on the site now', href: '/admin/hackathons?state=live', urgent: false },
+    { label: 'Accounts', value: ops.users, sub: 'Signed-up students', href: '/admin/users', urgent: false },
   ];
   return (
-    <ul className="divide-y divide-neutral-200">
-      {rows.map((r) => (
-        <li key={r.label}>
-          <Link href={r.href} className="flex items-center justify-between gap-3 py-2.5 hover:bg-neutral-50">
-            <span className="min-w-0">
-              <span className="block text-sm font-medium">{r.label}</span>
-              <span className="block text-xs text-neutral-500">{r.sub}</span>
-            </span>
-            <span className="flex items-center gap-2">
-              <span className="text-xl font-semibold tabular-nums">{num(r.value)}</span>
-              <ArrowRight className="h-4 w-4 text-neutral-400" aria-hidden="true" />
-            </span>
-          </Link>
-        </li>
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      {cards.map((c) => (
+        <Link
+          key={c.label}
+          href={c.href}
+          className={cn(
+            'group flex flex-col justify-between rounded-[3px] border bg-white p-4 transition hover:border-black',
+            c.urgent ? 'border-black' : 'border-neutral-300'
+          )}
+        >
+          <span className="flex items-center justify-between gap-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
+            {c.label}
+            <ArrowRight className="h-3.5 w-3.5 shrink-0 text-neutral-400 transition group-hover:translate-x-0.5 group-hover:text-black" aria-hidden="true" />
+          </span>
+          <span className="mt-3 text-3xl font-semibold tabular-nums">{num(c.value)}</span>
+          <span className="mt-1 text-xs text-neutral-500">{c.sub}</span>
+        </Link>
       ))}
-    </ul>
+    </div>
   );
 }
 
@@ -106,18 +108,38 @@ function ScrapeBox({ ops }: { ops: DashboardData['ops'] }) {
 
 const topRows = (rows: TopRow[]) => rows.map((r) => ({ label: r.title, value: r.value, href: r.id ? `/admin/hackathons/${r.id}` : undefined }));
 
-/** The admin home: how the site is doing and what needs a person. */
+type TopKey = keyof DashboardData['topHackathons'];
+const TOP_EMPTY: Record<TopKey, string> = {
+  impressions: 'No hackathon cards seen yet.',
+  views: 'No hackathon pages opened yet.',
+  registerClicks: 'No register clicks yet.',
+};
+
+/** A titled band of the dashboard. */
+function Section({ title, action, children }: { title: string; action?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <section className="space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-neutral-200 pb-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wide text-neutral-600">{title}</h2>
+        {action}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+/** The admin home: what needs a person first, then how the site is doing. Details live in Analytics. */
 export default function Dashboard() {
   const [period, setPeriod] = useState<'today' | 'week' | 'month'>('week');
+  const [top, setTop] = useState<TopKey>('views');
   const { data, error, isLoading, mutate, isValidating } = useSWR<DashboardData>('/api/admin/dashboard', { refreshInterval: 60_000, keepPreviousData: true });
 
   if (error && !data) return <ErrorBox>{error.message}</ErrorBox>;
   if (isLoading || !data) return <Loading>Loading the dashboard…</Loading>;
   const s = data.summaries[period];
-  const b = data.breakdowns;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <PageHeader
         title="Dashboard"
         description={
@@ -132,76 +154,64 @@ export default function Dashboard() {
         }
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <Segmented
-          label="Period"
-          value={period}
-          onChange={setPeriod}
-          options={[
-            { value: 'today', label: 'Today' },
-            { value: 'week', label: 'Last 7 days' },
-            { value: 'month', label: 'Last 30 days' },
-          ]}
-        />
-        <Link href="/admin/analytics" className="text-sm underline underline-offset-2">
-          More in Analytics
-        </Link>
-      </div>
-      <TrafficTiles current={s.current} previous={s.previous} compare={s.compare} />
+      <Section title="Needs attention">
+        <Attention ops={data.ops} />
+      </Section>
 
-      <Panel title="Visitors and page views, last 30 days">
-        <TrafficChart points={data.series} />
-      </Panel>
-
-      <div className="grid gap-5 lg:grid-cols-3">
-        <Panel title="Needs attention" className="lg:col-span-1">
-          <Attention ops={data.ops} />
-        </Panel>
-        <Panel title="Scraper">
-          <ScrapeBox ops={data.ops} />
-        </Panel>
-        <Panel title="Live hackathons by source">
-          <BarList rows={data.ops.liveBySource.map((r) => ({ label: r.name, value: r.count, href: `/admin/hackathons?state=live&source=${encodeURIComponent(r.source)}` }))} empty="No live listings yet." />
-        </Panel>
-      </div>
-
-      <h2 className="pt-2 text-base font-semibold">Last 7 days</h2>
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        <Panel title="Top pages">
-          <BarList rows={b.pages.map((p) => ({ label: p.path, value: p.views, href: p.path, external: true }))} unit="views" />
-        </Panel>
-        <Panel title="Where visitors came from">
-          <BarList rows={b.referrers.map((r) => ({ label: r.key, value: r.visitors }))} unit="visitors" empty="Everyone came directly (or the referrer was hidden)." />
-        </Panel>
-        <Panel title="Devices and browsers">
-          <BarList rows={b.devices.map((d) => ({ label: DEVICE_LABEL[d.key] ?? d.key, value: d.visitors }))} unit="visitors" />
-          <div className="mt-4">
-            <BarList rows={b.browsers.slice(0, 5).map((d) => ({ label: d.key, value: d.visitors }))} unit="visitors" />
+      <Section
+        title="Traffic"
+        action={
+          <div className="flex flex-wrap items-center gap-3">
+            <Segmented
+              label="Period"
+              value={period}
+              onChange={setPeriod}
+              options={[
+                { value: 'today', label: 'Today' },
+                { value: 'week', label: '7 days' },
+                { value: 'month', label: '30 days' },
+              ]}
+            />
+            <Link href="/admin/analytics" className="text-sm underline underline-offset-2">
+              Full analytics
+            </Link>
           </div>
+        }
+      >
+        <TrafficTiles current={s.current} previous={s.previous} compare={s.compare} compact />
+        <Panel title="Visitors and page views, last 30 days">
+          <TrafficChart points={data.series} />
         </Panel>
-        <Panel title="Countries and cities">
-          <BarList rows={b.countries.slice(0, 5).map((c) => ({ label: c.key, value: c.visitors }))} unit="visitors" empty="Places show once the site runs on a host that sends them (Vercel or Cloudflare)." />
-          {b.cities.length > 0 && (
-            <div className="mt-4">
-              <BarList rows={b.cities.slice(0, 5).map((c) => ({ label: c.key, value: c.visitors }))} unit="visitors" />
+      </Section>
+
+      <Section title="Listings">
+        <div className="grid gap-5 lg:grid-cols-3">
+          <Panel title="Scraper">
+            <ScrapeBox ops={data.ops} />
+          </Panel>
+          <Panel title="Live hackathons by source">
+            <BarList rows={data.ops.liveBySource.map((r) => ({ label: r.name, value: r.count, href: `/admin/hackathons?state=live&source=${encodeURIComponent(r.source)}` }))} empty="No live listings yet." />
+          </Panel>
+          <Panel title="Top hackathons, last 7 days">
+            <div className="mb-3">
+              <Segmented
+                label="Rank by"
+                value={top}
+                onChange={setTop}
+                options={[
+                  { value: 'views', label: 'Opens' },
+                  { value: 'registerClicks', label: 'Registers' },
+                  { value: 'impressions', label: 'Seen' },
+                ]}
+              />
             </div>
-          )}
-        </Panel>
-      </div>
+            <BarList rows={topRows(data.topHackathons[top])} empty={TOP_EMPTY[top]} />
+          </Panel>
+        </div>
+      </Section>
 
-      <div className="grid gap-5 lg:grid-cols-3">
-        <Panel title="Most seen hackathons (impressions)">
-          <BarList rows={topRows(data.topHackathons.impressions)} empty="No hackathon cards seen yet." />
-        </Panel>
-        <Panel title="Most opened hackathons">
-          <BarList rows={topRows(data.topHackathons.views)} empty="No hackathon pages opened yet." />
-        </Panel>
-        <Panel title="Most register clicks">
-          <BarList rows={topRows(data.topHackathons.registerClicks)} empty="No register clicks yet." />
-        </Panel>
-      </div>
-
-      <div className="grid gap-5 lg:grid-cols-2">
+      <Section title="People">
+        <div className="grid gap-5 lg:grid-cols-2">
         <Panel title="Recent sign-ups" flush action={<Link href="/admin/users" className="text-xs underline underline-offset-2">All users</Link>}>
           {data.recentUsers.length ? (
             <Table className="border-0">
@@ -259,7 +269,8 @@ export default function Dashboard() {
             <p className="text-sm text-neutral-500">Nothing posted yet.</p>
           )}
         </Panel>
-      </div>
+        </div>
+      </Section>
     </div>
   );
 }

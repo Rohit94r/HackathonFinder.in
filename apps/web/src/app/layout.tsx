@@ -5,6 +5,7 @@ import Providers from '@/components/Providers';
 import ScrollEffects from '@/components/motion/ScrollEffects';
 import Tracker from '@/components/analytics/Tracker';
 import { siteConfig } from '@/data/siteConfig';
+import { JsonLd, siteJsonLd } from '@/lib/seo';
 import { THEME_KEY } from '@/lib/theme';
 
 // Same pair as the landing page: Figtree for text, Young Serif for headings.
@@ -14,24 +15,59 @@ const display = Young_Serif({ weight: '400', subsets: ['latin'], variable: '--fo
 const THEME_SCRIPT = `document.documentElement.classList.add('reveal-ready');
 try { if (localStorage.getItem('${THEME_KEY}') === 'light') document.documentElement.dataset.theme = 'light'; } catch (e) {}`;
 
+const HOME_TITLE = `${siteConfig.name}: Find Hackathons in India & Near You (2026)`;
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name}: find every hackathon in one place`,
+    default: HOME_TITLE,
     template: `%s · ${siteConfig.name}`,
   },
   description: siteConfig.description,
+  applicationName: siteConfig.name,
+  keywords: [
+    'hackathons in India',
+    'hackathons near me',
+    'upcoming hackathons',
+    'hackathons 2026',
+    'online hackathons',
+    'hackathons for students',
+    'college hackathons',
+    'AI hackathons',
+    'coding competitions India',
+    'ideathons',
+    'Unstop hackathons',
+    'Devfolio hackathons',
+    'hackathon team finder',
+  ],
+  authors: [{ name: siteConfig.founder.name, url: `${siteConfig.url}/about` }],
+  creator: siteConfig.founder.name,
+  publisher: siteConfig.name,
+  category: 'technology',
+  // No canonical here: it would be inherited by every page. Each page sets its own (lib/seo.tsx).
+  formatDetection: { email: false, telephone: false, address: false },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1, 'max-video-preview': -1 },
+  },
   openGraph: {
-    title: `${siteConfig.name}: find every hackathon in one place`,
+    title: HOME_TITLE,
     description: siteConfig.description,
     url: siteConfig.url,
     siteName: siteConfig.name,
+    locale: 'en_IN',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: siteConfig.name,
+    title: HOME_TITLE,
     description: siteConfig.description,
+  },
+  // Search Console / Bing Webmaster verification codes, set in the host's environment.
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.BING_SITE_VERIFICATION ? { 'msvalidate.01': process.env.BING_SITE_VERIFICATION } : undefined,
   },
 };
 
@@ -41,6 +77,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* Before first paint: turn on scroll reveals, and apply light mode only if the visitor chose it (dark is the default). */}
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
+        <JsonLd data={siteJsonLd()} />
       </head>
       <body className="flex min-h-screen flex-col">
         <ScrollEffects />

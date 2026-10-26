@@ -5,7 +5,7 @@ import Avatar from '@/components/Avatar';
 import EventArt from '@/components/hackathon/EventArt';
 import { authorHref } from '@/components/community/model';
 import { RESULT_LABELS } from '@/data/people';
-import { postedLabel, storyAuthor, type WinResult, type WinStory } from '@/data/wins';
+import { postedLabel, type WinResult } from '@/data/wins';
 import { cn } from '@/lib/cn';
 import CheerButton from './CheerButton';
 import ResultBadge from './ResultBadge';
@@ -28,41 +28,23 @@ interface CardData {
   cheered: boolean;
 }
 
-function cardData(story: WinItem | WinStory, now: string): CardData {
-  if ('slug' in story) {
-    return {
-      slug: story.slug,
-      projectName: story.projectName,
-      hackathon: story.hackathon,
-      tagline: story.tagline,
-      city: story.city,
-      result: story.result,
-      theme: story.themes[0] ?? 'open-innovation',
-      coverUrl: story.coverUrl,
-      // Callers that render on the server pass `now`; the clock is a fallback for client-only lists.
-      posted: postedLabel(daysBetween(story.createdAt, now || new Date().toISOString())),
-      authorName: story.author.name,
-      authorImage: story.author.image,
-      authorHref: authorHref(story.author, story.mine),
-      cheers: story.cheers,
-      cheered: story.cheered,
-    };
-  }
-  // A sample story from @/data/wins (still passed by /u/[handle]); its id is the database slug.
-  const author = storyAuthor(story);
+function cardData(story: WinItem, now: string): CardData {
   return {
-    slug: story.id,
+    slug: story.slug,
     projectName: story.projectName,
     hackathon: story.hackathon,
     tagline: story.tagline,
     city: story.city,
     result: story.result,
     theme: story.themes[0] ?? 'open-innovation',
-    posted: postedLabel(story.daysAgo),
-    authorName: author.name,
-    authorHref: author.href,
+    coverUrl: story.coverUrl,
+    // Callers that render on the server pass `now`; the clock is a fallback for client-only lists.
+    posted: postedLabel(daysBetween(story.createdAt, now || new Date().toISOString())),
+    authorName: story.author.name,
+    authorImage: story.author.image,
+    authorHref: authorHref(story.author, story.mine),
     cheers: story.cheers,
-    cheered: false,
+    cheered: story.cheered,
   };
 }
 
@@ -73,7 +55,7 @@ export default function WinCard({
   mine = false,
   className,
 }: {
-  story: WinItem | WinStory;
+  story: WinItem;
   /** Server time from the list response, so "3 days ago" matches between server and browser. */
   now?: string;
   mine?: boolean;
@@ -84,10 +66,7 @@ export default function WinCard({
 
   return (
     <article
-      className={cn(
-        'group card relative flex min-w-0 flex-col overflow-hidden transition duration-200 hover:-translate-y-1 hover:shadow-lift',
-        className
-      )}
+      className={cn('group card relative flex min-w-0 flex-col overflow-hidden transition duration-200 hover:-translate-y-1 hover:shadow-lift', className)}
     >
       {c.coverUrl ? (
         // Student uploads come from our own storage or Cloudinary, in any size, so a plain img.

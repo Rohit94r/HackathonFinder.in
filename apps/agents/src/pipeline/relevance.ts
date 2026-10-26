@@ -13,7 +13,7 @@ const HACKATHON_TYPE =
 
 /** Titles that are clearly another kind of event. */
 const OTHER_TITLE =
-  /\b(robo ?(wars?|race|soccer|sumo|league)|robowars?|drones?|multirotors?|quadcopters?|rc (cars?|planes?|race)|races?|racing|grand prix|line follower|soccer|football|cricket|basketball|volleyball|badminton|kabaddi|chess|athletics|sports meet|e-?sports?|gaming tournament|bgmi|valorant|free fire|quiz\w*|treasure hunt|cultural|dance|music|singing|battle of bands|photography|film making|short film|fashion|drama|theatre|poetry|painting|debate|fest pass(es)?|pro ?show)\b/i;
+  /\b(robo ?(wars?|race|soccer|sumo|league)|robowars?|drones?|multirotors?|quadcopters?|rc (cars?|planes?|race)|aero ?model+ing|model rocketry|races?|racing|grand prix|line follower|soccer|football|cricket|basketball|volleyball|badminton|kabaddi|chess|athletics|sports meet|e-?sports?|gaming tournament|bgmi|valorant|free fire|quiz\w*|treasure hunt|cultural|dance|music|singing|battle of bands|photography|film making|short film|fashion|drama|theatre|poetry|painting|debate|fest pass(es)?|pro ?show)\b/i;
 
 /** Source tags that only describe non-hackathon events (Unstop's tags for drone and robot contests). */
 const OTHER_TAG = /\b(drone\w*|robotic\w*|robot\w*|multirotor|quadcopter|e-?sports?|online gaming|games? (and|&) sports|kinematics)\b/i;

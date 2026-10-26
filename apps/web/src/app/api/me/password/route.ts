@@ -30,7 +30,8 @@ export const POST = route(
     const problem = passwordProblem(next);
     if (problem) throw badRequest(problem, { next: problem });
 
-    await User.updateOne({ _id: doc._id }, { $set: { passwordHash: await hashPassword(next) } });
+    // Signs out every other session; this browser signs in again with the new password.
+    await User.updateOne({ _id: doc._id }, { $set: { passwordHash: await hashPassword(next), passwordChangedAt: new Date() } });
     // Old reset links shouldn't be able to undo this.
     await AuthToken.deleteMany({ userId: doc._id, type: 'reset-password', usedAt: null });
     await sendEmail({

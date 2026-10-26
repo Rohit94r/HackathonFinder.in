@@ -4,7 +4,7 @@ import HeroScene from '@/components/art/HeroScene';
 import NightSky from '@/components/art/NightSky';
 import ParallaxScene from '@/components/motion/ParallaxScene';
 import { Logo } from '@/components/Logo';
-import { siteConfig } from '@/data/siteConfig';
+import { activeSocials, siteConfig } from '@/data/siteConfig';
 
 const COLUMNS = [
   {
@@ -36,12 +36,12 @@ const COLUMNS = [
       { href: '/blog', label: 'Blog & guides' },
       { href: siteConfig.social.whatsapp, label: 'WhatsApp community' },
       { href: '/submit', label: 'Submit a hackathon' },
-      { href: '/privacy', label: 'Privacy' },
     ],
   },
   {
     title: 'Company',
     links: [
+      { href: '/about', label: 'About' },
       { href: '/how-it-works', label: 'How it works' },
       { href: '/organizers', label: 'For organizers' },
       { href: '/privacy', label: 'Privacy' },
@@ -50,14 +50,15 @@ const COLUMNS = [
   },
 ];
 
-const SOCIALS = [
+const SOCIALS = activeSocials([
   { href: siteConfig.social.instagram, label: 'Instagram' },
   { href: siteConfig.social.linkedin, label: 'LinkedIn' },
+  { href: siteConfig.social.github, label: 'GitHub' },
   { href: siteConfig.social.facebook, label: 'Facebook' },
   { href: siteConfig.social.whatsapp, label: 'WhatsApp' },
   { href: siteConfig.social.telegram, label: 'Telegram' },
   { href: siteConfig.social.discord, label: 'Discord' },
-];
+]);
 
 export default function Footer() {
   return (
@@ -90,6 +91,8 @@ export default function Footer() {
               <a
                 key={s.label}
                 href={s.href}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="rounded-full border border-surface/30 px-4 py-1.5 text-sm font-medium text-surface transition hover:border-accent hover:bg-accent hover:text-white"
               >
                 {s.label}
@@ -124,7 +127,13 @@ export default function Footer() {
 
       <div className="border-t border-surface/15">
         <div className="container-page flex flex-col gap-2 py-6 pb-24 text-xs text-surface/50 sm:flex-row sm:items-center sm:justify-between md:pb-6">
-          <p>© 2026 {siteConfig.domain}. Made for students who build.</p>
+          <p>
+            © {new Date().getFullYear()} {siteConfig.domain}. Founded by{' '}
+            <Link href="/about" className="underline-offset-2 hover:underline">
+              {siteConfig.founder.name}
+            </Link>
+            . Made for students who build.
+          </p>
           <p>We link to official organizer pages. Always check details before you register.</p>
         </div>
       </div>

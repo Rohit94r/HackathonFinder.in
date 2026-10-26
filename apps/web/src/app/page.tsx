@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { CITIES, SOURCES, placeName, sourceBySlug } from '@hackathonfinder/shared';
 import { landingSans, landingSerif } from '@/components/landing/fonts';
 import { LandingNavbar } from '@/components/landing/navbar';
@@ -13,12 +14,14 @@ import { ReadySection } from '@/components/landing/ready';
 import { LandingFooter } from '@/components/landing/footer';
 import type { PosterData } from '@/components/landing/art';
 import '@/components/landing/landing.css';
-import { siteConfig } from '@/data/siteConfig';
 import { applyFilters } from '@/lib/filters';
 import { deadlineLabel, formatDateRange } from '@/lib/format';
 import { cityCounts, closingSoon, openOnly, type HackathonView } from '@/lib/hackathons';
 import { getHackathons } from '@/server/hackathons';
 import { parseSmartQuery } from '@/lib/smartSearch';
+import { itemListJsonLd, JsonLd } from '@/lib/seo';
+
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 // Statuses depend on today, so render per request.
 export const dynamic = 'force-dynamic';
@@ -80,22 +83,9 @@ export default async function HomePage() {
     { value: SOURCES.length, label: 'sources we check', icon: 'sources' },
   ];
 
-  const websiteJsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: siteConfig.name,
-    url: siteConfig.url,
-    description: siteConfig.description,
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: `${siteConfig.url}/hackathons?q={search_term_string}`,
-      'query-input': 'required name=search_term_string',
-    },
-  };
-
   return (
     <div className={`landing ${landingSans.variable} ${landingSerif.variable}`}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }} />
+      {open.length > 0 && <JsonLd data={itemListJsonLd('Upcoming hackathons in India', open)} />}
       <LandingNavbar />
       <main id="main" tabIndex={-1} style={{ outline: 'none' }}>
         <HeroSection sourceCount={SOURCES.length} />

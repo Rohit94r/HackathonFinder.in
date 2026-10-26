@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { breadcrumbJsonLd, itemListJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
 import { notFound } from 'next/navigation';
 import { CITIES } from '@hackathonfinder/shared';
 import CityStrip from '@/components/cities/CityStrip';
@@ -15,10 +16,13 @@ export const dynamic = 'force-dynamic';
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const city = CITIES.find((c) => c.slug === params.slug);
   if (!city) return { title: 'City not found' };
-  return {
-    title: `Hackathons in ${city.name}`,
+  const year = new Date().getFullYear();
+  return pageMetadata({
+    title: `Hackathons in ${city.name} ${year}: Upcoming & Offline Events`,
     description: `Upcoming hackathons, ideathons and coding contests in ${city.name}, ${city.state}. Filter by deadline, team size, prize and theme, and find teammates from ${city.name}.`,
-  };
+    path: `/cities/${city.slug}`,
+    keywords: [`hackathons in ${city.name}`, `${city.name} hackathons ${year}`, `hackathons near me ${city.name}`, `offline hackathons ${city.name}`, `college hackathons ${city.name}`, `coding competitions ${city.name}`],
+  });
 }
 
 export default async function CityPage({
@@ -34,8 +38,19 @@ export default async function CityPage({
   const base = { ...DEFAULT_FILTERS, city: city.slug };
   const count = cityCounts(items)[city.slug] ?? 0;
 
+  const inCity = items.filter((h) => h.city === city.slug && h.status !== 'completed');
+
   return (
     <>
+      <JsonLd
+        data={[
+          breadcrumbJsonLd([
+            { name: 'Cities', path: '/cities' },
+            { name: city.name, path: `/cities/${city.slug}` },
+          ]),
+          itemListJsonLd(`Hackathons in ${city.name}`, inCity),
+        ]}
+      />
       <PageHero
         title="Hackathons in"
         accent={city.name}

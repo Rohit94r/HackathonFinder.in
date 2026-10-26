@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
+import { pageMetadata } from '@/lib/seo';
 import Explorer from '@/components/hackathon/Explorer';
 import { NEAR_ME_FILTERS, parseFilters } from '@/lib/filters';
 import { getHackathons } from '@/server/hackathons';
 
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  title: 'Hackathons near me',
-  description:
-    'Find the hackathons closest to you. Share your location or pick your city to see in-person events nearest first, plus online events you can join from anywhere.',
-};
+export const metadata: Metadata = pageMetadata({
+  title: 'Hackathons Near Me: Find Offline Hackathons Nearby',
+  description: 'Find the hackathons closest to you. Share your location or pick your city to see in-person events nearest first, plus online events you can join from anywhere.',
+  path: '/near-me',
+  keywords: ['hackathons near me', 'hackathon near me', 'offline hackathons near me', 'local hackathons', 'hackathons in my city'],
+});
 
 /** Straight to the listings: nearest in-person events first, then online ones. */
 export default async function NearMePage({

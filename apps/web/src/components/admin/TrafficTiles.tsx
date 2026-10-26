@@ -14,13 +14,30 @@ const TILES: { key: Key; label: string; hint: string; format?: (v: number | null
   { key: 'impressions', label: 'Hackathon impressions', hint: 'Hackathon cards seen on screen for at least a second' },
   { key: 'hackathonViews', label: 'Hackathon page views', hint: 'Opens of a hackathon’s own page' },
   { key: 'registerClicks', label: 'Register clicks', hint: 'Clicks on “Register on official site”' },
-  { key: 'signups', label: 'Sign-ups', hint: 'New accounts (not sample students)' },
+  { key: 'signups', label: 'Sign-ups', hint: 'New accounts' },
   { key: 'activeUsers', label: 'Active users', hint: 'Signed-in students who opened at least one page' },
 ];
 
+/** The five numbers the dashboard leads with; Analytics shows them all. */
+const COMPACT: Key[] = ['visitors', 'pageViews', 'hackathonViews', 'registerClicks', 'signups'];
+
 /** The headline numbers for a period, each compared with the period before it. */
-export default function TrafficTiles({ current, previous, compare, extra = false }: { current: TrafficSummary; previous: TrafficSummary; compare: string; extra?: boolean }) {
-  const tiles = extra
+export default function TrafficTiles({
+  current,
+  previous,
+  compare,
+  extra = false,
+  compact = false,
+}: {
+  current: TrafficSummary;
+  previous: TrafficSummary;
+  compare: string;
+  extra?: boolean;
+  compact?: boolean;
+}) {
+  const tiles = compact
+    ? TILES.filter((t) => COMPACT.includes(t.key))
+    : extra
     ? [...TILES, { key: 'logins' as Key, label: 'Sign-ins', hint: 'Times anyone signed in' }, { key: 'clicks' as Key, label: 'Tracked clicks', hint: 'Clicks on elements marked data-hf-click' }]
     : TILES;
   return (

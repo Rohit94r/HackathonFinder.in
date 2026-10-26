@@ -12,6 +12,7 @@ function errorText(code: string | null | undefined): string {
   if (!code) return '';
   if (code === 'CredentialsSignin') return 'That email and password don’t match.';
   if (code === 'AccountBanned') return 'This account is suspended.';
+  if (code === 'TooManyAttempts') return 'Too many sign-in attempts. Wait 15 minutes and try again.';
   if (code === 'AccessDenied') return 'That account can’t sign in.';
   return 'Signing in didn’t work. Please try again.';
 }

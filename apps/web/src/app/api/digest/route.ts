@@ -16,9 +16,12 @@ export const POST = route(
     const body = await readBody(req, Body);
     const existing = await DigestSubscriber.findOne({ email: body.email });
     if (existing?.confirmedAt && !existing.unsubscribedAt) {
-      existing.cities = body.cities.length ? body.cities : existing.cities;
-      existing.themes = body.themes.length ? body.themes : existing.themes;
-      await existing.save();
+      // Only the address's owner may change what a confirmed subscription sends.
+      if (user?.email && user.email.toLowerCase() === body.email) {
+        existing.cities = body.cities.length ? body.cities : existing.cities;
+        existing.themes = body.themes.length ? body.themes : existing.themes;
+        await existing.save();
+      }
       return { status: 'subscribed' as const };
     }
     const sub =
@@ -27,7 +30,8 @@ export const POST = route(
     sub.cities = body.cities;
     sub.themes = body.themes;
     sub.unsubscribedAt = null;
-    if (user && !sub.userId) sub.userId = user.id as never;
+    // Linked to an account only when it's that account's own address.
+    if (user && !sub.userId && user.email?.toLowerCase() === body.email) sub.userId = user.id as never;
     await sub.save();
     await sendDigestConfirmation(sub);
     return { status: 'confirm' as const };

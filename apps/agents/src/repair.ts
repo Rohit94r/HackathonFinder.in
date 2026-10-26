@@ -87,6 +87,10 @@ export async function repairListings(opts: { dryRun?: boolean; log?: (line: stri
       // Images come from the next scrape (stored on Cloudinary); here a placeholder is only removed.
       d.imageUrl = undefined;
       d.sourceImageUrl = undefined;
+      // The place on the listing was settled by the map lookup ("Kharghar" → Mumbai); the copy follows it.
+      d.mode = doc.mode;
+      d.city = doc.city || undefined;
+      d.cityName = doc.cityName || undefined;
       writeCopy(d);
       const up = derivedUpdate(doc, d, { dates: false });
       if (!up.changed.length) continue;
