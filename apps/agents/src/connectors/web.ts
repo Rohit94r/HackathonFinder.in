@@ -183,9 +183,13 @@ async function crawlFromPage(
       if (!key || seen.has(key)) continue;
       seen.add(key);
       pages++;
+      ctx.log(`web: crawl ${pages}/${opts.maxPages} — ${hostOf(link)}`);
+      ctx.progress?.(`Web search: crawling page ${pages}/${opts.maxPages}`);
       try {
         const page = await ctx.http.fetchHtml(link, { timeoutMs: 15_000, maxBytes: 3 * 1024 * 1024 });
-        candidates.push(...pageCandidates(page, { now: opts.now, city: opts.city, listingSource: opts.listingSource }));
+        const found = pageCandidates(page, { now: opts.now, city: opts.city, listingSource: opts.listingSource });
+        candidates.push(...found);
+        if (found.length) ctx.log(`web: crawl ${pages} — ${found.length} event${found.length === 1 ? '' : 's'} on ${hostOf(link)}`);
         if (item.depth + 1 < opts.depth && shouldCrawl(page)) queue.push({ page, depth: item.depth + 1 });
       } catch (err) {
         if (err instanceof RobotsDisallowedError) ctx.log(`web: ${hostOf(link)} disallows crawling; skipped`);
@@ -261,6 +265,11 @@ export const web: Connector = {
       ...extraQueries.map((query) => ({ query, kind: 'india' as const, weight: 200, city: undefined })),
       ...discoveryQueries(ctx.now, { cities: rotatingCities(ctx.now, perRun), max: maxQueries, deep }),
     ];
+    const say = (line: string) => ctx.progress?.(line);
+
+    const plannedSitemaps = sitemaps ? sitemapSeeds : 0;
+    ctx.log(`web: ${deep ? 'deep scan' : 'scan'} — ${queries.length} queries, ${perRun} cities, ${plannedSitemaps} sitemap seeds, ${maxPages} page budget`);
+    say('Web search: starting');
 
     // 1. Search. Results are collected first, then visited best-first, so one
     //    high-value query cannot starve the rest of the matrix.
@@ -270,8 +279,14 @@ export const web: Connector = {
     let failures = 0;
     let searchBlocked: BlockedError | undefined;
 
-    search: for (const q of queries) {
-      if (results.length >= maxPages * 4) break;
+    search: for (let qi = 0; qi < queries.length; qi++) {
+      const q = queries[qi];
+      if (results.length >= maxPages * 4) {
+        ctx.log(`web: result cap reached (${results.length}); stopping search`);
+        break;
+      }
+      ctx.log(`web: search ${qi + 1}/${queries.length} — ${q.query}`);
+      say(`Web search: query ${qi + 1}/${queries.length}`);
       let querySearched = false;
       for (let page = 0; page < searchPages; page++) {
         try {
@@ -284,6 +299,7 @@ export const web: Connector = {
             seenResults.add(key);
             results.push({ r, city: q.city });
           }
+          ctx.log(`web: search ${qi + 1}/${queries.length}${searchPages > 1 ? ` page ${page + 1}` : ''} → ${list.length} results (${results.length} kept)`);
           if (list.length < 8) break;
         } catch (err) {
           failures++;
@@ -299,6 +315,8 @@ export const web: Connector = {
       }
       if (querySearched) searched++;
     }
+    ctx.log(`web: search finished — ${searched}/${queries.length} queries, ${results.length} results`);
+    say(`Web search: reading ${results.length} result pages`);
 
     results.sort((a, b) => resultScore(b.r, b.city) - resultScore(a.r, a.city));
     // Admin-supplied seed pages go first; they are the strongest signal that a
@@ -330,6 +348,8 @@ export const web: Connector = {
       const listingSource = sourceForResult(r.url, provider.listingSource);
       let page: HtmlPage | undefined;
       pages++;
+      ctx.log(`web: page ${pages}/${maxPages} — ${hostOf(r.url)}${city ? ` (${city.name})` : ''}`);
+      say(`Web search: page ${pages}/${maxPages}`);
       try {
         page = await ctx.http.fetchHtml(r.url, { timeoutMs: 15_000, maxBytes: 3 * 1024 * 1024 });
       } catch (err) {
@@ -340,7 +360,10 @@ export const web: Connector = {
       if (!page) {
         if (snippets) {
           const s = snippetCandidate(r, { now: ctx.now, city, listingSource });
-          if (s) add([s]);
+          if (s) {
+            add([s]);
+            ctx.log(`web: snippet fallback — ${s.title}`);
+          }
         }
         continue;
       }
@@ -360,11 +383,16 @@ export const web: Connector = {
         candidates = [...candidates, ...crawled.candidates];
         crawlPages += crawled.pages;
         pages += crawled.pages;
+        ctx.log(`web: list page ${hostOf(page.url)} → ${crawled.candidates.length} leads from ${crawled.pages} crawled pages`);
       }
       if (!candidates.length && snippets) {
         const s = snippetCandidate(r, { now: ctx.now, city, listingSource });
-        if (s) candidates = [s];
+        if (s) {
+          candidates = [s];
+          ctx.log(`web: snippet fallback — ${s.title}`);
+        }
       }
+      if (candidates.length) ctx.log(`web: ${candidates.length} event${candidates.length === 1 ? '' : 's'} on ${hostOf(page.url)}`);
       add(candidates);
     }
 
@@ -375,6 +403,8 @@ export const web: Connector = {
       for (const seed of sitemapSeedsForRun(ctx.now, sitemapSeeds)) {
         if (sitemapPages >= maxSitemapPages || out.length >= ctx.limit) break;
         let urls: string[] = [];
+        ctx.log(`web: sitemap ${seed.name} — reading sitemaps/RSS`);
+        say(`Web search: sitemap ${seed.name}`);
         try {
           urls = await discoverSitemapUrls(ctx.http, seed.origin, {
             maxSitemaps: 8,
@@ -386,16 +416,20 @@ export const web: Connector = {
           ctx.log(`web: ${seed.name} sitemap skipped (${errorMessage(err)})`);
           continue;
         }
-        ctx.log(`web: ${seed.name} sitemap → ${urls.length} event URLs`);
+        ctx.log(`web: sitemap ${seed.name} → ${urls.length} event URLs`);
         for (const url of urls) {
           if (sitemapPages >= maxSitemapPages || out.length >= ctx.limit) break;
           const key = normalizeUrl(url);
           if (!key || visitedPages.has(key) || skipHost(url)) continue;
           visitedPages.add(key);
           sitemapPages++;
+          ctx.log(`web: sitemap page ${sitemapPages}/${maxSitemapPages} — ${hostOf(url)}`);
+          say(`Web search: sitemap page ${sitemapPages}/${maxSitemapPages}`);
           try {
             const page = await ctx.http.fetchHtml(url, { timeoutMs: 15_000, maxBytes: 3 * 1024 * 1024 });
-            add(pageCandidates(page, { now: ctx.now, listingSource: seed.source }));
+            const found = pageCandidates(page, { now: ctx.now, listingSource: seed.source });
+            add(found);
+            if (found.length) ctx.log(`web: sitemap page ${sitemapPages} — ${found.length} event${found.length === 1 ? '' : 's'}`);
           } catch (err) {
             if (err instanceof RobotsDisallowedError) ctx.log(`web: ${hostOf(url)} disallows crawling; skipped`);
             else ctx.log(`web: skipped ${hostOf(url)} (${errorMessage(err)})`);

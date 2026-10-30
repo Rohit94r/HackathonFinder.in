@@ -158,6 +158,8 @@ describe('deep web connector', () => {
       'https://college.example/hackathon/two': () => new Response(eventPage('Hack Two 2026'), { headers: { 'content-type': 'text/html' } }),
       'https://college.example/fest': () => new Response(listPage, { headers: { 'content-type': 'text/html' } }),
     });
+    const logs: string[] = [];
+    const progress: string[] = [];
     const ctx: ConnectorContext = {
       http,
       source: {
@@ -168,10 +170,13 @@ describe('deep web connector', () => {
       limit: 10,
       now: NOW,
       env: { GOOGLE_CSE_KEY: 'key', GOOGLE_CSE_CX: 'cx' } as NodeJS.ProcessEnv,
-      log: () => {},
+      log: (line) => logs.push(line),
+      progress: (line) => progress.push(line),
       warn: () => {},
     };
     const out = await web.fetch(ctx);
+    expect(logs.some((line) => line.includes('search 1/'))).toBe(true);
+    expect(progress.some((line) => line.startsWith('Web search:'))).toBe(true);
     expect(out.map((c) => c.title)).toContain('Hack One 2026');
     expect(out.map((c) => c.title)).toContain('Hack Two 2026');
     expect(new Set(out.map((c) => c.url)).size).toBe(out.length);

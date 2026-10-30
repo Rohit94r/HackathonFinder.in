@@ -739,6 +739,7 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
             now,
             env,
             log: (line) => rec.log(line),
+            progress: (line) => rec.step(line),
             warn: (line) => {
               s.warnings++;
               rec.error(line);

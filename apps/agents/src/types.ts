@@ -85,6 +85,8 @@ export interface ConnectorContext {
   now: Date;
   env: NodeJS.ProcessEnv;
   log: (message: string) => void;
+  /** A short, human-readable line for the live run header (the detailed log goes through `log`). */
+  progress?: (message: string) => void;
   /** A partial failure (one bad item, one page that failed). The run goes on and ends "partial". */
   warn: (message: string) => void;
 }
