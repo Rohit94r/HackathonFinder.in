@@ -20,8 +20,8 @@ export const metadata: Metadata = pageMetadata({
 export const dynamic = 'force-dynamic';
 
 const PRINCIPLES = [
-  { title: 'Every source, one list', text: 'Hackathons are posted on platforms, college sites, Instagram, LinkedIn and WhatsApp groups. We check all of them so you only have to check one place.' },
-  { title: 'Accurate before big', text: 'Every listing links to the organizer’s official page, and deadlines are re-checked. When something looks wrong, a person reviews it before students see it.' },
+  { title: 'Many sources, one list', text: 'We collect discoveries from public platforms, college sites, web search and community submissions, then link each listing back to its source.' },
+  { title: 'Open about verification', text: 'Complete public discoveries publish automatically and stay marked unverified until checked. Confirm details with the organizer, and report scams or wrong information so an admin can remove or correct them.' },
   { title: 'Free for students', text: 'Searching, saving, reminders, Team Finder and the community are free. Organizers can list their events for free too.' },
   { title: 'Built for India', text: 'Cities, colleges, rupee prizes, IST deadlines and offline events near you come first, with online events you can join from anywhere.' },
 ];

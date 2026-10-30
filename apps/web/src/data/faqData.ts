@@ -26,7 +26,7 @@ export const studentFaqs: FaqItem[] = [
   },
   {
     q: 'How do you know the details are correct?',
-    a: 'Our agents check each listing’s link, dates and deadline, and every listing shows its source and when it was last checked. Organizer details can still change, so always confirm on the official page before you register.',
+    a: 'Complete discoveries publish automatically, so a listing may not have been checked by a person. Each one shows its source and last-checked time; confirm the event on the organizer’s page and report anything suspicious so our admins can review or remove it.',
   },
   {
     q: 'I don’t have a team. Can I still join?',

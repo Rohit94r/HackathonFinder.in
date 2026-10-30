@@ -1,9 +1,10 @@
 # Discovery agents
 
-The engine that finds hackathons and keeps HackathonFinder's listings real and current. It reads
-hackathon platforms, event sites and web search, turns what it finds into listings (dates in India
-time, place on the map, banner copied to Cloudinary, our own short summary), merges the same event
-found on several sites into one listing, and publishes it, or puts it in the admin review queue.
+The engine that finds hackathons and keeps HackathonFinder's listings current. It reads hackathon
+platforms, event sites and web search, turns complete discoveries into listings (dates in India time,
+place on the map, banner copied to Cloudinary, our own short summary), merges the same event found on
+several sites into one listing, and publishes complete candidates automatically. Admins can remove
+scams and correct listings after reports.
 
 One function, `runScrape()` in `src/run.ts`, does a whole run. The CLI, the website's **Scrape now**
 button, the scheduled runs and the cron route all call it.
@@ -19,16 +20,17 @@ button, the scheduled runs and the cron route all call it.
 | HackerEarth (`hackerearth`) | Public events feed | — | Online hackathons and challenges, cover images |
 | lablab.ai (`lablab`) | schema.org Events on the newest event pages | — | Online AI hackathons, banners |
 | KnowAFest (`knowafest`) | Public event-search JSON API, plus schema.org Event on each event page | — | College hackathons across India, posters, the organizer's own registration form |
-| Web search (`web`) | Google Custom Search (`GOOGLE_CSE_KEY` + `GOOGLE_CSE_CX`) or Brave Search (`BRAVE_SEARCH_API_KEY`) when set, else DuckDuckGo's HTML page; then each result page through the polite client | optional | College and event pages for our cities; results go to review |
-| Instagram (`instagram`) | Public posts found by web search (`site:instagram.com …`); with `INSTAGRAM_ACCESS_TOKEN` + `INSTAGRAM_BUSINESS_ACCOUNT_ID`, also hashtag posts from Meta's official Graph API | optional | Leads for the review queue (post link, caption dates, QR registration) |
-| LinkedIn (`linkedin`), Facebook (`facebook`) | Public posts and events found by web search | optional | Leads for the review queue |
+| Web search (`web`) | Google Custom Search (`GOOGLE_CSE_KEY` + `GOOGLE_CSE_CX`) or Brave Search (`BRAVE_SEARCH_API_KEY`) when set, else DuckDuckGo's HTML page; then each result page through the polite client | optional | College and event pages for our cities, plus public Hack2skill, DoraHacks, Kaggle, Luma and Eventbrite pages |
+| Instagram (`instagram`) | Public posts found by web search (`site:instagram.com …`); with `INSTAGRAM_ACCESS_TOKEN` + `INSTAGRAM_BUSINESS_ACCOUNT_ID`, also hashtag posts from Meta's official Graph API | optional | Post links, dates and QR registration; complete discoveries publish automatically |
+| LinkedIn (`linkedin`), Facebook (`facebook`) | Public posts and events found by web search | optional | Public event leads; complete discoveries publish automatically |
 
 DuckDuckGo often shows crawlers a challenge page. We stop at the first one (no retries, no
 CAPTCHA solving, no browser user agent), mark the source **blocked** and try again next run. For
 reliable web and social discovery add a Google Custom Search or Brave Search API key.
 
-Not included yet: Hack2skill (its listings load with JavaScript only), DoraHacks (behind a bot
-challenge), Kaggle and Eventbrite (need keys; Eventbrite has no public event search any more).
+There are no direct connectors for Hack2skill, DoraHacks, Kaggle, Eventbrite or Luma yet. Web search
+now queries their public indexed pages and reads only pages the polite client is allowed to fetch;
+search coverage can still miss listings, and pages protected by a bot challenge remain unavailable.
 
 ## Running it
 
@@ -87,17 +89,19 @@ run.
 4. **Validate**: title, dates, deadline, a registration link and the mode are required; ended events,
    new events whose registration closed, and in-person or hybrid events outside India are rejected.
    Events that aren't hackathon-type are rejected too (see below). Rules flag high fees, URL
-   shorteners, payment links, odd prizes and spam words.
+   shorteners, payment links, odd prizes and spam words; those flags are informational and do not
+   stop a complete candidate from publishing.
 5. **Enrich**: in-person events in India are placed on the map with OpenStreetMap Nominatim (venue
    first, then the city; one request a second; every answer cached in `GeoCache`; a hit in another
    state is ignored). The banner (else the organizer's logo) is copied to Cloudinary. When
    registration is by QR code, the poster's QR is read and its link used.
 6. **Dedupe** against recent listings (never the sample listings): same source id, same page, same
    registration link, or a very similar title starting within two days in the same city.
-7. **Publish**: new listings from platforms and event sites go **live** when nothing is flagged;
-   everything else (search results, social posts, flagged listings) goes to the review queue
-   (`pending`). Existing listings get fresh dates, missing fields and the new source; titles,
-   summaries and admin edits are never overwritten, and removed listings stay removed.
+7. **Publish**: every structurally complete candidate goes **live**, including low-confidence results,
+   search results, social leads and flagged listings. Listings remain marked unverified until a person
+   checks them; visitors can report scams and admins can remove or restore them. Candidates missing
+   required fields or failing date/relevance rules stay out. Existing pending scraper listings are
+   published when a later run can validate them; rejected and removed listings stay out.
 
 ## Accuracy rules
 

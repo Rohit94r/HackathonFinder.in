@@ -2,8 +2,7 @@ import { hostOf } from '../text';
 import type { LinkCheck } from '../http';
 import type { Draft } from './draft';
 
-// Rule-based trust checks. Each returns flags for the review queue; a flagged new
-// listing waits for a person instead of going live.
+// Rule-based trust checks. Flags stay visible to admins and users, but discoveries publish automatically.
 
 const SHORTENERS = new Set(['bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'rb.gy', 'cutt.ly', 'is.gd', 'ow.ly', 'buff.ly', 'shorturl.at', 'tiny.cc', 'lnkd.in', 'rebrand.ly', 't.ly', 'bl.ink', 'shorte.st']);
 const PAYMENT_HOSTS = /(^|\.)(rzp\.io|razorpay\.me|pages\.razorpay\.com|paytm\.me|p\.paytm\.me|instamojo\.com|imjo\.in|paypal\.me|cashfree\.com|payu\.in|phonepe\.com|gpay\.app\.goo\.gl)$/;

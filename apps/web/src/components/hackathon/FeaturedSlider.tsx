@@ -48,7 +48,7 @@ export default function FeaturedSlider({ items }: { items: HackathonView[] }) {
             </li>
           </ul>
           <p className="mt-6 text-sm text-ink/60">by {h.organizer}</p>
-          <Link href={`/hackathons/${h.slug}`} className="btn-primary mt-6">
+          <Link href={`/hackathons/${h.slug}`} prefetch={false} className="btn-primary mt-6">
             See details
           </Link>
         </div>

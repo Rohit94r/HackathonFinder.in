@@ -237,7 +237,7 @@ class JobQueue {
 }
 
 /** Bump when the pipeline's rules change, so items rejected under the old rules are read again. */
-export const PIPELINE_VERSION = 2;
+export const PIPELINE_VERSION = 3;
 
 /** What the content hash covers: what the source said (not when we asked), and the rules version. */
 function candidateHash(c: RawCandidate): string {
@@ -505,8 +505,9 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
     };
 
     const create = async (j: Job, d: Draft): Promise<{ doc: Pick<IHackathon, '_id' | 'slug'>; live: boolean }> => {
-      // Hackathon platforms and event sites with structured data go live when nothing is flagged; leads wait for a person.
-      const live = (j.s.connector.kind === 'platform' || j.s.connector.kind === 'events') && d.flags.length === 0 && d.confidence >= 0.6;
+      // Publish every structurally complete candidate. Flags and confidence stay visible to admins,
+      // but they no longer decide whether an event is discoverable; users can report scams and admins can remove them.
+      const live = true;
       const fields = {
         title: d.title,
         tagline: d.tagline,
@@ -597,6 +598,12 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
       if (at >= 0) refs[at] = { ...refs[at], url: ref.url, lastSeenAt: now };
       else refs.push({ ...ref, firstSeenAt: now, lastSeenAt: now });
       const sources = (doc.sources ?? []).includes(ref.source) ? doc.sources : [...(doc.sources ?? []), ref.source];
+      // A candidate that now passes the required field/date checks becomes public even if an older
+      // pipeline version had left it pending for low confidence or a review flag.
+      if (doc.state === 'pending') {
+        set.state = 'live';
+        changed.push('state');
+      }
       for (const k of unset) delete set[k];
       if (writes) {
         await Hackathon.updateOne(

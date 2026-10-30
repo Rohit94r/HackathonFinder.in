@@ -16,7 +16,6 @@ const SKIP_HOSTS = [
   'mlh.com',
   'hackerearth.com',
   'lablab.ai',
-  'dorahacks.io',
   'instagram.com',
   'facebook.com',
   'fb.com',

@@ -20,7 +20,7 @@ export default function LoginForm({
   next: string | null;
   /** next-auth's ?error= code, e.g. after a failed Google sign-in. */
   error?: string | null;
-  notice?: 'deleted' | 'reset' | null;
+  notice?: 'deleted' | 'reset' | 'details-limit' | null;
 }) {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -72,6 +72,7 @@ export default function LoginForm({
           <FormNotice tone="info">Your account is deleted. Thanks for being part of HackathonFinder. You can make a new one any time.</FormNotice>
         )}
         {notice === 'reset' && <FormNotice tone="success">Your password is changed. Sign in with the new one.</FormNotice>}
+        {notice === 'details-limit' && <FormNotice tone="info">You’ve explored five hackathon pages. Sign in or create a free account to keep browsing.</FormNotice>}
         {error && <FormNotice tone="error">{error}</FormNotice>}
       </div>
 

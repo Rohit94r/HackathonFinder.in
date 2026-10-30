@@ -305,6 +305,7 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
 
                 <div className="mt-6 border-t border-ink/10 pt-5 text-sm text-ink/70">
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-ink/60">Found on</p>
+                  {!h.verified && <p className="mb-3 rounded-xl bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900 dark:bg-amber-400/10 dark:text-amber-100">This listing has not been independently verified. Check the organizer page before paying or sharing personal details; report it here if it looks suspicious.</p>}
                   <div className="flex flex-wrap gap-1.5">
                     {h.sources.map((s) => (
                       <span key={s} className="rounded-md bg-ink/5 px-2 py-1 text-xs font-medium text-ink/80">

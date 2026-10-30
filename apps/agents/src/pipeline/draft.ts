@@ -50,7 +50,7 @@ export interface Draft {
   /** SOURCES slug shown on the listing. */
   listingSource: string;
   confidence: number;
-  /** Problems for the review queue. Any flag keeps a new listing out of "live". */
+  /** Review signals retained for admins and users; flags do not block publishing. */
   flags: string[];
   /** What the pipeline did and assumed, stored on the RawItem. */
   notes: string[];

@@ -23,6 +23,7 @@ export default function HackathonCard({ h, distanceKm, className }: HackathonCar
   return (
     <Link
       href={`/hackathons/${h.slug}`}
+      prefetch={false}
       data-hf-impression={h.slug}
       className={cn(
         'group card flex flex-col overflow-hidden transition duration-200 hover:-translate-y-1 hover:shadow-lift',
@@ -50,6 +51,7 @@ export default function HackathonCard({ h, distanceKm, className }: HackathonCar
             <span aria-hidden="true">·</span>
             <span className="truncate">{h.organizer}</span>
             {h.verified && <BadgeCheck className="h-3.5 w-3.5 text-ink" aria-label="Verified organizer" />}
+            {!h.verified && <span className="rounded bg-ink/5 px-1.5 py-0.5 text-[10px] font-semibold text-ink/60">Unverified</span>}
           </p>
           <h3 className="text-lg font-bold leading-snug text-ink group-hover:underline">{h.title}</h3>
           <p className="mt-1 line-clamp-2 text-sm text-ink/70">{h.tagline}</p>

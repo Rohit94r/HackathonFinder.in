@@ -12,12 +12,25 @@ import { QR_WORDS, datesFromText, leadCity, looksLikeListPage, rotatingCities, s
 // search (Google Custom Search with keys, DuckDuckGo without), then visit each
 // result page through the polite client, so its robots.txt decides. Pages with a
 // schema.org Event give dates and place directly; other pages are read with simple
-// rules. Everything found this way waits in the review queue.
+// rules. Complete candidates are published automatically, with any review flags retained.
 
-const MAX_PAGES = 12;
-const FLAG = 'Found by web search — check the details before publishing';
+const MAX_PAGES = 24;
+const FLAG = 'Found by web search — details not independently verified';
 
-/** Queries for this run: two per city for a few rotating cities, plus India-wide ones. */
+const PLATFORM_SOURCE: [RegExp, string][] = [
+  [/\bhack2skill\.com$/i, 'hack2skill'],
+  [/\bdorahacks\.io$/i, 'dorahacks'],
+  [/\bkaggle\.com$/i, 'kaggle'],
+  [/\beventbrite\.[a-z.]+$/i, 'eventbrite'],
+  [/\blu\.ma$/i, 'luma'],
+];
+
+function sourceForResult(url: string, fallback: string): string {
+  const host = hostOf(url).replace(/^www\./i, '');
+  return PLATFORM_SOURCE.find(([pattern]) => pattern.test(host))?.[1] ?? fallback;
+}
+
+/** Queries for this run: rotating Indian cities, nationwide results, and public event-platform pages. */
 export function webQueries(now: Date, cities: City[]): { query: string; city?: City }[] {
   const [year, next] = searchYears(now);
   const out: { query: string; city?: City }[] = [];
@@ -27,6 +40,13 @@ export function webQueries(now: Date, cities: City[]): { query: string; city?: C
   }
   out.push({ query: `hackathon India ${next ?? year} registration open` });
   out.push({ query: `ideathon ${year} India registration` });
+  out.push(
+    { query: `site:hack2skill.com hackathon ${year} registration` },
+    { query: `site:dorahacks.io hackathon ${year} registration` },
+    { query: `site:kaggle.com/competitions hackathon ${year}` },
+    { query: `site:eventbrite.com hackathon ${year} India registration` },
+    { query: `site:lu.ma hackathon ${year} India` }
+  );
   return out;
 }
 
@@ -91,7 +111,7 @@ export const web: Connector = {
   kind: 'search',
   defaultSchedule: '0 2,14 * * *',
   description:
-    'Searches the web for hackathons in our cities (Google Custom Search or Brave Search when their keys are set, DuckDuckGo otherwise) and reads the event pages it finds. Results wait in the review queue.',
+    'Searches the web for hackathons in our cities and public event platforms (Google Custom Search or Brave Search when configured, DuckDuckGo otherwise), then reads pages allowed by robots.txt.',
   optionalEnv: SEARCH_KEYS,
   trust: 0.5,
   extract: 'always',
@@ -126,7 +146,7 @@ export const web: Connector = {
       visited++;
       try {
         const page = await ctx.http.fetchHtml(r.url, { timeoutMs: 15_000, maxBytes: 3 * 1024 * 1024 });
-        out.push(...pageCandidates(page, { now: ctx.now, city, listingSource: provider.listingSource }));
+        out.push(...pageCandidates(page, { now: ctx.now, city, listingSource: sourceForResult(r.url, provider.listingSource) }));
       } catch (err) {
         // Dead or slow result pages are normal for web search; they don't make the run partial.
         if (err instanceof RobotsDisallowedError) ctx.log(`web: ${hostOf(r.url)} disallows crawling; skipped`);

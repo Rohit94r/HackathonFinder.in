@@ -21,7 +21,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
   // next-auth's own redirects use ?callbackUrl=; our links use ?next=.
   const next = safeNext(searchParams.next) ?? safeNext(searchParams.callbackUrl);
   if (await getSessionUser()) redirect(next ?? '/profile');
-  const notice = one(searchParams.deleted) === '1' ? 'deleted' : one(searchParams.reset) === '1' ? 'reset' : null;
+  const notice = one(searchParams.reason) === 'details-limit' ? 'details-limit' : one(searchParams.deleted) === '1' ? 'deleted' : one(searchParams.reset) === '1' ? 'reset' : null;
 
   return (
     <AuthShell

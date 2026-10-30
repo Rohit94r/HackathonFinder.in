@@ -10,8 +10,8 @@ import { arr, isObj, str, url } from './util';
 // Posts about hackathons on Instagram, LinkedIn and Facebook. We never crawl those
 // sites (logged-out pages are login walls and their robots.txt disallows crawlers),
 // and we never log in. Instead, public posts reach us as web search results: the
-// post link and the search snippet become a lead in the review queue, where an admin
-// adds the poster and checks the details. With an Instagram Graph API token we also
+// post link and the search snippet become a lead. Complete leads publish with an
+// unverified flag, and the source link stays visible. With an Instagram Graph API token we also
 // read public hashtag posts through Meta's official API (captions and the poster).
 
 interface Network {
@@ -214,7 +214,7 @@ function socialConnector(net: Network, extra?: Partial<Connector>): Connector {
     name: net.label,
     kind: 'social',
     defaultSchedule: '0 2,14 * * *',
-    description: `${net.label} posts about hackathons found through web search (we never crawl ${net.label}); they wait in the review queue.`,
+    description: `${net.label} posts found through web search; complete event details publish as unverified listings (we never crawl ${net.label}).`,
     optionalEnv: SEARCH_KEYS,
     trust: 0.4,
     extract: 'always',
@@ -227,7 +227,7 @@ function socialConnector(net: Network, extra?: Partial<Connector>): Connector {
 
 export const instagram = socialConnector(NETWORKS.instagram, {
   description:
-    'Instagram posts about hackathons found through web search (we never crawl Instagram), plus hashtag posts from the official Graph API when INSTAGRAM_ACCESS_TOKEN is set. Leads wait in the review queue.',
+    'Instagram posts found through web search (we never crawl Instagram), plus hashtag posts from the official Graph API when INSTAGRAM_ACCESS_TOKEN is set. Complete event details publish as unverified listings.',
   optionalEnv: ['INSTAGRAM_ACCESS_TOKEN', 'INSTAGRAM_BUSINESS_ACCOUNT_ID', ...SEARCH_KEYS],
   // Graph API images are short-lived CDN links: they are only kept as our own stored copy.
   storeImages: false,

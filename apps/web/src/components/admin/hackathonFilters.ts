@@ -39,4 +39,4 @@ export function filtersFrom(sp: Search): HackathonFilters {
 }
 
 /** Reasons offered when removing or rejecting a listing. */
-export const REMOVE_REASONS = ['Fake or spam', 'Duplicate', 'Not a hackathon', 'Wrong details', 'Cancelled', 'Registration closed'];
+export const REMOVE_REASONS = ['Scam or fraud', 'Fake or spam', 'Duplicate', 'Not a hackathon', 'Wrong details', 'Cancelled', 'Registration closed'];

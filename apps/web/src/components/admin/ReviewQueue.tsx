@@ -18,13 +18,24 @@ function PendingListings({ rows, onChanged }: { rows: ListingRow[]; onChanged: (
   const { busy, error, done, run } = useAction();
   const [dialog, confirm] = useConfirm();
   if (!rows.length) {
-    return <Empty title="No pending listings">When the scraper isn’t sure about a hackathon (low confidence, a flag, a lead from Instagram, LinkedIn or web search), it waits here before going live.</Empty>;
+    return <Empty title="No pending listings">Complete scraper discoveries now publish automatically. New scam reports are in Reports, where you can remove a listing.</Empty>;
   }
   const keep = (h: ListingRow) => run(`live:${h.id}`, () => apiFetch(`/api/admin/listings/${h.id}`, { method: 'PATCH', body: { state: 'live' } }), `Kept “${h.title}”. It’s live now.`).then((r) => r && onChanged());
   const reject = async (h: ListingRow) => {
     const ok = await confirm({ title: `Reject “${h.title}”?`, body: 'It stays off the site. You can restore it later.', reason: { label: 'Why', required: true, suggestions: REMOVE_REASONS }, confirmLabel: 'Reject' });
     if (!ok) return;
     const res = await run(`reject:${h.id}`, () => apiFetch(`/api/admin/listings/${h.id}`, { method: 'PATCH', body: { state: 'rejected', note: ok.reason } }), `Rejected “${h.title}”.`);
+    if (res) onChanged();
+  };
+  const remove = async (h: ListingRow) => {
+    const ok = await confirm({
+      title: `Remove “${h.title}” from the site?`,
+      body: 'Students will no longer see it. You can restore it later.',
+      reason: { label: 'Why', required: true, suggestions: REMOVE_REASONS },
+      confirmLabel: 'Remove listing',
+    });
+    if (!ok) return;
+    const res = await run(`remove:${h.id}`, () => apiFetch(`/api/admin/listings/${h.id}`, { method: 'PATCH', body: { state: 'removed', note: ok.reason } }), `Removed “${h.title}”.`);
     if (res) onChanged();
   };
   return (
@@ -86,9 +97,8 @@ function PendingListings({ rows, onChanged }: { rows: ListingRow[]; onChanged: (
                   <Link href={`/admin/hackathons/${h.id}`} className="inline-flex h-7 items-center rounded-[3px] border border-neutral-400 px-2.5 text-xs hover:border-black">
                     Edit
                   </Link>
-                  <Button size="sm" busy={busy === `reject:${h.id}`} disabled={Boolean(busy)} onClick={() => reject(h)}>
-                    Reject
-                  </Button>
+                  <Button size="sm" busy={busy === `reject:${h.id}`} disabled={Boolean(busy)} onClick={() => reject(h)}>Reject</Button>
+                  <Button size="sm" busy={busy === `remove:${h.id}`} disabled={Boolean(busy)} onClick={() => remove(h)}>Remove</Button>
                 </div>
               </Td>
             </tr>
@@ -235,7 +245,7 @@ export default function ReviewQueue() {
   const { data, error, isLoading, mutate } = useSWR<{ listings: ListingRow[]; submissions: SubmissionRow[] }>('/api/admin/queue', { refreshInterval: 60_000 });
   return (
     <div className="space-y-4">
-      <PageHeader title="Review" description="Approve what’s real, fix what’s wrong, merge duplicates, reject the rest. Oldest first." />
+      <PageHeader title="Review" description="Complete scraper discoveries go live automatically. Review shared submissions here; use Reports to handle scams and remove listings." />
       <Segmented
         label="Queue"
         value={tab}

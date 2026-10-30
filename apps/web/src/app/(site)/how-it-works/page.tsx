@@ -20,7 +20,7 @@ import { PageHero, SectionHeading } from '@/components/ui';
 
 export const metadata: Metadata = pageMetadata({
   title: 'How HackathonFinder Finds Every Hackathon',
-  description: 'How HackathonFinder finds hackathons across Unstop, Devfolio, Devpost, MLH, college sites and social media, cleans up the details and keeps listings accurate.',
+  description: 'How HackathonFinder finds hackathons across platforms and public event pages, publishes complete discoveries automatically, and handles reports.',
   path: '/how-it-works',
 });
 
@@ -49,6 +49,7 @@ const RULES = [
   'Instagram and LinkedIn events come from organizer and student submissions, partners, our browser extension and official APIs, not from scraping accounts.',
   'We always link back to the official page for registration.',
   'We write our own short summaries and never copy full descriptions or posters without permission.',
+  'Scraped listings are unverified until a person checks them. Visitors can report scams, and admins can remove or restore listings.',
   'Organizers can claim, edit or remove their listing at any time.',
 ];
 
@@ -60,12 +61,12 @@ export default function HowItWorksPage() {
       <PageHero
         title="We do the searching"
         accent="you do the building"
-        description="A team of AI agents checks the internet for hackathons, turns each one into a clear listing and keeps it up to date."
+        description="Discovery agents search public platforms and event pages. Complete listings publish automatically with their source and verification status visible."
       />
 
       <section className="section bg-surface">
         <div className="container-page">
-          <SectionHeading eyebrow="The pipeline" title="Eight agents, one listing" description="Every event goes through the same steps before you see it." />
+          <SectionHeading eyebrow="The pipeline" title="Eight agents, one listing" description="Events are cleaned up and deduplicated; complete discoveries publish automatically, with warnings kept visible." />
           <ol data-reveal-stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {AGENTS.map((agent, i) => {
               const Icon = AGENT_ICONS[agent.id] ?? Radar;
