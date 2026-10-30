@@ -1,186 +1,55 @@
-import Link from 'next/link';
+'use client';
+
+import { CheckCircle2, Database, Globe2, RefreshCw, ShieldCheck } from 'lucide-react';
 import { SOURCES } from '@hackathonfinder/shared';
-import { BtnArrowSvg } from './btn-arrow';
-import { WaveUp } from './waves';
-import { InlineStyle } from './inline-style';
 
-// Shown big, as a wordmark wall. Names only: these are not our logos to use.
-const HEADLINERS = ['unstop', 'devfolio', 'devpost', 'instagram', 'linkedin', 'google', 'facebook', 'whatsapp', 'mlh'];
-
-/** "We look everywhere": the places our agents check, and the promise that comes with it. */
 export function SourcesSection() {
-  const headliners = HEADLINERS.map((slug) => SOURCES.find((s) => s.slug === slug)).filter((s) => s !== undefined);
-  const rest = SOURCES.filter((s) => !HEADLINERS.includes(s.slug));
+  const sourcesList = [
+    { name: 'Devfolio', desc: 'India’s top community hackathons' },
+    { name: 'Unstop', desc: 'Premier college & corporate ideathons' },
+    { name: 'Devpost', desc: 'Global online tech challenges' },
+    { name: 'Major League Hacking (MLH)', desc: 'Official student hackathons' },
+    { name: 'Luma & Community', desc: 'Founder & builder demo days' },
+    { name: 'College Tech Fests', desc: 'IITs, NITs, BITS, and campus fests' },
+  ];
 
   return (
-    <section
-      className="section-padded"
-      style={{
-        position: 'relative',
-        background: 'var(--background)',
-        paddingTop: 80,
-        paddingBottom: 160,
-        paddingLeft: 'clamp(24px, 14.29%, 220px)',
-        paddingRight: 'clamp(24px, 14.29%, 220px)',
-        textAlign: 'center',
-      }}
-    >
-      {/* Red gradient, bottom portion only */}
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '30%',
-          background: 'linear-gradient(0deg, rgba(236,55,80,0.40) 0%, rgba(236,55,80,0.04) 75%, transparent 100%)',
-          pointerEvents: 'none',
-          zIndex: 0,
-        }}
-      />
-      <WaveUp color="var(--surface)" style={{ bottom: -2, zIndex: 20 }} />
+    <section className="py-16 bg-slate-50/70 dark:bg-zinc-900/50 border-y border-slate-200/70 dark:border-zinc-800">
+      <div className="container-page">
+        <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-950/40 px-3 py-1 text-xs font-semibold text-accent border border-red-200 dark:border-red-900/40 mb-3">
+            <Database className="h-3.5 w-3.5" />
+            <span>Multi-Source Aggregation</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">
+            Aggregated Across India&apos;s Leading Platforms
+          </h2>
+          <p className="mt-2 text-sm sm:text-base text-slate-600 dark:text-zinc-400">
+            Automated crawlers check each platform twice daily so you never miss an application window.
+          </p>
+        </div>
 
-      <h2
-        className="sources-headline"
-        style={{
-          fontFamily: 'var(--lp-serif)',
-          fontSize: 'clamp(26px, 2.4vw, 40px)',
-          fontWeight: 'normal',
-          lineHeight: 1.05,
-          color: 'var(--foreground)',
-          margin: '48px auto 32px',
-          maxWidth: 1200,
-        }}
-      >
-        We look everywhere, so you don’t have to.
-      </h2>
+        {/* Source Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          {sourcesList.map((src) => (
+            <div
+              key={src.name}
+              className="flex flex-col items-center justify-center text-center p-4 rounded-2xl border border-slate-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm hover:border-red-200 transition"
+            >
+              <ShieldCheck className="h-5 w-5 text-accent mb-2" />
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">{src.name}</h3>
+              <p className="mt-1 text-[11px] text-slate-500 dark:text-zinc-400 leading-tight">
+                {src.desc}
+              </p>
+            </div>
+          ))}
+        </div>
 
-      <p style={{ fontFamily: 'var(--lp-sans)', fontSize: 20, color: 'var(--foreground)', margin: '0 auto 40px', maxWidth: 560, lineHeight: 1.25 }}>
-        HackathonFinder is free for every student. Forever.
-      </p>
-
-      {/* Wordmark wall */}
-      <ul
-        className="sources-wall"
-        style={{
-          listStyle: 'none',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(3, auto)',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: '8px clamp(20px, 4vw, 64px)',
-          margin: '0 auto 28px',
-          padding: '8px 0',
-        }}
-      >
-        {headliners.map((s, i) => (
-          <li
-            key={s.slug}
-            style={{
-              fontFamily: i % 2 ? 'var(--lp-serif)' : 'var(--lp-sans)',
-              fontWeight: i % 2 ? 400 : 800,
-              fontSize: 'clamp(24px, 2.8vw, 40px)',
-              letterSpacing: i % 2 ? 0 : '-0.02em',
-              color: 'var(--foreground)',
-              opacity: 0.82,
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {s.name}
-          </li>
-        ))}
-      </ul>
-
-      {/* Everything else, as pills */}
-      <ul
-        style={{
-          listStyle: 'none',
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          alignItems: 'center',
-          gap: 12,
-          margin: '0 auto 48px',
-          padding: 0,
-          maxWidth: 980,
-        }}
-      >
-        {rest.map((s) => (
-          <li
-            key={s.slug}
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              background: 'var(--surface-hover)',
-              borderRadius: 9999,
-              minHeight: 40,
-              padding: '0 20px',
-              fontFamily: 'var(--lp-sans)',
-              fontSize: 16,
-              color: 'var(--foreground)',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            {s.name}
-          </li>
-        ))}
-      </ul>
-
-      <div style={{ fontFamily: 'var(--lp-sans)', fontSize: 20, color: 'var(--foreground)', margin: '0 auto 36px', maxWidth: 900, lineHeight: 1.25 }}>
-        <p className="sources-line" style={{ margin: 0 }}>
-          Every listing shows where we found it and when we last checked it.{' '}
-          <Link href="/how-it-works" className="lp-underline-link">
-            Read our data rules
-          </Link>
-        </p>
-        <p style={{ margin: '0.75em 0 0' }}>
-          We don’t host events or take registrations. We send you to the official page.{' '}
-          <Link href="/organizers" className="lp-underline-link">
-            For organizers
-          </Link>
-        </p>
+        <div className="mt-8 flex items-center justify-center gap-2 text-xs font-medium text-slate-500 dark:text-zinc-400">
+          <RefreshCw className="h-3.5 w-3.5 text-accent animate-spin" style={{ animationDuration: '6s' }} />
+          <span>Synchronized every 12 hours with deduplication &amp; status verification</span>
+        </div>
       </div>
-
-      <Link
-        href="/how-it-works"
-        className="cta-btn dark-btn"
-        style={{
-          display: 'inline-flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: 10,
-          lineHeight: 1,
-          background: 'var(--foreground)',
-          color: 'var(--background)',
-          borderRadius: 41,
-          height: 48,
-          paddingLeft: 32,
-          paddingRight: 32,
-          fontFamily: 'var(--lp-sans)',
-          fontSize: 20,
-          textDecoration: 'none',
-          whiteSpace: 'nowrap',
-          position: 'relative',
-          zIndex: 1,
-          marginBottom: 80,
-        }}
-      >
-        How we find events
-        <BtnArrowSvg />
-      </Link>
-
-      <InlineStyle css={`
-        @media (max-width: 900px) {
-          .sources-headline { padding-left: 24px; padding-right: 24px; }
-        }
-        @media (max-width: 640px) {
-          .sources-wall { grid-template-columns: repeat(2, auto) !important; }
-        }
-        .sources-line { white-space: nowrap; }
-        @media (max-width: 1100px) {
-          .sources-line { white-space: normal; }
-        }
-      `} />
     </section>
   );
 }

@@ -1,18 +1,16 @@
 import type { Metadata } from 'next';
 import { CITIES, SOURCES, placeName, sourceBySlug } from '@hackathonfinder/shared';
-import { landingSans, landingSerif } from '@/components/landing/fonts';
 import { LandingNavbar } from '@/components/landing/navbar';
 import { HeroSection } from '@/components/landing/hero';
 import { ListingsSection } from '@/components/landing/listings';
 import { NearYouSection } from '@/components/landing/near-you';
 import { ClosingSoonSection, type ClosingCardData } from '@/components/landing/closing-soon';
 import { HowItWorksSection } from '@/components/landing/how-it-works';
-import { SmartSearchShowcase } from '@/components/landing/smart-search-showcase';
+import { SmartSearchShowcase, type PosterData } from '@/components/landing/smart-search-showcase';
 import { SourcesSection } from '@/components/landing/sources';
 import { FeaturesSection, type LiveStat } from '@/components/landing/features';
 import { ReadySection } from '@/components/landing/ready';
 import { LandingFooter } from '@/components/landing/footer';
-import type { PosterData } from '@/components/landing/art';
 import '@/components/landing/landing.css';
 import { applyFilters } from '@/lib/filters';
 import { deadlineLabel, formatDateRange } from '@/lib/format';
@@ -26,7 +24,7 @@ export const metadata: Metadata = { alternates: { canonical: '/' } };
 // Statuses depend on today, so render per request.
 export const dynamic = 'force-dynamic';
 
-const CAROUSEL_SIZE = 20;
+const CAROUSEL_SIZE = 24;
 const SMART_EXAMPLE = 'Free online AI hackathon for students, deadline this month';
 
 function sourceNames(h: HackathonView): string[] {
@@ -63,13 +61,13 @@ export default async function HomePage() {
   const { items } = await getHackathons();
   const open = openOnly(items);
   const newestFirst = [...open].sort((a, b) => Date.parse(b.addedAt) - Date.parse(a.addedAt));
-  // The carousel shows a sample of what's open, events with their own banner first, so the page stays light.
+  
+  // High quality events first, with cover banners
   const carousel = [...newestFirst.filter((h) => h.imageUrl), ...newestFirst.filter((h) => !h.imageUrl)].slice(0, CAROUSEL_SIZE);
-  // Featured events lead the search showcase's posters, the rest follow newest first.
   const posters = [...newestFirst.filter((h) => h.featured), ...newestFirst.filter((h) => !h.featured), ...items.filter((h) => !open.includes(h))].map(toPoster);
 
   const counts = cityCounts(items);
-  // Busiest cities first, so the shortcuts lead to real events.
+  // Busiest cities first
   const topCities = [...CITIES]
     .sort((a, b) => (counts[b.slug] ?? 0) - (counts[a.slug] ?? 0) || a.name.localeCompare(b.name))
     .slice(0, 8)
@@ -84,22 +82,19 @@ export default async function HomePage() {
   ];
 
   return (
-    <div className={`landing ${landingSans.variable} ${landingSerif.variable}`}>
+    <div className="landing font-sans">
       {open.length > 0 && <JsonLd data={itemListJsonLd('Upcoming hackathons in India', open)} />}
       <LandingNavbar />
       <main id="main" tabIndex={-1} style={{ outline: 'none' }}>
         <HeroSection sourceCount={SOURCES.length} />
-        {/* Sections built from listings only show once there are real ones to show. */}
         {carousel.length > 0 && <ListingsSection items={carousel} total={open.length} />}
         <NearYouSection cities={topCities} totalCities={CITIES.length} />
         {open.length > 0 && <ClosingSoonSection events={closingSoon(items, 4).map(toClosingCard)} />}
         {newestFirst.length > 0 && <HowItWorksSection example={[...newestFirst].sort((a, b) => b.sources.length - a.sources.length)[0]} />}
-        {posters.length > 0 && (
-          <SmartSearchShowcase
-            posters={posters}
-            example={{ query: SMART_EXAMPLE, understood: smart.understood, matches: applyFilters(items, smart.filters).length }}
-          />
-        )}
+        <SmartSearchShowcase
+          posters={posters}
+          example={{ query: SMART_EXAMPLE, understood: smart.understood, matches: applyFilters(items, smart.filters).length }}
+        />
         <SourcesSection />
         <FeaturesSection stats={stats} />
         <ReadySection />
