@@ -25,7 +25,7 @@ const NAV_GROUPS = [
   {
     label: 'Listings',
     items: [
-      { href: '/admin/review', label: 'Review queue', icon: Inbox, badge: 'review' as const },
+     
       { href: '/admin/hackathons', label: 'Hackathons', icon: ListChecks },
       { href: '/admin/scraper', label: 'Scraper', icon: Radar, badge: 'scraping' as const },
     ],
