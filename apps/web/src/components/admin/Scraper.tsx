@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
-import { Radar } from 'lucide-react';
+import { Radar, Search } from 'lucide-react';
 import { apiFetch } from '@/lib/apiClient';
 import ScrapeRun, { isActive, startedByLabel } from './ScrapeRun';
 import type { ScrapeRunSummary, ScrapeSource } from './types';
@@ -141,9 +141,14 @@ export default function Scraper() {
     if (!runId && latest && isActive(latest.status)) setRunId(latest.id);
   }, [data, runId]);
 
-  const start = async () => {
-    const res = await run('start', () => apiFetch<{ runId: string; alreadyRunning: boolean }>('/api/admin/scrape', { body: {} }), (r) =>
-      r.alreadyRunning ? 'A scrape was already running, so you’re watching that one.' : 'Scrape started. New hackathons appear below as each source is checked.'
+  const start = async (sources: string[] = []) => {
+    const key = sources.length ? 'deep' : 'start';
+    const res = await run(key, () => apiFetch<{ runId: string; alreadyRunning: boolean }>('/api/admin/scrape', { body: sources.length ? { sources } : {} }), (r) =>
+      r.alreadyRunning
+        ? 'A scrape was already running, so you’re watching that one.'
+        : sources.length
+          ? 'Deep web scan started. It searches the India-wide query matrix, public sitemaps/RSS feeds and list pages.'
+          : 'Scrape started. New hackathons appear below as each source is checked.'
     );
     if (res) {
       setRunId(res.runId);
@@ -157,9 +162,14 @@ export default function Scraper() {
         title="Scraper"
         description={data ? `${data.schedule.label}.` : 'Finds new hackathons on every source.'}
         actions={
-          <Button variant="primary" size="lg" icon={Radar} busy={busy === 'start'} onClick={start}>
-            Scrape now
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" size="lg" icon={Search} busy={busy === 'deep'} onClick={() => start(['web'])}>
+              Deep scan
+            </Button>
+            <Button variant="primary" size="lg" icon={Radar} busy={busy === 'start'} onClick={() => start()}>
+              Scrape now
+            </Button>
+          </div>
         }
       />
       <ActionStatus error={startError} done={done} />
@@ -181,7 +191,9 @@ export default function Scraper() {
               <p>
                 Next run: <strong className="font-semibold"><When at={data.schedule.nextRunAt} /></strong> IST
               </p>
-              <p className="text-xs text-neutral-500">“Scrape now” runs the same thing straight away. Only one scrape runs at a time.</p>
+              <p className="text-xs text-neutral-500">
+                “Scrape now” runs every enabled source straight away. “Deep scan” runs only the web source with its full India-wide query matrix, sitemaps and list-page crawl. Only one scrape runs at a time.
+              </p>
             </div>
           ) : (
             <Loading />

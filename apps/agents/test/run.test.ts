@@ -62,7 +62,7 @@ function http() {
 }
 
 describe('runScrape', () => {
-  it('creates, merges, rejects and reviews; stores banners and venue points; never touches sample listings', async () => {
+  it('creates, merges and rejects; stores banners and venue points; never touches sample listings', async () => {
     // A made-up sample listing with the same name and date must not swallow the real event.
     await Hackathon.create({
       slug: 'hacktopia-pune-sample',
@@ -97,7 +97,7 @@ describe('runScrape', () => {
     const res = await runScrape({ runId: run.kind === 'started' ? run.runId : undefined, connectors: [a, b], http: h, env: ENV, now: NOW });
 
     expect(res.status).toBe('success');
-    expect(res.counts).toMatchObject({ found: 7, created: 3, review: 1, merged: 1, rejected: 2, errors: 0 });
+    expect(res.counts).toMatchObject({ found: 7, created: 4, review: 0, merged: 1, rejected: 2, errors: 0 });
 
     // One listing for the event on both platforms (whichever was read first named it).
     const sprints = await Hackathon.find({ title: /^Online AI Sprint/ }).lean();
@@ -122,7 +122,7 @@ describe('runScrape', () => {
     expect(bhopal?.location).toBeUndefined();
 
     const paid = await Hackathon.findOne({ title: 'Paid Hack 2026' }).lean();
-    expect(paid?.state).toBe('pending');
+    expect(paid?.state).toBe('live');
     expect(paid?.flags).toContain('Paid entry, but the fee amount is not stated');
 
     // Every upload is signed and never carries the secret itself.
@@ -140,7 +140,7 @@ describe('runScrape', () => {
     const doc = await AgentRun.findById(res.runId).lean();
     expect(doc?.status).toBe('success');
     expect(doc?.progress).toMatchObject({ done: 7, total: 7 });
-    expect(doc?.items.map((i) => i.action).sort()).toEqual(['created', 'created', 'created', 'merged', 'rejected', 'rejected', 'review']);
+    expect(doc?.items.map((i) => i.action).sort()).toEqual(['created', 'created', 'created', 'created', 'merged', 'rejected', 'rejected']);
     expect(doc?.items.find((i) => i.title === 'Hacktopia Pune 2026')?.city).toBe('Pune');
     expect(await Source.findOne({ slug: 'unstop' }).lean()).toMatchObject({ health: 'ok', lastItemCount: 5 });
     expect(await RawItem.countDocuments()).toBe(7);
@@ -187,7 +187,7 @@ describe('runScrape', () => {
     expect((await Hackathon.findOne({ title: 'Fine Hack 2026' }).lean())?.imageUrl).toBeUndefined();
   });
 
-  it('sends social leads to review and reads the registration link from the poster QR', async () => {
+  it('publishes social leads and reads the registration link from the poster QR', async () => {
     const QRCode = (await import('qrcode')).default;
     const poster = await QRCode.toBuffer('https://forms.gle/Reg123', { type: 'png', scale: 8 });
     const lead: Connector = {
@@ -212,9 +212,9 @@ describe('runScrape', () => {
     };
     const h = fakeHttp({ 'https://cdn.example.com/poster.png': poster });
     const res = await runScrape({ connectors: [lead], http: h, env: {}, now: NOW });
-    expect(res.counts.review).toBe(1);
+    expect(res.counts.created).toBe(1);
     const doc = await Hackathon.findOne({ title: 'Code Rush Pune' }).lean();
-    expect(doc?.state).toBe('pending');
+    expect(doc?.state).toBe('live');
     expect(doc?.registrationVia).toBe('qr');
     expect(doc?.registrationUrl).toBe('https://forms.gle/Reg123');
     expect(doc?.flags.join(' ')).toMatch(/read from the poster’s QR code/);

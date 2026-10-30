@@ -218,7 +218,7 @@ strong{color:var(--text);font-weight:600}
   <div class="statgrid">
     <div class="stat" style="--c:var(--fe)"><b>3</b><span>Apps / Packages</span></div>
     <div class="stat" style="--c:var(--be)"><b>60+</b><span>API Routes</span></div>
-    <div class="stat" style="--c:var(--ag)"><b>9</b><span>Source Connectors</span></div>
+    <div class="stat" style="--c:var(--ag)"><b>11</b><span>Source Connectors</span></div>
     <div class="stat" style="--c:var(--db)"><b>14</b><span>DB Collections</span></div>
     <div class="stat" style="--c:var(--ai)"><b>2</b><span>AI Features</span></div>
     <div class="stat" style="--c:var(--sh)"><b>27</b><span>DB Indexes</span></div>
@@ -535,7 +535,7 @@ export const POST = route(async ({ req }) => {
       <tr><td>/api/admin/listings/bulk</td><td>POST — bulk state change (approve, reject, remove)</td></tr>
       <tr><td>/api/admin/queue</td><td>Review queue — pending listings needing approval</td></tr>
       <tr><td>/api/admin/review/[id]</td><td>Approve or reject a pending listing</td></tr>
-      <tr><td>/api/admin/scrape</td><td>POST — trigger a scrape now; GET — last run status</td></tr>
+      <tr><td>/api/admin/scrape</td><td>POST — trigger a scrape now (or a deep scan of selected sources); GET — last run status</td></tr>
       <tr><td>/api/admin/scrape/sources</td><td>GET all sources with health, last run, missing keys</td></tr>
       <tr><td>/api/admin/scrape/[id]</td><td>GET single run details (log, items, counts)</td></tr>
       <tr><td>/api/admin/runs</td><td>GET recent scrape runs list</td></tr>

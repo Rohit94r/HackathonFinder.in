@@ -20,17 +20,32 @@ button, the scheduled runs and the cron route all call it.
 | HackerEarth (`hackerearth`) | Public events feed | — | Online hackathons and challenges, cover images |
 | lablab.ai (`lablab`) | schema.org Events on the newest event pages | — | Online AI hackathons, banners |
 | KnowAFest (`knowafest`) | Public event-search JSON API, plus schema.org Event on each event page | — | College hackathons across India, posters, the organizer's own registration form |
-| Web search (`web`) | Google Custom Search (`GOOGLE_CSE_KEY` + `GOOGLE_CSE_CX`) or Brave Search (`BRAVE_SEARCH_API_KEY`) when set, else DuckDuckGo's HTML page; then each result page through the polite client | optional | College and event pages for our cities, plus public Hack2skill, DoraHacks, Kaggle, Luma and Eventbrite pages |
+| Web search (`web`) | Weighted India-wide query matrix (cities, states, college `.ac.in`/`.edu.in` and event platforms), search-result paging, one-hop list-page crawling and public sitemaps/RSS feeds; Google Custom Search, Brave, SearXNG or DuckDuckGo; every page through the polite client | optional | College and event pages across India, plus public Hack2skill, DoraHacks, Konfhub, Townscript, AllEvents, Luma, Eventbrite, Commudle, TechGig and Meetup pages |
 | Instagram (`instagram`) | Public posts found by web search (`site:instagram.com …`); with `INSTAGRAM_ACCESS_TOKEN` + `INSTAGRAM_BUSINESS_ACCOUNT_ID`, also hashtag posts from Meta's official Graph API | optional | Post links, dates and QR registration; complete discoveries publish automatically |
 | LinkedIn (`linkedin`), Facebook (`facebook`) | Public posts and events found by web search | optional | Public event leads; complete discoveries publish automatically |
 
 DuckDuckGo often shows crawlers a challenge page. We stop at the first one (no retries, no
 CAPTCHA solving, no browser user agent), mark the source **blocked** and try again next run. For
-reliable web and social discovery add a Google Custom Search or Brave Search API key.
+reliable web and social discovery add a Google Custom Search, Brave Search or SearXNG endpoint.
+`SEARXNG_URL` can point at a self-hosted instance whose JSON API is enabled.
 
-There are no direct connectors for Hack2skill, DoraHacks, Kaggle, Eventbrite or Luma yet. Web search
-now queries their public indexed pages and reads only pages the polite client is allowed to fetch;
-search coverage can still miss listings, and pages protected by a bot challenge remain unavailable.
+The web source is deliberately deep: it searches a weighted matrix of city, state, college-domain,
+event-platform queries; pages through the best results; follows event-looking links
+from list pages one hop; and reads public sitemaps and RSS/Atom feeds for platforms without a dedicated connector.
+Search snippets become leads when a page is JavaScript-only or unreadable, so a complete snippet
+with dates can still become a listing. This is public-web discovery only: login walls, private apps,
+bot challenges and CAPTCHAs remain out of scope, and a source that hits one is marked blocked (or degraded if its sitemap/seed path still found events).
+
+**Deep scan** in the admin dashboard runs only the `web` source with this full matrix. **Scrape now**
+runs every enabled source. Both use the same run lock and 40-minute budget; the website's Vercel cron
+stops taking new items after four minutes and leaves the rest for the next run.
+
+The `web` source reads its knobs from `Source.config` (the defaults are in
+`src/connectors/web.ts`): `citiesPerRun`, `maxQueries`, `searchPages`, `maxPages`, `crawlDepth`,
+`maxCrawlPages`, `maxLinksPerPage`, `sitemaps`, `sitemapSeeds`, `maxSitemapUrls`,
+`maxSitemapPages`, `snippets` and `deep`. `seedUrls` takes public page or list-page URLs to crawl on
+every run; `extraQueries` adds custom search queries (one per line). Both accept an array or a
+newline-separated string.
 
 ## Running it
 
@@ -63,10 +78,10 @@ things fire for it:
 - **The worker** (`pnpm agents:schedule`): the same timer for hosts without the website, with the
   same catch-up.
 
-**Scrape now** in the admin dashboard calls `startScrape()` (`apps/web/src/server/scrape.ts`): it
-records the run and returns at once; the work carries on in the background and writes its progress,
+**Scrape now** and **Deep scan** in the admin dashboard call `startScrape()` (`apps/web/src/server/scrape.ts`): they
+record the run and return at once; the work carries on in the background and writes its progress,
 counts and every item it created, updated, merged, sent to review or rejected into the `AgentRun`, so
-the dashboard can follow it.
+the dashboard can follow it. Deep scan passes `sources: ['web']` to the same function.
 
 Only one scrape runs at a time: a unique index on `AgentRun` (one `running` run per agent) makes the
 database refuse a second one, so a click during a scheduled run gets that run back. A running run
