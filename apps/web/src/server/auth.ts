@@ -5,8 +5,13 @@ import GitHubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
 import { connectDb, isDbConfigured, User, type Role } from '@hackathonfinder/db';
 import { recordSignIn } from './analytics';
+import { appUrl } from './appUrl';
 import { rateLimit } from './rateLimit';
 import { checkPassword, grantsAdmin, uniqueHandle } from './users';
+
+// Keep NextAuth's OAuth URLs on the same public host users are visiting. In
+// production, this also overrides an accidentally configured localhost value.
+process.env.NEXTAUTH_URL = appUrl();
 
 export interface SessionUser {
   id: string;

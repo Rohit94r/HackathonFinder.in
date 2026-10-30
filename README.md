@@ -85,13 +85,13 @@ One `.env` at the repo root serves the website, the agents and the scripts. Ever
 
 ## Production checklist (hackathonfinder.in)
 
-1. Host env: everything in `.env.example`, with `NEXTAUTH_URL=https://hackathonfinder.in`, a fresh
+1. Host env: everything in `.env.example`, with `NEXTAUTH_URL=https://www.hackathonfinder.in`, a fresh
    `NEXTAUTH_SECRET`, `CRON_SECRET`, and `ADMIN_EMAILS` (admins are only granted once their email is verified).
-2. Google OAuth redirect URI `https://hackathonfinder.in/api/auth/callback/google`; GitHub callback
-   `https://hackathonfinder.in/api/auth/callback/github`. Resend: verify the `hackathonfinder.in` domain.
+2. Google OAuth redirect URI `https://www.hackathonfinder.in/api/auth/callback/google`; GitHub callback
+   `https://www.hackathonfinder.in/api/auth/callback/github`. Resend: verify the `hackathonfinder.in` domain.
 3. `pnpm db:setup` once against the production database.
 4. Search: add the site in Google Search Console and Bing Webmaster Tools (put their codes in
-   `GOOGLE_SITE_VERIFICATION` / `BING_SITE_VERIFICATION`) and submit `https://hackathonfinder.in/sitemap.xml`.
+   `GOOGLE_SITE_VERIFICATION` / `BING_SITE_VERIFICATION`) and submit `https://www.hackathonfinder.in/sitemap.xml`.
 
 ## SEO
 

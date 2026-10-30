@@ -6,7 +6,7 @@ export const siteConfig = {
   tagline: 'Every hackathon. One place.',
   description:
     'HackathonFinder finds hackathons from Unstop, Devfolio, Devpost, MLH, Google, Instagram, LinkedIn and more, and lists them in one place. Find hackathons near you in India and search by city, theme, deadline, team size and prize.',
-  url: 'https://hackathonfinder.in',
+  url: 'https://www.hackathonfinder.in',
   email: 'hello@hackathonfinder.in',
   /** When the site went live; used in structured data. */
   foundingDate: '2026-10',

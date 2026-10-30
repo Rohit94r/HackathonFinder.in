@@ -1,4 +1,5 @@
 import 'server-only';
+import { appUrl } from './appUrl';
 
 export interface Email {
   to: string;
@@ -11,8 +12,7 @@ export interface Email {
 
 /** Public base URL for links in emails. */
 export function siteUrl(): string {
-  const fallback = process.env.NODE_ENV === 'production' ? 'https://hackathonfinder.in' : 'http://localhost:3000';
-  return (process.env.NEXTAUTH_URL || process.env.SITE_URL || fallback).replace(/\/$/, '');
+  return appUrl();
 }
 
 function toHtml(email: Email): string {
