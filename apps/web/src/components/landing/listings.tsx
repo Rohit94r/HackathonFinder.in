@@ -1,159 +1,254 @@
-'use client';
-
 import Link from 'next/link';
-import { ArrowRight, Calendar, Compass, Flame, MapPin, Sparkles, Trophy, Users } from 'lucide-react';
-import { placeName, sourceBySlug, themeName } from '@hackathonfinder/shared';
+import { eventTypeLabel, placeName, sourceBySlug } from '@hackathonfinder/shared';
 import EventArt from '@/components/hackathon/EventArt';
-import StatusBadge from '@/components/hackathon/StatusBadge';
-import SaveButton from '@/components/hackathon/SaveButton';
-import { formatDateRange, formatPrizeShort, formatTeamSize } from '@/lib/format';
+import { formatDateRange, formatPrizeShort } from '@/lib/format';
 import type { HackathonView } from '@/lib/hackathons';
-import { cn } from '@/lib/cn';
+import { BtnArrow } from './btn-arrow';
+import { WaveDown } from './waves';
+import { InlineStyle } from './inline-style';
 
-interface ListingsSectionProps {
-  items: HackathonView[];
-  total: number;
-}
+const CARD_W = 290;
+const GAP = 20;
 
-export function ListingsSection({ items, total }: ListingsSectionProps) {
-  // Show up to 8 top featured or newest items
-  const displayItems = items.slice(0, 8);
+function ListingCard({ h, copy }: { h: HackathonView; copy: boolean }) {
+  const where = h.mode === 'online' ? 'online' : `in ${placeName(h)}`;
+  const prize = h.prizePool > 0 ? `${formatPrizeShort(h.prizePool, h.prizeCurrency)} in prizes.` : '';
+  const source = sourceBySlug(h.sources[0])?.name;
 
   return (
-    <section className="py-16 sm:py-24 bg-slate-50/60 dark:bg-zinc-900/40 border-y border-slate-200/70 dark:border-zinc-800">
-      <div className="container-page">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-950/30 px-3 py-1 text-xs font-semibold text-accent border border-red-200/60 dark:border-red-900/30 mb-3">
-              <Flame className="h-3.5 w-3.5" />
-              <span>Trending Competitions</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              Featured &amp; Upcoming Hackathons
-            </h2>
-            <p className="mt-2 text-base text-slate-600 dark:text-zinc-400 max-w-2xl">
-              Curated hackathons with verified prizes, mentors, and direct recruiter access. Showing a selection from{' '}
-              <strong className="text-slate-900 dark:text-white font-semibold">{total} live events</strong>.
-            </p>
-          </div>
+    <div
+      data-hf-impression={copy ? undefined : h.slug}
+      style={{
+        flexShrink: 0,
+        width: CARD_W,
+        borderRadius: 16,
+        overflow: 'hidden',
+        background: 'var(--surface)',
+        boxShadow: 'var(--card-shadow)',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      <EventArt title={h.title} imageUrl={h.imageUrl} label={eventTypeLabel(h.type)} className="h-[200px] shrink-0" />
 
+      <div style={{ padding: '16px 18px 18px', flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
+        <p style={{ fontFamily: 'var(--lp-sans)', fontSize: 19, color: 'var(--foreground)', margin: 0, lineHeight: 1.25, flex: 1 }}>
+          <strong>{h.title}</strong> by {h.organizer}. {formatDateRange(h.startDate, h.endDate)}, {where}. {prize}
+        </p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <Link
-            href="/hackathons"
-            className="inline-flex items-center gap-2 text-sm font-bold text-accent hover:text-accent-dark transition group self-start md:self-auto"
+            href={`/hackathons/${h.slug}`}
+            tabIndex={copy ? -1 : undefined}
+            className="cta-btn"
+            style={{
+              fontSize: 19,
+              color: 'var(--red-text)',
+              textDecoration: 'none',
+              fontFamily: 'var(--lp-sans)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              fontWeight: 600,
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}
           >
-            <span>Explore all {total} hackathons</span>
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            View details <BtnArrow />
           </Link>
-        </div>
-
-        {/* Hackathon Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayItems.map((h) => {
-            const source = sourceBySlug(h.sources[0])?.name;
-            const location = h.mode === 'online' ? 'Online' : placeName(h);
-
-            return (
-              <div
-                key={h.slug}
-                className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-all duration-200 hover:-translate-y-1 hover:border-red-200 hover:shadow-lg hover:shadow-red-500/5"
-              >
-                {/* Event Photo / Art */}
-                <div className="relative h-44 w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
-                  <EventArt title={h.title} imageUrl={h.imageUrl} className="h-full w-full object-cover" />
-                  
-                  {/* Badges on image */}
-                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5 z-10">
-                    <StatusBadge status={h.status} />
-                    {h.featured && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-accent text-white px-2.5 py-0.5 text-xs font-bold shadow-sm">
-                        <Sparkles className="h-3 w-3" /> Featured
-                      </span>
-                    )}
-                  </div>
-
-                  <SaveButton slug={h.slug} title={h.title} className="absolute top-3 right-3 z-10" />
-                </div>
-
-                {/* Card Content */}
-                <div className="flex flex-1 flex-col p-5">
-                  {/* Organizer & Mode */}
-                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400 mb-2">
-                    <span className="truncate font-medium">{h.organizer}</span>
-                    <span className="shrink-0 font-semibold text-accent">{location}</span>
-                  </div>
-
-                  {/* Title */}
-                  <Link href={`/hackathons/${h.slug}`} className="focus:outline-none">
-                    <h3 className="text-base font-bold text-slate-900 dark:text-white line-clamp-2 leading-snug group-hover:text-accent transition-colors">
-                      {h.title}
-                    </h3>
-                  </Link>
-
-                  {/* Metadata Row */}
-                  <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-zinc-400">
-                    <div className="flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                      <span>{formatDateRange(h.startDate, h.endDate)}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 font-bold text-slate-900 dark:text-zinc-100">
-                        <Trophy className="h-3.5 w-3.5 text-accent shrink-0" />
-                        <span>{formatPrizeShort(h.prizePool, h.prizeCurrency)}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-slate-500">
-                        <Users className="h-3.5 w-3.5" />
-                        <span>{formatTeamSize(h.teamMin, h.teamMax, h.teamSizeKnown !== false)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Tags */}
-                  <div className="mt-4 flex flex-wrap gap-1.5">
-                    {h.themes.slice(0, 2).map((t) => (
-                      <span
-                        key={t}
-                        className="rounded-md bg-slate-100 dark:bg-zinc-800 px-2 py-0.5 text-[11px] font-medium text-slate-700 dark:text-zinc-300"
-                      >
-                        {themeName(t)}
-                      </span>
-                    ))}
-                    {h.fee === 0 && (
-                      <span className="rounded-md bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-300 px-2 py-0.5 text-[11px] font-medium">
-                        Free
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Footer Action */}
-                  <div className="mt-5 pt-3.5 border-t border-slate-100 dark:border-zinc-800 flex items-center justify-between">
-                    <span className="text-[11px] text-slate-400">via {source || 'Web'}</span>
-                    <Link
-                      href={`/hackathons/${h.slug}`}
-                      className="inline-flex items-center gap-1 text-xs font-bold text-accent hover:text-accent-dark"
-                    >
-                      <span>View Event</span>
-                      <ArrowRight className="h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Bottom CTA Banner */}
-        <div className="mt-12 text-center">
-          <Link
-            href="/hackathons"
-            className="inline-flex items-center gap-2 rounded-xl bg-accent px-6 py-3 text-sm font-semibold text-white shadow-sm hover:bg-accent-dark transition"
-          >
-            <Compass className="h-4 w-4" />
-            <span>Browse All {total} Live Hackathons</span>
-          </Link>
+          {source && (
+            <span
+              style={{
+                marginLeft: 'auto',
+                minWidth: 0,
+                fontFamily: 'var(--lp-sans)',
+                fontSize: 14,
+                color: 'var(--muted)',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              via {source}
+            </span>
+          )}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** "Imagine every hackathon in one list": an auto-scrolling carousel of open listings. */
+export function ListingsSection({ items, total }: { items: HackathonView[]; total: number }) {
+  // Repeat the cards so the loop is seamless.
+  const carouselItems = [...items, ...items, ...items];
+
+  return (
+    <section className="listings-section" style={{ position: 'relative', zIndex: 1, background: 'var(--background)', paddingTop: 80, paddingBottom: 100 }}>
+      {/* Headline */}
+      <div
+        className="section-padded"
+        style={{ position: 'relative', zIndex: 5, paddingLeft: 'clamp(24px, 15vw, 260px)', paddingRight: 32, marginBottom: 8, maxWidth: 1017 + 260 }}
+      >
+        <h2 style={{ fontFamily: 'var(--lp-serif)', fontSize: 40, lineHeight: 1.05, color: 'var(--foreground)', margin: 0, fontWeight: 'normal' }}>
+          Imagine every hackathon{' '}
+          <span
+            style={{
+              background: 'var(--grad-deep)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              display: 'inline',
+            }}
+          >
+            in one list:
+          </span>
+        </h2>
+      </div>
+
+      {/* Subtext */}
+      <div
+        className="section-padded"
+        style={{ position: 'relative', zIndex: 5, paddingLeft: 'clamp(24px, 15vw, 260px)', paddingRight: 32, marginBottom: 40, maxWidth: 1279 + 260 }}
+      >
+        <p style={{ fontFamily: 'var(--lp-sans)', fontSize: 20, color: 'var(--foreground)', lineHeight: 1.25, margin: 0 }}>
+          Unstop, Devfolio, Devpost, Instagram posts, LinkedIn updates and college sites, cleaned up into one card per event. Same event on
+          three sites? It shows up once.
+        </p>
+      </div>
+
+      {/* Auto-scrolling carousel */}
+      <div style={{ position: 'relative', zIndex: 5, marginBottom: 24, overflow: 'hidden' }}>
+        <div
+          className="carousel-fade-left"
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: 0,
+            bottom: 0,
+            width: 120,
+            background: 'linear-gradient(90deg, var(--background) 0%, transparent 100%)',
+            zIndex: 2,
+            pointerEvents: 'none',
+          }}
+        />
+        <div
+          className="carousel-fade-right"
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: 0,
+            bottom: 0,
+            width: 120,
+            background: 'linear-gradient(270deg, var(--background) 0%, transparent 100%)',
+            zIndex: 2,
+            pointerEvents: 'none',
+          }}
+        />
+
+        <div className="carousel-track" style={{ display: 'flex', gap: GAP, paddingTop: 8, paddingBottom: 16, width: 'max-content' }}>
+          {carouselItems.map((h, i) => (
+            // Only the first copy is reachable by keyboard and screen readers.
+            <div key={`${h.slug}-${i}`} style={{ display: 'flex' }} aria-hidden={i >= items.length || undefined}>
+              <ListingCard h={h} copy={i >= items.length} />
+            </div>
+          ))}
+        </div>
+
+        <InlineStyle css={`
+          .carousel-pause-toggle {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            margin: 0;
+            cursor: pointer;
+          }
+          .carousel-pause-button .play-icon { display: none; }
+          .carousel-pause-toggle:checked ~ .pause-icon { display: none; }
+          .carousel-pause-toggle:checked ~ .play-icon { display: block; }
+          .carousel-pause-toggle:focus-visible {
+            outline: 3px solid var(--red);
+            outline-offset: 2px;
+          }
+          .carousel-track {
+            animation: carousel-scroll ${items.length * 4}s linear infinite;
+          }
+          .carousel-track:hover,
+          .carousel-track:focus-within {
+            animation-play-state: paused;
+          }
+          .listings-section:has(.carousel-pause-toggle:checked) .carousel-track {
+            animation-play-state: paused;
+          }
+          @keyframes carousel-scroll {
+            from { transform: translateX(0); }
+            to { transform: translateX(-${items.length * (CARD_W + GAP)}px); }
+          }
+          @media (prefers-reduced-motion: reduce) {
+            .carousel-track { animation: none !important; }
+          }
+          .listings-cta-short { display: none; }
+          @media (max-width: 640px) {
+            .carousel-fade-left, .carousel-fade-right { display: none !important; }
+            .listings-cta-full { display: none; }
+            .listings-cta-short { display: inline; }
+          }
+        `} />
+      </div>
+
+      {/* CTA, aligned with the headline */}
+      <div className="section-padded" style={{ paddingLeft: 'clamp(24px, 15vw, 260px)', paddingRight: 32, position: 'relative', zIndex: 5, marginTop: 8 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+          <Link
+            href="/hackathons"
+            className="cta-btn dark-btn"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              background: 'var(--foreground)',
+              color: 'var(--background)',
+              borderRadius: 41,
+              height: 52,
+              paddingLeft: 32,
+              paddingRight: 32,
+              fontFamily: 'var(--lp-sans)',
+              fontSize: 20,
+              textDecoration: 'none',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <span className="listings-cta-full">Explore all {total} hackathons</span>
+            <span className="listings-cta-short">Explore all</span> <BtnArrow />
+          </Link>
+
+          <label
+            className="carousel-pause-button"
+            style={{
+              position: 'relative',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 36,
+              height: 36,
+              color: 'var(--muted)',
+              border: '3px solid var(--muted)',
+              borderRadius: 999,
+              cursor: 'pointer',
+              userSelect: 'none',
+            }}
+          >
+            <input type="checkbox" className="carousel-pause-toggle" aria-label="Pause the carousel" />
+            <svg className="pause-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <line x1="8" y1="6" x2="8" y2="18" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" />
+              <line x1="16" y1="6" x2="16" y2="18" stroke="currentColor" strokeWidth="3.6" strokeLinecap="round" />
+            </svg>
+            <svg className="play-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+              <path d="M8 6 Q8 5 9 5 L16.5 9.9 Q17.8 10.8 17.8 12 Q17.8 13.2 16.5 14.1 L9 19 Q8 19 8 18 Z" fill="currentColor" />
+            </svg>
+          </label>
+        </div>
+      </div>
+
+      <WaveDown color="var(--background)" style={{ bottom: -40, zIndex: 10 }} />
     </section>
   );
 }

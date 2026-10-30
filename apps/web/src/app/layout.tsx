@@ -1,18 +1,19 @@
 import type { Metadata } from 'next';
-import { Inter, Manrope } from 'next/font/google';
+import { Figtree, Young_Serif } from 'next/font/google';
 import './globals.css';
 import Providers from '@/components/Providers';
 import ScrollEffects from '@/components/motion/ScrollEffects';
 import Tracker from '@/components/analytics/Tracker';
 import { siteConfig } from '@/data/siteConfig';
 import { JsonLd, siteJsonLd } from '@/lib/seo';
+import { THEME_KEY } from '@/lib/theme';
 
-// Inter for the interface, Manrope for headlines. Both are clean, modern sans
-// faces: no decorative serif, no novelty display font.
-const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
-const display = Manrope({ subsets: ['latin'], weight: ['500', '600', '700', '800'], variable: '--font-display', display: 'swap' });
+// Same pair as the landing page: Figtree for text, Young Serif for headings.
+const sans = Figtree({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+const display = Young_Serif({ weight: '400', subsets: ['latin'], variable: '--font-display', display: 'swap' });
 
-const BOOT_SCRIPT = `document.documentElement.classList.add('reveal-ready'); try { if (localStorage.getItem('hf_theme') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}`;
+const THEME_SCRIPT = `document.documentElement.classList.add('reveal-ready');
+try { if (localStorage.getItem('${THEME_KEY}') === 'light') document.documentElement.dataset.theme = 'light'; } catch (e) {}`;
 
 const HOME_TITLE = `${siteConfig.name}: Find Hackathons in India & Near You (2026)`;
 
@@ -72,13 +73,13 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable}`} suppressHydrationWarning>
+    <html lang="en" data-theme="dark" className={`${sans.variable} ${display.variable}`} suppressHydrationWarning>
       <head>
-        {/* Before first paint: turn on scroll reveals. Light is the default; dark only if chosen. */}
-        <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
+        {/* Before first paint: turn on scroll reveals, and apply light mode only if the visitor chose it (dark is the default). */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <JsonLd data={siteJsonLd()} />
       </head>
-      <body className="flex min-h-screen flex-col bg-surface">
+      <body className="flex min-h-screen flex-col">
         <ScrollEffects />
         <Tracker />
         <a
@@ -87,7 +88,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Skip to content
         </a>
-        {/* The landing page brings its own header and footer; every other page uses app/(site)/layout.tsx. */}
+        {/* The landing page (app/page.tsx) brings its own navbar and footer; every other page uses app/(site)/layout.tsx. */}
         <Providers>{children}</Providers>
       </body>
     </html>

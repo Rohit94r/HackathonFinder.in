@@ -1,101 +1,246 @@
-'use client';
-
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Compass, Search, Trophy, Users, Zap } from 'lucide-react';
+import type { CSSProperties, ReactNode } from 'react';
+import { cityName, modeLabel, sourceBySlug } from '@hackathonfinder/shared';
+import { formatDateRange, formatDay, formatPrizeShort, formatTeamSize } from '@/lib/format';
 import type { HackathonView } from '@/lib/hackathons';
-import { cn } from '@/lib/cn';
+import { InlineStyle } from './inline-style';
 
-interface HowItWorksProps {
-  example?: HackathonView;
+const chip: CSSProperties = {
+  position: 'absolute',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  background: '#ffffff',
+  border: '1px solid rgba(23,23,29,0.12)',
+  borderRadius: 999,
+  padding: '5px 12px',
+  fontFamily: 'var(--lp-sans)',
+  fontSize: 14,
+  fontWeight: 600,
+  color: '#17171d',
+  boxShadow: '0 4px 12px rgba(23,23,29,0.08)',
+  whiteSpace: 'nowrap',
+};
+
+function Panel({ children, background }: { children: ReactNode; background: string }) {
+  return (
+    <div
+      aria-hidden="true"
+      style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', aspectRatio: '16 / 9', marginBottom: 18, background, containerType: 'inline-size' }}
+    >
+      {children}
+    </div>
+  );
 }
 
-export function HowItWorksSection({ example }: HowItWorksProps) {
+/** Step 1: sources scattered around a radar. */
+function EverywherePanel() {
+  const sources = [
+    ['Unstop', 8, 14, -6],
+    ['Devfolio', 62, 10, 5],
+    ['Instagram', 4, 44, 4],
+    ['LinkedIn', 70, 40, -5],
+    ['Google', 12, 74, -3],
+    ['College sites', 58, 72, 4],
+    ['Devpost', 36, 6, -2],
+    ['Luma', 40, 82, 3],
+  ] as const;
+  return (
+    <Panel background="var(--panel-warm)">
+      {[18, 30, 42].map((r) => (
+        <span
+          key={r}
+          style={{
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            width: `${r * 2}%`,
+            aspectRatio: '1',
+            transform: 'translate(-50%, -50%)',
+            borderRadius: '50%',
+            border: '2px dashed rgba(236,55,80,0.35)',
+          }}
+        />
+      ))}
+      <span
+        style={{
+          position: 'absolute',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: '15%',
+          aspectRatio: '1',
+          borderRadius: '50%',
+          background: '#ec3750',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          boxShadow: '0 0 0 8px rgba(236,55,80,0.18)',
+        }}
+      >
+        <svg viewBox="0 0 32 32" style={{ width: '55%' }}>
+          <circle cx="14" cy="14" r="7.5" fill="none" stroke="#ffffff" strokeWidth="3.2" />
+          <path d="M19.5 19.5l6 6" stroke="#ffffff" strokeWidth="3.6" strokeLinecap="round" />
+        </svg>
+      </span>
+      {sources.map(([name, left, top, rotate]) => (
+        <span key={name} style={{ ...chip, left: `${left}%`, top: `${top}%`, transform: `rotate(${rotate}deg)` }}>
+          {name}
+        </span>
+      ))}
+    </Panel>
+  );
+}
+
+/** Step 2: one clean card, merged from several sources. */
+function CleanCardPanel({ h }: { h: HackathonView }) {
+  const sourceNames = h.sources.map((s) => sourceBySlug(s)?.name ?? s);
+  const rows = [
+    ['When', formatDateRange(h.startDate, h.endDate)],
+    ['Deadline', formatDay(h.registrationDeadline)],
+    ['Where', h.mode === 'online' ? 'Online' : `${cityName(h.city)} · ${modeLabel(h.mode)}`],
+    ['Team', formatTeamSize(h.teamMin, h.teamMax, h.teamSizeKnown !== false)],
+    ['Prizes', formatPrizeShort(h.prizePool, h.prizeCurrency)],
+  ];
+  return (
+    <Panel background="var(--panel-cool)">
+      {/* The mock card follows the theme, like the real listing cards do. */}
+      <div
+        style={{
+          position: 'absolute',
+          left: '50%',
+          top: '44%',
+          transform: 'translate(-50%, -50%) rotate(-2deg)',
+          width: '74%',
+          background: 'var(--mock-card)',
+          borderRadius: 12,
+          boxShadow: 'var(--mock-card-shadow)',
+          padding: '4.5cqw 5cqw',
+          fontFamily: 'var(--lp-sans)',
+          color: 'var(--foreground)',
+        }}
+      >
+        <p style={{ margin: 0, fontFamily: 'var(--lp-serif)', fontSize: '5.6cqw', lineHeight: 1.1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          {h.title}
+        </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', columnGap: '3cqw', rowGap: '0.8cqw', marginTop: '2.2cqw', fontSize: '3.4cqw' }}>
+          {rows.map(([label, value]) => (
+            <span key={label} style={{ display: 'contents' }}>
+              <span style={{ color: 'var(--mock-label)' }}>{label}</span>
+              <span style={{ fontWeight: 600 }}>{value}</span>
+            </span>
+          ))}
+        </div>
+      </div>
+      <span style={{ ...chip, right: '3%', bottom: '5%', background: '#ec3750', color: '#ffffff', border: 'none', transform: 'rotate(4deg)' }}>
+        {sourceNames.length} sources → 1 listing
+      </span>
+    </Panel>
+  );
+}
+
+/** Step 3: filters picked, one tap to the official page. */
+function FindPanel() {
+  const filters = ['Online', 'AI / ML', 'Free', 'Closes this month', 'Team of 3'];
+  return (
+    <Panel background="var(--panel-sun)">
+      <div style={{ position: 'absolute', left: '7%', right: '7%', top: '12%', display: 'flex', flexWrap: 'wrap', gap: '1.6cqw' }}>
+        {filters.map((f) => (
+          // Picked filters use the "selected" colours: ink on light, white on dark.
+          <span key={f} style={{ ...chip, position: 'static', fontSize: '3.6cqw', background: 'var(--foreground)', color: 'var(--background)', border: 'none' }}>
+            ✓ {f}
+          </span>
+        ))}
+      </div>
+      <span
+        style={{
+          position: 'absolute',
+          left: '50%',
+          bottom: '13%',
+          transform: 'translateX(-50%) rotate(-1.5deg)',
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: 8,
+          background: '#ec3750',
+          color: '#ffffff',
+          borderRadius: 999,
+          padding: '2.4cqw 5cqw',
+          fontFamily: 'var(--lp-sans)',
+          fontWeight: 700,
+          fontSize: '4.2cqw',
+          whiteSpace: 'nowrap',
+          boxShadow: '0 8px 20px rgba(236,55,80,0.35)',
+        }}
+      >
+        Register on official site ↗
+      </span>
+    </Panel>
+  );
+}
+
+/** The three steps from the concept: we go everywhere, we clean it up, you find what fits. */
+export function HowItWorksSection({ example }: { example: HackathonView }) {
   const steps = [
     {
-      num: '01',
-      title: 'Discover Every Event',
-      desc: 'We monitor 10+ developer portals—including Devfolio, Unstop, Devpost, Luma, and college tech societies—so you find every verified hackathon in one clean feed.',
-      icon: Search,
-      cta: 'Explore Listings',
-      href: '/hackathons',
+      panel: <EverywherePanel />,
+      title: '1. We go everywhere',
+      caption: 'Hackathon platforms, Google, Instagram, LinkedIn, event sites and college pages, checked every day.',
     },
     {
-      num: '02',
-      title: 'Match With Teammates',
-      desc: 'No team? No problem. Browse student profiles and form your squad. Connect with AI engineers, frontend developers, UI designers, and pitch leaders.',
-      icon: Users,
-      cta: 'Find Teammates',
-      href: '/teams',
+      panel: <CleanCardPanel h={example} />,
+      title: '2. We clean it up',
+      caption: 'Every event becomes one clear card with dates, deadline, mode, city, team size, prizes and who can join.',
     },
     {
-      num: '03',
-      title: 'Compete & Win Prizes',
-      desc: 'Track deadlines with email and WhatsApp reminders. Submit your project, get real mentor feedback, win cash prizes, and showcase verified wins on your profile.',
-      icon: Trophy,
-      cta: 'View Past Wins',
-      href: '/wins',
+      panel: <FindPanel />,
+      title: '3. You find what fits',
+      caption: 'Search and filter by what you need, save events, then register on the organizer’s official page.',
     },
   ];
 
   return (
-    <section className="py-16 sm:py-24 bg-white dark:bg-zinc-950">
-      <div className="container-page">
-        {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-14">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-950/30 px-3 py-1 text-xs font-semibold text-accent border border-red-200/60 dark:border-red-900/30 mb-3">
-            <Zap className="h-3.5 w-3.5" />
-            <span>Built for Student Builders</span>
+    <section
+      className="section-padded"
+      style={{
+        background: 'var(--background)',
+        paddingTop: 48,
+        paddingBottom: 80,
+        paddingLeft: 'clamp(24px, 14.29%, 220px)',
+        paddingRight: 'clamp(24px, 14.29%, 220px)',
+      }}
+    >
+      <h2 style={{ fontFamily: 'var(--lp-sans)', fontSize: 20, color: 'var(--foreground)', textAlign: 'center', marginBottom: 36, marginTop: 0, lineHeight: 1.25 }}>
+        We do the searching, so you can do the building.
+        <br />
+        Curious how?{' '}
+        <Link href="/how-it-works" className="lp-underline-link">
+          Meet our discovery agents
+        </Link>
+      </h2>
+
+      <div className="steps-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'clamp(12px, 1.6vw, 24px)', marginBottom: 56 }}>
+        {steps.map((step) => (
+          <div key={step.title}>
+            {step.panel}
+            <h3 style={{ fontFamily: 'var(--lp-serif)', fontSize: 28, lineHeight: 1.1, textAlign: 'center', margin: '0 0 10px', color: 'var(--foreground)' }}>
+              {step.title}
+            </h3>
+            <p style={{ fontFamily: 'var(--lp-sans)', fontSize: 19, color: 'var(--foreground)', margin: 0, lineHeight: 1.25, textAlign: 'center' }}>
+              {step.caption}
+            </p>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            How HackathonFinder Works
-          </h2>
-          <p className="mt-3 text-base sm:text-lg text-slate-600 dark:text-zinc-400">
-            Spend less time searching multiple websites and more time building prototypes that win.
-          </p>
-        </div>
-
-        {/* 3 Step Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {steps.map((step) => {
-            const Icon = step.icon;
-            return (
-              <div
-                key={step.num}
-                className="group relative flex flex-col justify-between rounded-3xl border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/40 p-8 transition duration-200 hover:-translate-y-1 hover:border-red-200 hover:bg-white dark:hover:bg-zinc-900 hover:shadow-xl hover:shadow-red-500/5"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 dark:bg-red-950/40 text-accent transition group-hover:bg-accent group-hover:text-white">
-                      <Icon className="h-6 w-6" />
-                    </span>
-                    <span className="text-2xl font-black text-slate-300 dark:text-zinc-700">
-                      {step.num}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">
-                    {step.title}
-                  </h3>
-
-                  <p className="text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
-                    {step.desc}
-                  </p>
-                </div>
-
-                <div className="mt-8 pt-4 border-t border-slate-200/60 dark:border-zinc-800">
-                  <Link
-                    href={step.href}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-accent hover:text-accent-dark transition"
-                  >
-                    <span>{step.cta}</span>
-                    <ArrowRight className="h-3.5 w-3.5" />
-                  </Link>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+        ))}
       </div>
+
+      <InlineStyle css={`
+        @media (max-width: 640px) {
+          .steps-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+        }
+        @media (min-width: 641px) and (max-width: 900px) {
+          .steps-grid { display: flex !important; flex-wrap: wrap; justify-content: center; gap: 32px !important; }
+          .steps-grid > div { flex: 0 0 calc(50% - 16px); }
+        }
+      `} />
     </section>
   );
 }

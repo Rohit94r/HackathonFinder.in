@@ -1,8 +1,14 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
-import { Bell, Bookmark, CheckCircle2, Compass, Layers, ShieldCheck, Sparkles, Trophy, Users, Zap } from 'lucide-react';
-import { cn } from '@/lib/cn';
+import type { CSSProperties, ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { Bookmark, Building2, CalendarClock, Globe2, Layers, Megaphone, Search, Users } from 'lucide-react';
+import { BtnArrowSvg } from './btn-arrow';
+import { PHOTOS, type Photo } from './photos';
+import { WaveUp } from './waves';
+import { InlineStyle } from './inline-style';
 
 export interface LiveStat {
   value: number;
@@ -10,102 +16,359 @@ export interface LiveStat {
   icon: 'open' | 'closing' | 'cities' | 'sources';
 }
 
-interface FeaturesSectionProps {
-  stats?: LiveStat[];
+const DIGIT_HEIGHT_PX = 24;
+
+const cardWrapStyle: CSSProperties = { position: 'relative', borderRadius: 16, boxShadow: 'var(--feature-card-shadow)' };
+const cardContentStyle: CSSProperties = { position: 'relative', zIndex: 1, padding: '32px 44px 32px' };
+const srOnly: CSSProperties = {
+  position: 'absolute',
+  width: 1,
+  height: 1,
+  padding: 0,
+  margin: -1,
+  overflow: 'hidden',
+  clip: 'rect(0, 0, 0, 0)',
+  whiteSpace: 'nowrap',
+  border: 0,
+};
+const cardTitleStyle: CSSProperties = {
+  fontFamily: 'var(--lp-serif)',
+  fontSize: 40,
+  fontWeight: 'normal',
+  lineHeight: 1,
+  color: 'var(--paper)',
+  margin: 0,
+};
+const cardBodyStyle: CSSProperties = { fontFamily: 'var(--lp-sans)', fontSize: 20, color: 'var(--paper)', margin: 0, lineHeight: 1.25 };
+const cardBodyGapStyle: CSSProperties = { ...cardBodyStyle, margin: '1em 0 0' };
+const cardCtaStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  paddingLeft: 20,
+  paddingRight: 20,
+  height: 44,
+  background: 'var(--red)',
+  color: 'var(--paper)',
+  borderRadius: 32,
+  fontFamily: 'var(--lp-sans)',
+  fontSize: 20,
+  textDecoration: 'none',
+  whiteSpace: 'nowrap',
+  marginTop: 16,
+  lineHeight: 1,
+  gap: 8,
+};
+
+/** Dark card background: an event photo under an ink wash, with a coloured glow in the corner. */
+function CardBg({ photo, glow }: { photo: Photo; glow: string }) {
+  return (
+    <div style={{ position: 'absolute', inset: 0, borderRadius: 16, overflow: 'hidden', pointerEvents: 'none', background: '#17171d' }}>
+      <Image src={photo.src} alt="" fill sizes="(max-width: 1366px) 100vw, 980px" style={{ objectFit: 'cover' }} />
+      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, rgba(23,23,29,0.9) 0%, rgba(23,23,29,0.76) 55%, rgba(23,23,29,0.6) 100%)' }} />
+      <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(120% 140% at 100% 0%, ${glow} 0%, transparent 60%)`, opacity: 0.55 }} />
+    </div>
+  );
 }
 
-export function FeaturesSection({ stats }: FeaturesSectionProps) {
-  const features = [
-    {
-      title: 'One Unified Feed',
-      description: 'Stop tab-switching between Devfolio, Unstop, Devpost and college WhatsApp groups. Find all verified hackathons in one lightning-fast feed.',
-      icon: Layers,
-      highlight: '10+ Sources',
-    },
-    {
-      title: 'Student Team Finder',
-      description: 'Need a machine learning engineer, full-stack dev, or UI designer? Post your project or browse student profiles looking to squad up.',
-      icon: Users,
-      highlight: 'Squad Up',
-      cta: 'Find Teammates',
-      href: '/teams',
-    },
-    {
-      title: 'Scam-Free & Verified',
-      description: 'Every single hackathon listing is verified for legitimate organizers, confirmed prize pools, and authentic college or sponsor backing.',
-      icon: ShieldCheck,
-      highlight: '100% Legit',
-    },
-    {
-      title: 'Deadline Reminders',
-      description: 'Save hackathons to your dashboard with one click. Get notified via email and weekly digest before registration periods close.',
-      icon: Bell,
-      highlight: 'Zero Missed Deadlines',
-      cta: 'My Saved Events',
-      href: '/saved',
-    },
-  ];
+function CardIcon({ children, color }: { children: ReactNode; color: string }) {
+  return (
+    <span
+      style={{
+        width: 48,
+        height: 48,
+        borderRadius: 12,
+        background: color,
+        color: '#ffffff',
+        display: 'inline-flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        flexShrink: 0,
+      }}
+    >
+      {children}
+    </span>
+  );
+}
+
+function CardCta({ children, href }: { children: ReactNode; href: string }) {
+  return (
+    <Link href={href} style={cardCtaStyle} className="cta-btn">
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, lineHeight: 1 }}>
+        {children}{' '}
+        <span className="btn-arrow" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', lineHeight: 1 }}>
+          <BtnArrowSvg />
+        </span>
+      </span>
+    </Link>
+  );
+}
+
+const STAT_ICONS = { open: Layers, closing: CalendarClock, cities: Building2, sources: Globe2 } as const;
+
+function OdometerNumber({ value, animate, baseDelay }: { value: number; animate: boolean; baseDelay: number }) {
+  const formatted = value.toLocaleString('en-IN');
+  const chars = formatted.split('');
+  const totalDigits = chars.filter((char) => /\d/.test(char)).length;
+  const digitIndexes = chars.flatMap((char, index) => (/\d/.test(char) ? [index] : []));
 
   return (
-    <section className="py-16 sm:py-24 bg-white dark:bg-zinc-950">
-      <div className="container-page">
-        {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-950/40 px-3.5 py-1 text-xs font-semibold text-accent border border-red-200 dark:border-red-900/40 mb-3">
-            <Zap className="h-3.5 w-3.5" />
-            <span>Developer Advantage</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-            Everything You Need to Build, Team Up &amp; Win
-          </h2>
-          <p className="mt-3 text-base sm:text-lg text-slate-600 dark:text-zinc-400">
-            HackathonFinder is designed by student builders for student builders. Here is why thousands of hackers rely on us.
-          </p>
-        </div>
-
-        {/* Feature Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {features.map((feature) => {
-            const Icon = feature.icon;
+    <span style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1, fontVariantNumeric: 'tabular-nums', position: 'relative' }}>
+      <span aria-hidden="true" style={{ display: 'inline-flex', alignItems: 'center', lineHeight: 1 }}>
+        {chars.map((char, charIndex) => {
+          if (!/\d/.test(char)) {
             return (
-              <div
-                key={feature.title}
-                className="group relative flex flex-col justify-between rounded-3xl border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/30 p-8 transition duration-200 hover:-translate-y-1 hover:border-red-200 hover:bg-white dark:hover:bg-zinc-900 hover:shadow-xl hover:shadow-red-500/5"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-50 dark:bg-red-950/40 text-accent transition group-hover:bg-accent group-hover:text-white">
-                      <Icon className="h-6 w-6" />
-                    </span>
-                    <span className="rounded-full bg-red-50 dark:bg-red-950/30 border border-red-100 dark:border-red-900/40 px-3 py-1 text-xs font-bold text-accent">
-                      {feature.highlight}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-2">
-                    {feature.title}
-                  </h3>
-
-                  <p className="text-sm leading-relaxed text-slate-600 dark:text-zinc-400">
-                    {feature.description}
-                  </p>
-                </div>
-
-                {feature.cta && feature.href && (
-                  <div className="mt-6 pt-4 border-t border-slate-200/60 dark:border-zinc-800">
-                    <Link
-                      href={feature.href}
-                      className="text-xs font-bold text-accent hover:text-accent-dark transition"
-                    >
-                      {feature.cta} &rarr;
-                    </Link>
-                  </div>
-                )}
-              </div>
+              <span key={`sep-${charIndex}`} style={{ width: '0.34em', textAlign: 'center' }}>
+                {char}
+              </span>
             );
-          })}
+          }
+
+          const targetDigit = Number(char);
+          const digitPosition = digitIndexes.indexOf(charIndex);
+          const digitPlaceFromRight = totalDigits - digitPosition - 1;
+          const loops = Math.max(2, 4 - Math.floor(digitPlaceFromRight / 2));
+          const finalStep = loops * 10 + targetDigit;
+          const wheel = Array.from({ length: finalStep + 1 }, (_, idx) => idx % 10);
+
+          return (
+            <span
+              key={`digit-${charIndex}`}
+              style={{ width: '0.62em', height: DIGIT_HEIGHT_PX, overflow: 'hidden', display: 'inline-flex', alignItems: 'flex-start', justifyContent: 'center' }}
+            >
+              <span
+                style={{
+                  display: 'inline-flex',
+                  flexDirection: 'column',
+                  transform: animate ? `translateY(-${finalStep * DIGIT_HEIGHT_PX}px)` : 'translateY(0)',
+                  transition: `transform ${700 + digitPlaceFromRight * 130}ms cubic-bezier(0.19, 1, 0.22, 1) ${baseDelay + digitPosition * 60}ms`,
+                  willChange: 'transform',
+                }}
+              >
+                {wheel.map((digit, wheelIdx) => (
+                  <span key={wheelIdx} style={{ height: DIGIT_HEIGHT_PX, lineHeight: `${DIGIT_HEIGHT_PX}px`, textAlign: 'center' }}>
+                    {digit}
+                  </span>
+                ))}
+              </span>
+            </span>
+          );
+        })}
+      </span>
+      <span style={srOnly}>{formatted}</span>
+    </span>
+  );
+}
+
+function StatBadge({ stat, animate, delay }: { stat: LiveStat; animate: boolean; delay: number }) {
+  const Icon = STAT_ICONS[stat.icon];
+  return (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 10,
+        background: 'var(--elevated)',
+        border: '1px solid var(--border)',
+        borderRadius: 52,
+        height: 50,
+        paddingLeft: 16,
+        paddingRight: 24,
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+        minWidth: 270,
+        opacity: animate ? 1 : 0,
+        transform: animate ? 'translateX(0)' : 'translateX(12px)',
+        transition: `opacity 240ms ease-out ${delay}ms, transform 280ms cubic-bezier(0.23, 1, 0.32, 1) ${delay}ms`,
+      }}
+    >
+      <Icon size={18} strokeWidth={2} color="var(--foreground)" aria-hidden="true" />
+      <span style={{ fontFamily: 'var(--lp-sans)', fontSize: 20, color: 'var(--foreground)', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+        <OdometerNumber value={stat.value} animate={animate} baseDelay={delay} />
+        <span>{stat.label}</span>
+      </span>
+    </div>
+  );
+}
+
+function LiveStatBadges({ stats }: { stats: LiveStat[] }) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [hasEnteredView, setHasEnteredView] = useState(false);
+
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element || hasEnteredView) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setHasEnteredView(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setHasEnteredView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.35, rootMargin: '0px 0px -8% 0px' }
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [hasEnteredView]);
+
+  return (
+    <div ref={containerRef} style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end', justifyContent: 'center' }}>
+      {stats.map((stat, idx) => (
+        <StatBadge key={stat.icon} stat={stat} animate={hasEnteredView} delay={idx * 55} />
+      ))}
+    </div>
+  );
+}
+
+/** Mock of the "My hackathons" tracker, hanging off the card's right edge. */
+function TrackerMock() {
+  const rows = [
+    ['AI hackathon, Pune', 'Registered', '#ec3750'],
+    ['Web3 weekend, online', 'Saved', '#ffffff'],
+    ['Climate hack, Bengaluru', 'Submitted', '#ffffff'],
+  ];
+  return (
+    <div
+      className="features-tracker"
+      aria-hidden="true"
+      style={{
+        position: 'absolute',
+        right: -60,
+        top: 96,
+        width: 380,
+        background: 'var(--mock-card)',
+        borderRadius: 14,
+        boxShadow: 'var(--tracker-shadow)',
+        padding: '18px 20px',
+        zIndex: 1,
+        transform: 'rotate(2deg)',
+        fontFamily: 'var(--lp-sans)',
+        color: 'var(--foreground)',
+      }}
+    >
+      <p style={{ margin: '0 0 12px', fontWeight: 800, fontSize: 16 }}>My hackathons</p>
+      {rows.map(([name, status, color]) => (
+        <div key={name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, padding: '10px 0', borderTop: '1px solid var(--mock-rule)' }}>
+          <span style={{ fontSize: 16 }}>{name}</span>
+          <span style={{ background: color, color: color === '#ffffff' ? '#17171d' : '#ffffff', border: '1px solid rgba(23,23,29,0.15)', borderRadius: 999, padding: '3px 10px', fontSize: 13, fontWeight: 700 }}>{status}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** "Everything you get, free": the four things HackathonFinder does for students and organizers. */
+export function FeaturesSection({ stats }: { stats: LiveStat[] }) {
+  return (
+    <section style={{ background: 'var(--surface)', paddingTop: 80, paddingBottom: 48, position: 'relative' }}>
+      <WaveUp color="var(--surface)" style={{ top: -54, zIndex: 25 }} />
+
+      <div
+        className="section-padded"
+        style={{ maxWidth: 1366, margin: '0 auto', paddingLeft: 'clamp(24px, 14.29%, 195px)', paddingRight: 'clamp(24px, 14.29%, 195px)' }}
+      >
+        <h2 style={{ fontFamily: 'var(--lp-serif)', fontSize: 40, fontWeight: 'normal', lineHeight: 1, color: 'var(--foreground)', margin: '0 0 20px' }}>
+          Everything you get, for free.
+        </h2>
+        <p style={{ fontFamily: 'var(--lp-sans)', fontSize: 20, color: 'var(--foreground)', margin: '0 0 48px', lineHeight: 1.25 }}>
+          No account needed to browse. Here’s what HackathonFinder does for students, and for the people who run the events.
+        </p>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 30 }}>
+          {/* Card 1: one list, with live counts */}
+          <div style={cardWrapStyle}>
+            <CardBg photo={PHOTOS.lateNightCode} glow="rgba(236,55,80,0.55)" />
+            <div className="features-card1-content" style={{ ...cardContentStyle, maxWidth: 'calc(100% - 260px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                <CardIcon color="#ec3750">
+                  <Search size={24} aria-hidden="true" />
+                </CardIcon>
+                <h3 className="features-card-title" style={cardTitleStyle}>One list of every hackathon</h3>
+              </div>
+              <p style={cardBodyStyle}>
+                Search by name, organizer, theme or keyword. Filter by city, mode, dates, deadline, team size, prize, fee and who can join.
+              </p>
+              <p style={cardBodyGapStyle}>Plus “near me” to see the closest ones first, a calendar view, city and theme pages and a “closing soon” list, so you always know what’s next.</p>
+              <CardCta href="/hackathons">Explore hackathons</CardCta>
+            </div>
+            <div className="features-stats" style={{ position: 'absolute', right: -60, top: 32, bottom: 32, display: 'flex', alignItems: 'center' }}>
+              <LiveStatBadges stats={stats} />
+            </div>
+          </div>
+
+          {/* Card 2: tracker and reminders */}
+          <div style={cardWrapStyle}>
+            <CardBg photo={PHOTOS.openHall} glow="rgba(236,55,80,0.55)" />
+            <TrackerMock />
+            <div className="features-card-content" style={{ ...cardContentStyle, zIndex: 2 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                <CardIcon color="#ec3750">
+                  <Bookmark size={24} aria-hidden="true" />
+                </CardIcon>
+                <h3 className="features-card-title" style={cardTitleStyle}>My hackathons</h3>
+              </div>
+              <div className="features-card2-body" style={{ maxWidth: 'calc(100% - 340px)' }}>
+                <p style={cardBodyStyle}>Save events and track each one from saved to registered, submitted and done.</p>
+                <p style={cardBodyGapStyle}>Deadline reminders by email, then WhatsApp and Telegram, are on the way. So is a weekly digest picked for you.</p>
+              </div>
+              <CardCta href="/saved">Open My hackathons</CardCta>
+            </div>
+          </div>
+
+          {/* Card 3: Team Finder */}
+          <div style={cardWrapStyle}>
+            <CardBg photo={PHOTOS.longTable} glow="rgba(236,55,80,0.55)" />
+            <div className="features-card-content" style={{ ...cardContentStyle, maxWidth: 'calc(100% - 88px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                <CardIcon color="#ec3750">
+                  <Users size={24} aria-hidden="true" />
+                </CardIcon>
+                <h3 className="features-card-title" style={cardTitleStyle}>Great idea, no team?</h3>
+              </div>
+              <p style={cardBodyStyle}>Post the skills you have and the skills you need on any hackathon.</p>
+              <p style={cardBodyGapStyle}>Find a frontend dev, an ML person, a designer or someone who can pitch, and team up before the deadline.</p>
+              <CardCta href="/teams">Find teammates</CardCta>
+            </div>
+          </div>
+
+          {/* Card 4: organizers */}
+          <div style={cardWrapStyle}>
+            <CardBg photo={PHOTOS.stageLights} glow="rgba(236,55,80,0.55)" />
+            <div className="features-card-content" style={{ ...cardContentStyle, maxWidth: 'calc(100% - 88px)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 12 }}>
+                <CardIcon color="#ec3750">
+                  <Megaphone size={24} aria-hidden="true" />
+                </CardIcon>
+                <h3 className="features-card-title" style={cardTitleStyle}>Running a hackathon?</h3>
+              </div>
+              <p style={cardBodyStyle}>
+                List it for free, claim a listing we already found, and reach students who are actively looking. Featured spots are there
+                when you want extra reach.
+              </p>
+              <CardCta href="/submit?as=organizer">Submit your hackathon</CardCta>
+            </div>
+          </div>
         </div>
       </div>
+
+      <InlineStyle css={`
+        @media (max-width: 1100px) {
+          .features-stats { display: none !important; }
+          .features-card1-content { max-width: 100% !important; }
+        }
+        @media (max-width: 900px) {
+          .features-tracker { display: none !important; }
+          .features-card2-body { max-width: 100% !important; }
+        }
+        @media (max-width: 767px) {
+          .features-card1-content, .features-card-content { max-width: 100% !important; padding: 24px 20px !important; }
+          .features-card-title { font-size: 28px !important; }
+        }
+      `} />
     </section>
   );
 }

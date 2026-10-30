@@ -1,10 +1,9 @@
-'use client';
-
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, Compass, MapPin, Navigation, Sparkles } from 'lucide-react';
-import { PHOTOS } from './photos';
-import { cn } from '@/lib/cn';
+import { BtnArrowSvg } from './btn-arrow';
+import { InlineStyle } from './inline-style';
+import { PHOTOS, type Photo } from './photos';
+import { WaveUp } from './waves';
 
 export interface CityCount {
   slug: string;
@@ -12,118 +11,192 @@ export interface CityCount {
   open: number;
 }
 
-interface NearYouSectionProps {
-  cities: CityCount[];
-  totalCities: number;
+function PinIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z" />
+      <circle cx="12" cy="9.5" r="2.5" />
+    </svg>
+  );
 }
 
-export function NearYouSection({ cities, totalCities }: NearYouSectionProps) {
+const LEFT_TILES = [PHOTOS.crowdStairs, PHOTOS.computerLab, PHOTOS.classroomDesks, PHOTOS.sharedDesk];
+const RIGHT_TILES = [PHOTOS.purpleCrowd, PHOTOS.demoHall, PHOTOS.confetti, PHOTOS.stageTalk];
+
+function Mosaic({ photos, className }: { photos: Photo[]; className: string }) {
   return (
-    <section className="py-16 sm:py-24 bg-white dark:bg-zinc-950">
-      <div className="container-page">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-red-50 dark:bg-red-950/30 px-3 py-1 text-xs font-semibold text-accent border border-red-200/60 dark:border-red-900/30 mb-3">
-              <MapPin className="h-3.5 w-3.5" />
-              <span>Nationwide Ecosystem</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              Hackathons Near You
-            </h2>
-            <p className="mt-2 text-base text-slate-600 dark:text-zinc-400 max-w-2xl">
-              Connect with fellow developers in person. Explore hackathons happening on college campuses, tech hubs,
-              and coworking spaces across India.
-            </p>
-          </div>
-
-          <Link
-            href="/near-me"
-            className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-accent-dark transition self-start md:self-auto"
-          >
-            <Navigation className="h-4 w-4" />
-            <span>Use My Current Location</span>
-          </Link>
+    <div className={`ny-mosaic ${className}`} aria-hidden="true">
+      {photos.map((photo) => (
+        <div key={photo.src} className="ny-tile">
+          <Image src={photo.src} alt="" fill sizes="(max-width: 899px) 50vw, 22vw" style={{ objectFit: 'cover' }} />
         </div>
+      ))}
+    </div>
+  );
+}
 
-        {/* City Hubs Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {cities.map((city) => (
-            <Link
-              key={city.slug}
-              href={`/cities/${city.slug}`}
-              className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-slate-200 dark:border-zinc-800 bg-slate-50/50 dark:bg-zinc-900/50 p-5 transition duration-200 hover:-translate-y-1 hover:border-red-200 hover:bg-white dark:hover:bg-zinc-900 hover:shadow-md"
-            >
-              <div className="flex items-center justify-between">
-                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-50 dark:bg-red-950/40 text-accent transition group-hover:bg-accent group-hover:text-white">
-                  <MapPin className="h-5 w-5" />
-                </span>
-                <span className="rounded-full bg-slate-100 dark:bg-zinc-800 px-2.5 py-0.5 text-xs font-semibold text-slate-700 dark:text-zinc-300 group-hover:bg-red-50 group-hover:text-accent transition">
-                  {city.open} {city.open === 1 ? 'event' : 'events'}
-                </span>
-              </div>
+/**
+ * "Near you": a big event photo fading in from the section above, with a photo
+ * mosaic either side of the near-me call to action.
+ */
+export function NearYouSection({ cities, totalCities }: { cities: CityCount[]; totalCities: number }) {
+  return (
+    <section style={{ position: 'relative', background: 'var(--background)' }}>
+      <InlineStyle css={`
+        .ny-banner { position: relative; height: clamp(280px, 34vw, 520px); }
+        .ny-banner::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, var(--background) 0%, transparent 45%);
+        }
+        .ny-body { display: grid; grid-template-columns: 1fr minmax(0, 660px) 1fr; }
+        .ny-card {
+          position: relative;
+          z-index: 2;
+          margin-top: -130px;
+          padding: 56px 48px 64px;
+          background: var(--background);
+          border-radius: 24px 24px 0 0;
+          text-align: center;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+        }
+        .ny-mosaic { display: grid; grid-template-rows: 2fr 3fr; }
+        .ny-left { grid-template-columns: 3fr 2fr; }
+        .ny-right { grid-template-columns: 2fr 3fr; }
+        .ny-tile { position: relative; overflow: hidden; min-height: 150px; }
+        .ny-primary { background: var(--foreground); color: var(--background); }
+        .ny-outline { border: 2px solid var(--foreground); color: var(--foreground); transition: background 0.3s ease, color 0.3s ease; }
+        .ny-outline:hover { background: var(--foreground); color: var(--background); }
+        .ny-city { border: 1px solid var(--border); background: var(--surface); color: var(--foreground); transition: border-color 0.2s ease; }
+        .ny-city:hover { border-color: var(--red); }
+        @media (max-width: 899px) {
+          .ny-body { grid-template-columns: 1fr; }
+          .ny-card { margin-top: -70px; padding: 40px 20px 32px; border-radius: 20px 20px 0 0; }
+          .ny-left { order: 1; grid-template-rows: 150px 150px; grid-template-columns: 1fr 1fr; }
+          .ny-right { display: none; }
+        }
+      `} />
 
-              <div className="mt-5">
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white group-hover:text-accent transition">
-                  {city.name}
-                </h3>
-                <p className="mt-1 text-xs text-slate-500 dark:text-zinc-400">View college &amp; tech fests</p>
-              </div>
-
-              <div className="mt-4 flex items-center gap-1 text-xs font-bold text-accent opacity-0 group-hover:opacity-100 transition-opacity">
-                <span>Explore city</span>
-                <ArrowRight className="h-3 w-3" />
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {/* Community Campus Banner */}
-        <div className="mt-12 relative overflow-hidden rounded-3xl border border-slate-200 dark:border-zinc-800 bg-gradient-to-r from-red-50 via-white to-red-50 dark:from-zinc-900 dark:via-zinc-950 dark:to-zinc-900 p-8 sm:p-10">
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-            <div className="md:col-span-7">
-              <span className="inline-flex items-center gap-1 rounded-full bg-accent/10 px-3 py-1 text-xs font-bold text-accent">
-                <Sparkles className="h-3.5 w-3.5" /> For Campus Clubs &amp; Organizers
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-3">
-                Organizing a College Hackathon?
-              </h3>
-              <p className="mt-3 text-slate-600 dark:text-zinc-400 text-sm sm:text-base leading-relaxed">
-                List your hackathon on HackathonFinder for free. Get discovered by 15,000+ active student developers,
-                designers, and problem solvers across colleges in India.
-              </p>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link
-                  href="/submit"
-                  className="inline-flex items-center gap-2 rounded-xl bg-accent px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-accent-dark transition"
-                >
-                  Post Your Hackathon Free
-                </Link>
-                <Link
-                  href="/organizers"
-                  className="inline-flex items-center gap-2 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-5 py-2.5 text-sm font-semibold text-slate-700 dark:text-zinc-200 hover:border-slate-400 transition"
-                >
-                  Organizer Features
-                </Link>
-              </div>
-            </div>
-
-            <div className="md:col-span-5 relative h-48 sm:h-56 rounded-2xl overflow-hidden shadow-inner">
-              <Image
-                src={PHOTOS.expoHall.src}
-                alt="Hackathon expo hall"
-                fill
-                className="object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="absolute bottom-3 left-4 right-4 text-white">
-                <p className="text-xs font-bold uppercase tracking-wider text-red-200">Campus Visibility</p>
-                <p className="text-sm font-bold">100% Free distribution for student-led events</p>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div className="ny-banner" aria-hidden="true">
+        <Image src={PHOTOS.eventGroup.src} alt="" fill sizes="100vw" style={{ objectFit: 'cover', objectPosition: 'center 35%' }} />
       </div>
+
+      <div className="ny-body">
+        <Mosaic photos={LEFT_TILES} className="ny-left" />
+
+        <div className="ny-card">
+          <span
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              fontFamily: 'var(--lp-sans)',
+              fontSize: 18,
+              color: 'var(--red-text)',
+              marginBottom: 14,
+            }}
+          >
+            <PinIcon />
+            Near you
+          </span>
+          <h2 style={{ fontFamily: 'var(--lp-serif)', fontSize: 'clamp(36px, 4.6vw, 54px)', lineHeight: 1.05, color: 'var(--foreground)', margin: 0 }}>
+            Your next hackathon{' '}
+            <span
+              style={{
+                background: 'var(--grad-deep)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              might be next door.
+            </span>
+          </h2>
+          <p style={{ fontFamily: 'var(--lp-sans)', fontSize: 20, lineHeight: 1.3, color: 'var(--foreground)', margin: '20px 0 0', maxWidth: 560 }}>
+            Turn on location or pick your city. The closest in-person hackathons come first, with how far each one is. Online ones follow, so
+            you can join from anywhere.
+          </p>
+
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 28 }}>
+            <Link
+              href="/near-me"
+              className="ny-primary dark-btn cta-btn"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 10,
+                height: 52,
+                padding: '0 28px',
+                borderRadius: 9999,
+                fontFamily: 'var(--lp-sans)',
+                fontSize: 19,
+                fontWeight: 600,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              <PinIcon />
+              Show hackathons near me
+              <span className="btn-arrow" aria-hidden="true">
+                <BtnArrowSvg />
+              </span>
+            </Link>
+            <Link
+              href="/cities"
+              className="ny-outline"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                height: 52,
+                padding: '0 26px',
+                borderRadius: 9999,
+                fontFamily: 'var(--lp-sans)',
+                fontSize: 19,
+                textDecoration: 'none',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              Browse {totalCities} cities
+            </Link>
+          </div>
+
+          <ul style={{ listStyle: 'none', display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8, padding: 0, margin: '28px 0 0' }}>
+            {cities.map((c) => (
+              <li key={c.slug}>
+                <Link
+                  href={`/cities/${c.slug}`}
+                  className="ny-city"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    padding: '8px 16px',
+                    borderRadius: 9999,
+                    fontFamily: 'var(--lp-sans)',
+                    fontSize: 15,
+                    fontWeight: 500,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {c.name}
+                  {c.open > 0 && (
+                    <span style={{ background: 'var(--red)', color: '#ffffff', borderRadius: 9999, padding: '0 7px', fontSize: 12, fontWeight: 700 }}>
+                      {c.open}
+                    </span>
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <Mosaic photos={RIGHT_TILES} className="ny-right" />
+      </div>
+
+      <WaveUp color="var(--background)" style={{ bottom: -2, zIndex: 20 }} />
     </section>
   );
 }

@@ -2,88 +2,148 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowRight, Search, Sparkles } from 'lucide-react';
 import { parseSmartQuery } from '@/lib/smartSearch';
 import { NEAR_ME_FILTERS, toQueryString } from '@/lib/filters';
-import { cn } from '@/lib/cn';
+import { InlineStyle } from './inline-style';
 
 const EXAMPLES = [
-  'Free online AI hackathon for students',
-  'Offline hackathons in Bengaluru this month',
-  'Web3 hackathon with big prizes in Delhi',
-  'Beginner-friendly hackathon this weekend',
-  'Hackathons in Mumbai with cash prizes',
-  'Solo & student coding contests in Pune',
+  'Offline hackathon near me this month',
+  'Free AI hackathon in Pune for students',
+  'Online web3 hackathon with big prizes',
+  'Beginner hackathon this month, team of 3',
+  'Women-only hackathon in Pune',
+  'Solo coding contest this week',
 ];
 
-interface SmartSearchInputProps {
-  className?: string;
-  variant?: 'hero' | 'showcase';
-  placeholderPrefix?: string;
-}
+type Variant = 'hero' | 'showcase';
 
-export function SmartSearchInput({
-  className,
-  variant = 'hero',
-  placeholderPrefix = 'e.g.',
-}: SmartSearchInputProps) {
+const cfg = {
+  hero: { w: 'min(560px, calc(100vw - 48px))', inputId: 'hero-search-input' },
+  showcase: { w: '100%', inputId: 'showcase-search-input' },
+} as const satisfies Record<Variant, { w: string; inputId: string }>;
+
+/**
+ * Plain-words search pill. Turns "free online AI hackathon this month" into filters
+ * and opens the Explore page; an empty search runs the example shown.
+ */
+export function SmartSearchInput({ variant = 'hero', showParsed = false }: { variant?: Variant; showParsed?: boolean }) {
   const router = useRouter();
   const [value, setValue] = useState('');
   const [exampleIndex, setExampleIndex] = useState(0);
+  const c = cfg[variant];
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setExampleIndex((prev) => (prev + 1) % EXAMPLES.length);
-    }, 3800);
+    const id = setInterval(() => setExampleIndex((i) => (i + 1) % EXAMPLES.length), 3500);
     return () => clearInterval(id);
   }, []);
 
+  const parsed = useMemo(() => (showParsed && value.trim() ? parseSmartQuery(value) : null), [showParsed, value]);
+
   const submit = () => {
-    const query = value.trim() || EXAMPLES[exampleIndex];
-    const { filters } = parseSmartQuery(query);
+    const { filters } = parseSmartQuery(value.trim() || EXAMPLES[exampleIndex]);
     router.push(
-      filters.sort === 'nearest'
-        ? `/near-me${toQueryString(filters, NEAR_ME_FILTERS)}`
-        : `/hackathons${toQueryString(filters)}`
+      filters.sort === 'nearest' ? `/near-me${toQueryString(filters, NEAR_ME_FILTERS)}` : `/hackathons${toQueryString(filters)}`
     );
   };
 
   return (
-    <div className={cn('w-full max-w-2xl mx-auto', className)}>
+    <div style={{ position: 'relative', display: 'inline-block', width: c.w, maxWidth: '100%' }}>
       <form
         role="search"
         onSubmit={(e) => {
           e.preventDefault();
           submit();
         }}
-        className={cn(
-          'group relative flex items-center rounded-2xl bg-white dark:bg-zinc-900 border-2 border-slate-200 dark:border-zinc-800 transition duration-200',
-          'focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/15',
-          'shadow-[0_8px_30px_rgb(0,0,0,0.06)] hover:border-slate-300 dark:hover:border-zinc-700'
-        )}
+        style={{
+          position: 'relative',
+          display: 'flex',
+          alignItems: 'center',
+          background: 'var(--surface-hover)',
+          borderRadius: 9999,
+          width: '100%',
+          height: 'clamp(48px, 12vw, 52px)',
+          boxShadow: 'var(--field-ring)',
+        }}
       >
-        <div className="flex items-center pl-4 sm:pl-5 text-slate-400 dark:text-zinc-500">
-          <Search className="h-5 w-5 text-accent shrink-0" />
-        </div>
-
+        <InlineStyle css={`
+          #${c.inputId}::placeholder { color: var(--foreground); opacity: 0.5; }
+          .lp-search-btn { background: var(--foreground); color: var(--background); }
+          .lp-search-btn:hover { background: var(--red); color: var(--paper); }
+        `} />
+        <label htmlFor={c.inputId} style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clip: 'rect(0 0 0 0)' }}>
+          Describe the hackathon you want
+        </label>
         <input
+          id={c.inputId}
           type="text"
+          autoComplete="off"
+          placeholder={`Try “${EXAMPLES[exampleIndex]}”`}
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder={`${placeholderPrefix} "${EXAMPLES[exampleIndex]}"`}
-          className="w-full bg-transparent px-3.5 py-4 text-sm sm:text-base text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-zinc-500 focus:outline-none"
+          style={{
+            flex: 1,
+            minWidth: 0,
+            background: 'transparent',
+            border: 'none',
+            outline: 'none',
+            paddingLeft: 24,
+            paddingRight: 'clamp(108px, 25vw, 132px)',
+            fontFamily: 'var(--lp-sans)',
+            fontSize: 'clamp(16px, 4.6vw, 19px)',
+            color: 'var(--foreground)',
+            textOverflow: 'ellipsis',
+          }}
         />
-
-        <div className="pr-2 sm:pr-3">
-          <button
-            type="submit"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-accent px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white transition hover:bg-accent-dark shadow-sm hover:shadow-md"
-          >
-            <span>Search</span>
-            <ArrowRight className="h-4 w-4" />
-          </button>
-        </div>
+        <button
+          type="submit"
+          className="lp-search-btn"
+          style={{
+            position: 'absolute',
+            top: '50%',
+            right: 6,
+            transform: 'translateY(-50%)',
+            border: 'none',
+            borderRadius: 9999,
+            width: 'clamp(96px, 22vw, 116px)',
+            height: 'clamp(38px, 10vw, 42px)',
+            fontFamily: 'var(--lp-sans)',
+            fontSize: 19,
+            fontWeight: 600,
+            cursor: 'pointer',
+            transition: 'background 0.4s ease, color 0.4s ease',
+          }}
+        >
+          Search
+        </button>
       </form>
+
+      {parsed && (parsed.understood.length > 0 || parsed.filters.q) && (
+        <p
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: 6,
+            margin: '12px 0 0',
+            fontFamily: 'var(--lp-sans)',
+            fontSize: 15,
+            color: 'var(--muted)',
+          }}
+        >
+          We understood:
+          {parsed.understood.map((u) => (
+            <span key={u} style={{ background: 'rgba(236,55,80,0.1)', color: 'var(--red-text)', borderRadius: 999, padding: '2px 10px', fontWeight: 600 }}>
+              {u}
+            </span>
+          ))}
+          {parsed.filters.q && (
+            <span style={{ background: 'var(--surface-hover)', borderRadius: 999, padding: '2px 10px', fontWeight: 600, color: 'var(--foreground)' }}>
+              “{parsed.filters.q}”
+            </span>
+          )}
+        </p>
+      )}
     </div>
   );
 }

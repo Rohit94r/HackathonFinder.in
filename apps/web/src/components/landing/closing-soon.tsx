@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Clock, Flame, Sparkles } from 'lucide-react';
+import { useRef } from 'react';
 import EventArt from '@/components/hackathon/EventArt';
-import { cn } from '@/lib/cn';
+import { BtnArrow } from './btn-arrow';
+import { DoodleField } from './art';
+import { InlineStyle } from './inline-style';
 
 export interface ClosingCardData {
   slug: string;
@@ -11,106 +13,279 @@ export interface ClosingCardData {
   tagline: string;
   theme: string;
   featured: boolean;
+  /** "Closes in 2 days". */
   badge: string;
+  /** "Unstop and Instagram". */
   foundOn: string;
+  /** The event's real banner, when it has one. */
   imageUrl?: string;
 }
 
-interface ClosingSoonSectionProps {
-  events: ClosingCardData[];
-}
-
-export function ClosingSoonSection({ events }: ClosingSoonSectionProps) {
-  if (!events || events.length === 0) return null;
+function ClosingCard({ event }: { event: ClosingCardData }) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   return (
-    <section className="py-16 sm:py-24 bg-red-50/40 dark:bg-zinc-900/60 border-t border-red-100/80 dark:border-zinc-800">
-      <div className="container-page">
-        {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-red-100/80 dark:bg-red-950/50 px-3 py-1 text-xs font-bold text-accent border border-red-200 dark:border-red-900/50 mb-3">
-              <Clock className="h-3.5 w-3.5 animate-pulse" />
-              <span>Urgent Applications</span>
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900 dark:text-white">
-              Closing Soon: Apply This Week
-            </h2>
-            <p className="mt-2 text-base text-slate-600 dark:text-zinc-400 max-w-2xl">
-              Don&apos;t miss out on these hackathons. Applications and registrations are ending within days.
-            </p>
-          </div>
+    <div
+      ref={wrapperRef}
+      onMouseMove={(e) => {
+        const el = wrapperRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const dx = (e.clientX - rect.left) / rect.width - 0.5;
+        const dy = (e.clientY - rect.top) / rect.height - 0.5;
+        el.style.transform = `perspective(900px) scale(1.012) rotateY(${dx * 4}deg) rotateX(${-dy * 3}deg)`;
+      }}
+      onMouseLeave={() => {
+        const el = wrapperRef.current;
+        if (!el) return;
+        el.style.transition = 'transform 0.4s ease';
+        el.style.transform = 'perspective(900px) scale(1) rotateY(0deg) rotateX(0deg)';
+        setTimeout(() => {
+          if (wrapperRef.current) wrapperRef.current.style.transition = 'transform 0.06s ease';
+        }, 400);
+      }}
+      onMouseEnter={() => {
+        if (wrapperRef.current) wrapperRef.current.style.transition = 'transform 0.06s ease';
+      }}
+      style={{ position: 'relative', transition: 'transform 0.06s ease', willChange: 'transform' }}
+    >
+      <div
+        data-hf-impression={event.slug}
+        style={{
+          position: 'relative',
+          borderRadius: 16,
+          boxShadow: '2px 4px 6px rgba(0,0,0,0.25)',
+          overflow: 'hidden',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-start',
+          padding: '28px 32px 16px',
+          minHeight: 260,
+          height: '100%',
+          color: '#ffffff',
+        }}
+      >
+        {/* The event's banner (or a real event photo) under a dark wash, so the white text stays readable. */}
+        <EventArt title={event.title} imageUrl={event.imageUrl} className="!absolute inset-0" />
+        <span aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'rgba(15,15,18,0.62)' }} />
 
-          <Link
-            href="/hackathons?status=closing-soon"
-            className="inline-flex items-center gap-2 text-sm font-bold text-accent hover:text-accent-dark transition group self-start md:self-auto"
+        {/* Pin for featured listings */}
+        {event.featured && (
+          <div
+            title="Featured"
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: 36,
+              height: 36,
+              background: '#ec3750',
+              borderBottomRightRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 2,
+            }}
           >
-            <span>View all closing soon</span>
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </Link>
-        </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="white" aria-label="Featured">
+              <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z" />
+            </svg>
+          </div>
+        )}
 
-        {/* Closing Soon Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {events.map((event) => (
-            <div
-              key={event.slug}
-              className="group relative flex flex-col overflow-hidden rounded-2xl border border-red-200/80 dark:border-zinc-800 bg-white dark:bg-zinc-900 transition-all duration-200 hover:-translate-y-1 hover:border-accent hover:shadow-lg hover:shadow-red-500/10"
-            >
-              {/* Event Art with Red Deadline Pill */}
-              <div className="relative h-44 w-full overflow-hidden bg-slate-100 dark:bg-zinc-800">
-                <EventArt title={event.title} imageUrl={event.imageUrl} className="h-full w-full object-cover" />
-                
-                {/* Urgent Deadline Badge */}
-                <div className="absolute top-3 left-3 z-10">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-accent text-white px-3 py-1 text-xs font-bold shadow-md">
-                    <Flame className="h-3.5 w-3.5" />
-                    {event.badge}
-                  </span>
-                </div>
+        <h3
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            fontFamily: 'var(--lp-serif)',
+            fontSize: 40,
+            fontWeight: 'normal',
+            margin: '0 0 8px',
+            lineHeight: 1,
+            textAlign: 'center',
+            width: '100%',
+            textShadow: '0 2px 12px rgba(0,0,0,0.15)',
+          }}
+        >
+          {event.title}
+        </h3>
 
-                {event.featured && (
-                  <div className="absolute top-3 right-3 z-10">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-white/95 text-slate-900 px-2.5 py-0.5 text-[11px] font-bold shadow-sm">
-                      <Sparkles className="h-3 w-3 text-accent" /> Featured
-                    </span>
-                  </div>
-                )}
-              </div>
+        <p style={{ position: 'relative', zIndex: 1, fontFamily: 'var(--lp-sans)', fontSize: 20, opacity: 0.95, margin: '0 0 4px', lineHeight: 1.2 }}>
+          {event.tagline}
+        </p>
 
-              {/* Card Body */}
-              <div className="flex flex-1 flex-col p-5">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-accent mb-1">
-                  via {event.foundOn}
-                </span>
+        <div style={{ flex: '1 0 12px' }} />
 
-                <Link href={`/hackathons/${event.slug}`} className="focus:outline-none">
-                  <h3 className="text-base font-bold text-slate-900 dark:text-white line-clamp-2 leading-snug group-hover:text-accent transition-colors">
-                    {event.title}
-                  </h3>
-                </Link>
+        <Link
+          href={`/hackathons/${event.slug}`}
+          className="cta-btn"
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '6px 20px',
+            background: '#ffffff',
+            borderRadius: 44,
+            fontFamily: 'var(--lp-sans)',
+            fontWeight: 700,
+            fontSize: 19,
+            color: '#17171d',
+            textDecoration: 'none',
+            whiteSpace: 'nowrap',
+            marginBottom: 6,
+          }}
+        >
+          See details <BtnArrow />
+        </Link>
 
-                <p className="mt-2 text-xs text-slate-600 dark:text-zinc-400 line-clamp-2 leading-relaxed">
-                  {event.tagline}
-                </p>
+        <p
+          style={{
+            position: 'relative',
+            zIndex: 1,
+            fontFamily: 'var(--lp-sans)',
+            fontStyle: 'italic',
+            fontSize: 16,
+            margin: 0,
+            lineHeight: 1.2,
+            paddingRight: 150,
+          }}
+        >
+          Found on {event.foundOn}
+        </p>
 
-                <div className="mt-auto pt-4 flex items-center justify-between border-t border-slate-100 dark:border-zinc-800">
-                  <span className="text-xs font-medium text-slate-500 dark:text-zinc-400">
-                    Registration ends soon
-                  </span>
-                  <Link
-                    href={`/hackathons/${event.slug}`}
-                    className="inline-flex items-center gap-1 rounded-lg bg-accent px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-accent-dark transition"
-                  >
-                    <span>Register</span>
-                    <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-          ))}
+        {/* Deadline badge */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            height: 36,
+            minWidth: 130,
+            padding: '0 14px',
+            background: '#ec3750',
+            borderTopLeftRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <span style={{ fontFamily: 'var(--lp-sans)', fontWeight: 700, fontSize: 16, color: 'var(--paper)', whiteSpace: 'nowrap' }}>{event.badge}</span>
         </div>
       </div>
+    </div>
+  );
+}
+
+/** "Imagine never missing a deadline again": the four open hackathons that close first. */
+export function ClosingSoonSection({ events }: { events: ClosingCardData[] }) {
+  return (
+    <section
+      className="section-padded"
+      style={{
+        background: 'var(--background)',
+        paddingTop: 80,
+        paddingBottom: 60,
+        paddingLeft: 'clamp(24px, 14.29%, 220px)',
+        paddingRight: 'clamp(24px, 14.29%, 220px)',
+        position: 'relative',
+      }}
+    >
+      {/* Red gradient at the top of the section, below the wave */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '50%',
+          background: 'linear-gradient(180deg, rgba(236,55,80,0.15) 0%, transparent 100%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
+
+      {/* Doodles, flipped and faint, tucked behind the wave */}
+      <div style={{ position: 'absolute', top: -40, left: 0, right: 0, transform: 'scaleY(-1)', opacity: 0.12, pointerEvents: 'none', zIndex: 0 }}>
+        <DoodleField />
+      </div>
+
+      <h2 style={{ textAlign: 'right', marginBottom: 4, marginTop: 100, position: 'relative', zIndex: 1 }}>
+        <span style={{ display: 'block', fontFamily: 'var(--lp-serif)', fontSize: 40, lineHeight: 1.05, color: 'var(--foreground)', fontWeight: 'normal' }}>
+          Imagine never missing
+        </span>
+        <span
+          style={{
+            fontFamily: 'var(--lp-serif)',
+            fontSize: 40,
+            lineHeight: 1.15,
+            fontWeight: 'normal',
+            display: 'inline-block',
+            background: 'linear-gradient(90deg, #ec3750 0%, #ff6b81 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+            paddingBottom: 4,
+          }}
+        >
+          a deadline again:
+        </span>
+      </h2>
+
+      <p
+        style={{
+          fontFamily: 'var(--lp-sans)',
+          fontSize: 20,
+          color: 'var(--foreground)',
+          textAlign: 'right',
+          marginBottom: 32,
+          marginTop: 8,
+          lineHeight: 1.25,
+          position: 'relative',
+          zIndex: 1,
+        }}
+      >
+        These close first. Deadlines and statuses update on their own, so what you see is always current.
+      </p>
+
+      <div className="closing-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, position: 'relative', zIndex: 1, alignItems: 'stretch' }}>
+        {events.map((event) => (
+          <ClosingCard key={event.slug} event={event} />
+        ))}
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 24, position: 'relative', zIndex: 1 }}>
+        <p style={{ fontFamily: 'var(--lp-sans)', fontSize: 20, color: 'var(--foreground)', margin: '40px 0 8px' }}>Want more time to prepare?</p>
+        <Link
+          href="/hackathons?sort=deadline"
+          className="cta-btn dark-btn"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            background: 'var(--foreground)',
+            color: 'var(--background)',
+            borderRadius: 41,
+            height: 48,
+            paddingLeft: 28,
+            paddingRight: 28,
+            fontFamily: 'var(--lp-sans)',
+            fontSize: 20,
+            textDecoration: 'none',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          See all by deadline <BtnArrow />
+        </Link>
+      </div>
+
+      <InlineStyle css={`
+        @media (max-width: 640px) {
+          .closing-grid { grid-template-columns: 1fr !important; }
+          .closing-grid > div { min-height: 280px; }
+        }
+      `} />
     </section>
   );
 }

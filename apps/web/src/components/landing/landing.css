@@ -1,84 +1,223 @@
-/* ============================================================================
-   HackathonFinder - Modern Red & White Professional UI Theme
-   Clean, student-attractive, high-contrast, performant
-   ========================================================================== */
-
+/*
+ * Landing page styles, adapted from Hack Club's site (github.com/hackclub/site, GPL-3.0).
+ * Everything is scoped to .landing so none of it leaks into the rest of the app.
+ */
 .landing {
-  --hf-red: #e11d2e;
-  --hf-red-dark: #be1224;
-  --hf-red-light: #fff1f2;
-  --hf-red-border: #fecdd3;
-  --hf-bg: #ffffff;
-  --hf-surface: #f8fafc;
-  --hf-card: #ffffff;
-  --hf-text: #0f172a;
-  --hf-text-muted: #64748b;
-  --hf-border: #e2e8f0;
+  --background: #ffffff;
+  --foreground: #17171d;
+  --surface: #f9fafc;
+  --surface-hover: #f1f2f5;
+  --border: rgba(0, 0, 0, 0.08);
+  --muted: rgba(23, 23, 29, 0.7);
+  --shadow-dd: 0 8px 32px rgba(0, 0, 0, 0.13);
+  --nav-bg: rgba(255, 255, 255, 0.82);
+  --red: #ec3750;
+  /* Brand red fails 4.5:1 for small text on white. Use --red-text for text under 24px. */
+  --red-text: #be1e3a;
+  /* No orange in the palette: rules that ask for it get the brand red. */
+  --orange: #ec3750;
+  --ink: #17171d;
+  --paper: #ffffff;
+  --cream: #fff6eb;
+  --grid-line: rgba(255, 255, 255, 0.1);
+  --footer-bg: #000000;
+  /* Cards that float over art (search showcase, live stat badges). */
+  --elevated: #ffffff;
+  --hero-bg: linear-gradient(180deg, rgba(236, 55, 80, 0.04) 60%, rgba(236, 55, 80, 0.4) 100%);
+  --grad-deep: linear-gradient(90deg, #b3203d 0%, #ec3750 100%);
+  --card-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+  --float-shadow: 0 24px 60px rgba(23, 23, 29, 0.25);
+  --feature-card-shadow: none;
+  --field-ring: none;
+  --example-bg: #17171d;
+  /* How it works illustration panels, and the mock listing card inside step 2. */
+  --panel-warm: linear-gradient(160deg, #fff6eb 0%, #ffe3e7 100%);
+  --panel-cool: linear-gradient(160deg, #f6f6f7 0%, #ffe3e7 100%);
+  --panel-sun: linear-gradient(160deg, #ffffff 0%, #ffeef1 100%);
+  --mock-card: #ffffff;
+  --mock-card-shadow: 0 10px 30px rgba(23, 23, 29, 0.14);
+  --mock-label: rgba(23, 23, 29, 0.55);
+  --mock-rule: rgba(23, 23, 29, 0.08);
+  --tracker-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  --lp-sans: var(--landing-sans-src), system-ui, sans-serif;
+  --lp-serif: var(--landing-serif-src), Georgia, serif;
 
   position: relative;
-  min-height: 100vh;
-  background-color: var(--hf-bg);
-  color: var(--hf-text);
-  overflow-x: hidden;
+  flex: 1;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--lp-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Decorations are sized against 100vw; clip the overflow without creating a scroll container. */
+  overflow-x: clip;
 }
 
+/*
+ * Dark theme (the site default). --ink, --paper, --cream, --grid-line and --footer-bg
+ * are fixed colours used by art and dark cards, so they stay as they are.
+ */
 [data-theme='dark'] .landing {
-  --hf-red: #f43f5e;
-  --hf-red-dark: #e11d2e;
-  --hf-red-light: rgba(225, 29, 46, 0.12);
-  --hf-red-border: rgba(225, 29, 46, 0.25);
-  --hf-bg: #09090b;
-  --hf-surface: #121217;
-  --hf-card: #18181b;
-  --hf-text: #f8fafc;
-  --hf-text-muted: #94a3b8;
-  --hf-border: #27272a;
+  --background: #17171d;
+  --foreground: #ffffff;
+  --surface: #252429;
+  --surface-hover: #2f2e35;
+  --border: rgba(255, 255, 255, 0.1);
+  --muted: rgba(255, 255, 255, 0.7);
+  --shadow-dd: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 32px rgba(0, 0, 0, 0.5);
+  --nav-bg: rgba(23, 23, 29, 0.82);
+  --red-text: #ff6b81;
+  --elevated: #252429;
+  /*
+   * Same wine fade as light, plus a red glow at the bottom so the hero stays warm.
+   * Starts almost untinted so it meets the mobile nav spacer without a seam.
+   */
+  --hero-bg: radial-gradient(90% 55% at 50% 100%, rgba(236, 55, 80, 0.14) 0%, transparent 70%),
+    linear-gradient(180deg, rgba(236, 55, 80, 0.02) 0%, rgba(236, 55, 80, 0.06) 55%, rgba(236, 55, 80, 0.38) 100%);
+  /* The light gradient is darkened for white; on dark it needs the bright end of the brand. */
+  --grad-deep: linear-gradient(90deg, #ff5a70 0%, #ff9aab 100%);
+  --card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 6px 20px rgba(0, 0, 0, 0.45);
+  --float-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 60px rgba(0, 0, 0, 0.6);
+  --feature-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 16px 40px rgba(0, 0, 0, 0.35);
+  --field-ring: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  --example-bg: #121217;
+  --panel-warm: linear-gradient(160deg, #2e2320 0%, #3d1d26 100%);
+  --panel-cool: linear-gradient(160deg, #222127 0%, #3d1d26 100%);
+  --panel-sun: linear-gradient(160deg, #2a292f 0%, #36191f 100%);
+  --mock-card: #2f2e35;
+  --mock-card-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 12px 32px rgba(0, 0, 0, 0.5);
+  --mock-label: rgba(255, 255, 255, 0.6);
+  --mock-rule: rgba(255, 255, 255, 0.1);
+  --tracker-shadow: 0 0 0 1px rgba(255, 255, 255, 0.1), 0 18px 40px rgba(0, 0, 0, 0.5);
 }
 
-/* Ambient glow & accents */
-.ambient-red-glow {
-  background: radial-gradient(circle at 50% 0%, rgba(225, 29, 46, 0.08) 0%, transparent 60%);
+/* Mascot outlines are ink, which vanishes on a dark page; a cream die-cut edge keeps them readable. */
+[data-theme='dark'] .landing .lp-mascot {
+  filter: drop-shadow(1.5px 0 0 #fff6eb) drop-shadow(-1.5px 0 0 #fff6eb) drop-shadow(0 1.5px 0 #fff6eb) drop-shadow(0 -1.5px 0 #fff6eb);
 }
 
-.mesh-grid {
-  background-size: 32px 32px;
-  background-image: 
-    linear-gradient(to right, rgba(225, 29, 46, 0.03) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(225, 29, 46, 0.03) 1px, transparent 1px);
+/* The envelope's ink-tinted shadows disappear on dark; give it a real one. */
+[data-theme='dark'] .landing .submit-envelope .submit-envelope-body {
+  box-shadow:
+    0 14px 32px rgba(0, 0, 0, 0.5),
+    0 3px 8px rgba(0, 0, 0, 0.35);
+}
+[data-theme='dark'] .landing .submit-envelope:hover .submit-envelope-body,
+[data-theme='dark'] .landing .submit-envelope:focus-visible .submit-envelope-body {
+  box-shadow:
+    0 22px 44px rgba(0, 0, 0, 0.6),
+    0 6px 14px rgba(0, 0, 0, 0.4);
 }
 
-/* Smooth badge pulse */
-@keyframes redPulse {
-  0%, 100% {
-    box-shadow: 0 0 0 0 rgba(225, 29, 46, 0.35);
+/* The app's base styles make h1/h2 chunky and uppercase; the landing page has its own type. */
+.landing h1,
+.landing h2,
+.landing h3,
+.landing h4 {
+  font-family: var(--lp-serif);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: normal;
+  color: inherit;
+}
+
+.landing ::selection {
+  background: var(--red);
+  color: var(--paper);
+}
+
+.landing a:focus-visible,
+.landing button:focus-visible,
+.landing input:focus-visible {
+  outline: 3px solid var(--orange);
+  outline-offset: 2px;
+}
+
+.landing img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* ── Mobile section padding ──────────────────────────────────── */
+@media (max-width: 767px) {
+  .landing .section-padded {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
   }
-  50% {
-    box-shadow: 0 0 0 8px rgba(225, 29, 46, 0);
+  .landing .video-headline-break {
+    display: block;
   }
 }
 
-.pulse-red {
-  animation: redPulse 2.4s infinite;
+/* ── Mobile wave fix ─────────────────────────────────────────── */
+/* Wave SVGs are drawn for a 1920px canvas; on mobile, widen the element so peaks stay wide. */
+@media (max-width: 767px) {
+  .landing .wave-container {
+    overflow: hidden !important;
+  }
+  .landing .wave-container svg {
+    width: 300% !important;
+    margin-left: -100% !important;
+  }
 }
 
-/* Card hover lift with crimson glow */
-.hack-card {
-  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  border: 1px solid var(--hf-border);
-  background: var(--hf-card);
+/* ── Pill buttons ─────────────────────────────────────────────── */
+.landing .dark-btn {
+  transition:
+    background 0.4s ease,
+    color 0.4s ease;
+}
+.landing .dark-btn:hover {
+  background: var(--red) !important;
+  color: var(--paper) !important;
 }
 
-.hack-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--hf-red-border);
-  box-shadow: 0 16px 36px -12px rgba(225, 29, 46, 0.14);
+.landing .cta-btn {
+  transition:
+    background 0.4s ease,
+    color 0.4s ease;
+}
+.landing .cta-btn:hover {
+  filter: brightness(1.15);
+}
+.landing .cta-btn .btn-arrow {
+  display: inline-block;
+  margin-left: 6px;
+  transition: transform 0.2s ease;
+}
+.landing .cta-btn:hover .btn-arrow {
+  transform: translateX(5px);
 }
 
-/* Custom scrollbar for horizontal carousels */
-.no-scrollbar::-webkit-scrollbar {
+/* ── Utilities ────────────────────────────────────────────────── */
+.landing .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-.no-scrollbar {
+.landing .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.landing .lp-underline-link {
+  color: var(--red-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.landing .lp-underline-link:hover {
+  text-decoration-thickness: 2px;
+}
+
+@keyframes lp-gradient-pan {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing .lp-rainbow {
+    animation: none !important;
+  }
 }
