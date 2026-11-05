@@ -1,4 +1,4 @@
-import { APPROX_INR_PER_USD, type Currency } from '@hackathonfinder/shared';
+import type { Currency } from '@hackathonfinder/shared';
 
 // Day labels use a fixed locale and the listings' home time zone, so server and browser render the
 // same text. Exact times go through <LocalTime>, which shows each visitor their own zone.
@@ -55,18 +55,6 @@ export function formatDateRange(startIso: string, endIso: string): string {
   return sMonth === eMonth ? `${sDay}–${eDay} ${eMonth}` : `${start} – ${end}`;
 }
 
-export function formatMoney(amount: number, currency: Currency): string {
-  if (currency === 'USD') return `$${amount.toLocaleString('en-US')}`;
-  return `₹${amount.toLocaleString('en-US')}`;
-}
-
-/** "≈ $1,190" for a rupee amount, so visitors outside India can size it up; nothing for dollars. */
-export function approxUsd(amount: number, currency: Currency): string | undefined {
-  if (currency === 'USD' || amount <= 0) return undefined;
-  const usd = amount / APPROX_INR_PER_USD;
-  return `≈ $${(usd >= 100 ? Math.round(usd / 10) * 10 : Math.round(usd)).toLocaleString('en-US')}`;
-}
-
 /** When the source doesn't say: we never guess a prize or a team size. */
 export const ON_OFFICIAL_PAGE = 'On the official page';
 
@@ -77,15 +65,10 @@ function compact(amount: number): string {
   return String(Math.round(amount));
 }
 
-/** Short prize label for cards in the prize's own currency, e.g. "₹150K", "$5K", "₹1.2M"; an unknown prize says where to look. */
+/** Short prize label in the prize's own currency (the email digest; pages use components/Money), e.g. "₹150K", "$5K", "₹1.2M"; an unknown prize says where to look. */
 export function formatPrizeShort(amount: number, currency: Currency): string {
   if (amount <= 0) return `Prizes: ${ON_OFFICIAL_PAGE.toLowerCase()}`;
   return `${currency === 'USD' ? '$' : '₹'}${compact(amount)}`;
-}
-
-/** A large rupee total shown in US dollars for stats: "$3.8M". */
-export function formatUsdCompact(inr: number): string {
-  return `$${compact(inr / APPROX_INR_PER_USD)}`;
 }
 
 function trim(n: number): string {

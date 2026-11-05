@@ -3,6 +3,7 @@ import { CITIES, THEMES } from '@hackathonfinder/shared';
 import { Logo } from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import CopyrightYear from './CopyrightYear';
+import CurrencyPicker from './CurrencyPicker';
 import { activeSocials, siteConfig } from '@/data/siteConfig';
 
 const COLUMNS = [
@@ -127,12 +128,15 @@ export default function Footer() {
             </Link>
             . We link to official organizer pages; always check details before you register.
           </p>
-          <div className="flex items-center gap-2">
-            <span className="font-mono uppercase tracking-[0.14em]">Day / night</span>
-            <ThemeToggle
-              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-line text-ink/70 transition-colors hover:border-board hover:text-board"
-              iconClassName="h-4 w-4"
-            />
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+            <CurrencyPicker />
+            <div className="flex items-center gap-2">
+              <span className="font-mono uppercase tracking-[0.14em]">Day / night</span>
+              <ThemeToggle
+                className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-line text-ink/70 transition-colors hover:border-board hover:text-board"
+                iconClassName="h-4 w-4"
+              />
+            </div>
           </div>
         </div>
       </div>

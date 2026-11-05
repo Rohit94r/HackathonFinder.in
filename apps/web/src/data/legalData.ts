@@ -13,7 +13,7 @@ export const termsHtml = `
 <h2>2. Listings and accuracy</h2>
 <p>Listings come from public sources such as event platforms, organizer websites and social media posts, and from events people submit to us. We check listings regularly and show when each one was last checked, but organizers can change dates, rules or prizes at any time.</p>
 <ul>
-<li>Prizes are shown in the currency the organizer stated. Any converted amount (for example “≈ $1,190”) is an estimate.</li>
+<li>Prizes and fees are shown in your local currency (rupees in India), based on your approximate country or the currency you pick at the bottom of the page. Converted amounts are marked “≈”, use the European Central Bank’s latest daily reference rates, and are estimates; the organizer’s stated amount is what counts.</li>
 <li>Times are shown in your own time zone, converted from the time the organizer published.</li>
 <li>Distances are straight-line estimates from the location saved in your browser, not travel distances.</li>
 </ul>
@@ -70,7 +70,8 @@ export const privacyHtml = `
 <li>your location, if you share it or pick a city, rounded to about 1 km and used to show distances;</li>
 <li>hackathons you save and cities you follow while signed out;</li>
 <li>a list of things you do while signed out, such as saving a hackathon, used for the activity view on your profile;</li>
-<li>your light or dark theme choice, and whether you paused the homepage animations.</li>
+<li>your light or dark theme choice, and whether you paused the homepage animations;</li>
+<li>the currency you chose for prizes and fees, if you picked one.</li>
 </ul>
 <p>You can remove all of it by clearing this site’s data in your browser.</p>
 
@@ -92,13 +93,14 @@ export const privacyHtml = `
 <h2>6. Services that help us run the site</h2>
 <p>We share data only with providers that run parts of the site for us, and only what each one needs:</p>
 <ul>
-<li><strong>Vercel</strong> hosts the website and tells us your approximate location for analytics. Its Speed Insights measures how fast pages load for visitors (the page address, load timings and device type, with no cookies), and is not used when your browser sends Do Not Track or Global Privacy Control.</li>
+<li><strong>Vercel</strong> hosts the website and tells us your approximate location, which we use for analytics and to show amounts in your country’s currency (the country is sent back to your browser for that and is not stored). Its Speed Insights measures how fast pages load for visitors (the page address, load timings and device type, with no cookies), and is not used when your browser sends Do Not Track or Global Privacy Control.</li>
 <li><strong>MongoDB Atlas</strong> stores our database.</li>
 <li><strong>Cloudinary</strong> stores profile photos, uploaded posters and event banners.</li>
 <li><strong>Resend</strong> sends our emails.</li>
 <li><strong>Anthropic</strong> (Claude) reads the text you type into the search box, and the links, text and posters of submitted events, to turn them into filters and listings.</li>
 <li><strong>Google</strong> and <strong>GitHub</strong> handle sign-in if you choose them.</li>
 <li><strong>OpenStreetMap</strong> shows the venue map on in-person events. Loading the map sends your browser’s request to OpenStreetMap.</li>
+<li><strong>Frankfurter</strong> supplies the European Central Bank’s exchange rates. Our server fetches them; nothing about you is sent.</li>
 </ul>
 <p>We may also share information if the law requires it.</p>
 

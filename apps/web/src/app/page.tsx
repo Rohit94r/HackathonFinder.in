@@ -12,7 +12,7 @@ import DeparturesBoard, { type Departure } from '@/components/home/DeparturesBoa
 import MotionToggle from '@/components/home/MotionToggle';
 import { PlatformSign, StationBoard } from '@/components/junction/Signs';
 import { PHOTOS } from '@/components/landing/photos';
-import { formatUsdCompact } from '@/lib/format';
+import Money from '@/components/Money';
 import { byDeadline, openOnly, plausiblePrize, themeCounts, type HackathonView } from '@/lib/hackathons';
 import { themeStyle } from '@/lib/themeStyles';
 import { getCommunityStats, shownCount } from '@/server/communityStats';
@@ -101,7 +101,7 @@ export default async function HomePage() {
     { label: 'Hackathons listed', value: items.length.toLocaleString('en-US') },
     { label: 'Open for registration', value: open.length.toLocaleString('en-US') },
     { label: 'Upcoming events', value: items.filter((h) => Date.parse(h.startDate) > now).length.toLocaleString('en-US') },
-    { label: 'In open prize pools', value: prizeTotal > 0 ? formatUsdCompact(prizeTotal) : 'None stated' },
+    { label: 'In open prize pools', value: prizeTotal > 0 ? <Money amount={prizeTotal} currency="INR" compact /> : 'None stated' },
   ];
 
   // Promoted listings first, then the biggest prize pools still open; banners only, so the section looks finished.
@@ -217,8 +217,8 @@ export default async function HomePage() {
               ))}
             </dl>
             <p className="mt-2 text-xs text-ink/60">
-              Live from our listings. The prize total adds up stated prizes only, in US dollars (rupees converted at about ₹84 to $1), and leaves out
-              figures that look like listing errors.
+              Live from our listings. The prize total adds up stated prizes only and leaves out figures that look like listing errors.
+              Amounts in another currency are converted at the day&rsquo;s European Central Bank rate, so they are estimates.
             </p>
           </div>
           <div className="platform-edge" aria-hidden="true" />

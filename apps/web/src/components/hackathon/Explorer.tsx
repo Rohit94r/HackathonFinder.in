@@ -29,6 +29,7 @@ import {
   type Filters,
 } from '@/lib/filters';
 import { cn } from '@/lib/cn';
+import { useCurrency } from '@/components/CurrencyProvider';
 import HackathonCard from './HackathonCard';
 import LocationChooser from './LocationChooser';
 
@@ -72,6 +73,10 @@ function Pill({ active, onClick, children }: { active: boolean; onClick: () => v
 
 export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoLocate = false }: ExplorerProps) {
   const pathname = usePathname();
+  const { format } = useCurrency();
+  /** "₹1L+" in India, "$1.1K+" in the US: the rupee threshold in the visitor's currency, rounded. */
+  const prizeLabel = (value: number) =>
+    value === 0 ? 'Any prize' : `${format(value, 'INR', { compact: true, round: true, approx: false })}+`;
   const [filters, setFilters] = useState<Filters>(initial);
   const [panelOpen, setPanelOpen] = useState(false);
   const { location, ready, state: locateState, locate, pickCity, clear: clearLocation } = useMyLocation();
@@ -210,7 +215,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
       ? [{ label: filters.within === 'week' ? 'Deadline this week' : 'Deadline this month', clear: () => set({ within: base.within }) }]
       : []),
     ...(filters.minPrize !== base.minPrize
-      ? [{ label: PRIZE_OPTIONS.find((p) => p.value === filters.minPrize)?.label ?? '', clear: () => set({ minPrize: base.minPrize }) }]
+      ? [{ label: `Prize ${prizeLabel(filters.minPrize)}`, clear: () => set({ minPrize: base.minPrize }) }]
       : []),
     ...(filters.eligibility !== base.eligibility
       ? [
@@ -309,7 +314,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
         <div className="flex flex-wrap gap-1.5">
           {PRIZE_OPTIONS.map((o) => (
             <Pill key={o.value} active={filters.minPrize === o.value} onClick={() => set({ minPrize: o.value })}>
-              {o.label}
+              {prizeLabel(o.value)}
             </Pill>
           ))}
         </div>

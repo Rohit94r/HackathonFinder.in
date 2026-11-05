@@ -13,7 +13,7 @@ Rules:
 - "this week" → within "week"; "this month" or "next 30 days" → within "month". "closing soon" or "last chance" → status "closing-soon". "happening now" → status "in-progress".
 - "free" → fee "free". "solo" or "alone" → team "solo". "team of 3" → team "team".
 - "first hackathon", "beginner", "newbie" → beginner true. "women", "girls" → eligibility "women-only". "students", "college", "2nd year" → eligibility "students".
-- "big prize" → sort "prize". "1 lakh" or "100k" → minPrize 100000; "2 lakh" → 200000; "50k" → 50000.
+- "big prize" → sort "prize". "50k" → minPrize 50000; "1 lakh", "100k" or "$1k" → 100000; "5 lakh" or "$5k" → 500000. Round down to the nearest of these.
 - Put only meaningful leftover words in q (organizer names, specific topics not covered by themes). Never put filler words or the words you already mapped into q.
 - understood: one short label per filter you applied, in the order they appear in the query.`;
 

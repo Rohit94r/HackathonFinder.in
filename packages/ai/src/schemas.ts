@@ -52,7 +52,7 @@ export const SearchFiltersSchema = z.object({
   team: z.enum(['any', 'solo', 'team']),
   eligibility: z.enum(['', 'students', 'professionals', 'women-only']),
   beginner: z.boolean(),
-  minPrize: z.number().describe('Minimum prize in INR: 0, 50000, 100000 or 200000.'),
+  minPrize: z.number().describe('Minimum prize in INR: 0, 50000, 100000 or 500000.'),
   within: z.enum(['', 'week', 'month']).describe('Registration deadline within this period.'),
   km: z.number().describe('Max distance in km for in-person events: 0 (any), 10, 25, 50 or 150.'),
   sort: z.enum(['deadline', 'nearest', 'newest', 'prize', 'start']),

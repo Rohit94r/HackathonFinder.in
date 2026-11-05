@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { ArrowUpRight, BadgeCheck, CalendarDays, MapPin, Navigation, Users } from 'lucide-react';
 import { eventTypeLabel, modeLabel, placeName, sourceBySlug, themeName } from '@hackathonfinder/shared';
 import type { HackathonView } from '@/lib/hackathons';
-import { deadlineLabel, formatDateRange, formatDay, formatKm, formatPrizeShort, formatTeamSize } from '@/lib/format';
+import { deadlineLabel, formatDateRange, formatDay, formatKm, formatTeamSize } from '@/lib/format';
 import { themeStyle } from '@/lib/themeStyles';
 import { ticketNo } from '@/lib/stations';
+import Money from '@/components/Money';
 import { cn } from '@/lib/cn';
 import { Barcode } from '@/components/junction/Signs';
 import DistanceTag from './DistanceTag';
@@ -32,8 +33,8 @@ export function deadlineText(h: HackathonView): string {
   return h.status === 'completed' ? 'Event ended' : 'Registration closed';
 }
 
-function prizeText(h: HackathonView, short = false): string {
-  if (h.prizePool > 0) return formatPrizeShort(h.prizePool, h.prizeCurrency);
+function prizeText(h: HackathonView, short = false): React.ReactNode {
+  if (h.prizePool > 0) return <Money amount={h.prizePool} currency={h.prizeCurrency} compact />;
   return short ? 'See page' : 'See official page';
 }
 

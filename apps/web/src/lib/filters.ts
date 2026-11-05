@@ -78,10 +78,10 @@ export const SORT_OPTIONS: { value: SortKey; label: string }[] = [
 
 export const PRIZE_OPTIONS = [
   { value: 0, label: 'Any prize' },
-  // Thresholds are compared in rupees (prizeInInr); the labels are round dollar amounts.
-  { value: 42000, label: '$500+' },
-  { value: 84000, label: '$1K+' },
-  { value: 420000, label: '$5K+' },
+  // Thresholds in rupees (compared with prizeInInr). The filter shows them in the visitor's currency.
+  { value: 50000, label: '₹50K+' },
+  { value: 100000, label: '₹1L+' },
+  { value: 500000, label: '₹5L+' },
 ];
 
 export const DISTANCE_OPTIONS = [

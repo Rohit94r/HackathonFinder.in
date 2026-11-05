@@ -5,8 +5,11 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 /** Deadline within this many days counts as "closing soon". */
 export const CLOSING_SOON_DAYS = 3;
 
-/** Rough rate used only to compare and sort INR and USD prizes. */
-export const APPROX_INR_PER_USD = 84;
+/**
+ * Rough rate used only to compare, sort and filter INR and USD prizes. What visitors see is converted
+ * at the day's rate (apps/web/src/lib/currency.ts).
+ */
+export const APPROX_INR_PER_USD = 94;
 
 export function computeStatus(h: Pick<Hackathon, 'startDate' | 'endDate' | 'registrationDeadline'>, now: Date): Status {
   const t = now.getTime();

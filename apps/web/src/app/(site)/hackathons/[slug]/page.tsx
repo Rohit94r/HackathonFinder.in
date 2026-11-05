@@ -43,12 +43,11 @@ import {
   deadlineLabel,
   formatDateRange,
   formatDay,
-  formatMoney,
-  approxUsd,
   formatTeamSize,
   ON_OFFICIAL_PAGE,
   timeAgo,
 } from '@/lib/format';
+import Money from '@/components/Money';
 import { breadcrumbJsonLd, eventJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
 import { themeStyle } from '@/lib/themeStyles';
 import { ticketNo } from '@/lib/stations';
@@ -102,8 +101,8 @@ export default async function HackathonDetailPage(props: { params: Promise<{ slu
     { icon: CalendarDays, label: 'When', value: formatDateRange(h.startDate, h.endDate) },
     { icon: MapPin, label: 'Where', value: location },
     { icon: Users, label: 'Team', value: h.teamSizeKnown === false ? ON_OFFICIAL_PAGE : formatTeamSize(h.teamMin, h.teamMax) },
-    { icon: Ticket, label: 'Entry fee', value: h.fee === 0 ? 'Free' : formatMoney(h.fee, 'INR') },
-    { icon: Trophy, label: 'Prize pool', value: h.prizePool > 0 ? [formatMoney(h.prizePool, h.prizeCurrency), approxUsd(h.prizePool, h.prizeCurrency)].filter(Boolean).join(' ') : ON_OFFICIAL_PAGE },
+    { icon: Ticket, label: 'Entry fee', value: h.fee === 0 ? 'Free' : <Money amount={h.fee} currency="INR" full /> },
+    { icon: Trophy, label: 'Prize pool', value: h.prizePool > 0 ? <Money amount={h.prizePool} currency={h.prizeCurrency} full /> : ON_OFFICIAL_PAGE },
     { icon: ShieldCheck, label: 'Who can join', value: h.eligibility.map(eligibilityLabel).join(', ') },
   ];
 
@@ -185,7 +184,7 @@ export default async function HackathonDetailPage(props: { params: Promise<{ slu
                     v: h.mode === 'online' ? 'Online' : cityName(h.city, h.cityName),
                     sub: h.mode === 'online' ? 'Join from anywhere' : <DistanceTag h={h} variant="stub" fallback={modeLabel(h.mode)} />,
                   },
-                  { k: 'Fare', v: h.fee === 0 ? 'Free' : formatMoney(h.fee, 'INR'), sub: 'Entry fee' },
+                  { k: 'Fare', v: h.fee === 0 ? 'Free' : <Money amount={h.fee} currency="INR" compact />, sub: 'Entry fee' },
                 ].map((x) => (
                   <div key={x.k} className="min-w-0">
                     <dt className="font-mono text-[9.5px] font-medium uppercase tracking-[0.18em] text-muted">{x.k}</dt>
