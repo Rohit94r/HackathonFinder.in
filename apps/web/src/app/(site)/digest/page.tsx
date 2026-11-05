@@ -21,8 +21,7 @@ export default function DigestPage({ searchParams }: { searchParams: { status?: 
 
   return (
     <>
-      <PageHero
-        title="The weekly"
+      <PageHero title="The weekly"
         accent="digest"
         description="Every Monday: open hackathons near your cities, new events and deadlines closing soon. Free, short and easy to leave."
       />

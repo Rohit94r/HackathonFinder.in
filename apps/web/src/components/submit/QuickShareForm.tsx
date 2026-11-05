@@ -188,7 +188,7 @@ export default function QuickShareForm() {
         <p className="label">Poster or screenshot (optional)</p>
         {preview ? (
           <div className="flex flex-wrap items-center gap-4">
-            <img src={preview} alt="Poster preview" className="h-28 w-auto max-w-full rounded-xl object-cover ring-1 ring-ink/10" />
+            <img src={preview} alt="Poster preview" className="h-28 w-auto max-w-full rounded-lg object-cover ring-1 ring-ink/10" />
             <button type="button" onClick={() => set('poster', null)} className="btn-secondary py-2 text-sm">
               <X className="h-4 w-4" />
               Remove
@@ -197,7 +197,7 @@ export default function QuickShareForm() {
         ) : (
           <label
             htmlFor="qs-poster"
-            className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed border-ink/20 px-4 py-5 text-sm text-ink/70 transition hover:border-ink/40"
+            className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-dashed border-ink/20 px-4 py-5 text-sm text-ink/70 transition hover:border-ink/40"
           >
             <ImagePlus className="h-6 w-6 shrink-0 text-ink" />
             <span>
@@ -240,7 +240,7 @@ export default function QuickShareForm() {
       </div>
 
       {errors.form && (
-        <p role="alert" className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-400/30 dark:bg-red-500/10 dark:text-red-200">
+        <p role="alert" className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-400/30 dark:bg-red-500/10 dark:text-red-200">
           {errors.form}
         </p>
       )}

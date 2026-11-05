@@ -10,6 +10,7 @@ import { deadlineLabel } from '@/lib/format';
 import { useFollowedCities } from '@/lib/useFollowedCities';
 import { useMyLocation } from '@/lib/useMyLocation';
 import { cn } from '@/lib/cn';
+import { StationBoard } from '@/components/junction/Signs';
 import { FollowCityButton, MiniEvent, byStart, cityDistanceLabel } from './CityParts';
 
 type SortKey = 'events' | 'nearest' | 'az';
@@ -44,28 +45,27 @@ function CityCard({ row, following, onToggle }: { row: CityRow; following: boole
 
   return (
     <article className="card flex flex-col p-5">
+      {/* The city's station signboard. */}
       <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <h3 className="text-lg font-bold leading-snug">
-            <Link href={href} className="hover:underline">
-              {city.name}
-            </Link>
-          </h3>
-          <p className="text-xs text-ink/60">
-            {city.state}
-            {km !== undefined && (
-              <>
-                {' · '}
-                <strong className="font-semibold text-ink">{cityDistanceLabel(km)}</strong>
-              </>
-            )}
-          </p>
-        </div>
+        <h3 className="min-w-0 flex-1">
+          <Link href={href} className="block rounded-md transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-accent">
+            <StationBoard en={city.name} size="sm" />
+          </Link>
+        </h3>
         <FollowCityButton name={city.name} following={following} onToggle={onToggle} />
       </div>
+      <p className="mt-3 font-mono text-[11px] uppercase tracking-[0.12em] text-muted">
+        {city.state}
+        {km !== undefined && (
+          <>
+            {' · '}
+            <strong className="font-bold text-ink">{cityDistanceLabel(km)}</strong>
+          </>
+        )}
+      </p>
 
       <div className="mt-4 flex items-end gap-3">
-        <p className="font-display text-4xl leading-none text-ink">{n}</p>
+        <p className="font-display text-5xl leading-none text-ink">{n}</p>
         <p className="pb-0.5 text-xs leading-5 text-ink/60">
           open {n === 1 ? 'event' : 'events'}
           {n > 0 && (
@@ -92,7 +92,7 @@ function CityCard({ row, following, onToggle }: { row: CityRow; following: boole
       <div className="mt-auto pt-4">
         <Link
           href={href}
-          className="inline-flex items-center gap-1 border-t border-ink/10 pt-3 text-sm font-semibold text-brand-700 hover:underline dark:text-brand-300"
+          className="inline-flex items-center gap-1 border-t border-ink/10 pt-3 font-display text-[15px] font-bold uppercase tracking-[0.05em] text-ink underline decoration-board decoration-2 underline-offset-4 hover:text-accent"
         >
           {n > 1 ? `See all ${n} in ${city.name}` : `Open the ${city.name} page`}
           <ArrowRight className="h-4 w-4" />
@@ -108,7 +108,7 @@ function OnlineCard({ events }: { events: HackathonView[] }) {
   return (
     <article className="card flex flex-col p-5">
       <div className="flex items-start gap-3">
-        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-accent text-white">
+        <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[4px] bg-navy text-board">
           <Globe2 className="h-5 w-5" />
         </span>
         <div className="min-w-0">
@@ -117,11 +117,11 @@ function OnlineCard({ events }: { events: HackathonView[] }) {
               Online
             </Link>
           </h3>
-          <p className="text-xs text-ink/60">Join from anywhere in India</p>
+          <p className="text-xs text-ink/60">Join from anywhere</p>
         </div>
       </div>
       <div className="mt-4 flex items-end gap-3">
-        <p className="font-display text-4xl leading-none text-ink">{n}</p>
+        <p className="font-display text-5xl leading-none text-ink">{n}</p>
         <p className="pb-0.5 text-xs leading-5 text-ink/60">
           open {n === 1 ? 'event' : 'events'}
           {n > 0 && (
@@ -144,7 +144,7 @@ function OnlineCard({ events }: { events: HackathonView[] }) {
       <div className="mt-auto pt-4">
         <Link
           href="/hackathons?city=online"
-          className="inline-flex items-center gap-1 border-t border-ink/10 pt-3 text-sm font-semibold text-brand-700 hover:underline dark:text-brand-300"
+          className="inline-flex items-center gap-1 border-t border-ink/10 pt-3 font-display text-[15px] font-bold uppercase tracking-[0.05em] text-ink underline decoration-board decoration-2 underline-offset-4 hover:text-accent"
         >
           See online events
           <ArrowRight className="h-4 w-4" />
@@ -188,7 +188,7 @@ function ShortlistCard({ row, onToggle }: { row: CityRow; onToggle: () => void }
         <div className="mt-auto pt-4">
           <Link
             href={`/cities/${city.slug}`}
-            className="inline-flex items-center gap-1 text-sm font-semibold text-brand-700 hover:underline dark:text-brand-300"
+            className="inline-flex items-center gap-1 font-display text-[15px] font-bold uppercase tracking-[0.05em] text-ink underline decoration-board decoration-2 underline-offset-4 hover:text-accent"
           >
             See all {n}
             <ArrowRight className="h-4 w-4" />
@@ -259,7 +259,7 @@ export default function CityDirectory({ items }: CityDirectoryProps) {
           <div className="card h-44 animate-pulse" aria-hidden="true" />
         ) : shortlist.length === 0 ? (
           <div className="card flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center">
-            <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent text-white">
+            <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-board text-navy">
               <Star className="h-6 w-6 fill-current" />
             </span>
             <div className="flex-1">

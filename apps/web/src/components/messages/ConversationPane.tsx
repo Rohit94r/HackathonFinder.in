@@ -215,9 +215,9 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
           <div className="h-4 w-40 animate-pulse rounded bg-ink/10" />
         </div>
         <div className="flex-1 space-y-3 p-5">
-          <div className="h-10 w-2/3 animate-pulse rounded-xl bg-ink/[0.06]" />
-          <div className="ml-auto h-10 w-1/2 animate-pulse rounded-xl bg-ink/[0.06]" />
-          <div className="h-10 w-1/3 animate-pulse rounded-xl bg-ink/[0.06]" />
+          <div className="h-10 w-2/3 animate-pulse rounded-lg bg-ink/[0.06]" />
+          <div className="ml-auto h-10 w-1/2 animate-pulse rounded-lg bg-ink/[0.06]" />
+          <div className="h-10 w-1/3 animate-pulse rounded-lg bg-ink/[0.06]" />
         </div>
       </div>
     );
@@ -254,9 +254,9 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
             <MoreVertical className="h-5 w-5" />
           </button>
           {menuOpen && (
-            <div className="hf-dd-in absolute right-0 top-full z-20 mt-2 w-52 rounded-xl border border-ink/10 bg-card p-1.5 text-sm shadow-lift">
+            <div className="hf-dd-in absolute right-0 top-full z-20 mt-2 w-52 rounded-lg border border-ink/10 bg-card p-1.5 text-sm shadow-lift">
               {profileHref && (
-                <Link href={profileHref} className="flex items-center gap-2.5 rounded-xl px-3 py-2 hover:bg-ink/5">
+                <Link href={profileHref} className="flex items-center gap-2.5 rounded-lg px-3 py-2 hover:bg-ink/5">
                   <UserRound className="h-4 w-4 text-ink/60" />
                   View profile
                 </Link>
@@ -266,7 +266,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
                   type="button"
                   onClick={toggleBlock}
                   disabled={blockBusy}
-                  className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-brand-700 hover:bg-ink/5 dark:text-brand-300"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-brand-700 hover:bg-ink/5 dark:text-brand-300"
                 >
                   <Ban className="h-4 w-4" />
                   {conv.blockedByMe ? 'Unblock chat' : 'Block chat'}
@@ -286,7 +286,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
             </button>
           </div>
         ) : (
-          <div className="mx-auto mb-5 max-w-md rounded-xl border border-ink/10 px-4 py-3 text-center text-xs leading-5 text-ink/60">
+          <div className="mx-auto mb-5 max-w-md rounded-lg border border-ink/10 px-4 py-3 text-center text-xs leading-5 text-ink/60">
             <ShieldCheck className="mx-auto mb-1 h-4 w-4 text-ink/50" aria-hidden="true" />
             You connected when {conv.origin === 'invite' ? 'an invite' : 'a join request'} was accepted. Only the two of you can see
             this chat. Keep it respectful, and never share passwords or OTPs.
@@ -315,7 +315,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
           })}
           {pending.map((p) => (
             <li key={p.tempId} className="flex flex-col items-end pt-1">
-              <p className={cn('max-w-[85%] whitespace-pre-wrap break-words rounded-xl rounded-br-md px-3.5 py-2 text-sm sm:max-w-[70%]', p.failed ? 'bg-accent/20 text-ink' : 'bg-accent/70 text-white')}>
+              <p className={cn('max-w-[85%] whitespace-pre-wrap break-words rounded-lg rounded-br-md px-3.5 py-2 text-sm sm:max-w-[70%]', p.failed ? 'bg-accent/20 text-ink' : 'bg-accent/70 text-white')}>
                 {p.body}
               </p>
               {p.failed ? (
@@ -345,12 +345,12 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
 
       <footer className="border-t border-ink/10 p-3 sm:p-4">
         {notice && (
-          <p role="alert" className="mb-2 rounded-xl bg-accent/10 px-3 py-2 text-xs font-medium text-brand-800 dark:text-brand-200">
+          <p role="alert" className="mb-2 rounded-lg bg-accent/10 px-3 py-2 text-xs font-medium text-brand-800 dark:text-brand-200">
             {notice}
           </p>
         )}
         {conv.blocked ? (
-          <div className="flex flex-col items-center gap-2 rounded-xl bg-ink/[0.04] px-4 py-3 text-center text-sm text-ink/70 sm:flex-row sm:justify-between sm:text-left">
+          <div className="flex flex-col items-center gap-2 rounded-lg bg-ink/[0.04] px-4 py-3 text-center text-sm text-ink/70 sm:flex-row sm:justify-between sm:text-left">
             <span className="flex items-center gap-2">
               <Ban className="h-4 w-4 shrink-0" aria-hidden="true" />
               {conv.blockedByMe ? 'You blocked this chat, so neither of you can send messages.' : 'This chat is closed. You can’t send messages here.'}
@@ -362,7 +362,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
             )}
           </div>
         ) : other.inactive ? (
-          <p className="rounded-xl bg-ink/[0.04] px-4 py-3 text-center text-sm text-ink/70">
+          <p className="rounded-lg bg-ink/[0.04] px-4 py-3 text-center text-sm text-ink/70">
             This student’s account isn’t active any more, so you can’t send messages.
           </p>
         ) : (
@@ -398,7 +398,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
             <span className="hidden sm:inline">Enter to send, Shift + Enter for a new line</span>
             {draft.length > MESSAGE_MAX - 200 && (
               <span>
-                {draft.length.toLocaleString('en-IN')}/{MESSAGE_MAX.toLocaleString('en-IN')}
+                {draft.length.toLocaleString('en-US')}/{MESSAGE_MAX.toLocaleString('en-US')}
               </span>
             )}
           </p>
@@ -413,7 +413,7 @@ function Bubble({ message: m, grouped, status }: { message: ChatMessage; grouped
     <li className={cn('flex flex-col', m.mine ? 'items-end' : 'items-start', grouped ? 'pt-0.5' : 'pt-2')}>
       <p
         className={cn(
-          'max-w-[85%] whitespace-pre-wrap break-words rounded-xl px-3.5 py-2 text-sm leading-relaxed sm:max-w-[70%]',
+          'max-w-[85%] whitespace-pre-wrap break-words rounded-lg px-3.5 py-2 text-sm leading-relaxed sm:max-w-[70%]',
           m.mine ? 'rounded-br-md bg-accent text-white' : 'rounded-bl-md bg-ink/[0.07] text-ink'
         )}
       >

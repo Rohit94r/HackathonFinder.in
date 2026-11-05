@@ -180,7 +180,7 @@ export default function NewThreadForm({
             City (optional)
           </label>
           <select id="nt-city" className="input" value={city} onChange={(e) => setCity(e.target.value)} {...invalid('city')}>
-            <option value="">All of India</option>
+            <option value="">Everywhere</option>
             {CITIES.map((c) => (
               <option key={c.slug} value={c.slug}>
                 {c.name}
@@ -230,7 +230,7 @@ export default function NewThreadForm({
       </div>
 
       {formError && (
-        <p role="alert" className="rounded-xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-800 dark:bg-brand-400/10 dark:text-brand-200">
+        <p role="alert" className="rounded-lg bg-brand-50 px-4 py-3 text-sm font-medium text-brand-800 dark:bg-brand-400/10 dark:text-brand-200">
           {formError}
         </p>
       )}

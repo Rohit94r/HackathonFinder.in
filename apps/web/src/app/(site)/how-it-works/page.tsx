@@ -58,8 +58,7 @@ const KIND_ORDER: SourceKind[] = ['platform', 'search', 'social', 'events', 'col
 export default function HowItWorksPage() {
   return (
     <>
-      <PageHero
-        title="We do the searching"
+      <PageHero title="We do the searching"
         accent="you do the building"
         description="Discovery agents search public platforms and event pages. Complete listings publish automatically with their source and verification status visible."
       />
@@ -75,7 +74,7 @@ export default function HowItWorksPage() {
                   <span className="absolute right-5 top-5 font-display text-sm font-bold text-surface/80">
                     {String(i + 1).padStart(2, '0')}
                   </span>
-                  <span className="mb-4 inline-flex rounded-xl bg-brand-600 p-2.5 text-white">
+                  <span className="mb-4 inline-flex rounded-lg bg-brand-600 p-2.5 text-white">
                     <Icon className="h-5 w-5" />
                   </span>
                   <h3 className="text-lg font-bold">{agent.name}</h3>
@@ -107,7 +106,7 @@ export default function HowItWorksPage() {
                 </div>
               );
             })}
-            <div className="rounded-xl border-2 border-accent bg-accent-soft p-6 dark:bg-accent/10">
+            <div className="rounded-lg border-2 border-accent bg-accent-soft p-6 dark:bg-accent/10">
               <h3 className="text-base font-bold">Browser extension</h3>
               <p className="mt-2 text-sm text-ink/70">
                 See a hackathon on Instagram, LinkedIn or any site? One click on “Add to
@@ -150,7 +149,7 @@ export default function HowItWorksPage() {
 
       <section className="section">
         <div className="container-page">
-          <div className="on-dark flex flex-col items-center rounded-xl bg-ink px-6 py-14 text-center">
+          <div className="on-dark flex flex-col items-center rounded-lg bg-ink px-6 py-14 text-center">
             <h2 className="text-3xl font-bold text-white">See it in action</h2>
             <p className="mt-3 max-w-lg text-surface/80">Search open hackathons by city, theme, deadline and team size.</p>
             <div className="mt-6 flex flex-wrap justify-center gap-3">

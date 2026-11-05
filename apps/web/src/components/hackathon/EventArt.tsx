@@ -50,7 +50,7 @@ export default function EventArt({ title, label, className, size = 'card', image
 
   return (
     // Neutral grey while the banner downloads, so a loading card never looks like an empty black box.
-    <div className={cn('relative overflow-hidden bg-[#eceef3] dark:bg-[#22242e]', className)}>
+    <div className={cn('relative overflow-hidden bg-[#e6dfd1] dark:bg-[#26231d]', className)}>
       {imageUrl ? (
         <>
           {/* Blurred copy behind, so a poster or an odd-sized banner never leaves bare bars. */}

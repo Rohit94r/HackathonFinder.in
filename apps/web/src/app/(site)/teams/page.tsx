@@ -11,8 +11,8 @@ import { loadTeamBoard } from '@/server/teams';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Hackathon Team Finder: Find Teammates in India',
-  description: 'Find hackathon teammates anywhere in India. Browse teams looking for members or students looking for a team, filter by city, distance, skills and hackathon.',
+  title: 'Hackathon Team Finder: Find Teammates Anywhere',
+  description: 'Find hackathon teammates anywhere. Browse teams looking for members or students looking for a team, filter by city, distance, skills and hackathon.',
   path: '/teams',
   keywords: ['hackathon team finder', 'find hackathon teammates', 'hackathon team', 'looking for team hackathon'],
 });

@@ -63,7 +63,7 @@ function RowItem({ row, now }: { row: Row; now: string }) {
   const pending = row.status === 'pending';
 
   return (
-    <li className="rounded-xl border border-ink/10 p-3">
+    <li className="rounded-lg border border-ink/10 p-3">
       <div className="flex items-start gap-3">
         <Avatar name={row.person.name} image={row.person.image} size="md" className="ring-0" />
         <div className="min-w-0 flex-1">

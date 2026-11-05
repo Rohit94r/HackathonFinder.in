@@ -134,7 +134,7 @@ function SignInMethods({ me }: { me: Me }) {
         {rows.map((row) => (
           <li key={row.id} className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
             <span className="flex items-center gap-3 text-sm font-semibold text-ink">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-ink/5 text-ink/80">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-ink/5 text-ink/80">
                 {row.id === 'credentials' ? <Mail className="h-4 w-4" aria-hidden="true" /> : <ProviderIcon id={row.id} />}
               </span>
               {row.label}
@@ -215,7 +215,7 @@ function EmailPrefs({ me }: { me: MeWithPrefs }) {
               role="switch"
               aria-checked={prefs[p.key]}
               onClick={() => void toggle(p.key)}
-              className="flex w-full items-center justify-between gap-4 rounded-xl border border-ink/15 px-4 py-3 text-left transition hover:border-ink/30"
+              className="flex w-full items-center justify-between gap-4 rounded-lg border border-ink/15 px-4 py-3 text-left transition hover:border-ink/30"
             >
               <span>
                 <span className="block text-sm font-semibold text-ink">{p.title}</span>
@@ -269,7 +269,7 @@ function DeleteAccount() {
           Delete my account
         </button>
       ) : (
-        <form onSubmit={remove} className="space-y-3 rounded-xl border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-500/30 dark:bg-brand-500/10">
+        <form onSubmit={remove} className="space-y-3 rounded-lg border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-500/30 dark:bg-brand-500/10">
           <label htmlFor="delete-confirm" className="label">
             Type <strong className="font-mono text-ink">DELETE</strong> to confirm
           </label>

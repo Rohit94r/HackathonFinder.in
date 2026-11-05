@@ -41,7 +41,7 @@ export default function SubmitChooser({ initial }: { initial: SubmitAs }) {
               as === o.value ? 'ring-2 ring-ink' : 'opacity-75 hover:opacity-100'
             )}
           >
-            <span className={cn('rounded-xl p-2.5', as === o.value ? 'bg-ink text-surface' : 'bg-ink/5 text-ink')}>
+            <span className={cn('rounded-lg p-2.5', as === o.value ? 'bg-ink text-surface' : 'bg-ink/5 text-ink')}>
               <o.icon className="h-5 w-5" />
             </span>
             <span>

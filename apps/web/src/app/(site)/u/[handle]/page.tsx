@@ -75,7 +75,7 @@ export default async function PersonPage({ params }: { params: { handle: string 
                     <p className="text-xs text-ink/60">This is how other students see your profile.</p>
                   </>
                 ) : user.isSample ? (
-                  <p className="flex items-start gap-2 rounded-xl bg-ink/[0.05] px-3 py-2.5 text-xs leading-5 text-ink/70">
+                  <p className="flex items-start gap-2 rounded-lg bg-ink/[0.05] px-3 py-2.5 text-xs leading-5 text-ink/70">
                     <Info className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
                     {firstName} is a sample student, here so you can see how profiles look. Sample students can’t get invites or
                     messages.
@@ -158,7 +158,7 @@ export default async function PersonPage({ params }: { params: { handle: string 
             ].map((c) => (
               <div key={c.label}>
                 <dt className="text-xs font-medium uppercase tracking-wider text-ink/60">{c.label}</dt>
-                <dd className="mt-1 font-display text-2xl text-ink">{c.value.toLocaleString('en-IN')}</dd>
+                <dd className="mt-1 font-display text-2xl text-ink">{c.value.toLocaleString('en-US')}</dd>
               </div>
             ))}
           </dl>

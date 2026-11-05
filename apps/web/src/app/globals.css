@@ -4,27 +4,27 @@
 
 @layer base {
   /*
-   * Theme colours as RGB channels, used by the ink, muted, line, surface and card Tailwind colours.
-   * Light is the default: cool off-white page, white surfaces, #171923 text, #E8EAF0 borders.
+   * Hackathon Junction. Theme colours as RGB channels, used by the ink, muted, line, surface and card
+   * Tailwind colours. Day station (default): warm ticket paper and ink. Night station: soot and lamplight.
    */
   :root {
-    --hf-ink: 23 25 35;
-    --hf-ink-800: 39 42 55;
-    --hf-ink-700: 55 59 75;
-    --hf-muted: 104 109 125;
-    --hf-line: 232 234 240;
-    --hf-surface: 248 249 252;
-    --hf-card: 255 255 255;
+    --hf-ink: 22 19 15;
+    --hf-ink-800: 42 37 31;
+    --hf-ink-700: 64 58 49;
+    --hf-muted: 110 102 90;
+    --hf-line: 224 215 199;
+    --hf-surface: 243 238 227;
+    --hf-card: 255 252 245;
     color-scheme: light;
   }
   [data-theme='dark'] {
-    --hf-ink: 237 238 243;
-    --hf-ink-800: 214 216 224;
-    --hf-ink-700: 190 193 204;
-    --hf-muted: 150 155 172;
-    --hf-line: 40 42 54;
-    --hf-surface: 12 13 18;
-    --hf-card: 21 22 29;
+    --hf-ink: 244 238 226;
+    --hf-ink-800: 224 217 204;
+    --hf-ink-700: 200 192 178;
+    --hf-muted: 160 151 136;
+    --hf-line: 50 46 39;
+    --hf-surface: 14 13 11;
+    --hf-card: 26 24 20;
     color-scheme: dark;
   }
   /*
@@ -32,12 +32,12 @@
    * sit one step lighter than the page so they still stand out.
    */
   [data-theme='dark'] .on-dark {
-    --hf-ink: 30 32 42;
-    --hf-ink-800: 40 42 54;
-    --hf-ink-700: 52 55 70;
-    --hf-surface: 248 249 252;
-    --hf-card: 255 255 255;
-    --hf-line: 52 55 70;
+    --hf-ink: 34 31 26;
+    --hf-ink-800: 46 42 36;
+    --hf-ink-700: 60 55 47;
+    --hf-surface: 243 238 227;
+    --hf-card: 255 252 245;
+    --hf-line: 60 55 47;
   }
   html {
     scroll-behavior: smooth;
@@ -45,30 +45,30 @@
   }
   body {
     @apply bg-surface font-sans text-ink antialiased;
-    font-feature-settings: 'cv11', 'ss01';
+    /* Ticket-paper grain, barely there. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.28 0 0 0 0 0.18 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
+  [data-theme='dark'] body {
+    background-image: none;
+  }
+  /* Headings are signage: condensed, bold, upper case. */
   h1,
   h2 {
-    @apply font-sans font-semibold leading-[1.1] tracking-[-0.025em] text-ink;
+    @apply font-display font-bold uppercase leading-[0.95] tracking-[-0.005em] text-ink;
   }
   h3,
   h4 {
     @apply font-sans font-semibold tracking-[-0.01em] text-ink;
   }
-  /* Big numbers and older "display" markup: same family as the text, semibold and tight. */
   .font-display {
-    font-weight: 600;
-    letter-spacing: -0.02em;
-  }
-  /* Older markup asks for uppercase display text; headings stay in normal case. */
-  .font-display.uppercase {
-    text-transform: none;
+    font-weight: 700;
+    letter-spacing: -0.005em;
   }
   ::selection {
-    @apply bg-accent/20 text-ink;
+    @apply bg-board text-navy;
   }
   :focus-visible {
-    outline: 2px solid #635bff;
+    outline: 2px solid #c8261d;
     outline-offset: 2px;
   }
 }
@@ -80,51 +80,58 @@
   .section {
     @apply py-14 sm:py-20;
   }
+  /* Small mono label with a signboard-yellow block in front. */
   .eyebrow {
-    @apply inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.08em] text-accent dark:text-brand-300;
+    @apply inline-flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-ink/70;
+  }
+  .eyebrow::before {
+    content: '';
+    @apply inline-block h-2.5 w-2.5 shrink-0 rounded-[2px] bg-board ring-1 ring-navy/80;
   }
   .on-dark .eyebrow {
-    @apply text-brand-300;
+    @apply text-surface/70;
   }
+  /* Buttons are pressed-metal signs: condensed caps, a hard shadow that sinks when pressed. */
   .btn {
-    @apply inline-flex min-h-[40px] items-center justify-center gap-2 rounded-lg border border-transparent px-4 py-2.5 text-sm font-medium transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-60;
+    @apply inline-flex min-h-[42px] items-center justify-center gap-2 rounded-md border-2 border-transparent px-4 py-2 font-display text-[15px] font-bold uppercase tracking-[0.06em] transition-[transform,box-shadow,background-color,border-color,color] duration-150 focus:outline-none focus-visible:ring-[3px] focus-visible:ring-board focus-visible:ring-offset-2 focus-visible:ring-offset-surface disabled:cursor-not-allowed disabled:opacity-60 motion-reduce:transition-none;
   }
   .btn-primary {
-    @apply btn bg-accent text-white shadow-[0_1px_2px_rgba(23,25,35,0.12)] hover:bg-accent-dark active:bg-brand-800;
+    @apply btn border-navy bg-board text-navy shadow-hard-sm hover:-translate-x-px hover:-translate-y-px hover:bg-[#ffcf47] hover:shadow-hard active:translate-x-[2px] active:translate-y-[2px] active:shadow-none disabled:translate-x-0 disabled:translate-y-0 disabled:shadow-hard-sm;
   }
   .btn-lime {
-    @apply btn border-black/10 bg-white text-navy shadow-card hover:bg-pop-soft;
+    @apply btn-primary;
   }
   .btn-secondary {
-    @apply btn border-line bg-card text-ink shadow-card hover:border-ink/20 hover:bg-ink/[0.03];
+    @apply btn border-ink bg-card text-ink shadow-[2px_2px_0_0_rgb(var(--hf-ink))] hover:-translate-x-px hover:-translate-y-px hover:shadow-[3px_3px_0_0_rgb(var(--hf-ink))] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
   }
   .btn-ghost {
-    @apply btn text-ink/80 hover:bg-ink/[0.05] hover:text-ink;
+    @apply btn text-ink/80 hover:bg-ink/[0.06] hover:text-ink;
   }
   .btn-ghost-dark {
-    @apply btn border-surface/30 bg-transparent text-surface hover:border-surface/60 hover:bg-surface/10;
+    @apply btn border-surface/40 bg-transparent text-surface hover:border-surface hover:bg-surface/10;
   }
   .card {
-    @apply rounded-xl border border-line bg-card shadow-card;
+    @apply rounded-md border border-line bg-card shadow-card;
   }
+  /* Chips read like platform tags; the active one is lit (ink on paper, inverted). */
   .chip {
-    @apply inline-flex min-h-[32px] items-center gap-1.5 rounded-full border border-line bg-card px-3 py-1.5 text-sm font-medium text-ink/80 transition-colors hover:border-ink/25 hover:text-ink;
+    @apply inline-flex min-h-[32px] items-center gap-1.5 rounded-md border border-ink/15 bg-card px-3 py-1 font-display text-[14px] font-semibold uppercase tracking-[0.05em] text-ink/75 transition-colors hover:border-ink/40 hover:text-ink;
   }
   .chip-active {
-    @apply border-accent/40 bg-accent-soft text-brand-700 hover:border-accent/60 hover:text-brand-700 dark:bg-accent/15 dark:text-brand-200 dark:hover:text-brand-200;
+    @apply border-ink bg-ink text-surface hover:border-ink hover:text-surface;
   }
   .input {
-    @apply w-full rounded-lg border border-line bg-card px-3.5 py-2.5 text-sm text-ink shadow-card transition-colors placeholder:text-muted/80 hover:border-ink/20 focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent/15;
+    @apply w-full rounded-md border border-ink/20 bg-card px-3.5 py-2.5 text-[15px] text-ink transition-colors placeholder:text-muted/80 hover:border-ink/35 focus:border-ink focus:outline-none focus:ring-[3px] focus:ring-board/60;
   }
   .label {
-    @apply mb-1.5 block text-sm font-medium text-ink/80;
+    @apply mb-1.5 block font-display text-[13px] font-semibold uppercase tracking-[0.08em] text-ink/75;
   }
-  /* Page header band: plain surface with a hairline under it. */
+  /* Page header band: under the station canopy (dark), lit by the platform edge below. */
   .hf-hero {
-    @apply bg-card;
+    @apply relative bg-surface text-ink;
   }
   .skeleton {
-    @apply relative overflow-hidden rounded-md bg-ink/[0.06];
+    @apply relative overflow-hidden rounded-md bg-ink/[0.07];
   }
   .skeleton::after {
     content: '';
@@ -144,7 +151,7 @@
   @apply text-[17px] leading-8 text-ink/80;
 }
 .prose-hf h2 {
-  @apply mb-3 mt-10 text-2xl font-semibold leading-tight;
+  @apply mb-3 mt-10 text-[28px] leading-none;
 }
 .prose-hf h3 {
   @apply mb-2 mt-8 text-xl font-semibold;
@@ -169,21 +176,199 @@
   @apply font-medium text-brand-700 underline decoration-brand-200 underline-offset-4 hover:decoration-brand-600 dark:text-brand-300;
 }
 .prose-hf blockquote {
-  @apply my-6 rounded-r-lg border-l-2 border-accent bg-accent-soft px-5 py-4 text-ink/80 dark:bg-accent/10;
+  @apply my-6 rounded-r-md border-l-4 border-board bg-board-soft px-5 py-4 text-ink/80 dark:bg-board/10;
 }
 
-/* ---------- Homepage hero (a dark band) ---------- */
-/* The live code field: quieter behind the headline, fading out towards the poster wall. */
-.hero-code {
-  mask-image:
-    radial-gradient(ellipse 34% 26% at 50% 28%, rgba(0, 0, 0, 0.35), #000 100%),
-    linear-gradient(to bottom, #000 55%, transparent 95%);
-  -webkit-mask-image:
-    radial-gradient(ellipse 34% 26% at 50% 28%, rgba(0, 0, 0, 0.35), #000 100%),
-    linear-gradient(to bottom, #000 55%, transparent 95%);
-  mask-composite: intersect;
-  -webkit-mask-composite: source-in;
+/* ================= Hackathon Junction set pieces ================= */
+
+/*
+ * Tickets. The outer element carries the shadow (drop-shadow follows the punched shape);
+ * .ticket-paper is the paper, with two semicircle notches punched at the perforation.
+ * Horizontal tickets tear off a stub at the bottom (--stub tall); vertical ones at the right (--stub wide).
+ */
+.ticket {
+  --notch: 9px;
+  filter: drop-shadow(0 1px 0 rgb(22 19 15 / 0.12)) drop-shadow(0 8px 14px rgb(22 19 15 / 0.07));
+  transition:
+    filter 0.2s ease,
+    transform 0.2s ease;
 }
+.ticket:hover {
+  filter: drop-shadow(0 1px 0 rgb(22 19 15 / 0.16)) drop-shadow(0 18px 24px rgb(22 19 15 / 0.16));
+}
+[data-theme='dark'] .ticket {
+  filter: drop-shadow(0 0 0.6px rgb(255 255 255 / 0.28)) drop-shadow(0 10px 18px rgb(0 0 0 / 0.5));
+}
+[data-theme='dark'] .ticket:hover {
+  filter: drop-shadow(0 0 0.6px rgb(255 198 41 / 0.6)) drop-shadow(0 18px 26px rgb(0 0 0 / 0.6));
+}
+.ticket-paper {
+  @apply bg-card;
+  border-radius: 8px;
+  -webkit-mask-composite: source-in;
+  mask-composite: intersect;
+}
+.ticket-h .ticket-paper {
+  -webkit-mask-image:
+    radial-gradient(circle var(--notch) at 0 calc(100% - var(--stub)), #0000 96%, #000),
+    radial-gradient(circle var(--notch) at 100% calc(100% - var(--stub)), #0000 96%, #000);
+  mask-image:
+    radial-gradient(circle var(--notch) at 0 calc(100% - var(--stub)), #0000 96%, #000),
+    radial-gradient(circle var(--notch) at 100% calc(100% - var(--stub)), #0000 96%, #000);
+}
+.ticket-v .ticket-paper {
+  -webkit-mask-image:
+    radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 0, #0000 96%, #000),
+    radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 100%, #0000 96%, #000);
+  mask-image:
+    radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 0, #0000 96%, #000),
+    radial-gradient(circle var(--notch) at calc(100% - var(--stub)) 100%, #0000 96%, #000);
+}
+/* The tear line between ticket and stub. */
+.ticket-h .ticket-stub {
+  position: relative;
+  height: var(--stub);
+}
+.ticket-h .ticket-stub::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: calc(var(--notch) + 6px);
+  right: calc(var(--notch) + 6px);
+  border-top: 2px dashed rgb(var(--hf-ink) / 0.16);
+}
+.ticket-v .ticket-stub {
+  position: relative;
+  width: var(--stub);
+}
+.ticket-v .ticket-stub::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: calc(var(--notch) + 6px);
+  bottom: calc(var(--notch) + 6px);
+  border-left: 2px dashed rgb(var(--hf-ink) / 0.16);
+}
+/* A rubber stamp, slightly crooked, ink a little uneven. */
+.stamp {
+  @apply inline-flex items-center rounded-[4px] border-2 border-current px-2 py-0.5 font-display text-[13px] font-extrabold uppercase leading-none tracking-[0.12em];
+  transform: rotate(-8deg);
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='60'%3E%3Cfilter id='s'%3E%3CfeTurbulence baseFrequency='.7' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -2.2 1.6'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23s)'/%3E%3C/svg%3E");
+}
+
+/*
+ * Station signboard: yellow plate, black text, a black rule inset from the edge,
+ * like the name boards at the end of a platform.
+ */
+.station-board {
+  /* No position here: this sheet is unlayered, so it would beat an `absolute` utility. Callers add `relative`. */
+  @apply rounded-[5px] bg-board text-navy;
+  box-shadow:
+    inset 0 0 0 4px #ffc629,
+    inset 0 0 0 6px #16130f,
+    0 1px 0 rgb(0 0 0 / 0.25),
+    0 14px 24px -14px rgb(22 19 15 / 0.55);
+}
+/* Two posts holding the board up. */
+.station-board-posts {
+  margin-bottom: 22px;
+}
+.station-board-posts::before,
+.station-board-posts::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  width: 6px;
+  height: 22px;
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(90deg, #5d564b, #9c9486 45%, #4a443b);
+}
+.station-board-posts::before {
+  left: 18%;
+}
+.station-board-posts::after {
+  right: 18%;
+}
+
+/* The yellow safety line along a platform edge, with its tactile ridges. */
+.platform-edge {
+  height: 7px;
+  background:
+    radial-gradient(circle 1.4px, rgb(22 19 15 / 0.35) 90%, transparent) 0 0 / 7px 7px,
+    #ffc629;
+}
+
+/* Railway track: two steel rails on timber sleepers. */
+.rail-track {
+  height: 16px;
+  background:
+    linear-gradient(#b9b2a5, #77706a) 0 2px / 100% 3px no-repeat,
+    linear-gradient(#b9b2a5, #77706a) 0 11px / 100% 3px no-repeat,
+    repeating-linear-gradient(90deg, #5b4636 0 8px, transparent 8px 22px);
+}
+
+/* The night station: warm lamplight from the canopy, a red glow off the signals below. */
+.junction-lamps {
+  background:
+    radial-gradient(ellipse 28% 38% at 12% -6%, rgb(255 198 41 / 0.17), transparent 70%),
+    radial-gradient(ellipse 26% 34% at 58% -8%, rgb(255 198 41 / 0.1), transparent 70%),
+    radial-gradient(ellipse 30% 40% at 92% -6%, rgb(255 198 41 / 0.15), transparent 70%),
+    radial-gradient(ellipse 70% 30% at 50% 100%, rgb(200 38 29 / 0.12), transparent 70%);
+}
+/* A hanging board sways a little. */
+@media (prefers-reduced-motion: no-preference) {
+  .swing {
+    transform-origin: 50% 0;
+    animation: swing 6s ease-in-out infinite;
+  }
+}
+@keyframes swing {
+  0%,
+  100% {
+    transform: rotate(-1.2deg);
+  }
+  50% {
+    transform: rotate(1.2deg);
+  }
+}
+
+/* Platform number: a black square with a yellow numeral. */
+.pf-num {
+  @apply inline-flex h-8 min-w-8 shrink-0 items-center justify-center rounded-[4px] bg-navy px-1.5 font-display text-lg font-extrabold leading-none text-board;
+}
+
+/* A coach of the homepage train: classic coach blue with a cream stripe. */
+.coach {
+  background:
+    linear-gradient(180deg, transparent 0 74%, #f3e7c9 74% 79%, transparent 79%),
+    linear-gradient(180deg, #2a5ba8 0%, #1d4785 100%);
+  box-shadow:
+    inset 0 2px 0 rgb(255 255 255 / 0.18),
+    inset 0 -3px 0 rgb(0 0 0 / 0.25);
+}
+.coach-ac {
+  background:
+    linear-gradient(180deg, transparent 0 74%, #f3e7c9 74% 79%, transparent 79%),
+    linear-gradient(180deg, #c3332a 0%, #9b231c 100%);
+}
+.wheel {
+  @apply absolute bottom-[-9px] h-[18px] w-[18px] rounded-full;
+  /* Spokes, so the turning shows. */
+  background:
+    radial-gradient(circle, #d9d3c7 0 16%, transparent 17% 60%, #7c766c 61% 70%, #1b1814 71%),
+    repeating-conic-gradient(#2c2823 0 30deg, #5a544b 30deg 60deg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .wheel {
+    animation: wheel-spin 0.9s linear infinite;
+  }
+}
+@keyframes wheel-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* ---------- Split-flap departures board ---------- */
 .departures {
   --flap-fs: 10.5px;
@@ -299,49 +484,15 @@
   }
 }
 
-/* The terminal and editor windows drift gently, tilted towards the centre. */
-@keyframes hero-float {
-  0%,
-  100% {
-    transform: perspective(1000px) rotateY(var(--tilt, 0deg)) translateY(0);
-  }
-  50% {
-    transform: perspective(1000px) rotateY(var(--tilt, 0deg)) translateY(-10px);
-  }
-}
-.hero-float {
-  animation: hero-float 7s ease-in-out infinite;
-}
-@media (prefers-reduced-motion: reduce) {
-  .hero-float {
-    animation: none;
-    transform: perspective(1000px) rotateY(var(--tilt, 0deg));
-  }
-}
-/* Indigo light from above the headline. */
-.hero-glow {
-  background:
-    radial-gradient(ellipse 50% 40% at 50% 0%, rgba(99, 91, 255, 0.45), transparent 70%),
-    radial-gradient(ellipse 35% 30% at 85% 35%, rgba(56, 189, 248, 0.12), transparent 70%),
-    radial-gradient(ellipse 35% 30% at 12% 45%, rgba(167, 139, 250, 0.14), transparent 70%);
-}
-/* The changing word in the headline. */
-.hero-word {
-  background-image: linear-gradient(90deg, #a5a3ff 0%, #c4b5fd 45%, #7dd3fc 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-}
-
-/* Accent text for the second line of headers. Solid colour, no gradient. */
+/* Accent text for the second line of headers: signboard yellow on dark, signal red on light. */
 .text-neon {
-  color: #a5a3ff;
+  color: #ffc629;
 }
 .text-neon-dark {
-  color: #635bff;
+  color: #c8261d;
 }
 [data-theme='dark'] .text-neon-dark {
-  color: #a5a3ff;
+  color: #ffc629;
 }
 
 /* ---------- Scroll reveals ---------- */
@@ -418,4 +569,40 @@
     opacity: 1 !important;
     translate: none !important;
   }
+}
+
+/* ---------- Phones ---------- */
+/* Room for whichever bottom bar is showing (tab bar, or a hackathon's Register bar); each sets --hf-dock. */
+@media (max-width: 1023px) {
+  body {
+    padding-bottom: var(--hf-dock, 0px);
+  }
+}
+@media (max-width: 639px) {
+  /* iOS Safari zooms into any field set under 16px when it gets focus. */
+  input:not([type='checkbox']):not([type='radio']):not([type='range']),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+  /* One soft shadow per ticket scrolls more smoothly on phones than two. */
+  .ticket,
+  .ticket:hover {
+    filter: drop-shadow(0 2px 6px rgb(22 19 15 / 0.12));
+  }
+  [data-theme='dark'] .ticket,
+  [data-theme='dark'] .ticket:hover {
+    filter: drop-shadow(0 0 0.6px rgb(255 255 255 / 0.3));
+  }
+}
+/* Taps: no grey flash (buttons press down instead), and no double-tap zoom delay. */
+html {
+  -webkit-tap-highlight-color: transparent;
+}
+a,
+button,
+label,
+summary,
+[role='button'] {
+  touch-action: manipulation;
 }

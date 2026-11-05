@@ -295,7 +295,7 @@ export default function MyProfileView({
               <Pencil className="h-4 w-4" aria-hidden="true" />
               Edit profile
             </button>
-            <Link href={`/u/${me.handle}`} className="flex items-start gap-2 rounded-xl bg-ink/5 px-3 py-2.5 text-xs leading-5 text-ink/70 hover:bg-ink/10">
+            <Link href={`/u/${me.handle}`} className="flex items-start gap-2 rounded-lg bg-ink/5 px-3 py-2.5 text-xs leading-5 text-ink/70 hover:bg-ink/10">
               <Eye className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
               <span>
                 See your public profile at <strong className="break-all text-ink">hackathonfinder.in/u/{me.handle}</strong>
@@ -375,7 +375,7 @@ export default function MyProfileView({
           <>
             <dl className="mb-5 grid grid-cols-4 gap-2 text-center">
               {(['saved', 'registered', 'submitted', 'done'] as TrackStatus[]).map((s) => (
-                <div key={s} className={cn('rounded-xl px-2 py-2.5', STATUS_STYLES[s])}>
+                <div key={s} className={cn('rounded-lg px-2 py-2.5', STATUS_STYLES[s])}>
                   <dt className="text-[11px] font-semibold uppercase tracking-wider">{TRACK_LABELS[s]}</dt>
                   <dd className="font-display text-2xl leading-tight">{byStatus(s)}</dd>
                 </div>

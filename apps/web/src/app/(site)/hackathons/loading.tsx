@@ -12,7 +12,7 @@ export default function Loading() {
       </section>
       <section className="py-8">
         <div className="container-page grid gap-8 lg:grid-cols-[272px_minmax(0,1fr)]">
-          <div className="hidden space-y-4 rounded-xl border border-line bg-card p-4 lg:block">
+          <div className="hidden space-y-4 rounded-lg border border-line bg-card p-4 lg:block">
             {Array.from({ length: 6 }, (_, i) => (
               <div key={i} className="space-y-2">
                 <div className="skeleton h-3.5 w-24" />

@@ -381,7 +381,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
     <div className="grid gap-8 lg:grid-cols-[272px_minmax(0,1fr)]">
       {/* Desktop filters */}
       <aside className="hidden lg:block" aria-label="Filters">
-        <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-xl border border-line bg-card p-4 shadow-card">
+        <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-lg border border-line bg-card p-4 shadow-card">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-sm font-semibold">Filters</h2>
             {count > 0 && (
@@ -489,7 +489,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
         </div>
 
         {needsLocation && (
-          <div className="mt-4 flex flex-col gap-4 rounded-xl border border-line bg-card p-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="mt-4 flex flex-col gap-4 rounded-lg border border-line bg-card p-5 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <h2 className="flex items-center gap-2 text-base">
                 <MapPin className="h-5 w-5 text-accent" aria-hidden="true" />
@@ -516,7 +516,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
               )}
             </>
           ) : (
-            <div className="flex flex-col items-center rounded-xl border border-dashed border-line bg-card px-6 py-16 text-center">
+            <div className="flex flex-col items-center rounded-lg border border-dashed border-line bg-card px-6 py-16 text-center">
               <span className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-ink/[0.05] text-muted">
                 <SearchX className="h-6 w-6" aria-hidden="true" />
               </span>

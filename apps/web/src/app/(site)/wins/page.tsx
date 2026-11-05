@@ -10,7 +10,7 @@ import { listWins } from '@/server/wins';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Hackathon Winning Stories & Winning Projects',
-  description: 'Students share how they won hackathons in India: the problem, what they built, what the judges liked and tips for your next one.',
+  description: 'Students share how they won hackathons: the problem, what they built, what the judges liked and tips for your next one.',
   path: '/wins',
   keywords: ['hackathon winning projects', 'hackathon winners', 'how to win a hackathon', 'hackathon project ideas'],
 });
@@ -47,8 +47,7 @@ export default async function WinsPage({ searchParams }: { searchParams: Record<
 
   return (
     <>
-      <PageHero
-        title="Winning"
+      <PageHero title="Winning"
         accent="stories"
         description="Students share how they won: the problem, what they built, what the judges liked and what they’d tell you before your next hackathon."
       />

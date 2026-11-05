@@ -24,19 +24,19 @@ interface ThemeStyle {
   soft: string;
 }
 
-// Cover art and tints stay inside the palette: indigo and cool neutrals, in a few mixes
-// so neighbouring cards still look different. Full class strings so Tailwind keeps them in the build.
+// Cover art and tints stay inside the Junction palette: signal red, signboard yellow, coach blue
+// and soot, in a few mixes so neighbouring cards still look different. Full class strings so Tailwind keeps them.
 const ART = {
-  signature: 'from-[#635bff] to-[#8580ff]',
-  deepRed: 'from-[#332d8f] via-[#635bff] to-[#8580ff]',
-  sunset: 'from-[#8580ff] via-[#7069ff] to-[#5047e5]',
-  nightRed: 'from-[#171923] via-[#272a37] to-[#635bff]',
-  nightOrange: 'from-[#171923] via-[#332d8f] to-[#635bff]',
+  signature: 'from-[#c8261d] to-[#e65a4a]',
+  deepRed: 'from-[#5f1410] via-[#c8261d] to-[#ffc629]',
+  sunset: 'from-[#e0a800] via-[#ffc629] to-[#ffdf80]',
+  nightRed: 'from-[#16130f] via-[#2a251f] to-[#c8261d]',
+  nightOrange: 'from-[#16130f] via-[#1d4785] to-[#2a5ba8]',
 };
-// Tags are quiet: the accent tint for a few themes, neutral for the rest.
+// Tags: signboard yellow for a few themes, plain paper for the rest.
 const TINT = {
-  red: 'bg-accent-soft text-brand-800 dark:bg-accent/15 dark:text-brand-200',
-  orange: 'bg-ink/[0.05] text-ink/75 dark:bg-white/[0.07] dark:text-white/80',
+  red: 'bg-board-soft text-navy ring-1 ring-inset ring-board-dark/40 dark:bg-board/15 dark:text-board dark:ring-board/25',
+  orange: 'bg-ink/[0.06] text-ink/75 dark:bg-white/[0.07] dark:text-white/80',
 };
 
 export const THEME_STYLES: Record<ThemeSlug, ThemeStyle> = {

@@ -24,12 +24,12 @@ export default function StatTiles({ items, className }: { items: StatItem[]; cla
     <dl className={cn('grid grid-cols-2 gap-3 sm:grid-cols-4', className)}>
       {items.map(({ label, value, icon: Icon, tone = 'violet' }) => (
         <div key={label} className="card flex items-center gap-3 p-4">
-          <span className={cn('inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl', TONES[tone])}>
+          <span className={cn('inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg', TONES[tone])}>
             <Icon className="h-5 w-5" aria-hidden="true" />
           </span>
           <div className="min-w-0">
             <dt className="truncate text-xs font-medium uppercase tracking-wider text-ink/60">{label}</dt>
-            <dd className="font-display text-3xl leading-none text-ink">{value.toLocaleString('en-IN')}</dd>
+            <dd className="font-display text-3xl leading-none text-ink">{value.toLocaleString('en-US')}</dd>
           </div>
         </div>
       ))}

@@ -60,21 +60,28 @@ const SOCIALS = activeSocials([
 
 export default function Footer() {
   return (
-    <footer className="border-t border-line bg-card">
-      <div className="container-page grid gap-10 py-14 lg:grid-cols-[1.1fr_3fr]">
-        <div className="space-y-4">
-          <Logo />
-          <p className="max-w-xs text-sm leading-6 text-muted">
+    // End of the line: a dark band under the canopy, with the track running across the top.
+    <footer data-theme="dark" className="relative bg-surface text-ink">
+      <div className="rail-track opacity-80" aria-hidden="true" />
+      <div className="container-page grid gap-10 pb-12 pt-12 lg:grid-cols-[1.1fr_3fr]">
+        <div className="space-y-5">
+          <Logo size="lg" />
+          <p className="max-w-xs text-[15px] leading-6 text-muted">
             {siteConfig.tagline} We find hackathons across the internet so you can spend your time building, not searching.
           </p>
-          <a href={`mailto:${siteConfig.email}`} className="inline-block text-sm font-medium text-ink hover:text-accent">
+          <a href={`mailto:${siteConfig.email}`} className="inline-block font-mono text-sm text-board hover:underline">
             {siteConfig.email}
           </a>
           {SOCIALS.length > 0 && (
             <ul className="flex flex-wrap gap-x-4 gap-y-2 pt-1">
               {SOCIALS.map((s) => (
                 <li key={s.label}>
-                  <a href={s.href} target="_blank" rel="noopener noreferrer" className="text-sm text-muted transition-colors hover:text-ink">
+                  <a
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-display text-[15px] font-semibold uppercase tracking-[0.06em] text-muted transition-colors hover:text-board"
+                  >
                     {s.label}
                   </a>
                 </li>
@@ -84,13 +91,18 @@ export default function Footer() {
         </div>
 
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
-          {COLUMNS.map((col) => (
+          {COLUMNS.map((col, i) => (
             <div key={col.title}>
-              <h3 className="mb-3 text-sm font-semibold text-ink">{col.title}</h3>
+              <h3 className="mb-3 flex items-center gap-2 font-display text-[15px] font-bold uppercase tracking-[0.08em] text-ink">
+                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-[3px] bg-board px-1 font-display text-[13px] font-extrabold text-navy" aria-hidden="true">
+                  {i + 1}
+                </span>
+                {col.title}
+              </h3>
               <ul className="space-y-2">
                 {col.links.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="text-sm text-muted transition-colors hover:text-ink">
+                    <Link href={link.href} className="text-sm text-muted transition-colors hover:text-board">
                       {link.label}
                     </Link>
                   </li>
@@ -99,6 +111,13 @@ export default function Footer() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* The sign-off, set like a terminus board. */}
+      <div className="container-page" aria-hidden="true">
+        <p className="select-none border-t border-line pt-6 font-display text-[13vw] font-extrabold uppercase leading-[0.8] tracking-[-0.02em] text-ink/[0.07] lg:text-[150px]">
+          Next stop: you.
+        </p>
       </div>
 
       <div className="border-t border-line">
@@ -115,9 +134,9 @@ export default function Footer() {
             . We link to official organizer pages; always check details before you register.
           </p>
           <div className="flex items-center gap-2">
-            <span>Theme</span>
+            <span className="font-mono uppercase tracking-[0.14em]">Day / night</span>
             <ThemeToggle
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink/70 transition-colors hover:bg-ink/[0.04] hover:text-ink"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-line text-ink/70 transition-colors hover:border-board hover:text-board"
               iconClassName="h-4 w-4"
             />
           </div>

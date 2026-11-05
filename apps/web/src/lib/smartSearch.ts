@@ -91,9 +91,10 @@ const RULES: Rule[] = [
   { pattern: /\b(students?|college)\b/, apply: (f) => void (f.eligibility ||= 'students'), label: () => 'Students' },
   { pattern: /\b(solo|alone|individual)\b/, apply: (f) => void (f.team = 'solo'), label: () => 'Solo' },
   { pattern: /\bteams? of \d+\b|\bteams?\b/, apply: (f) => void (f.team = 'team'), label: () => 'Teams' },
-  { pattern: /\b(2 ?lakhs?|2l|200k)\b/, apply: (f) => void (f.minPrize = 200000), label: () => 'Prize ₹2L+' },
-  { pattern: /\b(1 ?lakhs?|1l|100k|lakh)\b/, apply: (f) => void (f.minPrize = Math.max(f.minPrize, 100000)), label: () => 'Prize ₹1L+' },
-  { pattern: /\b(50k|50 ?thousand)\b/, apply: (f) => void (f.minPrize = Math.max(f.minPrize, 50000)), label: () => 'Prize ₹50K+' },
+  // Prize words map onto the filter's dollar steps (PRIZE_OPTIONS, compared in rupees). Lakhs still work.
+  { pattern: /(\$ ?5 ?k\b|\b5,?000 ?(dollars|usd)\b|\b[4-9] ?lakhs?\b)/, apply: (f) => void (f.minPrize = 420000), label: () => 'Prize $5K+' },
+  { pattern: /(\$ ?1 ?k\b|\b1,?000 ?(dollars|usd)\b|\b[1-3] ?lakhs?\b|\b[12]l\b|\b[12]00k\b|\blakh\b)/, apply: (f) => void (f.minPrize = Math.max(f.minPrize, 84000)), label: () => 'Prize $1K+' },
+  { pattern: /(\$ ?500\b|\b500 ?(dollars|usd)\b|\b50k\b|\b50 ?thousand\b)/, apply: (f) => void (f.minPrize = Math.max(f.minPrize, 42000)), label: () => 'Prize $500+' },
   { pattern: /\b(big|high|highest|large) prizes?\b/, apply: (f) => void (f.sort = 'prize'), label: () => 'Biggest prizes first' },
 ];
 

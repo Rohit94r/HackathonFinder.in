@@ -40,7 +40,7 @@ export default function CountUp({ value, duration = 1400 }: { value: number; dur
 
   return (
     <span ref={ref} className="tabular-nums">
-      {shown.toLocaleString('en-IN')}
+      {shown.toLocaleString('en-US')}
     </span>
   );
 }

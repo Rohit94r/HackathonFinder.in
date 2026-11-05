@@ -24,7 +24,7 @@ export default function ChatPhoto({
     <div className={cn('flex h-full flex-col items-center justify-center px-6 py-10 text-center', className)}>
       <figure className="w-full max-w-sm">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photo.src} alt={alt} className="aspect-[3/2] w-full rounded-xl object-cover" loading="lazy" />
+        <img src={photo.src} alt={alt} className="aspect-[3/2] w-full rounded-lg object-cover" loading="lazy" />
         <figcaption className="mt-1.5 text-[11px] text-ink/45">
           Photo:{' '}
           <a href={photo.page} target="_blank" rel="noopener noreferrer" className="hover:underline">

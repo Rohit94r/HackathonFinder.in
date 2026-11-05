@@ -362,7 +362,7 @@ export default function WinForm({
             value={form.prize}
             onChange={(e) => set('prize', e.target.value)}
             maxLength={PRIZE_MAX}
-            placeholder="e.g. ₹50,000 + incubation interview"
+            placeholder="e.g. $1,000 + incubation interview"
             className={cn('input', errors.prize && INVALID)}
           />
           <FieldError id="win-prize" message={errors.prize} />
@@ -528,7 +528,7 @@ export default function WinForm({
         {shownCover ? (
           <div className="flex flex-wrap items-center gap-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={shownCover} alt="Cover preview" className="h-28 w-auto max-w-full rounded-xl object-cover ring-1 ring-ink/10" />
+            <img src={shownCover} alt="Cover preview" className="h-28 w-auto max-w-full rounded-lg object-cover ring-1 ring-ink/10" />
             <div className="flex flex-wrap gap-2">
               <label htmlFor="win-cover" className="btn-secondary cursor-pointer py-2 text-sm">
                 <ImagePlus className="h-4 w-4" />
@@ -551,7 +551,7 @@ export default function WinForm({
           <label
             htmlFor="win-cover"
             className={cn(
-              'flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed px-4 py-5 text-sm text-ink/70 transition hover:border-ink/40',
+              'flex cursor-pointer items-center gap-3 rounded-lg border-2 border-dashed px-4 py-5 text-sm text-ink/70 transition hover:border-ink/40',
               errors.cover ? 'border-brand-500' : 'border-ink/20'
             )}
           >
@@ -578,7 +578,7 @@ export default function WinForm({
       </div>
 
       {!editing && (
-        <label className="flex items-start gap-3 rounded-xl bg-ink/5 p-4 text-sm text-ink/80">
+        <label className="flex items-start gap-3 rounded-lg bg-ink/5 p-4 text-sm text-ink/80">
           <input
             type="checkbox"
             checked={addToRecord}
@@ -593,7 +593,7 @@ export default function WinForm({
       )}
 
       {formError && (
-        <p role="alert" className="rounded-xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-800 dark:bg-brand-400/10 dark:text-brand-200">
+        <p role="alert" className="rounded-lg bg-brand-50 px-4 py-3 text-sm font-medium text-brand-800 dark:bg-brand-400/10 dark:text-brand-200">
           {formError}
         </p>
       )}

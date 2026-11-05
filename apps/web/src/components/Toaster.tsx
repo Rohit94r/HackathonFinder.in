@@ -49,7 +49,7 @@ export default function Toaster() {
     <div
       aria-live="polite"
       aria-atomic="false"
-      className="pointer-events-none fixed inset-x-0 bottom-4 z-[90] flex flex-col items-center gap-2 px-4 sm:bottom-6"
+      className="pointer-events-none fixed inset-x-0 bottom-[calc(var(--hf-dock,0px)+16px)] z-[90] flex flex-col items-center gap-2 px-4 lg:bottom-6"
     >
       {items.map((t) => {
         const Icon = ICONS[t.tone];
@@ -57,7 +57,7 @@ export default function Toaster() {
           <div
             key={t.id}
             role={t.tone === 'error' ? 'alert' : 'status'}
-            className="hf-toast-in pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-xl border border-line bg-card px-4 py-3 text-sm text-ink shadow-lift"
+            className="hf-toast-in pointer-events-auto flex w-full max-w-sm items-center gap-3 rounded-lg border border-line bg-card px-4 py-3 text-sm text-ink shadow-lift"
           >
             <Icon className={cn('h-[18px] w-[18px] shrink-0', ICON_COLOR[t.tone])} aria-hidden="true" />
             <span className="min-w-0 flex-1 font-medium">{t.message}</span>

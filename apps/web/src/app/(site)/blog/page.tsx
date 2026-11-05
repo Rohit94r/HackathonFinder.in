@@ -10,9 +10,9 @@ import { getSessionUser } from '@/server/auth';
 import { latestWins } from '@/server/wins';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Hackathon Guides & Tips for Students in India',
+  title: 'Hackathon Guides & Tips for Students',
   description:
-    'Free hackathon guides for Indian students: what a hackathon is, how to find hackathons near you, win your first one, find teammates, pitch to judges and use wins for internships.',
+    'Free hackathon guides for students: what a hackathon is, how to find hackathons near you, win your first one, find teammates, pitch to judges and use wins for internships.',
   path: '/blog',
   keywords: ['hackathon tips', 'how to win a hackathon', 'hackathon guide', 'what is a hackathon', 'hackathons for beginners', 'hackathon resume'],
 });
@@ -25,8 +25,7 @@ export default async function BlogPage() {
 
   return (
     <>
-      <PageHero
-        title="Guides to help"
+      <PageHero title="Guides to help"
         accent="you hack better"
         description="Practical advice on picking hackathons, building fast, working as a team and pitching to judges."
       />

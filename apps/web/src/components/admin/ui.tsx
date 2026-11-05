@@ -12,7 +12,7 @@ import type { LucideIcon } from 'lucide-react';
 
 // ---------- Formatting ----------
 
-export const num = (n: number | null | undefined) => (typeof n === 'number' && Number.isFinite(n) ? n.toLocaleString('en-IN') : '–');
+export const num = (n: number | null | undefined) => (typeof n === 'number' && Number.isFinite(n) ? n.toLocaleString('en-US') : '–');
 export const pct = (x: number | null | undefined, digits = 0) => (typeof x === 'number' && Number.isFinite(x) ? `${(x * 100).toFixed(digits)}%` : '–');
 
 /** "1m 20s", "45s", "–". */

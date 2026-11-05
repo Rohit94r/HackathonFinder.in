@@ -11,9 +11,9 @@ import { getHackathons } from '@/server/hackathons';
 
 export const metadata: Metadata = pageMetadata({
   title: `About ${siteConfig.name}: Founded by ${siteConfig.founder.name} and ${siteConfig.coFounder.name}`,
-  description: `${siteConfig.name} is a free hackathon aggregator for students in India, founded by ${siteConfig.founder.name} with co-founder ${siteConfig.coFounder.name}. Our mission: no student should miss a hackathon because it was posted somewhere they didn’t look.`,
+  description: `${siteConfig.name} is a free hackathon aggregator for students and builders everywhere, founded by ${siteConfig.founder.name} with co-founder ${siteConfig.coFounder.name}. Our mission: no student should miss a hackathon because it was posted somewhere they didn’t look.`,
   path: '/about',
-  keywords: ['about HackathonFinder', 'HackathonFinder founder', siteConfig.founder.name, siteConfig.coFounder.name, 'hackathon aggregator India'],
+  keywords: ['about HackathonFinder', 'HackathonFinder founder', siteConfig.founder.name, siteConfig.coFounder.name, 'hackathon aggregator'],
 });
 
 // The live counts change with every scrape.
@@ -23,7 +23,7 @@ const PRINCIPLES = [
   { title: 'Many sources, one list', text: 'We collect discoveries from public platforms, college sites, web search and community submissions, then link each listing back to its source.' },
   { title: 'Open about verification', text: 'Complete public discoveries publish automatically and stay marked unverified until checked. Confirm details with the organizer, and report scams or wrong information so an admin can remove or correct them.' },
   { title: 'Free for students', text: 'Searching, saving, reminders, Team Finder and the community are free. Organizers can list their events for free too.' },
-  { title: 'Built for India', text: 'Cities, colleges, rupee prizes, IST deadlines and offline events near you come first, with online events you can join from anywhere.' },
+  { title: 'Built for everywhere', text: 'Online events you can join from any country, in-person events near you, prizes in their real currency and times in your own time zone.' },
 ];
 
 interface Person {
@@ -78,8 +78,7 @@ export default async function AboutPage() {
           breadcrumbJsonLd([{ name: 'About', path: '/about' }]),
         ]}
       />
-      <PageHero
-        title="About"
+      <PageHero title="About"
         accent={siteConfig.name}
         description="No student should miss a hackathon because it was posted somewhere they didn’t look. We find them all and put them in one place."
       />
@@ -89,7 +88,7 @@ export default async function AboutPage() {
           <div className="space-y-5 text-lg leading-8 text-ink/80">
             <SectionHeading title="Why we built it" />
             <p>
-              Hackathons in India are scattered across Unstop, Devfolio, Devpost, MLH, college websites, Instagram posters, LinkedIn posts and WhatsApp
+              Hackathons are scattered across Unstop, Devfolio, Devpost, MLH, college websites, Instagram posters, LinkedIn posts and WhatsApp
               forwards. Students hear about the best ones a day after registration closes, or never hear about them at all.
             </p>
             <p>
@@ -146,7 +145,7 @@ export default async function AboutPage() {
               ))}
             </ul>
             <p className="mt-5 border-t border-line pt-5 text-sm leading-6 text-muted">
-              We started {siteConfig.name} to make every hackathon in India easy to find, for every student, in every city. Questions, partnerships or a
+              We started {siteConfig.name} to make every hackathon easy to find, for every student, wherever they are. Questions, partnerships or a
               hackathon we missed? Get in touch.
             </p>
           </aside>

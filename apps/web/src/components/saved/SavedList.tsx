@@ -54,7 +54,7 @@ export default function SavedList({ items }: { items: HackathonView[] }) {
       <>
         {banner}
         <div className="card flex flex-col items-center px-6 py-16 text-center">
-          <span className="mb-4 rounded-xl bg-ink/5 p-4 text-ink">
+          <span className="mb-4 rounded-lg bg-ink/5 p-4 text-ink">
             <Bookmark className="h-7 w-7" />
           </span>
           <h2 className="text-xl font-bold">Your list is empty</h2>
@@ -77,7 +77,7 @@ export default function SavedList({ items }: { items: HackathonView[] }) {
         {COLUMNS.map((col) => {
           const inCol = list.filter((h) => saved[h.slug] === col);
           return (
-            <section key={col} aria-label={TRACK_LABELS[col]} className="rounded-xl bg-card/60 p-3 ring-1 ring-ink/15">
+            <section key={col} aria-label={TRACK_LABELS[col]} className="rounded-lg bg-card/60 p-3 ring-1 ring-ink/15">
               <h2 className="mb-3 flex items-center justify-between px-1 font-sans text-sm font-semibold">
                 <span className={cn('rounded-full px-2.5 py-1', COLUMN_STYLES[col])}>{TRACK_LABELS[col]}</span>
                 <span className="text-ink/45">{inCol.length}</span>

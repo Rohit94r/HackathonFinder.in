@@ -22,7 +22,7 @@ function dateLabel(key: string): string {
   return `${d} ${MONTHS[m - 1]} ${y}`;
 }
 
-const plural = (n: number, word: string) => `${n.toLocaleString('en-IN')} ${word}${n === 1 ? '' : 's'}`;
+const plural = (n: number, word: string) => `${n.toLocaleString('en-US')} ${word}${n === 1 ? '' : 's'}`;
 
 /**
  * Submissions-calendar style grid: 53 weeks by 7 days ending today. `todayKey` is passed in
@@ -64,7 +64,7 @@ export default function ActivityHeatmap({ counts, todayKey, unit = 'action' }: {
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <p className="text-sm text-ink/70">
-          <strong className="font-display text-3xl leading-none text-ink">{stats.total.toLocaleString('en-IN')}</strong>{' '}
+          <strong className="font-display text-3xl leading-none text-ink">{stats.total.toLocaleString('en-US')}</strong>{' '}
           {stats.total === 1 ? unit : `${unit}s`} in the past year
         </p>
         <dl className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-ink/60">
@@ -135,7 +135,7 @@ export function HeatmapSkeleton() {
   return (
     <div aria-busy="true" aria-label="Loading activity">
       <div className="h-8 w-48 animate-pulse rounded bg-ink/10" />
-      <div className="mt-4 h-[118px] animate-pulse rounded-xl bg-ink/5" />
+      <div className="mt-4 h-[118px] animate-pulse rounded-lg bg-ink/5" />
       <div className="mt-2 h-[11px]" />
     </div>
   );

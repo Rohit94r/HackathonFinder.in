@@ -88,17 +88,17 @@ export default function WinArticle({
           </p>
           {story.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={story.coverUrl} alt={`${story.projectName} cover`} className="mt-8 h-56 w-full rounded-xl object-cover sm:h-72" />
+            <img src={story.coverUrl} alt={`${story.projectName} cover`} className="mt-8 h-56 w-full rounded-lg object-cover sm:h-72" />
           ) : (
             <EventArt
               theme={story.themes[0] ?? 'open-innovation'}
               title={story.projectName}
               label={RESULT_LABELS[story.result]}
               size="hero"
-              className="mt-8 h-56 rounded-xl"
+              className="mt-8 h-56 rounded-lg"
             />
           )}
-          <div className={cn('mt-4 flex flex-col gap-3 rounded-xl px-5 py-4 sm:flex-row sm:items-center sm:justify-between', BANNER[story.result])}>
+          <div className={cn('mt-4 flex flex-col gap-3 rounded-lg px-5 py-4 sm:flex-row sm:items-center sm:justify-between', BANNER[story.result])}>
             <p className="flex items-center gap-3 font-display text-xl font-bold leading-tight sm:text-2xl">
               <ResultIcon className="h-7 w-7 shrink-0" aria-hidden="true" />
               {resultLine(story)}
@@ -128,7 +128,7 @@ export default function WinArticle({
             )}
           </div>
 
-          <div className="mt-10 flex flex-col gap-4 rounded-xl border border-ink/10 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-10 flex flex-col gap-4 rounded-lg border border-ink/10 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-semibold text-ink">Liked this story?</p>
               <p className="text-sm text-ink/60">Cheer for the team, or send it to a friend.</p>
@@ -245,7 +245,7 @@ export default function WinArticle({
             </>
           )}
 
-          <div className={cn('on-dark overflow-hidden rounded-xl bg-ink p-8 text-center sm:p-10', more.length > 0 && 'mt-12')}>
+          <div className={cn('on-dark overflow-hidden rounded-lg bg-ink p-8 text-center sm:p-10', more.length > 0 && 'mt-12')}>
             <h2 className="text-3xl text-surface">Won something?</h2>
             <p className="mx-auto mt-3 max-w-md text-surface/80">
               Finals count too. Share what you built and what the judges liked, so the next team learns from it.

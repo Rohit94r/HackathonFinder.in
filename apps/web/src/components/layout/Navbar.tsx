@@ -9,15 +9,34 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { MobileAccountLinks, NavAccount } from '@/components/auth/AccountMenu';
 import { NAV_COMMUNITY, NAV_HACKATHONS, type NavGroup } from '@/data/navigation';
 import { useSaved } from '@/lib/useSaved';
+import { localZone, stationClock } from '@/lib/clock';
 import { cn } from '@/lib/cn';
 
 const iconBtn =
-  'inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink/70 transition-colors hover:bg-ink/[0.05] hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
+  'inline-flex h-9 w-9 items-center justify-center rounded-md text-ink/70 transition-colors hover:bg-ink/[0.07] hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-board';
 
+// Signage links: condensed caps; the current page is lit in signboard yellow.
 function navLink(active: boolean) {
   return cn(
-    'inline-flex h-9 items-center gap-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors',
-    active ? 'bg-ink/[0.05] text-ink' : 'text-ink/70 hover:bg-ink/[0.04] hover:text-ink'
+    'inline-flex h-9 items-center gap-1 whitespace-nowrap rounded-md px-3 font-display text-[15px] font-semibold uppercase tracking-[0.06em] transition-colors',
+    active ? 'bg-ink/[0.08] text-board' : 'text-ink/75 hover:bg-ink/[0.06] hover:text-ink'
+  );
+}
+
+/** The station clock, in the visitor's own time zone. Renders after mount so server and browser agree. */
+function StationClock() {
+  const [now, setNow] = useState<number | null>(null);
+  useEffect(() => {
+    setNow(Date.now());
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const clock = now === null ? null : stationClock(now, localZone());
+  return (
+    <span className="hidden items-center gap-1.5 rounded-md border border-ink/15 px-2 py-1 font-mono text-[11px] tabular-nums text-ink/60 2xl:inline-flex" aria-hidden="true">
+      <span className="h-1.5 w-1.5 rounded-full bg-board shadow-[0_0_6px_#ffc629]" />
+      {clock ? `${clock.time} ${clock.zone}` : '--:--:--'}
+    </span>
   );
 }
 
@@ -30,18 +49,18 @@ function isActive(pathname: string, href: string) {
 function Dropdown({ group, pathname, onNavigate }: { group: NavGroup; pathname: string; onNavigate: () => void }) {
   return (
     <div id={`nav-${group.label.toLowerCase()}`} className="hf-dd-in absolute left-0 top-full z-50 w-[340px] pt-2">
-      <ul className="rounded-xl border border-line bg-card p-1.5 shadow-lift">
+      <ul className="rounded-md border border-line bg-card p-1.5 shadow-lift">
         {group.items.map((item) => (
           <li key={item.href}>
             <Link
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                'group flex items-start gap-3 rounded-lg px-2.5 py-2 transition-colors hover:bg-ink/[0.04]',
-                isActive(pathname, item.href) && 'bg-ink/[0.04]'
+                'group flex items-start gap-3 rounded-md px-2.5 py-2 transition-colors hover:bg-ink/[0.06]',
+                isActive(pathname, item.href) && 'bg-ink/[0.06]'
               )}
             >
-              <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-line bg-surface text-ink/70 transition-colors group-hover:text-accent">
+              <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[4px] bg-board text-navy transition-transform group-hover:-rotate-6">
                 <item.icon className="h-4 w-4" />
               </span>
               <span>
@@ -60,9 +79,6 @@ export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
-  const [scrolled, setScrolled] = useState(false);
-  // Over a dark hero (an element with data-hero-dark), the bar goes dark too until the hero scrolls away.
-  const [overDark, setOverDark] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navRef = useRef<HTMLElement>(null);
   const { count, ready } = useSaved();
@@ -70,17 +86,6 @@ export default function Navbar() {
   useEffect(() => {
     setMobileOpen(false);
     setOpenGroup(null);
-  }, [pathname]);
-
-  useEffect(() => {
-    const hero = document.querySelector('[data-hero-dark]');
-    const onScroll = () => {
-      setScrolled(window.scrollY > 4);
-      setOverDark(hero ? hero.getBoundingClientRect().bottom > 64 : false);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
   }, [pathname]);
 
   // The mobile sheet covers the page; stop the page behind it from scrolling.
@@ -129,15 +134,9 @@ export default function Navbar() {
   });
 
   return (
-    <header
-      data-theme={overDark ? 'dark' : undefined}
-      className={cn(
-        'sticky top-0 z-50 border-b backdrop-blur transition-colors duration-300',
-        overDark ? 'bg-surface/80' : 'bg-card/90 supports-[backdrop-filter]:bg-card/80',
-        (scrolled && !overDark) || mobileOpen ? 'border-line' : overDark && scrolled ? 'border-white/10' : 'border-transparent'
-      )}
-    >
-      <nav ref={navRef} className="container-page flex h-16 items-center gap-6" aria-label="Main">
+    // The station canopy: always dark, with the yellow platform edge along the bottom.
+    <header data-theme="dark" className="sticky top-0 z-50 bg-surface/95 pt-[env(safe-area-inset-top)] text-ink backdrop-blur supports-[backdrop-filter]:bg-surface/85">
+      <nav ref={navRef} className="container-page flex h-16 items-center gap-5" aria-label="Main">
         <Logo />
 
         <ul className="hidden items-center gap-0.5 lg:flex">
@@ -156,15 +155,17 @@ export default function Navbar() {
         </ul>
 
         <div className="ml-auto flex items-center gap-1.5">
+          <StationClock />
+          {/* Phones reach Saved from the bottom tab bar. */}
           <Link
             href="/saved"
-            className={cn(navLink(isActive(pathname, '/saved')), 'relative px-2.5 sm:px-3')}
+            className={cn(navLink(isActive(pathname, '/saved')), 'relative hidden px-3 lg:inline-flex')}
             aria-label={`Saved hackathons${ready && count ? `, ${count} saved` : ''}`}
           >
             <Bookmark className="h-4 w-4" aria-hidden="true" />
             <span className="hidden xl:inline">Saved</span>
             {ready && count > 0 && (
-              <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-soft px-1.5 text-[11px] font-semibold text-brand-700 dark:bg-accent/20 dark:text-brand-200">
+              <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-[4px] bg-board px-1.5 font-mono text-[11px] font-bold text-navy">
                 {count}
               </span>
             )}
@@ -173,7 +174,7 @@ export default function Navbar() {
             <CalendarCheck className="h-4 w-4" aria-hidden="true" />
             My events
           </Link>
-          <Link href="/submit" className="btn-primary ml-1 hidden h-9 min-h-0 whitespace-nowrap px-3.5 py-0 md:inline-flex">
+          <Link href="/submit" className="btn-primary ml-1 hidden h-9 min-h-0 whitespace-nowrap px-3.5 py-0 text-[14px] md:inline-flex">
             <Plus className="h-4 w-4" aria-hidden="true" />
             Submit hackathon
           </Link>
@@ -191,11 +192,12 @@ export default function Navbar() {
           </button>
         </div>
       </nav>
+      <div className="platform-edge h-[5px]" aria-hidden="true" />
 
       {mobileOpen && (
         <div
           id="mobile-menu"
-          className="hf-fade-in fixed inset-x-0 bottom-0 top-16 overflow-y-auto overscroll-contain border-t border-line bg-card lg:hidden"
+          className="hf-fade-in fixed inset-x-0 bottom-0 top-[calc(69px+env(safe-area-inset-top))] overflow-y-auto overscroll-contain bg-surface lg:hidden"
         >
           <div className="container-page grid gap-6 py-5 sm:grid-cols-2">
             <MobileLinks title="Explore" items={NAV_HACKATHONS.items} pathname={pathname} />
@@ -259,15 +261,15 @@ function GroupItem({ group, pathname, open, onEnter, onLeave, onToggle, onNaviga
 function MobileLinks({ title, items, pathname }: { title: string; items: NavGroup['items']; pathname: string }) {
   return (
     <div>
-      <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-muted">{title}</p>
+      <p className="mb-1.5 px-3 font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-board/80">{title}</p>
       <ul>
         {items.map((item) => (
           <li key={item.href}>
             <Link
               href={item.href}
               className={cn(
-                'flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-[15px] font-medium transition-colors hover:bg-ink/[0.04]',
-                isActive(pathname, item.href) ? 'bg-ink/[0.05] text-ink' : 'text-ink/85'
+                'flex min-h-[44px] items-center gap-3 rounded-md px-3 py-2 font-display text-[18px] font-semibold uppercase tracking-[0.04em] transition-colors hover:bg-ink/[0.06]',
+                isActive(pathname, item.href) ? 'bg-ink/[0.08] text-board' : 'text-ink/85'
               )}
             >
               <item.icon className="h-[18px] w-[18px] shrink-0 text-muted" aria-hidden="true" />

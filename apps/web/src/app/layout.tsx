@@ -1,5 +1,5 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
+import localFont from 'next/font/local';
 import './globals.css';
 import Providers from '@/components/Providers';
 import ScrollEffects from '@/components/motion/ScrollEffects';
@@ -8,13 +8,44 @@ import { siteConfig } from '@/data/siteConfig';
 import { JsonLd, siteJsonLd } from '@/lib/seo';
 import { THEME_KEY } from '@/lib/theme';
 
-// One family for text and headings.
-const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
+// Hackathon Junction type: Barlow for text, Barlow Condensed for signage headings and JetBrains Mono
+// for ticket data (times, codes). Self-hosted (all SIL OFL) so a
+// slow connection to Google at build time never ships the fallback fonts.
+const sans = localFont({
+  src: [
+    { path: './fonts/barlow-400.woff2', weight: '400' },
+    { path: './fonts/barlow-500.woff2', weight: '500' },
+    { path: './fonts/barlow-600.woff2', weight: '600' },
+    { path: './fonts/barlow-700.woff2', weight: '700' },
+  ],
+  variable: '--font-sans',
+  display: 'swap',
+});
+const display = localFont({
+  src: [
+    { path: './fonts/barlow-condensed-500.woff2', weight: '500' },
+    { path: './fonts/barlow-condensed-600.woff2', weight: '600' },
+    { path: './fonts/barlow-condensed-700.woff2', weight: '700' },
+    { path: './fonts/barlow-condensed-800.woff2', weight: '800' },
+  ],
+  variable: '--font-display',
+  display: 'swap',
+});
+const mono = localFont({ src: './fonts/jetbrains-mono.woff2', weight: '400 700', variable: '--font-mono', display: 'swap' });
 
 const THEME_SCRIPT = `document.documentElement.classList.add('reveal-ready');
 try { if (localStorage.getItem('${THEME_KEY}') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}`;
 
-const HOME_TITLE = `${siteConfig.name}: Find Hackathons in India & Near You (2026)`;
+// The browser bar matches the dark station canopy; content may run under the iPhone notch and home indicator
+// (the navbar and bottom bars pad themselves with the safe-area insets).
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#0e0d0b',
+};
+
+const HOME_TITLE = `${siteConfig.name}: Find Hackathons Online & Near You (2026)`;
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -25,7 +56,7 @@ export const metadata: Metadata = {
   description: siteConfig.description,
   applicationName: siteConfig.name,
   keywords: [
-    'hackathons in India',
+    'hackathons worldwide',
     'hackathons near me',
     'upcoming hackathons',
     'hackathons 2026',
@@ -33,7 +64,7 @@ export const metadata: Metadata = {
     'hackathons for students',
     'college hackathons',
     'AI hackathons',
-    'coding competitions India',
+    'coding competitions',
     'ideathons',
     'Unstop hackathons',
     'Devfolio hackathons',
@@ -58,7 +89,7 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     url: siteConfig.url,
     siteName: siteConfig.name,
-    locale: 'en_IN',
+    locale: 'en_US',
     type: 'website',
   },
   twitter: {
@@ -75,7 +106,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="light" className={sans.variable} suppressHydrationWarning>
+    <html lang="en" data-theme="light" className={`${sans.variable} ${display.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         {/* Before first paint: turn on scroll reveals, and apply dark mode only if the visitor chose it (light is the default). */}
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />

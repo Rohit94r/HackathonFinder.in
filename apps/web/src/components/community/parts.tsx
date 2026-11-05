@@ -32,7 +32,7 @@ export function VoteButton({
       aria-pressed={voted}
       aria-label={`${voted ? 'Remove upvote from' : 'Upvote'} ${label} (${count} ${count === 1 ? 'vote' : 'votes'})`}
       className={cn(
-        'inline-flex shrink-0 items-center justify-center rounded-xl border font-semibold transition',
+        'inline-flex shrink-0 items-center justify-center rounded-lg border font-semibold transition',
         inline ? 'gap-1 px-3 py-1.5 text-sm' : 'h-14 w-12 flex-col text-sm',
         voted
           ? 'border-brand-500 bg-brand-50 text-brand-700 dark:border-brand-400 dark:bg-brand-400/10 dark:text-brand-300'

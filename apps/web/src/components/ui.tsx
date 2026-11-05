@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { ArrowRight, Info } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { PlatformSign } from '@/components/junction/Signs';
 
 export function SectionHeading({
   eyebrow,
+  platform,
   title,
   description,
   action,
@@ -11,6 +13,8 @@ export function SectionHeading({
   dark = false,
 }: {
   eyebrow?: string;
+  /** Show a platform sign ("PF 2 · eyebrow") instead of the plain eyebrow. */
+  platform?: number;
   title: React.ReactNode;
   description?: React.ReactNode;
   action?: { href: string; label: string };
@@ -26,8 +30,12 @@ export function SectionHeading({
       )}
     >
       <div className={cn('max-w-3xl', center && 'mx-auto')}>
-        {eyebrow && <span className="eyebrow mb-3">{eyebrow}</span>}
-        <h2 className={cn('text-2xl sm:text-3xl', dark && 'text-surface')}>{title}</h2>
+        {platform !== undefined ? (
+          <PlatformSign n={platform} en={eyebrow ?? 'Platform'} className="mb-4" />
+        ) : (
+          eyebrow && <span className="eyebrow mb-3">{eyebrow}</span>
+        )}
+        <h2 className={cn('text-[2rem] sm:text-[2.6rem]', dark && 'text-surface')}>{title}</h2>
         {description && (
           <p className={cn('mt-2 text-base leading-7', dark ? 'text-surface/80' : 'text-muted')}>
             {description}
@@ -38,8 +46,8 @@ export function SectionHeading({
         <Link
           href={action.href}
           className={cn(
-            'inline-flex shrink-0 items-center gap-1.5 text-sm font-medium',
-            dark ? 'text-brand-300 hover:text-white' : 'text-accent hover:text-accent-dark dark:text-brand-300 dark:hover:text-white'
+            'inline-flex shrink-0 items-center gap-1.5 font-display text-[15px] font-bold uppercase tracking-[0.06em] underline decoration-board decoration-[3px] underline-offset-[5px] transition-colors',
+            dark ? 'text-surface hover:text-board' : 'text-ink hover:text-accent'
           )}
         >
           {action.label}
@@ -51,29 +59,31 @@ export function SectionHeading({
 }
 
 /**
- * Page header: a plain band with the title, an optional accent line and a description,
- * left-aligned like an editorial page. `children` sits under the text (search, filters, actions).
+ * Page header: big signage title on ticket paper, the accent words in signal red, and a description. `children` sits under the text (search, filters, actions).
  */
 export function PageHero({
   title,
   accent,
+  eyebrow,
   description,
   children,
 }: {
   title: string;
   accent?: string;
+  eyebrow?: string;
   description?: React.ReactNode;
   children?: React.ReactNode;
 }) {
   return (
-    <section className="hf-hero border-b border-line">
+    <section className="hf-hero overflow-hidden border-b border-line">
       <div className="container-page py-10 sm:py-14">
-        <h1 className="max-w-3xl text-3xl sm:text-4xl lg:text-[2.75rem]">
+        {eyebrow && <p className="eyebrow mb-4">{eyebrow}</p>}
+        <h1 className="max-w-4xl text-[2.6rem] sm:text-[3.6rem] lg:text-[4.4rem]">
           {title}
-          {accent && <span className="text-muted">{` ${accent}`}</span>}
+          {accent && <span className="text-accent dark:text-board">{` ${accent}`}</span>}
         </h1>
-        {description && <p className="mt-3 max-w-2xl text-base leading-7 text-muted">{description}</p>}
-        {children && <div className="mt-6 w-full">{children}</div>}
+        {description && <p className="mt-4 max-w-2xl text-[17px] leading-7 text-ink/70">{description}</p>}
+        {children && <div className="mt-7 w-full">{children}</div>}
       </div>
     </section>
   );
@@ -83,7 +93,7 @@ export function SampleNotice({ children, className }: { children?: React.ReactNo
   return (
     <p
       className={cn(
-        'flex items-start gap-2 rounded-lg border border-line bg-card px-4 py-3 text-sm text-ink/80',
+        'flex items-start gap-2 rounded-md border border-line bg-card px-4 py-3 text-sm text-ink/80',
         className
       )}
     >

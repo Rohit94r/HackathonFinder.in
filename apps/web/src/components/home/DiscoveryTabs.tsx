@@ -33,8 +33,8 @@ export default function DiscoveryTabs({ tabs }: { tabs: DiscoveryTab[] }) {
 
   return (
     <div>
-      <div className="flex flex-col gap-3 border-b border-line sm:flex-row sm:items-end sm:justify-between">
-        <div role="tablist" aria-label="Browse hackathons" className="no-scrollbar -mb-px flex gap-1 overflow-x-auto">
+      <div className="flex flex-col gap-3 border-b-2 border-ink pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div role="tablist" aria-label="Browse hackathons" className="no-scrollbar flex gap-1.5 overflow-x-auto">
           {tabs.map((t, i) => {
             const selected = t.id === current.id;
             return (
@@ -52,15 +52,15 @@ export default function DiscoveryTabs({ tabs }: { tabs: DiscoveryTab[] }) {
                 onClick={() => setActive(t.id)}
                 onKeyDown={(e) => onKeyDown(e, i)}
                 className={cn(
-                  'inline-flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 pb-3 pt-1 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-accent',
-                  selected ? 'border-accent text-ink' : 'border-transparent text-muted hover:text-ink'
+                  'inline-flex h-10 shrink-0 items-center gap-2 whitespace-nowrap rounded-md border px-3.5 font-display text-[15px] font-bold uppercase tracking-[0.05em] transition-colors focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-board',
+                  selected ? 'border-ink bg-ink text-surface' : 'border-ink/15 bg-card text-ink/70 hover:border-ink/40 hover:text-ink'
                 )}
               >
                 {t.label}
                 <span
                   className={cn(
-                    'rounded-full px-1.5 py-0.5 text-[11px] font-semibold tabular-nums',
-                    selected ? 'bg-accent-soft text-brand-700 dark:bg-accent/20 dark:text-brand-200' : 'bg-ink/[0.05] text-muted'
+                    'rounded-[3px] px-1.5 py-0.5 font-mono text-[11px] font-bold tabular-nums',
+                    selected ? 'bg-board text-navy' : 'bg-ink/[0.06] text-muted'
                   )}
                 >
                   {t.count}
@@ -69,7 +69,10 @@ export default function DiscoveryTabs({ tabs }: { tabs: DiscoveryTab[] }) {
             );
           })}
         </div>
-        <Link href={current.href} className="hidden shrink-0 items-center gap-1 pb-3 text-sm font-medium text-accent hover:text-accent-dark sm:inline-flex">
+        <Link
+          href={current.href}
+          className="hidden shrink-0 items-center gap-1 font-display text-[15px] font-bold uppercase tracking-[0.06em] text-ink underline decoration-board decoration-[3px] underline-offset-[5px] hover:text-accent sm:inline-flex"
+        >
           View all {current.count}
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </Link>

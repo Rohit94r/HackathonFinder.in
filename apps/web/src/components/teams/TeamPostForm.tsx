@@ -155,7 +155,7 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
         </button>
       </div>
 
-      <div className="flex items-center gap-3 rounded-xl bg-ink/5 px-4 py-3">
+      <div className="flex items-center gap-3 rounded-lg bg-ink/5 px-4 py-3">
         <Avatar name={profile.name} image={me?.image} size="sm" />
         <p className="min-w-0 flex-1 text-sm text-ink/80">
           Posting as <strong className="text-ink">{profile.name}</strong>
@@ -315,7 +315,7 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
       </div>
 
       {errors.form && (
-        <p role="alert" className="rounded-xl bg-accent/10 px-4 py-3 text-sm font-medium text-brand-800 dark:text-brand-200">
+        <p role="alert" className="rounded-lg bg-accent/10 px-4 py-3 text-sm font-medium text-brand-800 dark:text-brand-200">
           {errors.form}
         </p>
       )}

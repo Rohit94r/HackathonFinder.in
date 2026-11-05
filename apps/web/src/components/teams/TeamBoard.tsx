@@ -296,7 +296,7 @@ export default function TeamBoard({
   };
 
   const activeChips: { label: string; clear: () => void }[] = [
-    ...(filters.km && location ? [{ label: `Within ${filters.km.toLocaleString('en-IN')} km`, clear: () => set({ km: 0 }) }] : []),
+    ...(filters.km && location ? [{ label: `Within ${filters.km.toLocaleString('en-US')} km`, clear: () => set({ km: 0 }) }] : []),
     ...(filters.state ? [{ label: filters.state, clear: () => set({ state: '' }) }] : []),
     ...(cityFilter ? [{ label: cityFilter === 'online' ? 'Online teams' : cityName(cityFilter), clear: () => set({ city: '' }) }] : []),
     ...filters.skills.map((s) => ({
@@ -320,7 +320,7 @@ export default function TeamBoard({
       <FilterGroup title="Near you">
         {location ? (
           <>
-            <div className="mb-3 flex items-center justify-between gap-2 rounded-xl bg-ink/5 px-3 py-2.5 text-sm">
+            <div className="mb-3 flex items-center justify-between gap-2 rounded-lg bg-ink/5 px-3 py-2.5 text-sm">
               <span className="flex min-w-0 items-center gap-1.5 font-semibold leading-snug text-ink">
                 <MapPin className="h-4 w-4 shrink-0" />
                 {location.label}
@@ -388,7 +388,7 @@ export default function TeamBoard({
 
       <FilterGroup title="Skills">
         {tab === 'teams' && (
-          <div className="mb-3 grid grid-cols-2 gap-1 rounded-xl bg-ink/5 p-1 text-xs font-semibold">
+          <div className="mb-3 grid grid-cols-2 gap-1 rounded-lg bg-ink/5 p-1 text-xs font-semibold">
             {(['needs', 'has'] as const).map((v) => (
               <button
                 key={v}
@@ -473,7 +473,7 @@ export default function TeamBoard({
       <ProfileSetupCard next="/teams" className="mb-6" />
 
       <div className="mb-6">
-        <div role="tablist" aria-label="Team Finder" className="grid grid-cols-2 gap-1 rounded-xl border border-ink/10 bg-card p-1 sm:inline-grid">
+        <div role="tablist" aria-label="Team Finder" className="grid grid-cols-2 gap-1 rounded-lg border border-ink/10 bg-card p-1 sm:inline-grid">
           {tabs.map((t) => {
             const isActive = tab === t.value;
             return (
@@ -486,7 +486,7 @@ export default function TeamBoard({
                 aria-controls="team-tabpanel"
                 onClick={() => setTab(t.value)}
                 className={cn(
-                  'flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold transition sm:px-4',
+                  'flex items-center justify-center gap-2 rounded-lg px-3 py-2.5 text-sm font-semibold transition sm:px-4',
                   isActive ? 'bg-brand-600 text-white' : 'text-ink/70 hover:bg-ink/5 hover:text-ink'
                 )}
               >

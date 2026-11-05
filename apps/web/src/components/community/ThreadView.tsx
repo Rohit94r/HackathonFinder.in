@@ -29,7 +29,7 @@ import { AuthorLink, CategoryChip, ERROR_TEXT, INVALID, Paragraphs, PinnedChip, 
 import { errorMessage, useVotes } from './useCommunity';
 
 const smallHeading = 'font-sans text-base font-bold normal-case leading-tight tracking-normal';
-const alertBox = 'rounded-xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-800 dark:bg-brand-400/10 dark:text-brand-200';
+const alertBox = 'rounded-lg bg-brand-50 px-4 py-3 text-sm font-medium text-brand-800 dark:bg-brand-400/10 dark:text-brand-200';
 const dangerLink = 'inline-flex items-center gap-1.5 font-semibold text-brand-700 hover:underline disabled:opacity-60 dark:text-brand-300';
 
 /** The thread, its replies and the reply form. The page around it is rendered on the server. */

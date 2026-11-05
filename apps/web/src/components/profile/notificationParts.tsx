@@ -106,5 +106,5 @@ export function whenLabel(iso: string, now = Date.now()): string {
   if (hours < 24) return `${hours} ${hours === 1 ? 'hour' : 'hours'} ago`;
   const days = Math.round(hours / 24);
   if (days < 30) return `${days} ${days === 1 ? 'day' : 'days'} ago`;
-  return new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' });
+  return new Date(ms).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'Asia/Kolkata' });
 }

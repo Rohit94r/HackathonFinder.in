@@ -18,7 +18,7 @@ import { withNext } from './authUtils';
 const DEFAULT_ICON_BTN =
   'inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink/70 transition-colors hover:bg-ink/[0.05] hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
 
-const PANEL = 'hf-dd-in z-50 rounded-xl border border-line bg-card text-ink shadow-lift';
+const PANEL = 'hf-dd-in z-50 rounded-lg border border-line bg-card text-ink shadow-lift';
 
 /** Closes a dropdown on a click outside, on Escape, and when the page changes. */
 function useDismiss(open: boolean, close: () => void) {
@@ -101,8 +101,8 @@ export function NotificationBell({ className = DEFAULT_ICON_BTN }: { className?:
           {failed && <p className="px-4 py-3 text-xs text-ink/70">Couldn’t load your notifications. Try again in a moment.</p>}
           {!data && !failed ? (
             <div className="space-y-2 p-4" aria-busy="true" aria-label="Loading notifications">
-              <div className="h-10 animate-pulse rounded-xl bg-ink/[0.05]" />
-              <div className="h-10 animate-pulse rounded-xl bg-ink/[0.05]" />
+              <div className="h-10 animate-pulse rounded-lg bg-ink/[0.05]" />
+              <div className="h-10 animate-pulse rounded-lg bg-ink/[0.05]" />
             </div>
           ) : items.length === 0 ? (
             <p className="px-4 py-8 text-center text-sm text-ink/70">
@@ -127,7 +127,7 @@ export function NotificationBell({ className = DEFAULT_ICON_BTN }: { className?:
                     )}
                   </>
                 );
-                const rowClass = cn('flex items-start gap-3 rounded-xl px-2.5 py-2.5', fresh.has(n.id) && 'bg-ink/[0.05]');
+                const rowClass = cn('flex items-start gap-3 rounded-lg px-2.5 py-2.5', fresh.has(n.id) && 'bg-ink/[0.05]');
                 return (
                   <li key={n.id}>
                     {n.href ? (

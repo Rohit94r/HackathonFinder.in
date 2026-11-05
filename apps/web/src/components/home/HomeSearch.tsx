@@ -47,11 +47,16 @@ export default function HomeSearch({ cities }: { cities: CityOption[] }) {
 
   return (
     <div>
+      {/* The enquiry counter. */}
+      <p className="mb-2 flex items-center gap-2 font-mono text-[11px] font-medium uppercase tracking-[0.18em] text-board" aria-hidden="true">
+        <span className="rounded-[3px] bg-board px-1.5 py-0.5 font-bold text-navy">i</span>
+        Enquiry
+      </p>
       <form
         role="search"
         aria-label="Search hackathons"
         onSubmit={submit}
-        className="rounded-xl border border-line bg-card p-2 shadow-lift"
+        className="rounded-lg border-2 border-ink/80 bg-card p-2 shadow-[5px_5px_0_0_rgb(255_198_41)]"
       >
         <div className="flex flex-col gap-2 lg:flex-row lg:items-stretch">
           <label className="relative flex min-w-0 flex-1 items-center">
@@ -62,7 +67,7 @@ export default function HomeSearch({ cities }: { cities: CityOption[] }) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search hackathons, technologies or organizers"
-              className="h-12 w-full rounded-lg bg-transparent pl-11 pr-3 text-[15px] text-ink placeholder:text-muted/80 focus:bg-surface focus:outline-none"
+              className="h-12 w-full rounded-md bg-transparent pl-11 pr-3 text-[16px] text-ink placeholder:text-muted/80 focus:bg-surface focus:outline-none"
               autoComplete="off"
               enterKeyHint="search"
             />
@@ -77,7 +82,7 @@ export default function HomeSearch({ cities }: { cities: CityOption[] }) {
               <select
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="h-12 w-full appearance-none rounded-lg border border-line bg-card pl-10 pr-8 text-sm text-ink focus:border-accent focus:outline-none focus:ring-[3px] focus:ring-accent/15 lg:border-transparent lg:hover:bg-surface"
+                className="h-12 w-full appearance-none rounded-md border border-line bg-card pl-10 pr-8 text-sm text-ink focus:border-ink focus:outline-none focus:ring-[3px] focus:ring-board/50 lg:border-transparent lg:hover:bg-surface"
               >
                 <option value="">Anywhere</option>
                 <option value="online">Online only</option>
@@ -95,13 +100,13 @@ export default function HomeSearch({ cities }: { cities: CityOption[] }) {
 
             <fieldset className="col-span-2 sm:col-span-1">
               <legend className="sr-only">Participation mode</legend>
-              <div className="flex h-12 rounded-lg border border-line bg-surface p-1">
+              <div className="flex h-12 rounded-md border border-line bg-surface p-1">
                 {[{ value: '' as const, label: 'Any' }, ...MODES].map((m) => (
                   <label
                     key={m.value || 'any'}
                     className={cn(
-                      'flex flex-1 cursor-pointer items-center justify-center rounded-md px-3 text-sm font-medium transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-accent',
-                      mode === m.value ? 'bg-card text-ink shadow-card ring-1 ring-line' : 'text-muted hover:text-ink'
+                      'flex flex-1 cursor-pointer items-center justify-center rounded-[4px] px-3 font-display text-[14px] font-semibold uppercase tracking-[0.05em] transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-board',
+                      mode === m.value ? 'bg-board text-navy' : 'text-muted hover:text-ink'
                     )}
                   >
                     <input
@@ -119,7 +124,7 @@ export default function HomeSearch({ cities }: { cities: CityOption[] }) {
             </fieldset>
           </div>
 
-          <button type="submit" className="btn-primary h-12 px-6 text-[15px] lg:min-w-[120px]" disabled={pending}>
+          <button type="submit" className="btn-primary h-12 px-6 text-[16px] lg:min-w-[130px]" disabled={pending}>
             {pending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Search className="h-4 w-4" aria-hidden="true" />}
             {pending ? 'Searching' : 'Search'}
           </button>
@@ -127,7 +132,7 @@ export default function HomeSearch({ cities }: { cities: CityOption[] }) {
       </form>
 
       <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="mr-1 text-sm text-muted">Popular:</span>
+        <span className="mr-1 font-mono text-[11px] uppercase tracking-[0.16em] text-muted">Popular routes</span>
         {SHORTCUTS.map((s) => (
           <Link key={s.theme} href={`/hackathons?theme=${s.theme}`} className="chip">
             {s.label}

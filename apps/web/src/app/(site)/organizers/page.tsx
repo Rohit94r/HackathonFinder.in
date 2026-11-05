@@ -10,9 +10,9 @@ import { cn } from '@/lib/cn';
 
 export const metadata: Metadata = pageMetadata({
   title: 'List Your Hackathon for Free: For Organizers',
-  description: 'List your hackathon on HackathonFinder for free and reach students across India who are actively looking. Featured placement available.',
+  description: 'List your hackathon on HackathonFinder for free and reach students everywhere who are actively looking. Featured placement available.',
   path: '/organizers',
-  keywords: ['promote hackathon', 'list hackathon', 'hackathon marketing', 'hackathon organizers India'],
+  keywords: ['promote hackathon', 'list hackathon', 'hackathon marketing', 'hackathon organizers'],
 });
 
 const BENEFITS = [
@@ -58,8 +58,7 @@ const PLANS = [
 export default function OrganizersPage() {
   return (
     <>
-      <PageHero
-        title="Get your hackathon"
+      <PageHero title="Get your hackathon"
         accent="in front of students"
         description="Students come to HackathonFinder to decide what to join next. List your event for free and we’ll send them to your registration page."
       >
@@ -79,7 +78,7 @@ export default function OrganizersPage() {
           <div data-reveal-stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {BENEFITS.map((b) => (
               <div key={b.title} className="card p-6">
-                <span className="mb-4 inline-flex rounded-xl bg-brand-600 p-2.5 text-white">
+                <span className="mb-4 inline-flex rounded-lg bg-brand-600 p-2.5 text-white">
                   <b.icon className="h-5 w-5" />
                 </span>
                 <h3 className="text-lg font-bold">{b.title}</h3>
@@ -116,7 +115,7 @@ export default function OrganizersPage() {
               <div
                 key={plan.name}
                 className={cn(
-                  'relative flex flex-col rounded-xl p-8',
+                  'relative flex flex-col rounded-lg p-8',
                   plan.highlight ? 'on-dark bg-ink text-white shadow-lift' : 'card'
                 )}
               >

@@ -28,6 +28,9 @@ import {
 } from '@hackathonfinder/shared';
 import LatestDiscussions from '@/components/community/LatestDiscussions';
 import EventArt from '@/components/hackathon/EventArt';
+import LocalTime from '@/components/LocalTime';
+import DistanceTag from '@/components/hackathon/DistanceTag';
+import MobileRegisterBar from '@/components/hackathon/MobileRegisterBar';
 import HackathonCard from '@/components/hackathon/HackathonCard';
 import ReportListing from '@/components/hackathon/ReportListing';
 import SaveButton from '@/components/hackathon/SaveButton';
@@ -38,18 +41,19 @@ import { similarTo, type HackathonView } from '@/lib/hackathons';
 import { countView, getHackathon } from '@/server/hackathons';
 import {
   deadlineLabel,
-  formatDate,
   formatDateRange,
+  formatDay,
   formatMoney,
+  approxUsd,
   formatTeamSize,
   ON_OFFICIAL_PAGE,
-  formatTime,
-  formatWeekday,
   timeAgo,
 } from '@/lib/format';
 import { breadcrumbJsonLd, eventJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
 import { themeStyle } from '@/lib/themeStyles';
+import { ticketNo } from '@/lib/stations';
 import { cn } from '@/lib/cn';
+import { Barcode } from '@/components/junction/Signs';
 
 export const dynamic = 'force-dynamic';
 
@@ -97,7 +101,7 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
     { icon: MapPin, label: 'Where', value: location },
     { icon: Users, label: 'Team', value: h.teamSizeKnown === false ? ON_OFFICIAL_PAGE : formatTeamSize(h.teamMin, h.teamMax) },
     { icon: Ticket, label: 'Entry fee', value: h.fee === 0 ? 'Free' : formatMoney(h.fee, 'INR') },
-    { icon: Trophy, label: 'Prize pool', value: h.prizePool > 0 ? formatMoney(h.prizePool, h.prizeCurrency) : ON_OFFICIAL_PAGE },
+    { icon: Trophy, label: 'Prize pool', value: h.prizePool > 0 ? [formatMoney(h.prizePool, h.prizeCurrency), approxUsd(h.prizePool, h.prizeCurrency)].filter(Boolean).join(' ') : ON_OFFICIAL_PAGE },
     { icon: ShieldCheck, label: 'Who can join', value: h.eligibility.map(eligibilityLabel).join(', ') },
   ];
 
@@ -121,56 +125,87 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
       <JsonLd data={jsonLd} />
       <section className="bg-surface">
         <div className="container-page pb-14 pt-6">
-          <nav aria-label="Breadcrumb" className="mb-5 flex min-w-0 items-center gap-1 text-sm text-muted">
+          <nav aria-label="Breadcrumb" className="mb-5 flex min-w-0 items-center gap-1 font-mono text-[11px] uppercase tracking-[0.14em] text-muted">
             <Link href="/hackathons" className="shrink-0 hover:text-ink">
-              Explore
+              All departures
             </Link>
-            <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <ChevronRight className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
             <span className="truncate text-ink/80" aria-current="page">{h.title}</span>
           </nav>
 
-          <EventArt
-            title={h.title}
-            imageUrl={h.imageUrl}
-            label={eventTypeLabel(h.type)}
-            size="hero"
-            eager
-            className="h-52 rounded-xl border border-line sm:h-72 lg:h-80"
-          />
+          {/* The boarding pass: cover and title, with the journey on the stub. */}
+          <div className="ticket ticket-h [--notch:12px] [--stub:150px] sm:[--stub:104px]">
+            <div className="ticket-paper">
+              <div className="grid lg:grid-cols-[1.25fr_1fr]">
+                <EventArt
+                  title={h.title}
+                  imageUrl={h.imageUrl}
+                  label={eventTypeLabel(h.type)}
+                  size="hero"
+                  eager
+                  className="h-52 sm:h-72 lg:h-full lg:min-h-[340px]"
+                />
+                <div className="flex min-w-0 flex-col p-6 sm:p-8">
+                  <p className="flex items-center justify-between gap-3 font-mono text-[10.5px] font-medium uppercase tracking-[0.18em] text-muted">
+                    <span>Boarding pass · {eventTypeLabel(h.type)}</span>
+                    <span aria-hidden="true">No. {ticketNo(h.slug)}</span>
+                  </p>
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <StatusBadge status={h.status} />
+                    <span className="rounded-[4px] border border-ink/20 px-2 py-[3px] font-display text-[12.5px] font-bold uppercase leading-none tracking-[0.07em] text-ink/75">
+                      {modeLabel(h.mode)}
+                    </span>
+                    {h.beginnerFriendly && (
+                      <span className="rounded-[4px] border border-ink/20 px-2 py-[3px] font-display text-[12.5px] font-bold uppercase leading-none tracking-[0.07em] text-ink/75">
+                        Beginner-friendly
+                      </span>
+                    )}
+                  </div>
+                  <h1 className="mt-4 text-[2.4rem] sm:text-[3.2rem] lg:text-[3.4rem]">{h.title}</h1>
+                  {h.tagline && <p className="mt-3 text-lg leading-7 text-muted">{h.tagline}</p>}
+                  <p className="mt-auto flex flex-wrap items-center gap-1.5 pt-5 text-sm text-muted">
+                    by <strong className="font-semibold text-ink">{h.organizer || sourceBySlug(h.sources[0])?.name || 'the organizer'}</strong>
+                    {h.verified && (
+                      <span className="inline-flex items-center gap-1 text-ink">
+                        <BadgeCheck className="h-4 w-4 text-accent dark:text-board" aria-hidden="true" />
+                        Verified
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+              <dl className="ticket-stub grid grid-cols-2 content-center gap-x-6 gap-y-3 px-6 sm:grid-cols-[repeat(4,minmax(0,1fr))_auto] sm:items-center sm:px-8">
+                {[
+                  { k: 'Board by', v: formatDay(h.registrationDeadline), sub: open ? deadlineLabel(h.daysToDeadline) : 'Registration closed' },
+                  { k: 'Journey', v: formatDay(h.startDate), sub: formatDateRange(h.startDate, h.endDate) },
+                  {
+                    k: 'City',
+                    v: h.mode === 'online' ? 'Online' : cityName(h.city, h.cityName),
+                    sub: h.mode === 'online' ? 'Join from anywhere' : <DistanceTag h={h} variant="stub" fallback={modeLabel(h.mode)} />,
+                  },
+                  { k: 'Fare', v: h.fee === 0 ? 'Free' : formatMoney(h.fee, 'INR'), sub: 'Entry fee' },
+                ].map((x) => (
+                  <div key={x.k} className="min-w-0">
+                    <dt className="font-mono text-[9.5px] font-medium uppercase tracking-[0.18em] text-muted">{x.k}</dt>
+                    <dd className="mt-1 truncate font-display text-[24px] font-bold uppercase leading-none text-ink sm:text-[28px]">{x.v}</dd>
+                    <dd className="mt-0.5 truncate text-xs text-muted">{x.sub}</dd>
+                  </div>
+                ))}
+                <Barcode seed={h.slug} className="hidden h-12 text-ink/75 sm:flex" />
+              </dl>
+            </div>
+          </div>
 
           <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
             {/* Main */}
             <div className="min-w-0">
-              <div className="mb-3 flex flex-wrap items-center gap-2">
-                <StatusBadge status={h.status} />
-                <span className="rounded-md bg-card px-2 py-0.5 text-xs font-medium text-ink/75 ring-1 ring-inset ring-line">
-                  {modeLabel(h.mode)}
-                </span>
-                {h.beginnerFriendly && (
-                  <span className="rounded-md bg-card px-2 py-0.5 text-xs font-medium text-ink/75 ring-1 ring-inset ring-line">
-                    Beginner-friendly
-                  </span>
-                )}
-              </div>
-              <h1 className="text-3xl sm:text-4xl">{h.title}</h1>
-              {h.tagline && <p className="mt-3 text-lg leading-7 text-muted">{h.tagline}</p>}
-              <p className="mt-4 flex flex-wrap items-center gap-1.5 text-sm text-muted">
-                by <strong className="font-semibold text-ink">{h.organizer || sourceBySlug(h.sources[0])?.name || 'the organizer'}</strong>
-                {h.verified && (
-                  <span className="inline-flex items-center gap-1 text-ink">
-                    <BadgeCheck className="h-4 w-4 text-accent" aria-hidden="true" />
-                    Verified
-                  </span>
-                )}
-              </p>
-
-              <dl className="mt-8 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+              <dl className="grid gap-px overflow-hidden rounded-md border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
                 {facts.map((f) => (
                   <div key={f.label} className="flex items-start gap-3 bg-card p-4">
                     <f.icon className="mt-0.5 h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
                     <div className="min-w-0">
-                      <dt className="text-xs text-muted">{f.label}</dt>
-                      <dd className="mt-0.5 text-sm font-medium text-ink">{f.value}</dd>
+                      <dt className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted">{f.label}</dt>
+                      <dd className="mt-1 text-[15px] font-semibold text-ink">{f.value}</dd>
                     </div>
                   </div>
                 ))}
@@ -179,7 +214,7 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
               {point && <VenueMap point={point} venue={h.venue ?? cityName(h.city, h.cityName)} destination={destination} />}
 
               <div className="card mt-8 p-6 sm:p-8">
-                <h2 className="text-lg">About this {eventTypeLabel(h.type).toLowerCase()}</h2>
+                <h2 className="text-[28px]">About this {eventTypeLabel(h.type).toLowerCase()}</h2>
                 {h.summary && <p className="mt-3 whitespace-pre-line leading-7 text-ink/80">{h.summary}</p>}
 
                 {h.themes.length > 0 && (
@@ -200,14 +235,15 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                   </div>
                 )}
 
-                <h2 className="mt-10 text-lg">Timeline</h2>
-                <ol className="mt-4 space-y-5 border-l border-line pl-6">
+                {/* The route map: each date is a stop on the line. */}
+                <h2 className="mt-10 text-[28px]">Route</h2>
+                <ol className="ml-1.5 mt-5 space-y-6 border-l-[3px] border-dashed border-ink/25 pl-7">
                   {timeline.map((step) => (
                     <li key={step.label} className="relative">
-                      <span className="absolute -left-[30px] top-1.5 h-2.5 w-2.5 rounded-full bg-accent ring-4 ring-card" aria-hidden="true" />
-                      <p className="text-sm font-semibold text-ink">{step.label}</p>
+                      <span className="absolute -left-[38px] top-0.5 h-4 w-4 rounded-full border-[3px] border-navy bg-board" aria-hidden="true" />
+                      <p className="font-display text-[19px] font-bold uppercase leading-tight tracking-[0.03em] text-ink">{step.label}</p>
                       <p className="text-sm text-muted">
-                        {formatWeekday(step.iso)} · {formatTime(step.iso)} IST
+                        <LocalTime iso={step.iso} />
                       </p>
                     </li>
                   ))}
@@ -218,13 +254,13 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                   <div className="mt-10 grid gap-6 sm:grid-cols-2">
                     {h.prizes.length > 0 && (
                       <div>
-                        <h2 className="flex items-center gap-2 text-lg">
+                        <h2 className="flex items-center gap-2 text-[24px]">
                           <Trophy className="h-4 w-4 text-accent" aria-hidden="true" />
                           Prizes
                         </h2>
                         <ul className="mt-3 space-y-2">
                           {h.prizes.map((p) => (
-                            <li key={p} className="rounded-lg border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink">
+                            <li key={p} className="rounded-md border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink">
                               {p}
                             </li>
                           ))}
@@ -233,13 +269,13 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                     )}
                     {h.perks.length > 0 && (
                       <div>
-                        <h2 className="flex items-center gap-2 text-lg">
+                        <h2 className="flex items-center gap-2 text-[24px]">
                           <Gift className="h-4 w-4 text-accent" aria-hidden="true" />
                           Perks
                         </h2>
                         <ul className="mt-3 space-y-2">
                           {h.perks.map((p) => (
-                            <li key={p} className="rounded-lg border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink">
+                            <li key={p} className="rounded-md border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink">
                               {p}
                             </li>
                           ))}
@@ -255,19 +291,19 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
 
             {/* Sidebar */}
             <aside className="lg:sticky lg:top-24 lg:self-start">
-              <div className="card p-6">
-                <p className="text-xs font-medium text-muted">Registration</p>
+              <div className="card overflow-hidden p-6">
+                <p className="eyebrow">Registration</p>
                 <p
                   className={cn(
-                    'mt-1 flex items-center gap-2 text-xl font-semibold tracking-tight',
-                    h.status === 'closing-soon' ? 'text-warning dark:text-amber-300' : 'text-ink'
+                    'mt-2 flex items-center gap-2 font-display text-[30px] font-bold uppercase leading-none',
+                    h.status === 'closing-soon' ? 'text-accent dark:text-board' : 'text-ink'
                   )}
                 >
                   <Clock className="h-5 w-5" aria-hidden="true" />
                   {open ? deadlineLabel(h.daysToDeadline) : h.status === 'in-progress' ? 'Happening now' : 'Closed'}
                 </p>
                 <p className="mt-1 text-sm text-muted">
-                  Deadline: {formatDate(h.registrationDeadline)}, {formatTime(h.registrationDeadline)} IST
+                  Deadline: <LocalTime iso={h.registrationDeadline} year />
                 </p>
 
                 {h.registrationVia === 'qr' && (
@@ -282,12 +318,12 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
 
                 <div className="mt-5 flex flex-col gap-2.5">
                   {open ? (
-                    <a href={`/go/${h.slug}`} target="_blank" rel="noopener noreferrer" className="btn-primary h-11 w-full text-[15px]">
+                    <a href={`/go/${h.slug}`} target="_blank" rel="noopener noreferrer" className="btn-primary h-12 w-full text-[16px]">
                       Register on official site
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   ) : (
-                    <span className="btn h-11 w-full cursor-not-allowed border-line bg-ink/[0.04] text-muted">Registration closed</span>
+                    <span className="btn h-12 w-full cursor-not-allowed border-line bg-ink/[0.04] text-muted">Registration closed</span>
                   )}
                   <SaveButton slug={h.slug} title={h.title} variant="full" className="w-full" />
                   <a href={googleCalendarUrl(h)} target="_blank" rel="noopener noreferrer" className="btn-secondary w-full">
@@ -297,16 +333,16 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                 </div>
 
                 <div className="mt-6 border-t border-line pt-5">
-                  <p className="mb-3 text-xs font-medium text-muted">Share with your team</p>
+                  <p className="eyebrow mb-3">Share with your team</p>
                   <ShareButtons title={h.title} path={`/hackathons/${h.slug}`} />
                 </div>
 
                 <div className="mt-6 border-t border-line pt-5 text-sm text-muted">
-                  <p className="mb-2 text-xs font-medium text-muted">Found on</p>
+                  <p className="eyebrow mb-2">Found on</p>
                   {!h.verified && <p className="mb-3 rounded-lg bg-warning-soft px-3 py-2 text-xs leading-5 text-[#78350f] dark:bg-amber-400/10 dark:text-amber-100">This listing has not been independently verified. Check the organizer page before paying or sharing personal details; report it here if it looks suspicious.</p>}
                   <div className="flex flex-wrap gap-1.5">
                     {h.sources.map((s) => (
-                      <span key={s} className="rounded-md border border-line px-2 py-0.5 text-xs font-medium text-ink/80">
+                      <span key={s} className="rounded-[4px] border border-ink/20 px-2 py-0.5 font-display text-[13px] font-semibold uppercase tracking-[0.05em] text-ink/80">
                         {sourceBySlug(s)?.name ?? s}
                       </span>
                     ))}
@@ -318,13 +354,13 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
 
               <Link
                 href={`/teams?hackathon=${h.slug}`}
-                className="mt-3 flex items-center justify-between rounded-xl border border-line bg-card px-5 py-4 text-sm font-medium text-ink shadow-card transition-colors hover:border-ink/20"
+                className="station-board mt-4 flex items-center justify-between px-5 py-4 font-display text-[17px] font-bold uppercase tracking-[0.04em] transition-transform hover:-translate-y-0.5"
               >
                 <span className="flex items-center gap-2.5">
-                  <Users className="h-4 w-4 text-accent" aria-hidden="true" />
+                  <Users className="h-5 w-5" aria-hidden="true" />
                   Need teammates for this?
                 </span>
-                <ChevronRight className="h-4 w-4 text-muted" aria-hidden="true" />
+                <ChevronRight className="h-5 w-5" aria-hidden="true" />
               </Link>
             </aside>
           </div>
@@ -332,10 +368,11 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
       </section>
 
       {similar.length > 0 && (
-        <section className="section border-t border-line bg-card">
+        <section className="section border-t border-line bg-card/60">
           <div className="container-page">
-            <h2 className="mb-6 text-2xl">You might also like</h2>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <p className="eyebrow mb-3">Connecting trains</p>
+            <h2 className="mb-8 text-[2.4rem]">You might also like</h2>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {similar.map((s) => (
                 <HackathonCard key={s.slug} h={s} />
               ))}
@@ -343,6 +380,15 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
           </div>
         </section>
       )}
+
+      <MobileRegisterBar
+        slug={h.slug}
+        title={h.title}
+        open={open}
+        when={open ? deadlineLabel(h.daysToDeadline) : h.status === 'in-progress' ? 'Happening now' : 'Registration closed'}
+        deadline={formatDay(h.registrationDeadline)}
+        hurry={h.status === 'closing-soon'}
+      />
     </>
   );
 }

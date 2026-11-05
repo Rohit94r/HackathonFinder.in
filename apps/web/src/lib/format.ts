@@ -1,28 +1,29 @@
-import type { Currency } from '@hackathonfinder/shared';
+import { APPROX_INR_PER_USD, type Currency } from '@hackathonfinder/shared';
 
-// Fixed locale and time zone so server and browser render the same text.
+// Day labels use a fixed locale and the listings' home time zone, so server and browser render the
+// same text. Exact times go through <LocalTime>, which shows each visitor their own zone.
 const TZ = 'Asia/Kolkata';
 
-const dayMonth = new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'short', timeZone: TZ });
-const dayMonthYear = new Intl.DateTimeFormat('en-IN', {
+const dayMonth = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'short', timeZone: TZ });
+const dayMonthYear = new Intl.DateTimeFormat('en-GB', {
   day: 'numeric',
   month: 'short',
   year: 'numeric',
   timeZone: TZ,
 });
-const weekdayDate = new Intl.DateTimeFormat('en-IN', {
+const weekdayDate = new Intl.DateTimeFormat('en-GB', {
   weekday: 'short',
   day: 'numeric',
   month: 'short',
   timeZone: TZ,
 });
-const time = new Intl.DateTimeFormat('en-IN', {
+const time = new Intl.DateTimeFormat('en-GB', {
   hour: 'numeric',
   minute: '2-digit',
   hour12: true,
   timeZone: TZ,
 });
-const monthYear = new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric', timeZone: TZ });
+const monthYear = new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric', timeZone: TZ });
 
 export function formatDay(iso: string): string {
   return dayMonth.format(new Date(iso));
@@ -56,29 +57,35 @@ export function formatDateRange(startIso: string, endIso: string): string {
 
 export function formatMoney(amount: number, currency: Currency): string {
   if (currency === 'USD') return `$${amount.toLocaleString('en-US')}`;
-  return `₹${amount.toLocaleString('en-IN')}`;
+  return `₹${amount.toLocaleString('en-US')}`;
+}
+
+/** "≈ $1,190" for a rupee amount, so visitors outside India can size it up; nothing for dollars. */
+export function approxUsd(amount: number, currency: Currency): string | undefined {
+  if (currency === 'USD' || amount <= 0) return undefined;
+  const usd = amount / APPROX_INR_PER_USD;
+  return `≈ $${(usd >= 100 ? Math.round(usd / 10) * 10 : Math.round(usd)).toLocaleString('en-US')}`;
 }
 
 /** When the source doesn't say: we never guess a prize or a team size. */
 export const ON_OFFICIAL_PAGE = 'On the official page';
 
-/** Short prize label for cards, e.g. "₹1L", "₹75K", "$5K"; an unknown prize says where to look. */
-export function formatPrizeShort(amount: number, currency: Currency): string {
-  if (amount <= 0) return `Prizes: ${ON_OFFICIAL_PAGE.toLowerCase()}`;
-  if (currency === 'USD') {
-    return amount >= 1000 ? `$${trim(amount / 1000)}K` : `$${amount}`;
-  }
-  if (amount >= 100000) return `₹${trim(amount / 100000)}L`;
-  if (amount >= 1000) return `₹${trim(amount / 1000)}K`;
-  return `₹${amount}`;
+/** Compact amount in international notation: 1.5M, 75K, 900. */
+function compact(amount: number): string {
+  if (amount >= 1e6) return `${trim(Math.round(amount / 1e5) / 10)}M`;
+  if (amount >= 1000) return `${trim(Math.round(amount / 100) / 10)}K`;
+  return String(Math.round(amount));
 }
 
-/** Large rupee totals for stats: "₹2.4 Cr", "₹85 L", "₹40K". */
-export function formatInrCompact(amount: number): string {
-  if (amount >= 1e7) return `₹${trim(Math.round(amount / 1e6) / 10)} Cr`;
-  if (amount >= 1e5) return `₹${trim(Math.round(amount / 1e4) / 10)} L`;
-  if (amount >= 1000) return `₹${Math.round(amount / 1000)}K`;
-  return `₹${amount}`;
+/** Short prize label for cards in the prize's own currency, e.g. "₹150K", "$5K", "₹1.2M"; an unknown prize says where to look. */
+export function formatPrizeShort(amount: number, currency: Currency): string {
+  if (amount <= 0) return `Prizes: ${ON_OFFICIAL_PAGE.toLowerCase()}`;
+  return `${currency === 'USD' ? '$' : '₹'}${compact(amount)}`;
+}
+
+/** A large rupee total shown in US dollars for stats: "$3.8M". */
+export function formatUsdCompact(inr: number): string {
+  return `$${compact(inr / APPROX_INR_PER_USD)}`;
 }
 
 function trim(n: number): string {
@@ -95,7 +102,7 @@ export function formatTeamSize(min: number, max: number, known = true): string {
 
 /** "12 km", rounded because stored locations are only accurate to about 1 km. */
 export function formatKm(km: number): string {
-  return km < 1 ? 'Under 1 km' : `${Math.round(km).toLocaleString('en-IN')} km`;
+  return km < 1 ? 'Under 1 km' : `${Math.round(km).toLocaleString('en-US')} km`;
 }
 
 export function deadlineLabel(days: number): string {

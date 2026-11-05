@@ -1,14 +1,14 @@
 import { STATUS_LABELS, type Status } from '@hackathonfinder/shared';
 import { cn } from '@/lib/cn';
 
-// Status colours mean the same thing everywhere: green is open, amber is hurry, indigo is live, grey is over.
-// Solid fills, so badges stay readable on top of cover art.
+// Status colours mean the same thing everywhere, like railway signals: green is open, amber is
+// last call, red is running now, grey is over. Solid fills, so badges stay readable on top of cover art.
 const STYLES: Record<Status, { badge: string; dot: string }> = {
-  open: { badge: 'bg-success-soft text-[#166534] ring-[#166534]/10', dot: 'bg-[#16a34a]' },
-  'closing-soon': { badge: 'bg-warning-soft text-[#92400e] ring-[#92400e]/10', dot: 'bg-[#d97706]' },
-  'in-progress': { badge: 'bg-accent-soft text-brand-800 ring-brand-800/10', dot: 'bg-accent' },
-  'registration-closed': { badge: 'bg-[#f1f2f6] text-[#4b5063] ring-black/5', dot: 'bg-[#9aa0b1]' },
-  completed: { badge: 'bg-[#f1f2f6] text-[#4b5063] ring-black/5', dot: 'bg-[#9aa0b1]' },
+  open: { badge: 'bg-[#e1f3e7] text-[#14532d] ring-[#14532d]/25', dot: 'bg-[#22a35a] shadow-[0_0_6px_#22a35a]' },
+  'closing-soon': { badge: 'bg-board text-navy ring-navy/30', dot: 'bg-[#e05a00] shadow-[0_0_6px_#ff7a1a]' },
+  'in-progress': { badge: 'bg-[#c8261d] text-white ring-black/20', dot: 'bg-white shadow-[0_0_6px_#fff]' },
+  'registration-closed': { badge: 'bg-[#ece6da] text-[#4a443b] ring-black/10', dot: 'bg-[#9c9486]' },
+  completed: { badge: 'bg-[#ece6da] text-[#4a443b] ring-black/10', dot: 'bg-[#9c9486]' },
 };
 
 export default function StatusBadge({ status, className }: { status: Status; className?: string }) {
@@ -16,7 +16,7 @@ export default function StatusBadge({ status, className }: { status: Status; cla
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset',
+        'inline-flex items-center gap-1.5 rounded-[4px] px-2 py-[3px] font-display text-[12.5px] font-bold uppercase leading-none tracking-[0.07em] ring-1 ring-inset',
         style.badge,
         className
       )}

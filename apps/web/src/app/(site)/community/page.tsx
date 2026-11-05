@@ -18,10 +18,10 @@ import { getHackathons } from '@/server/hackathons';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Hackathon Community for Students in India',
-  description: 'Discussions for students across India: ask about hackathons, find teammates, get feedback on your project and share free resources. Anyone can read; sign in to post.',
+  title: 'Hackathon Community for Students',
+  description: 'Discussions for students everywhere: ask about hackathons, find teammates, get feedback on your project and share free resources. Anyone can read; sign in to post.',
   path: '/community',
-  keywords: ['hackathon community', 'hackathon discussion', 'student developer community India'],
+  keywords: ['hackathon community', 'hackathon discussion', 'student developer community'],
 });
 
 const CHANNELS = activeSocials([
@@ -152,7 +152,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Se
               <ul className="mt-4 space-y-1">
                 {CHANNELS.map((c) => (
                   <li key={c.name}>
-                    <a href={c.href} className="group -mx-2 flex items-start gap-3 rounded-xl px-2 py-2 transition hover:bg-ink/5">
+                    <a href={c.href} className="group -mx-2 flex items-start gap-3 rounded-lg px-2 py-2 transition hover:bg-ink/5">
                       <span className="mt-0.5 inline-flex shrink-0 rounded-lg bg-accent/10 p-1.5 text-brand-700 dark:text-brand-300">
                         <c.icon className="h-4 w-4" />
                       </span>
@@ -207,7 +207,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Se
           <div data-reveal-stagger className="grid gap-5 md:grid-cols-3">
             {WAYS.map((w) => (
               <Link key={w.title} href={w.href} className="card group p-7 transition hover:-translate-y-1 hover:shadow-lift">
-                <span className="mb-4 inline-flex rounded-xl bg-accent p-2.5 text-white">
+                <span className="mb-4 inline-flex rounded-lg bg-accent p-2.5 text-white">
                   <w.icon className="h-5 w-5" />
                 </span>
                 <h3 className="text-xl font-bold">{w.title}</h3>

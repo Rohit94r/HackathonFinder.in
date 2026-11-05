@@ -2,6 +2,7 @@
 
 import { memo, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { localZone, stationClock } from '@/lib/clock';
 import { cn } from '@/lib/cn';
 
 export interface Departure {
@@ -24,7 +25,6 @@ const LAND_MS = 110;
 
 const ROWS = 6;
 const PAGE_MS = 8000;
-const LANG_MS = 4000;
 const DAY = 86_400_000;
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -129,27 +129,14 @@ function spoken(ms: number): string {
 
 interface Status {
   en: string;
-  hi: string;
   tone: string;
   lamp: string;
 }
 
 function status(ms: number): Status {
-  if (ms < DAY) return { en: 'FINAL CALL', hi: 'अंतिम कॉल', tone: 'text-[#fca5a5]', lamp: 'bg-[#f87171] shadow-[0_0_10px_#f87171] animate-pulse motion-reduce:animate-none' };
-  if (ms < 3 * DAY) return { en: 'BOARDING', hi: 'बोर्डिंग', tone: 'text-[#fcd34d]', lamp: 'bg-[#fbbf24] shadow-[0_0_10px_#fbbf24]' };
-  return { en: 'ON TIME', hi: 'समय पर', tone: 'text-[#86efac]', lamp: 'bg-[#4ade80] shadow-[0_0_10px_#4ade80]' };
-}
-
-/** English and Hindi in the same spot, crossfading, like an Indian station board. */
-function Bilingual({ en, hi, hindi, className }: { en: string; hi: string; hindi: boolean; className?: string }) {
-  return (
-    <span className={cn('inline-grid', className)}>
-      <span className={cn('[grid-area:1/1] transition-opacity duration-500', hindi ? 'opacity-0' : 'opacity-100')}>{en}</span>
-      <span lang="hi" aria-hidden="true" className={cn('[grid-area:1/1] tracking-normal transition-opacity duration-500', hindi ? 'opacity-100' : 'opacity-0')}>
-        {hi}
-      </span>
-    </span>
-  );
+  if (ms < DAY) return { en: 'FINAL CALL', tone: 'text-[#fca5a5]', lamp: 'bg-[#f87171] shadow-[0_0_10px_#f87171] animate-pulse motion-reduce:animate-none' };
+  if (ms < 3 * DAY) return { en: 'BOARDING', tone: 'text-[#fcd34d]', lamp: 'bg-[#fbbf24] shadow-[0_0_10px_#fbbf24]' };
+  return { en: 'ON TIME', tone: 'text-[#86efac]', lamp: 'bg-[#4ade80] shadow-[0_0_10px_#4ade80]' };
 }
 
 type Size = 'sm' | 'md' | 'lg';
@@ -177,27 +164,24 @@ function useSize(): Size {
 }
 
 /**
- * The hero's departures board, Indian-station style: the next hackathon deadlines with
- * live countdowns, a page flip every few seconds, labels alternating English and Hindi,
- * and an announcement ticker. Every row links to its event.
+ * The hero's departures board, split-flap style: the next hackathon deadlines with
+ * live countdowns, a page flip every few seconds and an announcement ticker.
+ * Every row links to its event.
  */
 export default function DeparturesBoard({ departures, nowIso }: { departures: Departure[]; nowIso: string }) {
   // The first render uses the server's clock so it matches the HTML; then it ticks live.
   const [now, setNow] = useState(() => Date.parse(nowIso));
   const [page, setPage] = useState(0);
-  const [hindi, setHindi] = useState(false);
+  // UTC until mounted (matches the server), then the visitor's own zone.
+  const [zone, setZone] = useState('UTC');
   const size = useSize();
   const w = WIDTHS[size];
 
   useEffect(() => {
+    setZone(localZone());
     setNow(Date.now());
     const tick = setInterval(() => setNow(Date.now()), 1000);
-    if (reducedMotion()) return () => clearInterval(tick);
-    const lang = setInterval(() => setHindi((h) => !h), LANG_MS);
-    return () => {
-      clearInterval(tick);
-      clearInterval(lang);
-    };
+    return () => clearInterval(tick);
   }, []);
 
   const upcoming = departures.filter((d) => Date.parse(d.deadline) > now);
@@ -213,7 +197,7 @@ export default function DeparturesBoard({ departures, nowIso }: { departures: De
 
   const first = (page % pages) * ROWS;
   const rows = upcoming.slice(first, first + ROWS);
-  const clock = new Intl.DateTimeFormat('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false, timeZone: 'Asia/Kolkata' }).format(now);
+  const clock = stationClock(now, zone);
   const announcements = upcoming.slice(0, 8).map((d) => `${d.title} (${d.gate}) closes ${spoken(Date.parse(d.deadline) - now)}`);
   const col = (n: number) => ({ width: `calc(${n} * var(--flap-w) - 2px)` });
 
@@ -222,11 +206,11 @@ export default function DeparturesBoard({ departures, nowIso }: { departures: De
       <div className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-3 sm:px-6">
         <p className="flex items-center gap-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-[#fbbf24] sm:text-xs">
           <span className="inline-block h-2 w-2 rounded-full bg-[#fbbf24] shadow-[0_0_8px_#fbbf24]" aria-hidden="true" />
-          <Bilingual en="Departures" hi="प्रस्थान" hindi={hindi} />
+          Departures
           <span className="hidden text-white/35 sm:inline">· next registration deadlines</span>
         </p>
         <p className="font-mono text-[11px] tabular-nums text-white/55 sm:text-xs">
-          IST <span className="text-white/85">{clock}</span>
+          {clock.zone} <span className="text-white/85">{clock.time}</span>
         </p>
       </div>
 
@@ -234,21 +218,21 @@ export default function DeparturesBoard({ departures, nowIso }: { departures: De
         <div className="departures-grid mb-2 hidden font-mono text-[10px] font-semibold uppercase tracking-[0.18em] text-[#fbbf24]/75 sm:flex" aria-hidden="true">
           {w.no && (
             <span className="shrink-0" style={col(3)}>
-              <Bilingual en="No." hi="क्र." hindi={hindi} />
+              No.
             </span>
           )}
           <span className="shrink-0" style={col(12)}>
-            <Bilingual en="Closes in" hi="बंद होने में" hindi={hindi} />
+            Closes in
           </span>
           <span className="shrink-0" style={col(w.title)}>
-            <Bilingual en="Hackathon" hi="हैकथॉन" hindi={hindi} />
+            Hackathon
           </span>
           {w.gate > 0 && (
             <span className="shrink-0" style={col(w.gate)}>
-              <Bilingual en="PF" hi="प्लेटफ़ॉर्म" hindi={hindi} />
+              Where
             </span>
           )}
-          {w.status && <Bilingual en="Status" hi="स्थिति" hindi={hindi} />}
+          {w.status && <span>Status</span>}
         </div>
         <ul className="space-y-[6px]">
           {rows.map((d, i) => {
@@ -267,7 +251,7 @@ export default function DeparturesBoard({ departures, nowIso }: { departures: De
                   {w.status ? (
                     <span className={cn('ml-1 flex items-center gap-2 whitespace-nowrap font-mono text-[13px] font-semibold tracking-wider', st.tone)} aria-hidden="true">
                       <span className={cn('h-2 w-2 shrink-0 rounded-full', st.lamp)} />
-                      <Bilingual en={st.en} hi={st.hi} hindi={hindi} />
+                      {st.en}
                     </span>
                   ) : (
                     <span className={cn('ml-1 h-2 w-2 shrink-0 rounded-full', st.lamp)} aria-hidden="true" />
@@ -288,7 +272,7 @@ export default function DeparturesBoard({ departures, nowIso }: { departures: De
           <div className="flex w-max whitespace-nowrap text-[#fbbf24]/85 motion-safe:animate-marquee" style={{ animationDuration: '50s' }}>
             {[0, 1].map((copy) => (
               <span key={copy} className="pr-10">
-                <span lang="hi" className="normal-case tracking-normal text-[#fde68a]">हैकर्स कृपया ध्यान दें</span>
+                <span className="text-[#fde68a]">Attention please, hackers</span>
                 {announcements.map((a) => (
                   <span key={a}>
                     <span className="px-3 text-white/25">◆</span>

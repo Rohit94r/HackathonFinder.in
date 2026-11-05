@@ -15,8 +15,7 @@ export default async function SavedPage() {
   const { items } = await getHackathons();
   return (
     <>
-      <PageHero
-        title="Your hackathon"
+      <PageHero title="Your hackathon"
         accent="tracker"
         description="Everything you saved, in one board. Move each event from saved to registered, submitted and done. Your list is stored in this browser."
       />

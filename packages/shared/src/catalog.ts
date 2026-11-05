@@ -132,7 +132,7 @@ export function cityName(slug?: string, label?: string): string {
 /** Where an event is, for cards: "Online", or its city. */
 export function placeName(h: { mode: string; city?: string; cityName?: string }): string {
   if (h.mode === 'online') return 'Online';
-  return h.city || h.cityName ? cityName(h.city, h.cityName) : 'India';
+  return h.city || h.cityName ? cityName(h.city, h.cityName) : 'In person';
 }
 
 export function eventTypeLabel(type: EventType): string {

@@ -147,7 +147,7 @@ export default function TeamPostCard({
         )}
       </div>
 
-      <div className="mt-4 flex items-start gap-2.5 rounded-xl bg-ink/[0.04] px-3 py-2.5">
+      <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-ink/[0.04] px-3 py-2.5">
         <Ticket className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
         <div className="min-w-0">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-ink/50">Building for</p>

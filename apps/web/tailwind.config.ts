@@ -2,11 +2,14 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: ['./src/**/*.{ts,tsx}'],
-  // Light is the default; the toggle sets data-theme="dark" on <html> (see app/layout.tsx).
+  // Hover styles only on devices that can hover, so a tapped ticket or button doesn't stay "hovered" on phones.
+  future: { hoverOnlyWhenSupported: true },
+  // Light ("day station") is the default; the toggle sets data-theme="dark" ("night station") on <html> (see app/layout.tsx).
   darkMode: ['selector', '[data-theme="dark"]'],
   theme: {
     extend: {
-      // One accent (indigo #635BFF) on cool neutrals. Neutrals are CSS variables (globals.css) so they flip in dark mode.
+      // Hackathon Junction: an Indian railway station. Ticket paper and ink, signboard yellow,
+      // signal red for actions. Neutrals are CSS variables (globals.css) so they flip in dark mode.
       colors: {
         // Primary text, and the base for ink/[alpha] tints and hairlines.
         ink: {
@@ -14,59 +17,70 @@ const config: Config = {
           800: 'rgb(var(--hf-ink-800) / <alpha-value>)',
           700: 'rgb(var(--hf-ink-700) / <alpha-value>)',
         },
-        // Secondary text (#686D7D in light mode).
+        // Secondary text.
         muted: 'rgb(var(--hf-muted) / <alpha-value>)',
-        // Borders and dividers (#E8EAF0 in light mode).
+        // Borders and dividers.
         line: 'rgb(var(--hf-line) / <alpha-value>)',
-        // Fixed dark text for light fills in both themes.
-        navy: '#171923',
-        // Accent scale for tints, borders and links.
+        // Fixed dark text for light fills (yellow boards, white badges) in both themes.
+        navy: '#16130f',
+        // Signal red scale for tints, borders and links.
         brand: {
-          50: '#eeefff',
-          100: '#e0e1ff',
-          200: '#c7c8ff',
-          300: '#a5a3ff',
-          400: '#8580ff',
-          500: '#7069ff',
-          600: '#635bff',
-          700: '#5047e5',
-          800: '#4038b8',
-          900: '#332d8f',
+          50: '#fdf0ee',
+          100: '#fbdcd8',
+          200: '#f6b7af',
+          300: '#f08a7d',
+          400: '#e65a4a',
+          500: '#d93a2b',
+          600: '#c8261d',
+          700: '#a71e17',
+          800: '#861a15',
+          900: '#5f1410',
         },
-        // Primary buttons, links and highlights. White text on it.
+        // Primary links and highlights. White text on it.
         accent: {
-          DEFAULT: '#635bff',
-          soft: '#eeefff',
-          dark: '#5047e5',
+          DEFAULT: '#c8261d',
+          soft: '#fdf0ee',
+          dark: '#a71e17',
         },
-        success: { DEFAULT: '#15803d', soft: '#dcfce7' },
-        warning: { DEFAULT: '#b45309', soft: '#fef3c7' },
-        danger: { DEFAULT: '#dc2626', soft: '#fee2e2' },
+        // Station signboard yellow, always with navy text on it.
+        board: {
+          DEFAULT: '#ffc629',
+          soft: '#fff3cc',
+          dark: '#e0a800',
+        },
+        success: { DEFAULT: '#1d7a45', soft: '#e1f3e7' },
+        warning: { DEFAULT: '#a35f00', soft: '#fff0c2' },
+        danger: { DEFAULT: '#c8261d', soft: '#fde3e0' },
         // White fills (badges on images), with dark text on them.
         pop: {
-          DEFAULT: '#ffffff',
-          soft: '#f4f5f8',
-          dark: '#52525b',
+          DEFAULT: '#fffcf5',
+          soft: '#f3eee3',
+          dark: '#4a443b',
         },
         // Older accent names, kept as aliases.
         lime: {
-          DEFAULT: '#ffffff',
-          soft: '#f4f5f8',
+          DEFAULT: '#ffc629',
+          soft: '#fff3cc',
         },
-        turquoise: '#635bff',
+        turquoise: '#c8261d',
         // Page background, and the surface colour for cards, inputs and menus. Both flip in dark mode.
         surface: 'rgb(var(--hf-surface) / <alpha-value>)',
         card: 'rgb(var(--hf-card) / <alpha-value>)',
       },
       fontFamily: {
         sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
-        // Headings use the same family; kept as a name so older markup still resolves.
-        display: ['var(--font-sans)', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+        // Signage: condensed, for headings, numbers and boards.
+        display: ['var(--font-display)', 'Arial Narrow', 'system-ui', 'sans-serif'],
+        // Ticket data: times, codes, counts.
+        mono: ['var(--font-mono)', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
       },
       boxShadow: {
-        card: '0 1px 2px rgba(23, 25, 35, 0.04)',
-        lift: '0 1px 2px rgba(23, 25, 35, 0.04), 0 12px 32px -8px rgba(23, 25, 35, 0.12)',
-        glow: '0 0 0 3px rgba(99, 91, 255, 0.18)',
+        card: '0 1px 0 rgba(22, 19, 15, 0.04), 0 1px 3px rgba(22, 19, 15, 0.05)',
+        lift: '0 1px 0 rgba(22, 19, 15, 0.04), 0 18px 40px -14px rgba(22, 19, 15, 0.28)',
+        glow: '0 0 0 3px rgba(255, 198, 41, 0.45)',
+        // Pressed-metal signage: a hard offset shadow.
+        hard: '3px 3px 0 0 #16130f',
+        'hard-sm': '2px 2px 0 0 #16130f',
       },
       keyframes: {
         marquee: {

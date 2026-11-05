@@ -65,7 +65,7 @@ export function FollowCityButton({ name, following, onToggle, variant = 'icon', 
 /** A small square of the event's banner (or a real event photo), matching the card. */
 export function MiniCover({ h, className }: { h: HackathonView; className?: string }) {
   return (
-    <span aria-hidden="true" className={cn('block h-11 w-11 shrink-0 overflow-hidden rounded-xl', className)}>
+    <span aria-hidden="true" className={cn('block h-11 w-11 shrink-0 overflow-hidden rounded-lg', className)}>
       <EventArt title={h.title} imageUrl={h.imageUrl} className="h-full w-full" />
     </span>
   );
@@ -74,7 +74,7 @@ export function MiniCover({ h, className }: { h: HackathonView; className?: stri
 /** One line per event: cover, title, dates and deadline. */
 export function MiniEvent({ h, showDeadline = true }: { h: HackathonView; showDeadline?: boolean }) {
   return (
-    <Link href={`/hackathons/${h.slug}`} className="group flex items-center gap-3 rounded-xl p-1.5 transition hover:bg-ink/5">
+    <Link href={`/hackathons/${h.slug}`} className="group flex items-center gap-3 rounded-lg p-1.5 transition hover:bg-ink/5">
       <MiniCover h={h} />
       <span className="min-w-0 flex-1">
         <span className="block truncate text-sm font-semibold text-ink group-hover:underline">{h.title}</span>

@@ -24,7 +24,7 @@ export default function SignInPrompt({
     return (
       <div className={cn('card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6', className)}>
         <div className="flex items-start gap-3">
-          <span className="inline-flex shrink-0 rounded-xl bg-accent/10 p-2.5 text-brand-700 dark:text-brand-300">
+          <span className="inline-flex shrink-0 rounded-lg bg-accent/10 p-2.5 text-brand-700 dark:text-brand-300">
             <Icon className="h-5 w-5" aria-hidden="true" />
           </span>
           <div>
@@ -48,7 +48,7 @@ export default function SignInPrompt({
   return (
     <div className={cn('mx-auto max-w-xl', className)}>
       <div className="card p-7 text-center sm:p-10">
-        <span className="mx-auto inline-flex rounded-xl bg-accent p-4 text-white">
+        <span className="mx-auto inline-flex rounded-lg bg-accent p-4 text-white">
           <Icon className="h-7 w-7" aria-hidden="true" />
         </span>
         <h1 className="mt-5 font-sans text-2xl font-bold normal-case tracking-normal sm:text-3xl">{title}</h1>

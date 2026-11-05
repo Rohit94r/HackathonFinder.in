@@ -80,7 +80,7 @@ export function TeamSize({ members, teamMax }: { members: number; teamMax: numbe
 
 export function MatchNote({ children }: { children: React.ReactNode }) {
   return (
-    <p className="flex items-start gap-1.5 rounded-xl bg-accent/[0.07] px-3 py-2 text-xs font-medium text-ink/80">
+    <p className="flex items-start gap-1.5 rounded-lg bg-accent/[0.07] px-3 py-2 text-xs font-medium text-ink/80">
       <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" aria-hidden="true" />
       <span>{children}</span>
     </p>

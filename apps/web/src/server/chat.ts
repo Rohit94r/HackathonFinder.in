@@ -47,7 +47,7 @@ export const SendMessageSchema = z.object({
     .string('Write a message first.')
     .trim()
     .min(1, 'Write a message first.')
-    .max(MESSAGE_MAX, `Keep messages under ${MESSAGE_MAX.toLocaleString('en-IN')} characters.`),
+    .max(MESSAGE_MAX, `Keep messages under ${MESSAGE_MAX.toLocaleString('en-US')} characters.`),
 });
 
 export const MessagesQuerySchema = z.object({

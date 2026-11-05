@@ -140,7 +140,7 @@ export default function DiscussionBoard({
             aria-pressed={active}
             onClick={() => set({ category: c.id })}
             className={cn(
-              'flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm font-medium transition lg:w-full lg:py-2.5',
+              'flex shrink-0 items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium transition lg:w-full lg:py-2.5',
               active ? 'border border-accent bg-accent text-white' : 'border border-ink/15 text-ink/80 hover:bg-ink/5 lg:border-transparent'
             )}
           >
@@ -170,7 +170,7 @@ export default function DiscussionBoard({
               {category ? category.label : 'Community'}
             </h1>
             <p className="mt-1 text-sm text-ink/70">
-              {category ? category.description : 'Ask anything, share what you’re building and help other students across India.'}
+              {category ? category.description : 'Ask anything, share what you’re building and help other students everywhere.'}
             </p>
           </div>
           <button type="button" onClick={openForm} className="btn-primary py-2.5">
@@ -275,7 +275,7 @@ export default function DiscussionBoard({
         )}
 
         {votes.error && (
-          <p role="alert" className="mb-4 rounded-xl bg-brand-50 px-4 py-3 text-sm font-medium text-brand-800 dark:bg-brand-400/10 dark:text-brand-200">
+          <p role="alert" className="mb-4 rounded-lg bg-brand-50 px-4 py-3 text-sm font-medium text-brand-800 dark:bg-brand-400/10 dark:text-brand-200">
             {votes.error}
           </p>
         )}
@@ -284,7 +284,7 @@ export default function DiscussionBoard({
           <div className="card divide-y divide-ink/10" aria-busy="true" aria-label="Loading discussions">
             {[0, 1, 2, 3].map((i) => (
               <div key={i} className="flex gap-4 p-5">
-                <div className="h-14 w-12 animate-pulse rounded-xl bg-ink/10" />
+                <div className="h-14 w-12 animate-pulse rounded-lg bg-ink/10" />
                 <div className="flex-1 space-y-2">
                   <div className="h-4 w-1/3 animate-pulse rounded bg-ink/10" />
                   <div className="h-5 w-3/4 animate-pulse rounded bg-ink/10" />
@@ -396,7 +396,7 @@ function ThreadRow({ t, now, hackathonTitle, onVote }: { t: ThreadItem; now: str
       </div>
       <Link
         href={`/community/${t.slug}#replies`}
-        className="hidden h-14 w-14 shrink-0 flex-col items-center justify-center rounded-xl text-ink/70 hover:bg-ink/5 hover:text-ink sm:flex"
+        className="hidden h-14 w-14 shrink-0 flex-col items-center justify-center rounded-lg text-ink/70 hover:bg-ink/5 hover:text-ink sm:flex"
       >
         <MessageSquare className="h-5 w-5" />
         <span className="text-sm font-semibold">{replies}</span>

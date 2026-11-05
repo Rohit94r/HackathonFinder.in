@@ -99,7 +99,7 @@ export default function NotificationsList() {
         {isLoading && !data ? (
           <div className="space-y-3 p-5" aria-busy="true" aria-label="Loading notifications">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded-xl bg-ink/5" />
+              <div key={i} className="h-16 animate-pulse rounded-lg bg-ink/5" />
             ))}
           </div>
         ) : error && !data ? (
@@ -111,7 +111,7 @@ export default function NotificationsList() {
           </div>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center px-6 py-14 text-center">
-            <span className="mb-4 rounded-xl bg-ink/5 p-4 text-ink/70">
+            <span className="mb-4 rounded-lg bg-ink/5 p-4 text-ink/70">
               {unreadOnly ? <CheckCheck className="h-7 w-7" aria-hidden="true" /> : <BellOff className="h-7 w-7" aria-hidden="true" />}
             </span>
             <h2 className="text-xl">{unreadOnly ? 'No unread notifications' : 'Nothing here yet'}</h2>
@@ -134,7 +134,7 @@ export default function NotificationsList() {
                 <li key={n.id} className={cn('flex items-start gap-3 px-4 py-4 sm:px-5', !n.read && 'bg-accent/[0.04]')}>
                   <span
                     className={cn(
-                      'mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl',
+                      'mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg',
                       n.read ? 'bg-ink/5 text-ink/70' : 'bg-accent text-white'
                     )}
                   >

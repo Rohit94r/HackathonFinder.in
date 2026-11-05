@@ -306,7 +306,7 @@ export default function SubmitForm() {
           <Field id="sub-url" label="Registration link" error={errors.url}>
             <input {...inputProps('url')} type="url" value={form.url} onChange={(e) => set('url', e.target.value)} placeholder="https://" />
           </Field>
-          <Field id="sub-prize" label="Prize pool" hint="e.g. ₹1,00,000 or swag & certificates" error={errors.prize}>
+          <Field id="sub-prize" label="Prize pool" hint="e.g. $5,000, ₹100,000 or swag & certificates" error={errors.prize}>
             <input {...inputProps('prize')} value={form.prize} onChange={(e) => set('prize', e.target.value)} maxLength={200} />
           </Field>
         </div>
@@ -322,7 +322,7 @@ export default function SubmitForm() {
       </section>
 
       {errors.form && (
-        <p role="alert" className="rounded-xl border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-400/30 dark:bg-red-500/10 dark:text-red-200">
+        <p role="alert" className="rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-400/30 dark:bg-red-500/10 dark:text-red-200">
           {errors.form}
         </p>
       )}

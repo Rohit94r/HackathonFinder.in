@@ -31,7 +31,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
       perks={[
         { icon: Bookmark, text: 'Your saved hackathons, on every device' },
         { icon: BellRing, text: 'Reminders before registration closes' },
-        { icon: Users, text: 'Team requests and invites from students across India' },
+        { icon: Users, text: 'Team requests and invites from students everywhere' },
         { icon: Trophy, text: 'Your hackathon record, badges and winning stories' },
       ]}
     >

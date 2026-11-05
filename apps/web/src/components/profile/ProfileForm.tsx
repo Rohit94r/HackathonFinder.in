@@ -305,7 +305,7 @@ export default function ProfileForm({
         role="switch"
         aria-checked={form.lookingForTeam}
         onClick={() => set('lookingForTeam', !form.lookingForTeam)}
-        className="flex w-full items-center justify-between gap-4 rounded-xl border border-ink/15 px-4 py-3 text-left transition hover:border-ink/30"
+        className="flex w-full items-center justify-between gap-4 rounded-lg border border-ink/15 px-4 py-3 text-left transition hover:border-ink/30"
       >
         <span>
           <span className="block text-sm font-semibold text-ink">Looking for a team</span>

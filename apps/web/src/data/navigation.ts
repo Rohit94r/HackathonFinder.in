@@ -42,7 +42,7 @@ export const NAV_COMMUNITY: NavGroup = {
   label: 'Community',
   items: [
     { label: 'Discussions', href: '/community', description: 'Ask, share and talk with students', icon: MessagesSquare },
-    { label: 'Team Finder', href: '/teams', description: 'Find teammates across India', icon: Users },
+    { label: 'Team Finder', href: '/teams', description: 'Find teammates anywhere', icon: Users },
     { label: 'Winning stories', href: '/wins', description: 'Students share how they won', icon: Trophy },
     { label: 'Blog & guides', href: '/blog', description: 'Tips to pick, build and pitch', icon: BookOpen },
     { label: 'How it works', href: '/how-it-works', description: 'Where our listings come from', icon: Info },

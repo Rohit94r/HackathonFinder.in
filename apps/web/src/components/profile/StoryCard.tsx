@@ -35,7 +35,7 @@ export default function StoryCard({ story, mine = false }: { story: ProfileStory
           <span>{monthYear(story.createdAt)}</span>
           <span className="inline-flex items-center gap-1">
             <Heart className="h-3.5 w-3.5" aria-hidden="true" />
-            {story.cheers.toLocaleString('en-IN')} {story.cheers === 1 ? 'cheer' : 'cheers'}
+            {story.cheers.toLocaleString('en-US')} {story.cheers === 1 ? 'cheer' : 'cheers'}
           </span>
         </p>
       </div>

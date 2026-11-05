@@ -94,13 +94,12 @@ export function siteJsonLd() {
         '@type': 'Organization',
         '@id': ORG_ID,
         name: siteConfig.name,
-        alternateName: [siteConfig.domain, 'Hackathon Finder', 'Hackathon Finder India'],
+        alternateName: [siteConfig.domain, 'Hackathon Finder'],
         url: siteConfig.url,
         logo: { '@type': 'ImageObject', url: abs('/icon.svg') },
         description: siteConfig.description,
         email: `mailto:${siteConfig.email}`,
         foundingDate: siteConfig.foundingDate,
-        areaServed: { '@type': 'Country', name: 'India' },
         founder: [{ '@id': FOUNDER_ID }, { '@id': COFOUNDER_ID }],
         sameAs,
         contactPoint: [
@@ -114,7 +113,7 @@ export function siteJsonLd() {
         '@id': WEBSITE_ID,
         name: siteConfig.name,
         url: siteConfig.url,
-        inLanguage: 'en-IN',
+        inLanguage: 'en',
         description: siteConfig.description,
         publisher: { '@id': ORG_ID },
         potentialAction: {
@@ -156,7 +155,7 @@ export function articleJsonLd(post: { slug: string; title: string; excerpt: stri
     description: post.excerpt,
     datePublished: post.published,
     dateModified: post.modified ?? post.published,
-    inLanguage: 'en-IN',
+    inLanguage: 'en',
     articleSection: post.category,
     keywords: post.keywords?.join(', '),
     // The per-post card's URL carries a build hash, so structured data uses the site card.

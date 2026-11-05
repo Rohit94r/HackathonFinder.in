@@ -55,14 +55,14 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
           <p className="mt-5 text-sm text-ink/60">
             {post.author} · <time dateTime={published}>{post.date}</time> · {post.readMinutes} min read
           </p>
-          <EventArt theme={post.theme} title={post.title} size="hero" className="mt-8 h-56 rounded-xl" />
+          <EventArt theme={post.theme} title={post.title} size="hero" className="mt-8 h-56 rounded-lg" />
         </div>
       </header>
 
       <div className="container-page max-w-3xl py-12">
         <div className="prose-hf" dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
 
-        <div className="on-dark mt-14 overflow-hidden rounded-xl bg-ink p-8 text-center sm:p-10">
+        <div className="on-dark mt-14 overflow-hidden rounded-lg bg-ink p-8 text-center sm:p-10">
           <h2 className="text-2xl font-bold text-white">Ready for your next hackathon?</h2>
           <p className="mx-auto mt-2 max-w-md text-surface/80">
             Search open hackathons by city, theme, deadline and team size.

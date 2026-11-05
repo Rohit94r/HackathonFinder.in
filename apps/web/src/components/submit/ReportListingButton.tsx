@@ -50,7 +50,7 @@ export default function ReportListingButton({ slug, className }: { slug: string;
 
   if (state === 'sent') {
     return (
-      <p role="status" className={cn('rounded-xl border border-ink/15 bg-card px-4 py-3 text-sm text-ink', className)}>
+      <p role="status" className={cn('rounded-lg border border-ink/15 bg-card px-4 py-3 text-sm text-ink', className)}>
         Thanks! Our team will take a look.
       </p>
     );

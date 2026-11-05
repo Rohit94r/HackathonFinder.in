@@ -14,10 +14,10 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   if (!theme) return { title: 'Theme not found' };
   const year = new Date().getFullYear();
   return pageMetadata({
-    title: `${theme.name} Hackathons in India ${year}`,
-    description: `${theme.name} hackathons for students in India: ${theme.description} Filter by city, online, deadline and prize.`,
+    title: `${theme.name} Hackathons ${year}`,
+    description: `${theme.name} hackathons for students: ${theme.description} Filter by city, online, deadline and prize.`,
     path: `/themes/${theme.slug}`,
-    keywords: [`${theme.name} hackathons`, `${theme.name} hackathons India`, `${theme.name} hackathons ${year}`, `online ${theme.name} hackathons`, `${theme.name} competitions for students`],
+    keywords: [`${theme.name} hackathons`, `${theme.name} hackathons near me`, `${theme.name} hackathons ${year}`, `online ${theme.name} hackathons`, `${theme.name} competitions for students`],
   });
 }
 

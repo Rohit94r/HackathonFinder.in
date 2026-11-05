@@ -9,10 +9,12 @@ interface SaveButtonProps {
   slug: string;
   title: string;
   variant?: 'icon' | 'full';
+  /** Icon button size: md is 40px on phones (an easy tap) and 36px from sm up; lg is 44px. */
+  size?: 'md' | 'lg';
   className?: string;
 }
 
-export default function SaveButton({ slug, title, variant = 'icon', className }: SaveButtonProps) {
+export default function SaveButton({ slug, title, variant = 'icon', size = 'md', className }: SaveButtonProps) {
   const { saved, toggle } = useSaved();
   const isSaved = Boolean(saved[slug]);
 
@@ -31,7 +33,7 @@ export default function SaveButton({ slug, title, variant = 'icon', className }:
         type="button"
         onClick={onClick}
         aria-pressed={isSaved}
-        className={cn('btn-secondary', isSaved && 'border-accent/40 bg-accent-soft text-brand-700 hover:bg-accent-soft dark:bg-accent/15 dark:text-brand-200', className)}
+        className={cn(isSaved ? 'btn-primary' : 'btn-secondary', className)}
       >
         <Bookmark className={cn('h-4 w-4', isSaved && 'fill-current')} />
         {isSaved ? 'Saved' : 'Save for later'}
@@ -47,8 +49,9 @@ export default function SaveButton({ slug, title, variant = 'icon', className }:
       aria-label={isSaved ? `Remove ${title} from Saved` : `Save ${title}`}
       title={isSaved ? 'Saved' : 'Save'}
       className={cn(
-        'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/5 bg-white/95 shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
-        isSaved ? 'text-accent' : 'text-navy/70 hover:text-navy',
+        'inline-flex items-center justify-center rounded-md border-2 border-navy shadow-hard-sm transition-[transform,box-shadow,background-color] hover:-translate-x-px hover:-translate-y-px hover:shadow-hard active:translate-x-[2px] active:translate-y-[2px] active:shadow-none focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-board',
+        size === 'lg' ? 'h-11 w-11' : 'h-10 w-10 sm:h-9 sm:w-9',
+        isSaved ? 'bg-board text-navy' : 'bg-pop text-navy/75 hover:text-navy',
         className
       )}
     >

@@ -25,7 +25,7 @@ export default async function SignupPage({ searchParams }: { searchParams: Recor
       description="Free for students. Takes a minute. Find hackathons near you, team up and keep a record of everything you ship."
       perks={[
         { icon: BellRing, text: 'Deadline reminders for the hackathons you save' },
-        { icon: Users, text: 'Team Finder: invite and join students across India' },
+        { icon: Users, text: 'Team Finder: invite and join students everywhere' },
         { icon: CalendarDays, text: 'A LeetCode-style profile with an activity heatmap' },
         { icon: BadgeCheck, text: 'Badges for your first save, your first submission, your first win' },
       ]}
