@@ -17,7 +17,8 @@ export const metadata: Metadata = {
 type Search = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v);
 
-export default async function ProfilePage({ searchParams }: { searchParams: Search }) {
+export default async function ProfilePage(props: { searchParams: Promise<Search> }) {
+  const searchParams = await props.searchParams;
   const user = await getSessionUser();
   if (!user) {
     return (

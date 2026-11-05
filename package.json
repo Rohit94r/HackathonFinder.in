@@ -23,6 +23,9 @@
     "agents:repair": "pnpm --filter @hackathonfinder/agents repair"
   },
   "pnpm": {
-    "onlyBuiltDependencies": ["mongodb-memory-server", "esbuild"]
+    "onlyBuiltDependencies": ["mongodb-memory-server", "esbuild"],
+    "overrides": {
+      "postcss@<8.5.23": "^8.5.32"
+    }
   }
 }

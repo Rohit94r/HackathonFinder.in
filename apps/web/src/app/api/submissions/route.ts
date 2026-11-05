@@ -42,7 +42,7 @@ const submit = route(
  * organizer form, or the browser extension. Returns { id, status } where status is
  * "pending" (in the review queue) or "duplicate" (with hackathonSlug when it's live).
  */
-export async function POST(req: NextRequest, context: { params: Record<string, string> }) {
+export async function POST(req: NextRequest, context: { params: Promise<Record<string, string>> }) {
   const res = await submit(req, context);
   for (const [key, value] of Object.entries(corsHeaders(req))) res.headers.set(key, value);
   return res;

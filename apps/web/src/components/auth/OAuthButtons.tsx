@@ -18,7 +18,7 @@ function GoogleMark() {
   );
 }
 
-const META: Record<string, { label: string; icon: () => JSX.Element }> = {
+const META: Record<string, { label: string; icon: () => React.JSX.Element }> = {
   google: { label: 'Google', icon: GoogleMark },
   github: { label: 'GitHub', icon: () => <Code2 className="h-4 w-4" aria-hidden="true" /> },
   // Commetn out like  git and google 

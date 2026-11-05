@@ -9,13 +9,15 @@ import { getWin, moreWins } from '@/server/wins';
 // The linked listing shows a live status, so render per request like the listing pages.
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const data = await getWin(params.slug, null);
   if (!data) return { title: 'Winning story' };
   return { title: `${data.win.projectName}: ${data.win.result} at ${data.win.hackathon}`, description: data.win.tagline };
 }
 
-export default async function WinStoryPage({ params }: { params: { slug: string } }) {
+export default async function WinStoryPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const viewerUser = await getSessionUser();
   const viewer = viewerUser ? { id: viewerUser.id, handle: viewerUser.handle, role: viewerUser.role } : null;
   const [data, { items }] = await Promise.all([getWin(params.slug, viewer), getHackathons()]);

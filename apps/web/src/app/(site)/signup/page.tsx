@@ -14,7 +14,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function SignupPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function SignupPage(
+  props: { searchParams: Promise<Record<string, string | string[] | undefined>> }
+) {
+  const searchParams = await props.searchParams;
   const next = safeNext(searchParams.next) ?? safeNext(searchParams.callbackUrl);
   if (await getSessionUser()) redirect(next ?? '/profile');
 

@@ -4,7 +4,8 @@ import { recordRegisterClick } from '@/server/analytics';
 import { getSessionUser } from '@/server/auth';
 
 /** "Register on official site": counts the click for the organizer, then sends the student there. */
-export async function GET(req: NextRequest, { params }: { params: { slug: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   let url: string | undefined;
   if (isDbConfigured()) {
     await connectDb();

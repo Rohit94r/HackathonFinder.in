@@ -12,7 +12,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function SettingsPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function SettingsPage(
+  props: { searchParams: Promise<Record<string, string | string[] | undefined>> }
+) {
+  const searchParams = await props.searchParams;
   const user = await getSessionUser();
   const connected = Array.isArray(searchParams.connected) ? searchParams.connected[0] : searchParams.connected;
   return (

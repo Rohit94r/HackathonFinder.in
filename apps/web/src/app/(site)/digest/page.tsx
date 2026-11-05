@@ -16,7 +16,8 @@ const STATES = {
   invalid: { icon: TriangleAlert, title: 'That link didn’t work', text: 'It may be old or already used. Sign up again below and we’ll send a fresh confirmation email.' },
 } as const;
 
-export default function DigestPage({ searchParams }: { searchParams: { status?: string } }) {
+export default async function DigestPage(props: { searchParams: Promise<{ status?: string }> }) {
+  const searchParams = await props.searchParams;
   const state = STATES[searchParams.status as keyof typeof STATES];
 
   return (

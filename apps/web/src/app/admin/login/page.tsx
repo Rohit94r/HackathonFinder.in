@@ -12,7 +12,8 @@ type Search = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? null;
 
 /** The admin sign-in. Admins who are already signed in go straight in. */
-export default async function AdminLoginPage({ searchParams }: { searchParams: Search }) {
+export default async function AdminLoginPage(props: { searchParams: Promise<Search> }) {
+  const searchParams = await props.searchParams;
   const next = safeAdminNext(searchParams.next) ?? '/admin';
   const user = await getSessionUser();
   if (user && (await currentAdmin())) redirect(next);

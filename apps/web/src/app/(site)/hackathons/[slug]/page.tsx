@@ -57,7 +57,8 @@ import { Barcode } from '@/components/junction/Signs';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const found = await getHackathon(params.slug);
   if (!found) return { title: 'Hackathon not found' };
   const h = found.item;
@@ -85,7 +86,8 @@ function googleCalendarUrl(h: HackathonView): string {
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
 }
 
-export default async function HackathonDetailPage({ params }: { params: { slug: string } }) {
+export default async function HackathonDetailPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const found = await getHackathon(params.slug);
   if (!found) notFound();
   const { item: h, items, nowIso } = found;

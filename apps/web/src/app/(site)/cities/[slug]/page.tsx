@@ -13,7 +13,8 @@ import { loadCitySnapshot } from '@/server/teams';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const city = CITIES.find((c) => c.slug === params.slug);
   if (!city) return { title: 'City not found' };
   const year = new Date().getFullYear();
@@ -25,13 +26,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   });
 }
 
-export default async function CityPage({
-  params,
-  searchParams,
-}: {
-  params: { slug: string };
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
+export default async function CityPage(
+  props: {
+    params: Promise<{ slug: string }>;
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const city = CITIES.find((c) => c.slug === params.slug);
   if (!city) notFound();
   const [{ items }, snapshot] = await Promise.all([getHackathons(), loadCitySnapshot(city.slug)]);

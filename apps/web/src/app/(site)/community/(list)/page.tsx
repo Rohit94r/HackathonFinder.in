@@ -77,7 +77,8 @@ type SearchParams = Record<string, string | string[] | undefined>;
 
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? '';
 
-export default async function CommunityPage({ searchParams }: { searchParams: SearchParams }) {
+export default async function CommunityPage(props: { searchParams: Promise<SearchParams> }) {
+  const searchParams = await props.searchParams;
   const [{ items }, user] = await Promise.all([getHackathons(), getSessionUser()]);
   const events = openOnly(items).map((h) => ({ slug: h.slug, title: h.title }));
   const titles = Object.fromEntries(items.map((h) => [h.slug, h.title]));

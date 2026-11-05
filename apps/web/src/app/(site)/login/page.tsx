@@ -17,7 +17,8 @@ export const metadata: Metadata = {
 type Search = Record<string, string | string[] | undefined>;
 const one = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? null;
 
-export default async function LoginPage({ searchParams }: { searchParams: Search }) {
+export default async function LoginPage(props: { searchParams: Promise<Search> }) {
+  const searchParams = await props.searchParams;
   // next-auth's own redirects use ?callbackUrl=; our links use ?next=.
   const next = safeNext(searchParams.next) ?? safeNext(searchParams.callbackUrl);
   if (await getSessionUser()) redirect(next ?? '/profile');

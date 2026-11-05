@@ -105,7 +105,7 @@ export async function currentAdmin(): Promise<SessionUser | null> {
  * Every page calls it, because layouts don't re-run when moving between admin pages.
  */
 export async function requireAdminPage(next?: string): Promise<SessionUser> {
-  const path = safeAdminNext(next ?? headers().get('x-hf-admin-path')) ?? '/admin';
+  const path = safeAdminNext(next ?? (await headers()).get('x-hf-admin-path')) ?? '/admin';
   const user = await getSessionUser();
   if (!user) redirect(`/admin/login?next=${encodeURIComponent(path)}`);
   if (user.role !== 'admin' || !(await stillAdmin(user))) redirect('/admin/login?denied=1');

@@ -70,7 +70,8 @@ export function toJson<T>(value: T): T {
  */
 export function route<P = Record<string, string>>(handler: Handler<P>, options: Options = {}) {
   const auth = options.auth ?? 'optional';
-  return async (req: NextRequest, context: { params: P }) => {
+  // Next 15 passes route params as a Promise; handlers get them resolved.
+  return async (req: NextRequest, context: { params: Promise<P> }) => {
     try {
       if (!isDbConfigured()) throw new DbNotConfiguredError();
       await connectDb();
@@ -87,7 +88,8 @@ export function route<P = Record<string, string>>(handler: Handler<P>, options: 
           throw new ApiError(429, 'rate_limited', 'You’re doing that too often. Try again in a minute.');
         }
       }
-      const result = await handler({ req, params: context?.params ?? ({} as P), user, ip });
+      const params = (context?.params ? await context.params : undefined) ?? ({} as P);
+      const result = await handler({ req, params, user, ip });
       if (result instanceof Response) return result;
       return NextResponse.json(toJson(result ?? { ok: true }));
     } catch (err) {

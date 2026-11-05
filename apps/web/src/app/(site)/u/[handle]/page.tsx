@@ -25,7 +25,8 @@ export const dynamic = 'force-dynamic';
 // generateMetadata and the page share one database read per request.
 const load = cache((handle: string) => getPublicProfile(handle));
 
-export async function generateMetadata({ params }: { params: { handle: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ handle: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const profile = await load(params.handle);
   if (!profile) return { title: 'Profile not found', robots: { index: false } };
   const { user, stats } = profile;
@@ -43,7 +44,8 @@ export async function generateMetadata({ params }: { params: { handle: string } 
   };
 }
 
-export default async function PersonPage({ params }: { params: { handle: string } }) {
+export default async function PersonPage(props: { params: Promise<{ handle: string }> }) {
+  const params = await props.params;
   const [profile, viewer] = await Promise.all([load(params.handle), getSessionUser()]);
   if (!profile) notFound();
 

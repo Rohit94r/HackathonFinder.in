@@ -19,7 +19,8 @@ const POINTS = [
   'Students register on the official page',
 ];
 
-export default function SubmitPage({ searchParams }: { searchParams: { as?: string } }) {
+export default async function SubmitPage(props: { searchParams: Promise<{ as?: string }> }) {
+  const searchParams = await props.searchParams;
   return (
     <>
       <PageHero title="Add a hackathon"

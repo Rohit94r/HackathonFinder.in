@@ -8,7 +8,10 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function ForgotPasswordPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function ForgotPasswordPage(
+  props: { searchParams: Promise<Record<string, string | string[] | undefined>> }
+) {
+  const searchParams = await props.searchParams;
   const email = Array.isArray(searchParams.email) ? searchParams.email[0] : searchParams.email;
   return (
     <AuthShell

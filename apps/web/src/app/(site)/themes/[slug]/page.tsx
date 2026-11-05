@@ -9,7 +9,8 @@ import { getHackathons } from '@/server/hackathons';
 
 export const dynamic = 'force-dynamic';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const theme = THEMES.find((t) => t.slug === params.slug);
   if (!theme) return { title: 'Theme not found' };
   const year = new Date().getFullYear();
@@ -21,13 +22,14 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   });
 }
 
-export default async function ThemePage({
-  params,
-  searchParams,
-}: {
-  params: { slug: string };
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
+export default async function ThemePage(
+  props: {
+    params: Promise<{ slug: string }>;
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  }
+) {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const theme = THEMES.find((t) => t.slug === params.slug);
   if (!theme) notFound();
   const { items } = await getHackathons();

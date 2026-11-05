@@ -117,7 +117,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex min-h-screen flex-col">
         <ScrollEffects />
         <Tracker />
-        <SpeedInsights />
+        {/* The Speed Insights script only exists on Vercel; elsewhere it would 404. */}
+        {process.env.VERCEL && <SpeedInsights />}
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:border focus:border-line focus:bg-card focus:px-4 focus:py-2 focus:shadow-lift"

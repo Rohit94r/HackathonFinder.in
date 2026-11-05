@@ -17,7 +17,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default async function ConversationPageRoute({ params }: { params: { id: string } }) {
+export default async function ConversationPageRoute(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   if (!/^[a-f0-9]{24}$/i.test(params.id)) notFound();
   const user = await getSessionUser();
   if (!user) {

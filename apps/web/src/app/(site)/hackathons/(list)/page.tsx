@@ -15,11 +15,12 @@ export const metadata: Metadata = pageMetadata({
   keywords: ['upcoming hackathons', 'hackathons near me', 'hackathons 2026', 'online hackathons', 'offline hackathons', 'hackathons for students', 'coding competitions'],
 });
 
-export default async function HackathonsPage({
-  searchParams,
-}: {
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
+export default async function HackathonsPage(
+  props: {
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const { items } = await getHackathons();
   const initial = parseFilters(searchParams);
 

@@ -15,7 +15,10 @@ export const metadata: Metadata = pageMetadata({
   keywords: ['hackathon winning projects', 'hackathon winners', 'how to win a hackathon', 'hackathon project ideas'],
 });
 
-export default async function WinsPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function WinsPage(
+  props: { searchParams: Promise<Record<string, string | string[] | undefined>> }
+) {
+  const searchParams = await props.searchParams;
   const one = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value) ?? '';
   const result = one(searchParams.result);
   const city = one(searchParams.city);

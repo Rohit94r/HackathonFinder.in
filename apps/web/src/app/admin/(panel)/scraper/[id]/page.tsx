@@ -7,7 +7,8 @@ import { requireAdminPage } from '@/server/admin';
 
 export const metadata: Metadata = { title: 'Scrape run' };
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   await requireAdminPage();
   if (!/^[a-f0-9]{24}$/i.test(params.id)) notFound();
   return (

@@ -14,11 +14,12 @@ export const metadata: Metadata = pageMetadata({
 });
 
 /** Straight to the listings: nearest in-person events first, then online ones. */
-export default async function NearMePage({
-  searchParams,
-}: {
-  searchParams: Record<string, string | string[] | undefined>;
-}) {
+export default async function NearMePage(
+  props: {
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+  }
+) {
+  const searchParams = await props.searchParams;
   const { items } = await getHackathons();
 
   return (

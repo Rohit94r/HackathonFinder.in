@@ -18,7 +18,8 @@ export const dynamic = 'force-dynamic';
 
 const smallHeading = 'font-sans text-base font-bold normal-case leading-tight tracking-normal';
 
-export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const params = await props.params;
   const data = await getThread(params.slug, null);
   if (!data) return { title: 'Discussion not found', robots: { index: false } };
   const t = data.thread;
@@ -29,7 +30,8 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   };
 }
 
-export default async function ThreadPage({ params }: { params: { slug: string } }) {
+export default async function ThreadPage(props: { params: Promise<{ slug: string }> }) {
+  const params = await props.params;
   const user = await getSessionUser();
   const data = await getThread(params.slug, user);
   if (!data) notFound();

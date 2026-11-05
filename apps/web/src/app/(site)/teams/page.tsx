@@ -21,7 +21,10 @@ function one(value: string | string[] | undefined): string {
   return (Array.isArray(value) ? value[0] : value) ?? '';
 }
 
-export default async function TeamsPage({ searchParams }: { searchParams: Record<string, string | string[] | undefined> }) {
+export default async function TeamsPage(
+  props: { searchParams: Promise<Record<string, string | string[] | undefined>> }
+) {
+  const searchParams = await props.searchParams;
   const [{ items }, user] = await Promise.all([getHackathons(), getSessionUser().catch(() => null)]);
   // Solo-only events don't need teammates.
   const events: TeamEvent[] = openOnly(items)

@@ -19,12 +19,9 @@ const nextConfig = {
   reactStrictMode: true,
   // Workspace packages ship TypeScript source, so Next compiles them.
   transpilePackages: ['@hackathonfinder/shared', '@hackathonfinder/db', '@hackathonfinder/ai', '@hackathonfinder/agents'],
-  experimental: {
-    // Server-only packages with native or dynamic requires; keep them out of the bundle.
-    serverComponentsExternalPackages: ['mongoose', 'mongodb', 'bcryptjs', '@anthropic-ai/sdk'],
-    // src/instrumentation.ts starts the 02:00 / 14:00 scrape scheduler on long-running servers.
-    instrumentationHook: true,
-  },
+  // Server-only packages with native or dynamic requires; keep them out of the bundle.
+  serverExternalPackages: ['mongoose', 'mongodb', 'bcryptjs', '@anthropic-ai/sdk'],
+  // src/instrumentation.ts (built in since Next 15) starts the 02:00 / 14:00 scrape scheduler on long-running servers.
   poweredByHeader: false,
   // next/image serves WebP. AVIF stays off: Next 14's image optimiser has a critical advisory for
   // AVIF processing (GHSA-2xp9-vwfh-vxw4), only fixed in Next 15.
