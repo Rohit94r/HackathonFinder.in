@@ -199,7 +199,8 @@ export default function DeparturesBoard({ departures, nowIso }: { departures: De
   const first = (page % pages) * ROWS;
   const rows = upcoming.slice(first, first + ROWS);
   const clock = stationClock(now, zone);
-  const announcements = upcoming.slice(0, 8).map((d) => `${d.title} (${d.gate}) closes ${spoken(Date.parse(d.deadline) - now)}`);
+  // Keyed by slug: two events can share a title, place and deadline, so the text alone isn't unique.
+  const announcements = upcoming.slice(0, 8).map((d) => ({ slug: d.slug, text: `${d.title} (${d.gate}) closes ${spoken(Date.parse(d.deadline) - now)}` }));
   const col = (n: number) => ({ width: `calc(${n} * var(--flap-w) - 2px)` });
 
   return (
@@ -275,9 +276,9 @@ export default function DeparturesBoard({ departures, nowIso }: { departures: De
               <span key={copy} className="pr-10">
                 <span className="text-[#fde68a]">Attention please, hackers</span>
                 {announcements.map((a) => (
-                  <span key={a}>
+                  <span key={a.slug}>
                     <span className="px-3 text-white/25">◆</span>
-                    {a}
+                    {a.text}
                   </span>
                 ))}
               </span>

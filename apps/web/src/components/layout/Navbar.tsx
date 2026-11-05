@@ -134,70 +134,78 @@ export default function Navbar() {
   });
 
   return (
-    // The station canopy: always dark, with the yellow platform edge along the bottom.
-    <header data-theme="dark" className="sticky top-0 z-50 bg-surface/95 pt-[env(safe-area-inset-top)] text-ink backdrop-blur supports-[backdrop-filter]:bg-surface/85">
-      <nav ref={navRef} className="container-page flex h-16 items-center gap-5" aria-label="Main">
-        <Logo />
+    <>
+      {/* The station canopy: always dark, with the yellow platform edge along the bottom. */}
+      <header data-theme="dark" className="sticky top-0 z-50 bg-surface/95 pt-[env(safe-area-inset-top)] text-ink backdrop-blur supports-[backdrop-filter]:bg-surface/85">
+        <nav ref={navRef} className="container-page flex h-16 items-center gap-5" aria-label="Main">
+          <Logo />
 
-        <ul className="hidden items-center gap-0.5 lg:flex">
-          <GroupItem {...groupProps(NAV_HACKATHONS)} />
-          <li>
-            <Link href="/near-me" className={navLink(isActive(pathname, '/near-me'))}>
-              Near me
+          <ul className="hidden items-center gap-0.5 lg:flex">
+            <GroupItem {...groupProps(NAV_HACKATHONS)} />
+            <li>
+              <Link href="/near-me" className={navLink(isActive(pathname, '/near-me'))}>
+                Near me
+              </Link>
+            </li>
+            <li>
+              <Link href="/teams" className={navLink(isActive(pathname, '/teams'))}>
+                Team Finder
+              </Link>
+            </li>
+            <GroupItem {...groupProps(NAV_COMMUNITY)} />
+          </ul>
+
+          <div className="ml-auto flex items-center gap-1.5">
+            <StationClock />
+            {/* Phones reach Saved from the bottom tab bar. */}
+            <Link
+              href="/saved"
+              className={cn(navLink(isActive(pathname, '/saved')), 'relative hidden px-3 lg:inline-flex')}
+              aria-label={`Saved hackathons${ready && count ? `, ${count} saved` : ''}`}
+            >
+              <Bookmark className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden xl:inline">Saved</span>
+              {ready && count > 0 && (
+                <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-[4px] bg-board px-1.5 font-mono text-[11px] font-bold text-navy">
+                  {count}
+                </span>
+              )}
             </Link>
-          </li>
-          <li>
-            <Link href="/teams" className={navLink(isActive(pathname, '/teams'))}>
-              Team Finder
+            <Link href="/profile" className={cn(navLink(isActive(pathname, '/profile')), 'hidden xl:inline-flex')}>
+              <CalendarCheck className="h-4 w-4" aria-hidden="true" />
+              My events
             </Link>
-          </li>
-          <GroupItem {...groupProps(NAV_COMMUNITY)} />
-        </ul>
+            <Link href="/submit" className="btn-primary ml-1 hidden h-9 min-h-0 whitespace-nowrap px-3.5 py-0 text-[14px] md:inline-flex">
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Submit hackathon
+            </Link>
+            {/* Bell and avatar menu when signed in, "Sign in" when not. */}
+            <NavAccount iconClassName={iconBtn} />
+            <button
+              type="button"
+              className={cn(iconBtn, 'lg:hidden')}
+              onClick={() => setMobileOpen((v) => !v)}
+              aria-expanded={mobileOpen}
+              aria-controls="mobile-menu"
+              aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            >
+              {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </button>
+          </div>
+        </nav>
+        <div className="platform-edge h-[5px]" aria-hidden="true" />
+      </header>
 
-        <div className="ml-auto flex items-center gap-1.5">
-          <StationClock />
-          {/* Phones reach Saved from the bottom tab bar. */}
-          <Link
-            href="/saved"
-            className={cn(navLink(isActive(pathname, '/saved')), 'relative hidden px-3 lg:inline-flex')}
-            aria-label={`Saved hackathons${ready && count ? `, ${count} saved` : ''}`}
-          >
-            <Bookmark className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden xl:inline">Saved</span>
-            {ready && count > 0 && (
-              <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-[4px] bg-board px-1.5 font-mono text-[11px] font-bold text-navy">
-                {count}
-              </span>
-            )}
-          </Link>
-          <Link href="/profile" className={cn(navLink(isActive(pathname, '/profile')), 'hidden xl:inline-flex')}>
-            <CalendarCheck className="h-4 w-4" aria-hidden="true" />
-            My events
-          </Link>
-          <Link href="/submit" className="btn-primary ml-1 hidden h-9 min-h-0 whitespace-nowrap px-3.5 py-0 text-[14px] md:inline-flex">
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            Submit hackathon
-          </Link>
-          {/* Bell and avatar menu when signed in, "Sign in" when not. */}
-          <NavAccount iconClassName={iconBtn} />
-          <button
-            type="button"
-            className={cn(iconBtn, 'lg:hidden')}
-            onClick={() => setMobileOpen((v) => !v)}
-            aria-expanded={mobileOpen}
-            aria-controls="mobile-menu"
-            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
-          >
-            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
-      </nav>
-      <div className="platform-edge h-[5px]" aria-hidden="true" />
-
+      {/*
+        Outside the header on purpose: the header's backdrop blur makes it the containing block for
+        fixed children, which squashed this menu to the header's height (2px tall on phones). Under
+        the header (z-50), over the bottom tab bar (z-40).
+      */}
       {mobileOpen && (
         <div
           id="mobile-menu"
-          className="hf-fade-in fixed inset-x-0 bottom-0 top-[calc(69px+env(safe-area-inset-top))] overflow-y-auto overscroll-contain bg-surface lg:hidden"
+          data-theme="dark"
+          className="hf-fade-in fixed inset-x-0 bottom-0 top-[calc(69px+env(safe-area-inset-top))] z-[45] overflow-y-auto overscroll-contain bg-surface pb-[env(safe-area-inset-bottom)] text-ink lg:hidden"
         >
           <div className="container-page grid gap-6 py-5 sm:grid-cols-2">
             <MobileLinks title="Explore" items={NAV_HACKATHONS.items} pathname={pathname} />
@@ -222,7 +230,7 @@ export default function Navbar() {
           </div>
         </div>
       )}
-    </header>
+    </>
   );
 }
 

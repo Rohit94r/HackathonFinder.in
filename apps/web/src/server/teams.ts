@@ -40,6 +40,7 @@ import { ApiError, badRequest, conflict, forbidden, notFound } from './api';
 import type { SessionUser } from './auth';
 import { conversationsWith, openConversation } from './chat';
 import { assertCanPost } from './community';
+import { getHackathons } from './hackathons';
 import { assertRespectful } from './moderation';
 
 type Id = Types.ObjectId | string;
@@ -185,10 +186,10 @@ function isOpenListing(l: Pick<IHackathon, 'registrationDeadline' | 'startDate'>
 
 /** Live listings still taking registrations: team posts for anything else are hidden. */
 async function openListingSlugs(now: Date): Promise<string[]> {
-  const docs = await Hackathon.find({ state: 'live', registrationDeadline: { $gte: now }, startDate: { $gt: now } })
-    .select('slug')
-    .lean();
-  return docs.map((d) => d.slug);
+  // From the cached listings (server/hackathons.ts), not another collection read per request.
+  const { items } = await getHackathons(now);
+  const t = now.getTime();
+  return items.filter((h) => Date.parse(h.registrationDeadline) >= t && Date.parse(h.startDate) > t).map((h) => h.slug);
 }
 
 /** Banned and deleted students: their posts and profiles don't show. */
@@ -312,17 +313,29 @@ async function teamSearch(q: string): Promise<Record<string, unknown>[]> {
 }
 
 /** Open posts, for open listings or any hackathon, by students who are still around. */
-async function baseTeamMatch(now: Date, exclude: Types.ObjectId[] = []) {
+/** What every open-team filter needs: the open listings and the hidden (banned or deleted) authors. */
+async function baseTeamParts(now: Date) {
   const [slugs, hidden] = await Promise.all([openListingSlugs(now), hiddenUserIds()]);
+  return { slugs, hidden };
+}
+
+/** A fresh filter object from those parts, so callers can add to it without affecting each other. */
+function teamMatchFrom({ slugs, hidden }: { slugs: string[]; hidden: Types.ObjectId[] }, exclude: Types.ObjectId[] = []) {
   const match: Record<string, unknown> = { deletedAt: null, open: true, hackathonSlug: { $in: [...slugs, '', null] } };
   const out = [...hidden, ...exclude];
   if (out.length) match.authorId = { $nin: out };
   return match;
 }
 
+async function baseTeamMatch(now: Date, exclude: Types.ObjectId[] = []) {
+  return teamMatchFrom(await baseTeamParts(now), exclude);
+}
+
 export async function listTeamPosts(q: TeamPostQueryInput, viewerId?: string | null): Promise<TeamPostsPage> {
   const now = new Date();
   let match: Record<string, unknown>;
+  // The city counts use the plain base filter; built from the same parts as the list's, without a second lookup.
+  let countsMatch: Record<string, unknown> | undefined;
   if (q.author) {
     // One student's posts, open or closed, for their own list and profile pages.
     const authorId =
@@ -330,7 +343,9 @@ export async function listTeamPosts(q: TeamPostQueryInput, viewerId?: string | n
     if (!authorId) return pageOf([], 0, q);
     match = { deletedAt: null, authorId };
   } else {
-    match = await baseTeamMatch(now, q.notMine && viewerId ? [oid(viewerId)] : []);
+    const parts = await baseTeamParts(now);
+    match = teamMatchFrom(parts, q.notMine && viewerId ? [oid(viewerId)] : []);
+    countsMatch = teamMatchFrom(parts);
   }
 
   const and: Record<string, unknown>[] = [];
@@ -364,15 +379,15 @@ export async function listTeamPosts(q: TeamPostQueryInput, viewerId?: string | n
 
   const [{ docs, total }, counts] = await Promise.all([
     runPaged<ITeamPost>(TeamPost, match, extra, sort, q),
-    q.counts ? teamPostCounts(now) : Promise.resolve(undefined),
+    q.counts ? teamPostCounts(now, countsMatch) : Promise.resolve(undefined),
   ]);
   const items = await decoratePosts(docs, q.near);
   return { ...pageOf(items, total, q), ...(counts ? { counts } : {}) };
 }
 
 /** Open team posts per city slug, plus 'online'. */
-export async function teamPostCounts(now = new Date()): Promise<Record<string, number>> {
-  const match = await baseTeamMatch(now);
+export async function teamPostCounts(now = new Date(), baseMatch?: Record<string, unknown>): Promise<Record<string, number>> {
+  const match = baseMatch ?? (await baseTeamMatch(now));
   const rows = await TeamPost.aggregate<{ _id: string; n: number }>([{ $match: match }, { $group: { _id: '$city', n: { $sum: 1 } } }]);
   return Object.fromEntries(rows.map((r) => [r._id, r.n]));
 }
