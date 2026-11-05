@@ -102,7 +102,7 @@ export default function InviteButton({
         className="input min-h-[96px] text-sm"
         aria-describedby={`invite-${handle}-count`}
       />
-      <p id={`invite-${handle}-count`} className="-mt-2 text-right text-xs text-ink/50">
+      <p id={`invite-${handle}-count`} className="-mt-2 text-right text-xs text-ink/60">
         {message.length}/{MAX}
       </p>
       {error && (

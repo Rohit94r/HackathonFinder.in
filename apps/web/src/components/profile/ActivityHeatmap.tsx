@@ -87,7 +87,7 @@ export default function ActivityHeatmap({ counts, todayKey, unit = 'action' }: {
 
       <div ref={scroller} className="mt-4 overflow-x-auto pb-2">
         <div className="flex w-max gap-[3px]" aria-hidden="true">
-          <div className="mr-1 flex flex-col gap-[3px] pt-[17px] text-[10px] text-ink/50">
+          <div className="mr-1 flex flex-col gap-[3px] pt-[17px] text-[10px] text-ink/60">
             {DAY_LABELS.map((d, i) => (
               <span key={i} className="h-[11px] leading-[11px]">
                 {d}
@@ -96,7 +96,7 @@ export default function ActivityHeatmap({ counts, todayKey, unit = 'action' }: {
           </div>
           {weeks.map((week, w) => (
             <div key={w} className="flex flex-col gap-[3px]">
-              <span className="relative h-[14px] text-[10px] leading-[14px] text-ink/50">
+              <span className="relative h-[14px] text-[10px] leading-[14px] text-ink/60">
                 {monthAt[w] && <span className="absolute left-0 top-0 whitespace-nowrap">{monthAt[w]}</span>}
               </span>
               {week.map((key, d) =>

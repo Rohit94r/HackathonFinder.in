@@ -35,7 +35,7 @@ export default function ConversationList({
               <span className="min-w-0 flex-1">
                 <span className="flex items-baseline justify-between gap-2">
                   <span className={cn('truncate text-sm text-ink', c.unread ? 'font-bold' : 'font-semibold')}>{c.other.name}</span>
-                  <span className={cn('shrink-0 text-[11px]', c.unread ? 'font-semibold text-accent' : 'text-ink/50')}>
+                  <span className={cn('shrink-0 text-[11px]', c.unread ? 'font-semibold text-accent' : 'text-ink/60')}>
                     {inboxTime(c.lastMessageAt, now)}
                   </span>
                 </span>

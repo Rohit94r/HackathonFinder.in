@@ -23,7 +23,7 @@ export default function FAQ({ items }: { items: FaqItem[] }) {
                 className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left text-base font-semibold text-ink hover:bg-surface"
               >
                 {item.q}
-                <ChevronDown className={cn('h-5 w-5 shrink-0 text-ink/45 transition', isOpen && 'rotate-180 text-ink')} />
+                <ChevronDown className={cn('h-5 w-5 shrink-0 text-ink/60 transition', isOpen && 'rotate-180 text-ink')} />
               </button>
             </h3>
             <div id={`faq-${i}`} hidden={!isOpen} className="px-5 pb-5 text-sm leading-6 text-ink/70">

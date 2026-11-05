@@ -152,7 +152,7 @@ export default function NotificationsList() {
                       {!n.read && <span className="sr-only"> (unread)</span>}
                     </p>
                     {n.body && <p className="mt-1 text-sm text-ink/70">{n.body}</p>}
-                    <p className="mt-1.5 text-xs text-ink/50">{whenLabel(n.createdAt)}</p>
+                    <p className="mt-1.5 text-xs text-ink/60">{whenLabel(n.createdAt)}</p>
                   </div>
                   {!n.read && (
                     <button

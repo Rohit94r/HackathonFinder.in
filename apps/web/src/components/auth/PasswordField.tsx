@@ -58,7 +58,7 @@ export default function PasswordField({
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          className="absolute right-1.5 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-ink/55 hover:bg-ink/5 hover:text-ink"
+          className="absolute right-1.5 top-1/2 inline-flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-lg text-ink/60 hover:bg-ink/5 hover:text-ink"
           aria-label={visible ? 'Hide password' : 'Show password'}
           aria-pressed={visible}
         >
@@ -82,14 +82,14 @@ export default function PasswordField({
           </div>
           <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
             {strength.rules.map((r) => (
-              <li key={r.text} className={cn('flex items-center gap-1', r.ok ? 'text-ink' : 'text-ink/50')}>
+              <li key={r.text} className={cn('flex items-center gap-1', r.ok ? 'text-ink' : 'text-ink/60')}>
                 {r.ok ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <X className="h-3.5 w-3.5" aria-hidden="true" />}
                 {r.text}
                 <span className="sr-only">{r.ok ? '(done)' : '(not yet)'}</span>
               </li>
             ))}
             {strength.score > 0 && strength.score < 3 && (
-              <li className="text-ink/55">Longer, with a symbol or capital, is stronger.</li>
+              <li className="text-ink/60">Longer, with a symbol or capital, is stronger.</li>
             )}
           </ul>
         </div>

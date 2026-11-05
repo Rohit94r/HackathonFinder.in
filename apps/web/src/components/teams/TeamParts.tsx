@@ -38,9 +38,9 @@ export function skillChip(hit = false): string {
 export function SkillChips({ label, skills, highlight = [] }: { label?: string; skills: string[]; highlight?: string[] }) {
   return (
     <div className="flex items-start gap-2 text-xs">
-      {label && <span className="w-12 shrink-0 pt-0.5 font-semibold text-ink/55">{label}</span>}
+      {label && <span className="w-12 shrink-0 pt-0.5 font-semibold text-ink/60">{label}</span>}
       <div className="flex min-w-0 flex-wrap gap-1.5">
-        {skills.length === 0 && <span className="pt-0.5 text-ink/45">None listed</span>}
+        {skills.length === 0 && <span className="pt-0.5 text-ink/60">None listed</span>}
         {skills.map((s) => {
           const hit = highlight.includes(s);
           return (
@@ -65,7 +65,7 @@ export function TeamSize({ members, teamMax }: { members: number; teamMax: numbe
         <span className="font-semibold text-ink">
           {members} of {teamMax} members
         </span>
-        <span className={open ? 'font-semibold text-brand-700 dark:text-brand-300' : 'text-ink/55'}>
+        <span className={open ? 'font-semibold text-brand-700 dark:text-brand-300' : 'text-ink/60'}>
           {open === 0 ? 'Team full' : `${open} ${open === 1 ? 'spot' : 'spots'} open`}
         </span>
       </div>
@@ -106,8 +106,8 @@ export function SampleBadge() {
 const STATUS: Record<TeamStatus, { label: string; className: string; icon: typeof Clock }> = {
   pending: { label: 'Waiting', className: 'bg-ink/[0.07] text-ink/80', icon: Clock },
   accepted: { label: 'Accepted', className: 'bg-accent/10 text-brand-700 dark:text-brand-300', icon: CheckCircle2 },
-  declined: { label: 'Declined', className: 'bg-ink/5 text-ink/55', icon: XCircle },
-  withdrawn: { label: 'Withdrawn', className: 'bg-ink/5 text-ink/55', icon: XCircle },
+  declined: { label: 'Declined', className: 'bg-ink/5 text-ink/60', icon: XCircle },
+  withdrawn: { label: 'Withdrawn', className: 'bg-ink/5 text-ink/60', icon: XCircle },
 };
 
 export function StatusChip({ status }: { status: TeamStatus }) {

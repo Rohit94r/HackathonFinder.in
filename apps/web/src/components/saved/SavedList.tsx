@@ -80,7 +80,7 @@ export default function SavedList({ items }: { items: HackathonView[] }) {
             <section key={col} aria-label={TRACK_LABELS[col]} className="rounded-lg bg-card/60 p-3 ring-1 ring-ink/15">
               <h2 className="mb-3 flex items-center justify-between px-1 font-sans text-sm font-semibold">
                 <span className={cn('rounded-md px-2.5 py-1', COLUMN_STYLES[col])}>{TRACK_LABELS[col]}</span>
-                <span className="text-ink/45">{inCol.length}</span>
+                <span className="text-ink/60">{inCol.length}</span>
               </h2>
               <ul className="space-y-3">
                 {inCol.map((h) => (
@@ -120,7 +120,7 @@ export default function SavedList({ items }: { items: HackathonView[] }) {
                         <button
                           type="button"
                           onClick={() => remove(h.slug)}
-                          className="rounded-lg p-2 text-ink/45 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-400/10 dark:hover:text-rose-400"
+                          className="rounded-lg p-2 text-ink/60 hover:bg-rose-50 hover:text-rose-600 dark:hover:bg-rose-400/10 dark:hover:text-rose-400"
                           aria-label={`Remove ${h.title}`}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -129,7 +129,7 @@ export default function SavedList({ items }: { items: HackathonView[] }) {
                     </div>
                   </li>
                 ))}
-                {inCol.length === 0 && <li className="px-1 py-4 text-center text-xs text-ink/45">Nothing here yet</li>}
+                {inCol.length === 0 && <li className="px-1 py-4 text-center text-xs text-ink/60">Nothing here yet</li>}
               </ul>
             </section>
           );

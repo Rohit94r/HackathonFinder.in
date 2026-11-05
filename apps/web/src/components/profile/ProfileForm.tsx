@@ -159,7 +159,7 @@ export default function ProfileForm({
             Username
           </label>
           <div className="relative">
-            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-ink/45" aria-hidden="true">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-sm text-ink/60" aria-hidden="true">
               @
             </span>
             <input
@@ -260,7 +260,7 @@ export default function ProfileForm({
           aria-describedby="pf-bio-count"
           className="input min-h-[90px]"
         />
-        <p id="pf-bio-count" className="mt-1 text-right text-xs text-ink/50">
+        <p id="pf-bio-count" className="mt-1 text-right text-xs text-ink/60">
           {form.bio.length}/{MAX_BIO}
         </p>
       </div>

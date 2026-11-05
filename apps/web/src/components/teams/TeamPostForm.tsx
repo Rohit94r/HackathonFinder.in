@@ -308,7 +308,7 @@ export default function TeamPostForm({ events, profile, defaultHackathon, onCanc
         />
         <div className="mt-1 flex justify-between gap-3">
           {errorText('idea') || <span />}
-          <span className="text-xs text-ink/50">
+          <span className="text-xs text-ink/60">
             {idea.length}/{IDEA_MAX}
           </span>
         </div>

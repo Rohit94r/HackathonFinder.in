@@ -290,7 +290,7 @@ export default function CityDirectory({ items }: CityDirectoryProps) {
 
         <div className="mb-4 flex flex-col gap-3 md:flex-row">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/45" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/60" />
             <label htmlFor="city-search" className="sr-only">
               Search cities
             </label>
@@ -373,7 +373,7 @@ export default function CityDirectory({ items }: CityDirectoryProps) {
               <div key={g.state}>
                 <h3 className="mb-4 flex items-baseline gap-2 text-lg font-bold">
                   {g.state}
-                  <span className="text-sm font-medium text-ink/50">
+                  <span className="text-sm font-medium text-ink/60">
                     {g.rows.reduce((sum, r) => sum + r.events.length, 0)} open
                   </span>
                 </h3>

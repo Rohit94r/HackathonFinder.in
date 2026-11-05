@@ -120,7 +120,7 @@ export function NotificationBell({ className = DEFAULT_ICON_BTN }: { className?:
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-semibold leading-snug">{n.title}</span>
                       {n.body && <span className="mt-0.5 line-clamp-2 block text-xs text-ink/70">{n.body}</span>}
-                      <span className="mt-1 block text-[11px] text-ink/50">{whenLabel(n.createdAt)}</span>
+                      <span className="mt-1 block text-[11px] text-ink/60">{whenLabel(n.createdAt)}</span>
                     </span>
                     {fresh.has(n.id) && (
                       <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-accent" aria-label="New" role="img" />

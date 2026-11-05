@@ -287,7 +287,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
           </div>
         ) : (
           <div className="mx-auto mb-5 max-w-md rounded-lg border border-ink/10 px-4 py-3 text-center text-xs leading-5 text-ink/60">
-            <ShieldCheck className="mx-auto mb-1 h-4 w-4 text-ink/50" aria-hidden="true" />
+            <ShieldCheck className="mx-auto mb-1 h-4 w-4 text-ink/60" aria-hidden="true" />
             You connected when {conv.origin === 'invite' ? 'an invite' : 'a join request'} was accepted. Only the two of you can see
             this chat. Keep it respectful, and never share passwords or OTPs.
           </div>
@@ -336,7 +336,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
                   </button>
                 </p>
               ) : (
-                <p className="mt-0.5 text-[11px] text-ink/45">Sending…</p>
+                <p className="mt-0.5 text-[11px] text-ink/60">Sending…</p>
               )}
             </li>
           ))}
@@ -394,7 +394,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
           </form>
         )}
         {canSend && (
-          <p id="chat-hint" className="mt-1.5 flex justify-between gap-3 text-[11px] text-ink/45">
+          <p id="chat-hint" className="mt-1.5 flex justify-between gap-3 text-[11px] text-ink/60">
             <span className="hidden sm:inline">Enter to send, Shift + Enter for a new line</span>
             {draft.length > MESSAGE_MAX - 200 && (
               <span>
@@ -419,7 +419,7 @@ function Bubble({ message: m, grouped, status }: { message: ChatMessage; grouped
       >
         {m.body}
       </p>
-      <p className="mt-0.5 flex items-center gap-1 px-1 text-[11px] text-ink/45">
+      <p className="mt-0.5 flex items-center gap-1 px-1 text-[11px] text-ink/60">
         <time dateTime={m.createdAt}>{messageTime(m.createdAt)}</time>
         {status === 'seen' && (
           <span className="inline-flex items-center gap-0.5 font-semibold text-ink/60">

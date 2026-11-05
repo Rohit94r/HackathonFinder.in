@@ -262,7 +262,7 @@ export default async function CommunityPage({ searchParams }: { searchParams: Se
               <p className="mt-1 text-sm text-ink/70">
                 Ambassadors share new events in their college groups, run a prep session each semester and tell us what students need.
               </p>
-              <p className="mt-3 text-[11px] text-ink/45">
+              <p className="mt-3 text-[11px] text-ink/60">
                 Photo:{' '}
                 <a href={AMBASSADOR_PHOTO.page} target="_blank" rel="noopener noreferrer" className="hover:underline">
                   {AMBASSADOR_PHOTO.by} on Unsplash

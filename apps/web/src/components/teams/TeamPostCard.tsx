@@ -150,7 +150,7 @@ export default function TeamPostCard({
       <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-ink/[0.04] px-3 py-2.5">
         <Ticket className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-ink/50">Building for</p>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-ink/60">Building for</p>
           {event ? (
             <Link href={`/hackathons/${post.hackathonSlug}`} className="block truncate text-sm font-semibold text-ink hover:underline">
               {post.hackathonTitle}
@@ -184,7 +184,7 @@ export default function TeamPostCard({
 
       <div className="mt-auto pt-5">
         <TeamSize members={post.members} teamMax={post.teamMax} />
-        <p className="mt-2 text-[11px] text-ink/45">{postedLabel(postAge(post.createdAt))}</p>
+        <p className="mt-2 text-[11px] text-ink/60">{postedLabel(postAge(post.createdAt))}</p>
 
         <div className="mt-4 border-t border-ink/10 pt-4">
           {isMine ? (

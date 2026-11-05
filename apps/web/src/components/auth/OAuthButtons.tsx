@@ -76,7 +76,7 @@ export default function OAuthButtons({ callbackUrl, verb = 'Continue' }: { callb
           </button>
         ))}
       </div>
-      <div className="my-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-ink/50" aria-hidden="true">
+      <div className="my-6 flex items-center gap-3 text-xs font-semibold uppercase tracking-wider text-ink/60" aria-hidden="true">
         <span className="h-px flex-1 bg-ink/10" />
         or with email
         <span className="h-px flex-1 bg-ink/10" />

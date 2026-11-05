@@ -40,7 +40,7 @@ export function EmptyNudge({ text, href, cta, icon: Icon }: { text: string; href
   return (
     <div className="flex flex-col items-start gap-3 rounded-lg border border-dashed border-ink/20 p-5 sm:flex-row sm:items-center sm:justify-between">
       <p className="flex items-center gap-2 text-sm text-ink/70">
-        {Icon && <Icon className="h-5 w-5 shrink-0 text-ink/50" aria-hidden="true" />}
+        {Icon && <Icon className="h-5 w-5 shrink-0 text-ink/60" aria-hidden="true" />}
         {text}
       </p>
       <Link href={href} className="btn-secondary shrink-0 px-4 py-2 text-sm">

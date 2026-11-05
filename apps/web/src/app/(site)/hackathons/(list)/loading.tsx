@@ -3,7 +3,7 @@ import { HackathonCardSkeleton } from '@/components/hackathon/HackathonCard';
 /** Shown while the listings load: the Explore layout with placeholder cards. */
 export default function Loading() {
   return (
-    <div aria-busy="true" aria-label="Loading hackathons">
+    <div role="status" aria-busy="true" aria-label="Loading hackathons">
       <section className="hf-hero border-b border-line">
         <div className="container-page space-y-3 py-10 sm:py-14">
           <div className="skeleton h-9 w-72" />

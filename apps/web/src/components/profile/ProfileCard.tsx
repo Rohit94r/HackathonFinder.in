@@ -62,7 +62,7 @@ export default function ProfileCard({
         <ul className="mt-4 space-y-2 text-sm text-ink/70">
           {facts.map(({ icon: Icon, text }) => (
             <li key={text} className="flex items-start gap-2">
-              <Icon className="mt-0.5 h-4 w-4 shrink-0 text-ink/50" aria-hidden="true" />
+              <Icon className="mt-0.5 h-4 w-4 shrink-0 text-ink/60" aria-hidden="true" />
               <span>{text}</span>
             </li>
           ))}

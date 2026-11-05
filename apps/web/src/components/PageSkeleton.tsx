@@ -10,7 +10,7 @@ type Kind = 'tickets' | 'rows' | 'boards' | 'calendar';
  */
 export default function PageSkeleton({ kind, label }: { kind: Kind; label: string }) {
   return (
-    <div aria-busy="true" aria-label={label}>
+    <div role="status" aria-busy="true" aria-label={label}>
       <section className="hf-hero border-b border-line">
         <div className="container-page space-y-3 py-10 sm:py-14">
           <div className="skeleton h-12 w-80 max-w-full" />

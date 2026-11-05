@@ -41,7 +41,7 @@ export default function NewsletterForm({ dark = true }: { dark?: boolean }) {
           Email address
         </label>
         <div className="relative flex-1">
-          <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/45" />
+          <Mail className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/60" />
           <input
             id="newsletter-email"
             type="email"

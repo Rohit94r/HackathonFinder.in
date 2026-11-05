@@ -147,7 +147,7 @@ export default function DiscussionBoard({
           >
             <Icon className="h-4 w-4 shrink-0" />
             <span className="whitespace-nowrap lg:flex-1">{c.label}</span>
-            <span className={cn('text-xs tabular-nums', active ? 'text-white/80' : 'text-ink/45')}>{first ? count : '·'}</span>
+            <span className={cn('text-xs tabular-nums', active ? 'text-white/80' : 'text-ink/60')}>{first ? count : '·'}</span>
           </button>
         );
       })}
@@ -193,7 +193,7 @@ export default function DiscussionBoard({
 
         <div className="mb-4 flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/45" />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/60" />
             <label htmlFor="discuss-search" className="sr-only">
               Search discussions
             </label>

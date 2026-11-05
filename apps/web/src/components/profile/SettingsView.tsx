@@ -162,7 +162,7 @@ function SignInMethods({ me }: { me: Me }) {
                 {busy === row.id ? 'Opening…' : `Connect ${row.label}`}
               </button>
             ) : (
-              <span className="text-xs text-ink/50">Not available yet</span>
+              <span className="text-xs text-ink/60">Not available yet</span>
             )}
           </li>
         ))}

@@ -41,7 +41,7 @@ export default function MobileRegisterBar({ slug, title, open, when, deadline, h
         <div className="mx-auto flex h-[65px] max-w-2xl items-center gap-3 px-4">
           <div className="min-w-0 flex-1">
             <p className={cn('truncate font-display text-[17px] font-bold uppercase leading-tight', hurry ? 'text-board' : 'text-ink')}>{when}</p>
-            {open && <p className="truncate font-mono text-[10px] uppercase tracking-[0.14em] text-ink/55">Board by {deadline}</p>}
+            {open && <p className="truncate font-mono text-[10px] uppercase tracking-[0.14em] text-ink/60">Board by {deadline}</p>}
           </div>
           <SaveButton slug={slug} title={title} size="lg" className="shrink-0" />
           {open ? (
@@ -50,7 +50,7 @@ export default function MobileRegisterBar({ slug, title, open, when, deadline, h
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
             </a>
           ) : (
-            <span className="btn h-11 shrink-0 cursor-not-allowed border-ink/20 px-4 text-ink/50">Closed</span>
+            <span className="btn h-11 shrink-0 cursor-not-allowed border-ink/20 px-4 text-ink/60">Closed</span>
           )}
         </div>
       </div>

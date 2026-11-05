@@ -180,7 +180,7 @@ export default async function HomePage() {
                   <span>
                     <span className="font-bold text-board">{open.length}</span> open<span className="hidden sm:inline"> · now boarding</span>
                   </span>
-                  <ArrowRight className="h-3.5 w-3.5 text-ink/50" aria-hidden="true" />
+                  <ArrowRight className="h-3.5 w-3.5 text-ink/60" aria-hidden="true" />
                 </Link>
               )}
 
@@ -212,12 +212,12 @@ export default async function HomePage() {
             <dl className="grid grid-cols-2 gap-px overflow-hidden rounded-md border border-ink/15 bg-ink/15 lg:grid-cols-4">
               {stats.map((s) => (
                 <div key={s.label} className="bg-surface px-5 py-4">
-                  <dt className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink/55">{s.label}</dt>
+                  <dt className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink/60">{s.label}</dt>
                   <dd className="mt-1.5 font-display text-4xl font-bold leading-none tabular-nums text-board sm:text-5xl">{s.value}</dd>
                 </div>
               ))}
             </dl>
-            <p className="mt-2 text-xs text-ink/40">
+            <p className="mt-2 text-xs text-ink/60">
               Live from our listings. The prize total adds up stated prizes only, in US dollars (rupees converted at about ₹84 to $1), and leaves out
               figures that look like listing errors.
             </p>

@@ -22,18 +22,18 @@ export default function Badges({ states }: { states: BadgeState[] }) {
               <span
                 className={cn(
                   'relative inline-flex h-14 w-14 items-center justify-center rounded-lg',
-                  isEarned ? cn(b.tone, 'shadow-card') : 'bg-ink/5 text-ink/30'
+                  isEarned ? cn(b.tone, 'shadow-card') : 'bg-ink/5 text-ink/60'
                 )}
               >
                 <Icon className="h-6 w-6" aria-hidden="true" />
                 {!isEarned && (
-                  <span className="absolute -bottom-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-card text-ink/50 ring-1 ring-ink/10">
+                  <span className="absolute -bottom-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-card text-ink/60 ring-1 ring-ink/10">
                     <Lock className="h-3 w-3" aria-hidden="true" />
                   </span>
                 )}
               </span>
               <span className={cn('mt-2 text-xs font-semibold', isEarned ? 'text-ink' : 'text-ink/60')}>{b.name}</span>
-              <span className="mt-0.5 text-[11px] leading-4 text-ink/55">
+              <span className="mt-0.5 text-[11px] leading-4 text-ink/60">
                 {b.description}
                 {!isEarned && state?.progress && ` (${state.progress.value}/${state.progress.goal})`}
               </span>

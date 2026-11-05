@@ -32,7 +32,7 @@ export default function VenueMap({ point, venue, destination }: VenueMapProps) {
           Get directions
         </a>
       </div>
-      <p className="px-5 pb-4 text-xs text-ink/50">
+      <p className="px-5 pb-4 text-xs text-ink/60">
         Map ©{' '}
         <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer" className="underline">
           OpenStreetMap

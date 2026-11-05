@@ -71,3 +71,7 @@ apps/web/public/fonts/
 
 # Local image uploads in development
 apps/web/public/uploads/
+
+# graphify knowledge graph (generated locally; rebuild with /graphify)
+graphify-out/
+.graphify_python

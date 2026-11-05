@@ -31,7 +31,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
           Go home
         </Link>
       </div>
-      {error.digest ? <p className="mt-8 text-xs text-ink/40">Reference: {error.digest}</p> : null}
+      {error.digest ? <p className="mt-8 text-xs text-ink/60">Reference: {error.digest}</p> : null}
     </main>
   );
 }

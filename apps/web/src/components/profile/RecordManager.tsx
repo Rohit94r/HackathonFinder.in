@@ -260,7 +260,7 @@ export default function RecordManager({
                 <button
                   type="button"
                   onClick={() => setMode({ kind: 'edit', id: r.id })}
-                  className="rounded-lg p-1.5 text-ink/55 hover:bg-ink/5 hover:text-ink"
+                  className="rounded-lg p-1.5 text-ink/60 hover:bg-ink/5 hover:text-ink"
                   aria-label={`Edit ${r.event}`}
                 >
                   <Pencil className="h-4 w-4" />
@@ -268,7 +268,7 @@ export default function RecordManager({
                 <button
                   type="button"
                   onClick={() => setConfirming(r.id)}
-                  className="rounded-lg p-1.5 text-ink/55 hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-500/10 dark:hover:text-brand-300"
+                  className="rounded-lg p-1.5 text-ink/60 hover:bg-brand-50 hover:text-brand-700 dark:hover:bg-brand-500/10 dark:hover:text-brand-300"
                   aria-label={`Remove ${r.event}`}
                 >
                   <Trash2 className="h-4 w-4" />

@@ -25,7 +25,7 @@ export default function ChatPhoto({
       <figure className="w-full max-w-sm">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={photo.src} alt={alt} className="aspect-[3/2] w-full rounded-lg object-cover" loading="lazy" />
-        <figcaption className="mt-1.5 text-[11px] text-ink/45">
+        <figcaption className="mt-1.5 text-[11px] text-ink/60">
           Photo:{' '}
           <a href={photo.page} target="_blank" rel="noopener noreferrer" className="hover:underline">
             {photo.by} on Unsplash

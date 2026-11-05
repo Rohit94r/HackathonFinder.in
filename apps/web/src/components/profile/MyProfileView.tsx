@@ -131,7 +131,7 @@ function Onboarding({ welcome, initial, onSave }: { welcome: boolean; initial: M
         <figure>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={ONBOARDING_PHOTO.src} alt="Five students laughing together around a table" className="aspect-[16/10] w-full object-cover" />
-          <figcaption className="px-6 pt-2 text-[11px] text-ink/45">
+          <figcaption className="px-6 pt-2 text-[11px] text-ink/60">
             Photo:{' '}
             <a href={ONBOARDING_PHOTO.page} target="_blank" rel="noopener noreferrer" className="hover:underline">
               {ONBOARDING_PHOTO.by} on Unsplash
@@ -456,7 +456,7 @@ export default function MyProfileView({
                       <span className="font-semibold text-ink">{a.label}</span>
                     )}
                   </span>
-                  <span className="shrink-0 text-xs text-ink/50">{timeAgo(a.at, nowIso)}</span>
+                  <span className="shrink-0 text-xs text-ink/60">{timeAgo(a.at, nowIso)}</span>
                 </li>
               );
             })}

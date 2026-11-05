@@ -112,7 +112,7 @@ export default function WinsBoard({
     <div>
       <div className="mb-4 flex flex-col gap-3 lg:flex-row">
         <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/45" aria-hidden="true" />
+          <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink/60" aria-hidden="true" />
           <label htmlFor="wins-search" className="sr-only">
             Search winning stories
           </label>

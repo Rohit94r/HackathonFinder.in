@@ -208,9 +208,9 @@ export default function DeparturesBoard({ departures, nowIso }: { departures: De
         <p className="flex items-center gap-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-[#fbbf24] sm:text-xs">
           <span className="inline-block h-2 w-2 rounded-full bg-[#fbbf24]" aria-hidden="true" />
           Departures
-          <span className="hidden text-white/35 sm:inline">· next registration deadlines</span>
+          <span className="hidden text-white/60 sm:inline">· next registration deadlines</span>
         </p>
-        <p className="font-mono text-[11px] tabular-nums text-white/55 sm:text-xs">
+        <p className="font-mono text-[11px] tabular-nums text-white/60 sm:text-xs">
           {clock.zone} <span className="text-white/85">{clock.time}</span>
         </p>
       </div>
@@ -266,7 +266,7 @@ export default function DeparturesBoard({ departures, nowIso }: { departures: De
 
       {/* Station announcement ticker. */}
       <div className="flex items-center gap-4 border-t border-white/10 px-4 py-2.5 font-mono text-[10px] uppercase tracking-[0.14em] sm:px-6 sm:text-[11px]">
-        <span className="shrink-0 text-white/40">
+        <span className="shrink-0 text-white/60">
           {(page % pages) + 1}/{pages}
         </span>
         <div className="relative min-w-0 flex-1 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)]" aria-hidden="true">

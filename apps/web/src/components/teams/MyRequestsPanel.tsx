@@ -71,7 +71,7 @@ function RowItem({ row, now }: { row: Row; now: string }) {
             {row.line} {row.person.isSample && <SampleBadge />}
           </p>
           {row.message && <p className="mt-0.5 line-clamp-2 text-xs italic text-ink/70">“{row.message}”</p>}
-          <p className="mt-0.5 text-[11px] text-ink/50">{timeAgo(row.at, now)}</p>
+          <p className="mt-0.5 text-[11px] text-ink/60">{timeAgo(row.at, now)}</p>
         </div>
         {!(pending && (row.onAnswer || row.onWithdraw)) && <StatusChip status={row.status} />}
       </div>

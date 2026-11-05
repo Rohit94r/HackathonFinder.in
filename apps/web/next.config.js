@@ -26,8 +26,9 @@ const nextConfig = {
     instrumentationHook: true,
   },
   poweredByHeader: false,
-  // next/image serves AVIF where the browser supports it, else WebP.
-  images: { formats: ['image/avif', 'image/webp'] },
+  // next/image serves WebP. AVIF stays off: Next 14's image optimiser has a critical advisory for
+  // AVIF processing (GHSA-2xp9-vwfh-vxw4), only fixed in Next 15.
+  images: { formats: ['image/webp'] },
   async headers() {
     return [
       // Event photos rarely change: browsers keep them a week and refresh in the background after.

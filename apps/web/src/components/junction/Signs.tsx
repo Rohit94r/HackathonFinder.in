@@ -31,7 +31,7 @@ export function StationBoard({
       )}
     >
       {code && (
-        <span className="absolute right-2.5 top-2 font-mono text-[9px] font-bold tracking-[0.12em] text-navy/55" aria-hidden="true">
+        <span className="absolute right-2.5 top-2 font-mono text-[9px] font-bold tracking-[0.12em] text-navy/75" aria-hidden="true">
           {code}
         </span>
       )}
