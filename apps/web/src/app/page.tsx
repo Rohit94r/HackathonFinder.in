@@ -8,7 +8,6 @@ import Footer from '@/components/layout/Footer';
 import HackathonCard from '@/components/hackathon/HackathonCard';
 import HomeSearch, { type CityOption } from '@/components/home/HomeSearch';
 import DiscoveryTabs, { type DiscoveryTab } from '@/components/home/DiscoveryTabs';
-import CountUp from '@/components/home/CountUp';
 import DeparturesBoard, { type Departure } from '@/components/home/DeparturesBoard';
 import MotionToggle from '@/components/home/MotionToggle';
 import { PlatformSign, StationBoard } from '@/components/junction/Signs';
@@ -99,9 +98,9 @@ export default async function HomePage() {
   // Live numbers only; nothing here is estimated.
   const prizeTotal = open.reduce((sum, h) => sum + plausiblePrize(h), 0);
   const stats: { label: string; value: React.ReactNode }[] = [
-    { label: 'Hackathons listed', value: <CountUp value={items.length} /> },
-    { label: 'Open for registration', value: <CountUp value={open.length} /> },
-    { label: 'Upcoming events', value: <CountUp value={items.filter((h) => Date.parse(h.startDate) > now).length} /> },
+    { label: 'Hackathons listed', value: items.length.toLocaleString('en-US') },
+    { label: 'Open for registration', value: open.length.toLocaleString('en-US') },
+    { label: 'Upcoming events', value: items.filter((h) => Date.parse(h.startDate) > now).length.toLocaleString('en-US') },
     { label: 'In open prize pools', value: prizeTotal > 0 ? formatUsdCompact(prizeTotal) : 'None stated' },
   ];
 
@@ -214,7 +213,7 @@ export default async function HomePage() {
               {stats.map((s) => (
                 <div key={s.label} className="bg-surface px-5 py-4">
                   <dt className="font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink/55">{s.label}</dt>
-                  <dd className="mt-1.5 font-display text-4xl font-bold leading-none text-board sm:text-5xl">{s.value}</dd>
+                  <dd className="mt-1.5 font-display text-4xl font-bold leading-none tabular-nums text-board sm:text-5xl">{s.value}</dd>
                 </div>
               ))}
             </dl>

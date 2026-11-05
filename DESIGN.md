@@ -62,7 +62,7 @@ Flat paper with restrained shadows. Tickets use a soft drop shadow that follows 
 
 Do:
 - Say plainly what the page does in its headline ("Find hackathons online and near you").
-- Show only real, live numbers from the database.
+- Show only real, live numbers from the database, and show them as they are: no count-up animation (it shows wrong figures mid-count).
 - Keep railway words playful but secondary to clarity (real status labels stay readable).
 - Respect `prefers-reduced-motion` and offer "Pause animations" for anything that moves on its own.
 
