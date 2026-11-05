@@ -66,7 +66,7 @@ export default function HomeSearch({ cities }: { cities: CityOption[] }) {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search hackathons, technologies or organizers…"
+              placeholder="Search by name, tech or organizer…"
               className="h-12 w-full rounded-md bg-transparent pl-11 pr-3 text-[16px] text-ink placeholder:text-muted/80 focus:bg-surface focus:outline-none"
               autoComplete="off"
               enterKeyHint="search"

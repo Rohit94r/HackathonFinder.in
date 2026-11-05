@@ -155,7 +155,7 @@ export default async function HomePage() {
         {/* Hero: the station at night (data-theme flips the colour tokens inside it). */}
         <section data-theme="dark" className="relative isolate overflow-hidden bg-surface text-ink">
 
-          <div className="container-page relative pt-10 sm:pt-16">
+          <div className="container-page relative pt-6 sm:pt-16">
             {/* The station's own board, hanging from the canopy on wide screens. */}
             <div className="pointer-events-none absolute right-8 top-0 hidden xl:block" aria-hidden="true">
               <div className="flex flex-col items-center">
@@ -171,7 +171,7 @@ export default async function HomePage() {
               {open.length > 0 && (
                 <Link
                   href="/hackathons?status=closing-soon"
-                  className="mb-7 inline-flex items-center gap-2.5 rounded-md border border-ink/15 bg-ink/[0.04] py-1.5 pl-2 pr-3 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-ink/80 transition-colors hover:border-board/60 hover:text-ink sm:text-xs"
+                  className="mb-5 inline-flex items-center gap-2.5 sm:mb-7 rounded-md border border-ink/15 bg-ink/[0.04] py-1.5 pl-2 pr-3 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-ink/80 transition-colors hover:border-board/60 hover:text-ink sm:text-xs"
                 >
                   <span className="relative flex h-2 w-2" aria-hidden="true">
                     <span className="absolute inline-flex h-full w-full hero-ping animate-ping rounded-full bg-[#22a35a] opacity-75 motion-reduce:hidden" />
@@ -189,13 +189,12 @@ export default async function HomePage() {
                 <span className="block text-balance">Find hackathons</span>
                 <span className="block text-balance text-board">online and near you.</span>
               </h1>
-              <p className="mt-6 max-w-2xl text-[17px] leading-7 text-ink/70 sm:text-lg sm:leading-8">
-                Live departures from Devpost, MLH, Devfolio, Unstop, DoraHacks, lablab.ai, college sites and more. Online from anywhere or in
-                person near you. Find one, grab a team, and board before registration closes.
+              <p className="mt-4 max-w-2xl text-base leading-6 text-ink/70 sm:mt-6 sm:text-lg sm:leading-8">
+                Open hackathons from Devpost, MLH, Devfolio, Unstop and more, online or near you.
               </p>
             </div>
 
-            <div className="mt-10 max-w-5xl">
+            <div className="mt-6 max-w-5xl sm:mt-10">
               <HomeSearch cities={cityOptions} />
             </div>
 
