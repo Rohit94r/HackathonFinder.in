@@ -120,13 +120,13 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
     <>
       <JsonLd data={jsonLd} />
       <section className="bg-surface">
-        <div className="container-page pb-10 pt-6">
-          <nav aria-label="Breadcrumb" className="mb-5 flex items-center gap-1 text-sm text-ink/60">
-            <Link href="/hackathons" className="hover:underline">
+        <div className="container-page pb-14 pt-6">
+          <nav aria-label="Breadcrumb" className="mb-5 flex min-w-0 items-center gap-1 text-sm text-muted">
+            <Link href="/hackathons" className="shrink-0 hover:text-ink">
               Explore
             </Link>
-            <ChevronRight className="h-4 w-4" />
-            <span className="truncate text-ink/80">{h.title}</span>
+            <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+            <span className="truncate text-ink/80" aria-current="page">{h.title}</span>
           </nav>
 
           <EventArt
@@ -135,7 +135,7 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
             label={eventTypeLabel(h.type)}
             size="hero"
             eager
-            className="h-56 rounded-3xl sm:h-80"
+            className="h-52 rounded-xl border border-line sm:h-72 lg:h-80"
           />
 
           <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_360px]">
@@ -143,36 +143,34 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
             <div className="min-w-0">
               <div className="mb-3 flex flex-wrap items-center gap-2">
                 <StatusBadge status={h.status} />
-                <span className="rounded-full bg-card px-2.5 py-1 text-xs font-semibold text-ink/70 ring-1 ring-ink/15">
+                <span className="rounded-md bg-card px-2 py-0.5 text-xs font-medium text-ink/75 ring-1 ring-inset ring-line">
                   {modeLabel(h.mode)}
                 </span>
                 {h.beginnerFriendly && (
-                  <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 dark:bg-brand-400/15 dark:text-brand-200">
+                  <span className="rounded-md bg-card px-2 py-0.5 text-xs font-medium text-ink/75 ring-1 ring-inset ring-line">
                     Beginner-friendly
                   </span>
                 )}
               </div>
-              <h1 className="text-4xl sm:text-5xl">{h.title}</h1>
-              {h.tagline && <p className="mt-3 text-lg text-ink/70">{h.tagline}</p>}
-              <p className="mt-4 flex items-center gap-1.5 text-sm text-ink/70">
+              <h1 className="text-3xl sm:text-4xl">{h.title}</h1>
+              {h.tagline && <p className="mt-3 text-lg leading-7 text-muted">{h.tagline}</p>}
+              <p className="mt-4 flex flex-wrap items-center gap-1.5 text-sm text-muted">
                 by <strong className="font-semibold text-ink">{h.organizer || sourceBySlug(h.sources[0])?.name || 'the organizer'}</strong>
                 {h.verified && (
                   <span className="inline-flex items-center gap-1 text-ink">
-                    <BadgeCheck className="h-4 w-4" />
+                    <BadgeCheck className="h-4 w-4 text-accent" aria-hidden="true" />
                     Verified
                   </span>
                 )}
               </p>
 
-              <dl className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <dl className="mt-8 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
                 {facts.map((f) => (
-                  <div key={f.label} className="card flex items-start gap-3 p-4">
-                    <span className="rounded-xl bg-accent/10 p-2 text-brand-700 dark:text-brand-300">
-                      <f.icon className="h-5 w-5" />
-                    </span>
+                  <div key={f.label} className="flex items-start gap-3 bg-card p-4">
+                    <f.icon className="mt-0.5 h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
                     <div className="min-w-0">
-                      <dt className="text-xs font-medium uppercase tracking-wider text-ink/60">{f.label}</dt>
-                      <dd className="mt-0.5 text-sm font-semibold text-ink">{f.value}</dd>
+                      <dt className="text-xs text-muted">{f.label}</dt>
+                      <dd className="mt-0.5 text-sm font-medium text-ink">{f.value}</dd>
                     </div>
                   </div>
                 ))}
@@ -181,8 +179,8 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
               {point && <VenueMap point={point} venue={h.venue ?? cityName(h.city, h.cityName)} destination={destination} />}
 
               <div className="card mt-8 p-6 sm:p-8">
-                <h2 className="text-xl font-bold">About this {eventTypeLabel(h.type).toLowerCase()}</h2>
-                {h.summary && <p className="mt-3 leading-7 text-ink/80">{h.summary}</p>}
+                <h2 className="text-lg">About this {eventTypeLabel(h.type).toLowerCase()}</h2>
+                {h.summary && <p className="mt-3 whitespace-pre-line leading-7 text-ink/80">{h.summary}</p>}
 
                 {h.themes.length > 0 && (
                   <div className="mt-6 flex flex-wrap gap-2">
@@ -192,7 +190,7 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                         <Link
                           key={t}
                           href={`/themes/${t}`}
-                          className={cn('inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium', style.soft)}
+                          className={cn('inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium transition-opacity hover:opacity-80', style.soft)}
                         >
                           <style.icon className="h-4 w-4" />
                           {themeName(t)}
@@ -202,13 +200,13 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                   </div>
                 )}
 
-                <h2 className="mt-10 text-xl font-bold">Timeline</h2>
-                <ol className="mt-4 space-y-4 border-l-2 border-ink/15 pl-6">
+                <h2 className="mt-10 text-lg">Timeline</h2>
+                <ol className="mt-4 space-y-5 border-l border-line pl-6">
                   {timeline.map((step) => (
                     <li key={step.label} className="relative">
-                      <span className="absolute -left-[33px] top-1 h-4 w-4 rounded-full border-4 border-card bg-ink ring-1 ring-ink/20" />
+                      <span className="absolute -left-[30px] top-1.5 h-2.5 w-2.5 rounded-full bg-accent ring-4 ring-card" aria-hidden="true" />
                       <p className="text-sm font-semibold text-ink">{step.label}</p>
-                      <p className="text-sm text-ink/70">
+                      <p className="text-sm text-muted">
                         {formatWeekday(step.iso)} · {formatTime(step.iso)} IST
                       </p>
                     </li>
@@ -220,13 +218,13 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                   <div className="mt-10 grid gap-6 sm:grid-cols-2">
                     {h.prizes.length > 0 && (
                       <div>
-                        <h2 className="flex items-center gap-2 text-xl font-bold">
-                          <Trophy className="h-5 w-5 text-accent" />
+                        <h2 className="flex items-center gap-2 text-lg">
+                          <Trophy className="h-4 w-4 text-accent" aria-hidden="true" />
                           Prizes
                         </h2>
                         <ul className="mt-3 space-y-2">
                           {h.prizes.map((p) => (
-                            <li key={p} className="rounded-xl bg-ink/5 px-4 py-2.5 text-sm font-medium text-ink dark:bg-white/[0.06]">
+                            <li key={p} className="rounded-lg border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink">
                               {p}
                             </li>
                           ))}
@@ -235,13 +233,13 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                     )}
                     {h.perks.length > 0 && (
                       <div>
-                        <h2 className="flex items-center gap-2 text-xl font-bold">
-                          <Gift className="h-5 w-5 text-brand-600 dark:text-brand-300" />
+                        <h2 className="flex items-center gap-2 text-lg">
+                          <Gift className="h-4 w-4 text-accent" aria-hidden="true" />
                           Perks
                         </h2>
                         <ul className="mt-3 space-y-2">
                           {h.perks.map((p) => (
-                            <li key={p} className="rounded-xl bg-brand-50 px-4 py-2.5 text-sm font-medium text-brand-900 dark:bg-brand-500/15 dark:text-brand-200">
+                            <li key={p} className="rounded-lg border border-line bg-surface px-4 py-2.5 text-sm font-medium text-ink">
                               {p}
                             </li>
                           ))}
@@ -258,22 +256,22 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
             {/* Sidebar */}
             <aside className="lg:sticky lg:top-24 lg:self-start">
               <div className="card p-6">
-                <p className="text-xs font-semibold uppercase tracking-wider text-ink/60">Registration</p>
+                <p className="text-xs font-medium text-muted">Registration</p>
                 <p
                   className={cn(
-                    'mt-1 flex items-center gap-2 font-display text-2xl font-bold',
-                    'text-ink'
+                    'mt-1 flex items-center gap-2 text-xl font-semibold tracking-tight',
+                    h.status === 'closing-soon' ? 'text-warning dark:text-amber-300' : 'text-ink'
                   )}
                 >
-                  <Clock className="h-6 w-6" />
+                  <Clock className="h-5 w-5" aria-hidden="true" />
                   {open ? deadlineLabel(h.daysToDeadline) : h.status === 'in-progress' ? 'Happening now' : 'Closed'}
                 </p>
-                <p className="mt-1 text-sm text-ink/70">
+                <p className="mt-1 text-sm text-muted">
                   Deadline: {formatDate(h.registrationDeadline)}, {formatTime(h.registrationDeadline)} IST
                 </p>
 
                 {h.registrationVia === 'qr' && (
-                  <p className="mt-4 flex items-start gap-2 rounded-xl bg-ink/5 px-3 py-2.5 text-sm text-ink/80">
+                  <p className="mt-4 flex items-start gap-2 rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink/80">
                     <QrCode className="mt-0.5 h-4 w-4 shrink-0" />
                     <span>
                       {h.title} takes registrations through a QR code on its poster. The button opens the page it points to, or the
@@ -282,14 +280,14 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                   </p>
                 )}
 
-                <div className="mt-6 flex flex-col gap-3">
+                <div className="mt-5 flex flex-col gap-2.5">
                   {open ? (
-                    <a href={`/go/${h.slug}`} target="_blank" rel="noopener noreferrer" className="btn-primary w-full py-3.5 text-base">
+                    <a href={`/go/${h.slug}`} target="_blank" rel="noopener noreferrer" className="btn-primary h-11 w-full text-[15px]">
                       Register on official site
                       <ExternalLink className="h-4 w-4" />
                     </a>
                   ) : (
-                    <span className="btn w-full cursor-not-allowed bg-ink/5 text-ink/60">Registration closed</span>
+                    <span className="btn h-11 w-full cursor-not-allowed border-line bg-ink/[0.04] text-muted">Registration closed</span>
                   )}
                   <SaveButton slug={h.slug} title={h.title} variant="full" className="w-full" />
                   <a href={googleCalendarUrl(h)} target="_blank" rel="noopener noreferrer" className="btn-secondary w-full">
@@ -298,32 +296,35 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
                   </a>
                 </div>
 
-                <div className="mt-6 border-t border-ink/10 pt-5">
-                  <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-ink/60">Share with your team</p>
+                <div className="mt-6 border-t border-line pt-5">
+                  <p className="mb-3 text-xs font-medium text-muted">Share with your team</p>
                   <ShareButtons title={h.title} path={`/hackathons/${h.slug}`} />
                 </div>
 
-                <div className="mt-6 border-t border-ink/10 pt-5 text-sm text-ink/70">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-ink/60">Found on</p>
-                  {!h.verified && <p className="mb-3 rounded-xl bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900 dark:bg-amber-400/10 dark:text-amber-100">This listing has not been independently verified. Check the organizer page before paying or sharing personal details; report it here if it looks suspicious.</p>}
+                <div className="mt-6 border-t border-line pt-5 text-sm text-muted">
+                  <p className="mb-2 text-xs font-medium text-muted">Found on</p>
+                  {!h.verified && <p className="mb-3 rounded-lg bg-warning-soft px-3 py-2 text-xs leading-5 text-[#78350f] dark:bg-amber-400/10 dark:text-amber-100">This listing has not been independently verified. Check the organizer page before paying or sharing personal details; report it here if it looks suspicious.</p>}
                   <div className="flex flex-wrap gap-1.5">
                     {h.sources.map((s) => (
-                      <span key={s} className="rounded-md bg-ink/5 px-2 py-1 text-xs font-medium text-ink/80">
+                      <span key={s} className="rounded-md border border-line px-2 py-0.5 text-xs font-medium text-ink/80">
                         {sourceBySlug(s)?.name ?? s}
                       </span>
                     ))}
                   </div>
-                  <p className="mt-3 text-xs text-ink/60">Last checked {timeAgo(h.lastChecked, nowIso)}</p>
+                  <p className="mt-3 text-xs text-muted">Last checked {timeAgo(h.lastChecked, nowIso)}</p>
                   <ReportListing slug={h.slug} />
                 </div>
               </div>
 
               <Link
                 href={`/teams?hackathon=${h.slug}`}
-                className="mt-4 flex items-center justify-between rounded-2xl bg-gradient-to-r from-brand-600 to-brand-800 px-5 py-4 text-sm font-semibold text-white transition hover:brightness-110"
+                className="mt-3 flex items-center justify-between rounded-xl border border-line bg-card px-5 py-4 text-sm font-medium text-ink shadow-card transition-colors hover:border-ink/20"
               >
-                Need teammates for this?
-                <ChevronRight className="h-4 w-4" />
+                <span className="flex items-center gap-2.5">
+                  <Users className="h-4 w-4 text-accent" aria-hidden="true" />
+                  Need teammates for this?
+                </span>
+                <ChevronRight className="h-4 w-4 text-muted" aria-hidden="true" />
               </Link>
             </aside>
           </div>
@@ -331,9 +332,9 @@ export default async function HackathonDetailPage({ params }: { params: { slug: 
       </section>
 
       {similar.length > 0 && (
-        <section className="section pt-12">
+        <section className="section border-t border-line bg-card">
           <div className="container-page">
-            <h2 className="mb-6 text-2xl font-bold">You might also like</h2>
+            <h2 className="mb-6 text-2xl">You might also like</h2>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {similar.map((s) => (
                 <HackathonCard key={s.slug} h={s} />

@@ -28,7 +28,7 @@ export interface NavGroup {
 
 // Shared by both navbars (landing and inner pages) so they always list the same pages.
 export const NAV_HACKATHONS: NavGroup = {
-  label: 'Hackathons',
+  label: 'Explore',
   items: [
     { label: 'All hackathons', href: '/hackathons', description: 'Every open event, with every filter', icon: LayoutGrid },
     { label: 'Near me', href: '/near-me', description: 'The closest ones first, by GPS or city', icon: MapPin },

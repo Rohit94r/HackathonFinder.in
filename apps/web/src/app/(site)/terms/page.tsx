@@ -12,7 +12,7 @@ export const metadata: Metadata = pageMetadata({
 export default function TermsPage() {
   return (
     <>
-      <PageHero title="Terms" accent="of use" stickers={false} />
+      <PageHero title="Terms" accent="of use" />
       <div className="container-page max-w-3xl py-12">
         <div className="prose-hf" dangerouslySetInnerHTML={{ __html: termsHtml }} />
       </div>

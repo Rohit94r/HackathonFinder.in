@@ -9,7 +9,7 @@ export default function FAQ({ items }: { items: FaqItem[] }) {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <div className="divide-y divide-ink/15 rounded-2xl border border-ink/15 bg-card">
+    <div className="divide-y divide-ink/15 rounded-xl border border-ink/15 bg-card">
       {items.map((item, i) => {
         const isOpen = open === i;
         return (

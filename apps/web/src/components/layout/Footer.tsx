@@ -1,9 +1,7 @@
 import Link from 'next/link';
 import { CITIES, THEMES } from '@hackathonfinder/shared';
-import HeroScene from '@/components/art/HeroScene';
-import NightSky from '@/components/art/NightSky';
-import ParallaxScene from '@/components/motion/ParallaxScene';
 import { Logo } from '@/components/Logo';
+import ThemeToggle from '@/components/ThemeToggle';
 import { activeSocials, siteConfig } from '@/data/siteConfig';
 
 const COLUMNS = [
@@ -15,12 +13,12 @@ const COLUMNS = [
       { href: '/hackathons?status=closing-soon', label: 'Closing soon' },
       { href: '/hackathons?city=online', label: 'Online hackathons' },
       { href: '/calendar', label: 'Calendar' },
-      { href: '/saved', label: 'My hackathons' },
+      { href: '/saved', label: 'Saved' },
     ],
   },
   {
     title: 'Cities',
-    links: [...CITIES.slice(0, 6).map((c) => ({ href: `/cities/${c.slug}`, label: c.name })), { href: '/cities', label: 'All cities →' }],
+    links: [...CITIES.slice(0, 6).map((c) => ({ href: `/cities/${c.slug}`, label: c.name })), { href: '/cities', label: 'All cities' }],
   },
   {
     title: 'Themes',
@@ -32,7 +30,7 @@ const COLUMNS = [
       { href: '/community', label: 'Discussions' },
       { href: '/teams', label: 'Team Finder' },
       { href: '/wins', label: 'Winning stories' },
-      { href: '/profile', label: 'My profile' },
+      { href: '/profile', label: 'My events' },
       { href: '/blog', label: 'Blog & guides' },
       { href: siteConfig.social.whatsapp, label: 'WhatsApp community' },
       { href: '/submit', label: 'Submit a hackathon' },
@@ -62,59 +60,37 @@ const SOCIALS = activeSocials([
 
 export default function Footer() {
   return (
-    <footer className="on-dark noir overflow-hidden bg-ink text-surface">
-      <NightSky className="-z-10" />
-      {/* Big closing headline */}
-      <div data-reveal="zoom" className="container-page relative z-[3] flex flex-col items-center pt-24 text-center">
-        <h2 className="text-5xl text-surface sm:text-7xl lg:text-8xl">Find your hackathon.</h2>
-        <p className="pb-2 font-display text-5xl leading-[1.08] text-neon sm:text-7xl lg:text-8xl">
-          Build something great.
-        </p>
-        <Link href="/hackathons" className="btn-ghost-dark mt-10">
-          Start exploring
-        </Link>
-      </div>
-      <ParallaxScene className="mt-12">
-        <HeroScene />
-      </ParallaxScene>
-
-      {/* Links */}
-      <div className="container-page relative z-[3] grid gap-12 py-16 lg:grid-cols-[1.2fr_3fr]">
-        <div className="space-y-5">
-          <Logo dark />
-          <p className="max-w-xs text-sm leading-6 text-surface/70">
-            {siteConfig.tagline} We find hackathons across the internet so you can spend your time
-            building, not searching.
+    <footer className="border-t border-line bg-card">
+      <div className="container-page grid gap-10 py-14 lg:grid-cols-[1.1fr_3fr]">
+        <div className="space-y-4">
+          <Logo />
+          <p className="max-w-xs text-sm leading-6 text-muted">
+            {siteConfig.tagline} We find hackathons across the internet so you can spend your time building, not searching.
           </p>
-          <div className="flex flex-wrap gap-2">
-            {SOCIALS.map((s) => (
-              <a
-                key={s.label}
-                href={s.href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="rounded-full border border-surface/30 px-4 py-1.5 text-sm font-medium text-surface transition hover:border-accent hover:bg-accent hover:text-white"
-              >
-                {s.label}
-              </a>
-            ))}
-          </div>
-          <div>
-            <p className="text-sm text-surface/60">Get in touch</p>
-            <a href={`mailto:${siteConfig.email}`} className="text-lg font-medium text-surface underline decoration-accent underline-offset-4 hover:text-brand-300">
-              {siteConfig.email}
-            </a>
-          </div>
+          <a href={`mailto:${siteConfig.email}`} className="inline-block text-sm font-medium text-ink hover:text-accent">
+            {siteConfig.email}
+          </a>
+          {SOCIALS.length > 0 && (
+            <ul className="flex flex-wrap gap-x-4 gap-y-2 pt-1">
+              {SOCIALS.map((s) => (
+                <li key={s.label}>
+                  <a href={s.href} target="_blank" rel="noopener noreferrer" className="text-sm text-muted transition-colors hover:text-ink">
+                    {s.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-3 lg:grid-cols-5">
           {COLUMNS.map((col) => (
             <div key={col.title}>
-              <h3 className="mb-4 text-xs font-semibold uppercase tracking-wider text-pop">{col.title}</h3>
-              <ul className="space-y-2.5">
+              <h3 className="mb-3 text-sm font-semibold text-ink">{col.title}</h3>
+              <ul className="space-y-2">
                 {col.links.map((link) => (
                   <li key={link.href}>
-                    <Link href={link.href} className="text-sm text-surface/80 transition hover:text-surface">
+                    <Link href={link.href} className="text-sm text-muted transition-colors hover:text-ink">
                       {link.label}
                     </Link>
                   </li>
@@ -125,16 +101,26 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="border-t border-surface/15">
-        <div className="container-page flex flex-col gap-2 py-6 pb-24 text-xs text-surface/50 sm:flex-row sm:items-center sm:justify-between md:pb-6">
+      <div className="border-t border-line">
+        <div className="container-page flex flex-col gap-3 py-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {new Date().getFullYear()} {siteConfig.domain}. Founded by{' '}
-            <Link href="/about" className="underline-offset-2 hover:underline">
+            <Link href="/about#founder" className="underline-offset-2 hover:text-ink hover:underline">
               {siteConfig.founder.name}
+            </Link>{' '}
+            and{' '}
+            <Link href="/about#co-founder" className="underline-offset-2 hover:text-ink hover:underline">
+              {siteConfig.coFounder.name}
             </Link>
-            . Made for students who build.
+            . We link to official organizer pages; always check details before you register.
           </p>
-          <p>We link to official organizer pages. Always check details before you register.</p>
+          <div className="flex items-center gap-2">
+            <span>Theme</span>
+            <ThemeToggle
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-line text-ink/70 transition-colors hover:bg-ink/[0.04] hover:text-ink"
+              iconClassName="h-4 w-4"
+            />
+          </div>
         </div>
       </div>
     </footer>

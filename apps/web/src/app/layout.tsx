@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Figtree, Young_Serif } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import Providers from '@/components/Providers';
 import ScrollEffects from '@/components/motion/ScrollEffects';
@@ -8,12 +8,11 @@ import { siteConfig } from '@/data/siteConfig';
 import { JsonLd, siteJsonLd } from '@/lib/seo';
 import { THEME_KEY } from '@/lib/theme';
 
-// Same pair as the landing page: Figtree for text, Young Serif for headings.
-const sans = Figtree({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
-const display = Young_Serif({ weight: '400', subsets: ['latin'], variable: '--font-display', display: 'swap' });
+// One family for text and headings.
+const sans = Inter({ subsets: ['latin'], variable: '--font-sans', display: 'swap' });
 
 const THEME_SCRIPT = `document.documentElement.classList.add('reveal-ready');
-try { if (localStorage.getItem('${THEME_KEY}') === 'light') document.documentElement.dataset.theme = 'light'; } catch (e) {}`;
+try { if (localStorage.getItem('${THEME_KEY}') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}`;
 
 const HOME_TITLE = `${siteConfig.name}: Find Hackathons in India & Near You (2026)`;
 
@@ -40,7 +39,10 @@ export const metadata: Metadata = {
     'Devfolio hackathons',
     'hackathon team finder',
   ],
-  authors: [{ name: siteConfig.founder.name, url: `${siteConfig.url}/about` }],
+  authors: [
+    { name: siteConfig.founder.name, url: `${siteConfig.url}/about` },
+    { name: siteConfig.coFounder.name, url: `${siteConfig.url}/about` },
+  ],
   creator: siteConfig.founder.name,
   publisher: siteConfig.name,
   category: 'technology',
@@ -73,9 +75,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" data-theme="dark" className={`${sans.variable} ${display.variable}`} suppressHydrationWarning>
+    <html lang="en" data-theme="light" className={sans.variable} suppressHydrationWarning>
       <head>
-        {/* Before first paint: turn on scroll reveals, and apply light mode only if the visitor chose it (dark is the default). */}
+        {/* Before first paint: turn on scroll reveals, and apply dark mode only if the visitor chose it (light is the default). */}
         <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
         <JsonLd data={siteJsonLd()} />
       </head>
@@ -84,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Tracker />
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:bg-card focus:px-4 focus:py-2 focus:shadow-lift"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:border focus:border-line focus:bg-card focus:px-4 focus:py-2 focus:shadow-lift"
         >
           Skip to content
         </a>

@@ -235,7 +235,7 @@ export default function WinsBoard({
         </>
       ) : (
         <div className="card flex flex-col items-center px-6 py-16 text-center">
-          <span className="mb-4 rounded-2xl bg-ink/5 p-4 text-ink">
+          <span className="mb-4 rounded-xl bg-ink/5 p-4 text-ink">
             <Trophy className="h-7 w-7" aria-hidden="true" />
           </span>
           <h3 className="text-xl font-bold">No stories match yet</h3>

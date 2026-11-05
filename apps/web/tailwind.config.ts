@@ -2,77 +2,83 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: ['./src/**/*.{ts,tsx}'],
-  // Dark is the default; the toggle sets data-theme on <html> (see app/layout.tsx).
+  // Light is the default; the toggle sets data-theme="dark" on <html> (see app/layout.tsx).
   darkMode: ['selector', '[data-theme="dark"]'],
   theme: {
     extend: {
-      // Two colours only: brand red and white, on charcoal (dark, the default) or white (light).
+      // One accent (indigo #635BFF) on cool neutrals. Neutrals are CSS variables (globals.css) so they flip in dark mode.
       colors: {
-        // Body text and dark sections. A CSS variable (globals.css) so it flips to light text in dark mode.
+        // Primary text, and the base for ink/[alpha] tints and hairlines.
         ink: {
           DEFAULT: 'rgb(var(--hf-ink) / <alpha-value>)',
           800: 'rgb(var(--hf-ink-800) / <alpha-value>)',
           700: 'rgb(var(--hf-ink-700) / <alpha-value>)',
         },
-        // Fixed charcoal for text on white fills in both themes.
-        navy: '#17171d',
-        // Brand red, as a scale for tints, borders and links.
+        // Secondary text (#686D7D in light mode).
+        muted: 'rgb(var(--hf-muted) / <alpha-value>)',
+        // Borders and dividers (#E8EAF0 in light mode).
+        line: 'rgb(var(--hf-line) / <alpha-value>)',
+        // Fixed dark text for light fills in both themes.
+        navy: '#171923',
+        // Accent scale for tints, borders and links.
         brand: {
-          50: '#fff1f3',
-          100: '#ffe0e5',
-          200: '#ffc6cf',
-          300: '#ff9aab',
-          400: '#ff6b81',
-          500: '#f2465f',
-          600: '#ec3750',
-          700: '#be1e3a',
-          800: '#9b1830',
-          900: '#7d142a',
+          50: '#eeefff',
+          100: '#e0e1ff',
+          200: '#c7c8ff',
+          300: '#a5a3ff',
+          400: '#8580ff',
+          500: '#7069ff',
+          600: '#635bff',
+          700: '#5047e5',
+          800: '#4038b8',
+          900: '#332d8f',
         },
-        // Brand red: primary buttons and highlights. White text on it.
+        // Primary buttons, links and highlights. White text on it.
         accent: {
-          DEFAULT: '#ec3750',
-          soft: '#fff1f3',
-          dark: '#be1e3a',
+          DEFAULT: '#635bff',
+          soft: '#eeefff',
+          dark: '#5047e5',
         },
-        // The second colour: white. Featured badges and highlights, with charcoal text on it.
+        success: { DEFAULT: '#15803d', soft: '#dcfce7' },
+        warning: { DEFAULT: '#b45309', soft: '#fef3c7' },
+        danger: { DEFAULT: '#dc2626', soft: '#fee2e2' },
+        // White fills (badges on images), with dark text on them.
         pop: {
           DEFAULT: '#ffffff',
-          soft: '#f4f4f5',
+          soft: '#f4f5f8',
           dark: '#52525b',
         },
         // Older accent names, kept as aliases.
         lime: {
           DEFAULT: '#ffffff',
-          soft: '#f4f4f5',
+          soft: '#f4f5f8',
         },
-        turquoise: '#ec3750',
-        // Page background, and the panel colour for cards, inputs and chips. Both flip in dark mode.
+        turquoise: '#635bff',
+        // Page background, and the surface colour for cards, inputs and menus. Both flip in dark mode.
         surface: 'rgb(var(--hf-surface) / <alpha-value>)',
         card: 'rgb(var(--hf-card) / <alpha-value>)',
       },
       fontFamily: {
-        sans: ['var(--font-sans)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-display)', 'Georgia', 'serif'],
+        sans: ['var(--font-sans)', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+        // Headings use the same family; kept as a name so older markup still resolves.
+        display: ['var(--font-sans)', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
       },
       boxShadow: {
-        card: '0 2px 16px rgba(0, 0, 0, 0.08)',
-        lift: '0 2px 4px rgba(23, 23, 29, 0.06), 0 18px 40px rgba(23, 23, 29, 0.16)',
-        glow: '0 0 0 3px rgba(236, 55, 80, 0.3), 0 12px 32px rgba(236, 55, 80, 0.2)',
+        card: '0 1px 2px rgba(23, 25, 35, 0.04)',
+        lift: '0 1px 2px rgba(23, 25, 35, 0.04), 0 12px 32px -8px rgba(23, 25, 35, 0.12)',
+        glow: '0 0 0 3px rgba(99, 91, 255, 0.18)',
       },
       keyframes: {
         marquee: {
           from: { transform: 'translateX(0)' },
           to: { transform: 'translateX(-50%)' },
         },
-        float: {
-          '0%, 100%': { transform: 'translateY(0) rotate(var(--tw-rotate))' },
-          '50%': { transform: 'translateY(-10px) rotate(var(--tw-rotate))' },
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
         },
       },
       animation: {
         marquee: 'marquee 45s linear infinite',
-        float: 'float 6s ease-in-out infinite',
       },
     },
   },

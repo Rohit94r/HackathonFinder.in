@@ -578,7 +578,7 @@ export default function WinForm({
       </div>
 
       {!editing && (
-        <label className="flex items-start gap-3 rounded-2xl bg-ink/5 p-4 text-sm text-ink/80">
+        <label className="flex items-start gap-3 rounded-xl bg-ink/5 p-4 text-sm text-ink/80">
           <input
             type="checkbox"
             checked={addToRecord}

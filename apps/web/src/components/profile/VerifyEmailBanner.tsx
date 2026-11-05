@@ -25,7 +25,7 @@ export default function VerifyEmailBanner({
   if (verified) {
     if (linkResult !== 'ok' || dismissed) return null;
     return (
-      <div role="status" className="flex items-start gap-3 rounded-[14px] border border-accent/25 bg-accent/[0.07] px-4 py-3 text-sm text-ink">
+      <div role="status" className="flex items-start gap-3 rounded-lg border border-accent/25 bg-accent/[0.07] px-4 py-3 text-sm text-ink">
         <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" />
         <p className="flex-1">
           <strong>Email confirmed.</strong> You’ll now get deadline reminders and team requests at {email}.
@@ -52,7 +52,7 @@ export default function VerifyEmailBanner({
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-[14px] border border-ink/15 bg-ink/[0.04] px-4 py-3 text-sm text-ink sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-3 rounded-lg border border-ink/15 bg-ink/[0.04] px-4 py-3 text-sm text-ink sm:flex-row sm:items-center">
       <MailWarning className="hidden h-5 w-5 shrink-0 sm:block" aria-hidden="true" />
       <p className="flex-1" aria-live="polite">
         {sent ? (

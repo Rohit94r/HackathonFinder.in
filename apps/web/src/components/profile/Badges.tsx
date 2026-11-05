@@ -21,7 +21,7 @@ export default function Badges({ states }: { states: BadgeState[] }) {
             <li key={b.id} className="flex flex-col items-center text-center">
               <span
                 className={cn(
-                  'relative inline-flex h-14 w-14 items-center justify-center rounded-2xl',
+                  'relative inline-flex h-14 w-14 items-center justify-center rounded-xl',
                   isEarned ? cn(b.tone, 'shadow-card') : 'bg-ink/5 text-ink/30'
                 )}
               >

@@ -12,7 +12,7 @@ export const metadata: Metadata = pageMetadata({
 export default function PrivacyPage() {
   return (
     <>
-      <PageHero title="Privacy" accent="policy" stickers={false} />
+      <PageHero title="Privacy" accent="policy" />
       <div className="container-page max-w-3xl py-12">
         <div className="prose-hf" dangerouslySetInnerHTML={{ __html: privacyHtml }} />
       </div>

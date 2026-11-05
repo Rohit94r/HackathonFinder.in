@@ -70,7 +70,7 @@ export default function WinArticle({
               {cityName(story.city)}
             </span>
           </p>
-          <h1 className="mt-3 break-words font-sans text-4xl font-semibold normal-case leading-tight tracking-normal sm:text-5xl">{story.projectName}</h1>
+          <h1 className="mt-3 break-words font-sans text-3xl font-semibold leading-tight sm:text-4xl">{story.projectName}</h1>
           <p className="mt-4 max-w-3xl text-lg text-ink/70">{story.tagline}</p>
           <p className="mt-5 flex items-center gap-2 text-sm text-ink/60">
             <Avatar name={author.name} image={author.image} size="sm" />
@@ -88,17 +88,17 @@ export default function WinArticle({
           </p>
           {story.coverUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={story.coverUrl} alt={`${story.projectName} cover`} className="mt-8 h-56 w-full rounded-3xl object-cover sm:h-72" />
+            <img src={story.coverUrl} alt={`${story.projectName} cover`} className="mt-8 h-56 w-full rounded-xl object-cover sm:h-72" />
           ) : (
             <EventArt
               theme={story.themes[0] ?? 'open-innovation'}
               title={story.projectName}
               label={RESULT_LABELS[story.result]}
               size="hero"
-              className="mt-8 h-56 rounded-3xl"
+              className="mt-8 h-56 rounded-xl"
             />
           )}
-          <div className={cn('mt-4 flex flex-col gap-3 rounded-2xl px-5 py-4 sm:flex-row sm:items-center sm:justify-between', BANNER[story.result])}>
+          <div className={cn('mt-4 flex flex-col gap-3 rounded-xl px-5 py-4 sm:flex-row sm:items-center sm:justify-between', BANNER[story.result])}>
             <p className="flex items-center gap-3 font-display text-xl font-bold leading-tight sm:text-2xl">
               <ResultIcon className="h-7 w-7 shrink-0" aria-hidden="true" />
               {resultLine(story)}
@@ -128,7 +128,7 @@ export default function WinArticle({
             )}
           </div>
 
-          <div className="mt-10 flex flex-col gap-4 rounded-2xl border border-ink/10 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mt-10 flex flex-col gap-4 rounded-xl border border-ink/10 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="font-semibold text-ink">Liked this story?</p>
               <p className="text-sm text-ink/60">Cheer for the team, or send it to a friend.</p>
@@ -245,7 +245,7 @@ export default function WinArticle({
             </>
           )}
 
-          <div className={cn('on-dark overflow-hidden rounded-3xl bg-ink p-8 text-center sm:p-10', more.length > 0 && 'mt-12')}>
+          <div className={cn('on-dark overflow-hidden rounded-xl bg-ink p-8 text-center sm:p-10', more.length > 0 && 'mt-12')}>
             <h2 className="text-3xl text-surface">Won something?</h2>
             <p className="mx-auto mt-3 max-w-md text-surface/80">
               Finals count too. Share what you built and what the judges liked, so the next team learns from it.

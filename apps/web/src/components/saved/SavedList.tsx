@@ -21,7 +21,7 @@ const COLUMN_STYLES: Record<TrackStatus, string> = {
 /** Signed-out students keep their list in this browser; it moves to the account when they sign in. */
 function GuestBanner() {
   return (
-    <div className="mb-6 flex flex-col gap-3 rounded-[14px] border border-ink/10 bg-ink/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+    <div className="mb-6 flex flex-col gap-3 rounded-lg border border-ink/10 bg-ink/5 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
       <p className="text-sm text-ink/80">
         <strong className="text-ink">Sign in to keep your list on every device.</strong> Right now it’s saved in this browser only; it
         moves to your account when you sign in.
@@ -54,7 +54,7 @@ export default function SavedList({ items }: { items: HackathonView[] }) {
       <>
         {banner}
         <div className="card flex flex-col items-center px-6 py-16 text-center">
-          <span className="mb-4 rounded-2xl bg-ink/5 p-4 text-ink">
+          <span className="mb-4 rounded-xl bg-ink/5 p-4 text-ink">
             <Bookmark className="h-7 w-7" />
           </span>
           <h2 className="text-xl font-bold">Your list is empty</h2>
@@ -77,7 +77,7 @@ export default function SavedList({ items }: { items: HackathonView[] }) {
         {COLUMNS.map((col) => {
           const inCol = list.filter((h) => saved[h.slug] === col);
           return (
-            <section key={col} aria-label={TRACK_LABELS[col]} className="rounded-2xl bg-card/60 p-3 ring-1 ring-ink/15">
+            <section key={col} aria-label={TRACK_LABELS[col]} className="rounded-xl bg-card/60 p-3 ring-1 ring-ink/15">
               <h2 className="mb-3 flex items-center justify-between px-1 font-sans text-sm font-semibold">
                 <span className={cn('rounded-full px-2.5 py-1', COLUMN_STYLES[col])}>{TRACK_LABELS[col]}</span>
                 <span className="text-ink/45">{inCol.length}</span>

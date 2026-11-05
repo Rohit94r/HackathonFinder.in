@@ -16,7 +16,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
 
   return (
     <main className="container-page flex min-h-screen flex-col items-center justify-center py-20 text-center">
-      <span className="mb-6 rounded-3xl bg-ink/5 p-5 text-ink">
+      <span className="mb-6 rounded-xl bg-ink/5 p-5 text-ink">
         <AlertTriangle className="h-10 w-10" />
       </span>
       <h1 className="text-4xl font-bold">Something went wrong on our side</h1>

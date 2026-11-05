@@ -16,9 +16,9 @@ import { withNext } from './authUtils';
 // the theme, so these use the ink tokens: bg-card panels, text-ink, border-ink/10.
 
 const DEFAULT_ICON_BTN =
-  'inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink/80 transition hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
+  'inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink/70 transition-colors hover:bg-ink/[0.05] hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
 
-const PANEL = 'hf-dd-in z-50 rounded-2xl border border-ink/10 bg-card text-ink shadow-lift';
+const PANEL = 'hf-dd-in z-50 rounded-xl border border-line bg-card text-ink shadow-lift';
 
 /** Closes a dropdown on a click outside, on Escape, and when the page changes. */
 function useDismiss(open: boolean, close: () => void) {
@@ -82,7 +82,7 @@ export function NotificationBell({ className = DEFAULT_ICON_BTN }: { className?:
       >
         <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
         {unread > 0 && (
-          <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-white">
+          <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-white">
             {countLabel(unread)}
           </span>
         )}
@@ -90,11 +90,11 @@ export function NotificationBell({ className = DEFAULT_ICON_BTN }: { className?:
       {open && (
         <div
           id="nav-notifications"
-          className={cn(PANEL, 'fixed inset-x-4 top-[80px] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-3 sm:w-[360px]')}
+          className={cn(PANEL, 'fixed inset-x-4 top-[72px] sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-[360px]')}
         >
-          <div className="flex items-center justify-between gap-3 border-b border-ink/10 px-4 py-3">
+          <div className="flex items-center justify-between gap-3 border-b border-line px-4 py-3">
             <p className="text-sm font-semibold">Notifications</p>
-            <Link href="/notifications" className="text-xs font-semibold text-brand-700 hover:underline dark:text-brand-300">
+            <Link href="/notifications" className="text-xs font-medium text-accent hover:underline dark:text-brand-300">
               See all
             </Link>
           </div>
@@ -185,17 +185,17 @@ export function AccountMenu() {
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="relative inline-flex rounded-full transition hover:ring-2 hover:ring-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="relative ml-1 inline-flex rounded-full transition hover:ring-2 hover:ring-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
         aria-expanded={open}
         aria-controls="nav-account"
         aria-label={unreadChats ? `Your account, ${user.name}, ${unreadChats} unread messages` : `Your account, ${user.name}`}
         title="Your account"
       >
-        <Avatar name={user.name || 'You'} image={user.image} size="sm" className="h-10 w-10 ring-0" />
+        <Avatar name={user.name || 'You'} image={user.image} size="sm" className="h-8 w-8 ring-0" />
         {unreadChats > 0 && <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border-2 border-surface bg-accent" aria-hidden="true" />}
       </button>
       {open && (
-        <div id="nav-account" className={cn(PANEL, 'absolute right-0 top-full mt-3 w-64 p-2')}>
+        <div id="nav-account" className={cn(PANEL, 'absolute right-0 top-full mt-2 w-64 p-1.5')}>
           <div className="flex items-center gap-3 px-2.5 pb-3 pt-2">
             <Avatar name={user.name || 'You'} image={user.image} size="md" className="ring-0" />
             <div className="min-w-0">
@@ -203,13 +203,13 @@ export function AccountMenu() {
               {user.handle && <p className="truncate text-xs text-ink/60">@{user.handle}</p>}
             </div>
           </div>
-          <ul className="border-t border-ink/10 pt-2">
+          <ul className="border-t border-line pt-1.5">
             {links.map(({ href, label, icon: Icon, badge }) => (
               <li key={href}>
                 <Link
                   href={href}
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition hover:bg-ink/[0.05]"
+                  className="flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors hover:bg-ink/[0.04]"
                 >
                   <Icon className="h-4 w-4 text-ink/70" aria-hidden="true" />
                   <span className="flex-1">{label}</span>
@@ -224,7 +224,7 @@ export function AccountMenu() {
                 <Link
                   href="/admin"
                   onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-2.5 py-2 text-sm font-medium transition hover:bg-ink/[0.05]"
+                  className="flex items-center gap-3 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors hover:bg-ink/[0.04]"
                 >
                   <Settings className="h-4 w-4 text-ink/70" aria-hidden="true" />
                   <span className="flex-1">Admin</span>
@@ -232,11 +232,11 @@ export function AccountMenu() {
               </li>
             )}
           </ul>
-          <div className="mt-2 border-t border-ink/10 pt-2">
+          <div className="mt-1.5 border-t border-line pt-1.5">
             <button
               type="button"
               onClick={() => void signOut({ callbackUrl: '/' })}
-              className="flex w-full items-center gap-3 rounded-xl px-2.5 py-2 text-left text-sm font-medium transition hover:bg-ink/[0.05]"
+              className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-sm font-medium transition hover:bg-ink/[0.05]"
             >
               <LogOut className="h-4 w-4 text-ink/70" aria-hidden="true" />
               Sign out
@@ -255,14 +255,13 @@ export function AccountMenu() {
 export function NavAccount({ iconClassName = DEFAULT_ICON_BTN }: { iconClassName?: string }) {
   const { status } = useSession();
   const pathname = usePathname();
-  if (status === 'loading') return <span className="hidden h-10 w-10 rounded-full bg-ink/[0.05] sm:inline-flex" aria-hidden="true" />;
+  if (status === 'loading') return <span className="hidden h-8 w-16 rounded-lg bg-ink/[0.05] sm:inline-flex" aria-hidden="true" />;
   if (status === 'unauthenticated') {
     return (
       <Link
         href={withNext('/login', pathname === '/' ? null : pathname)}
-        className="btn-secondary hidden h-10 whitespace-nowrap rounded-full px-4 py-0 text-sm sm:inline-flex"
+        className="btn-ghost hidden h-9 min-h-0 whitespace-nowrap px-3 py-0 sm:inline-flex"
       >
-        <LogIn className="h-4 w-4" aria-hidden="true" />
         Sign in
       </Link>
     );
@@ -287,8 +286,8 @@ export function MobileAccountLinks() {
   if (!session?.user) {
     return (
       <div>
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-ink/50">Your account</p>
-        <p className="mb-3 text-sm text-ink/70">Keep your saved hackathons, cities and profile on every device.</p>
+        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted">Your account</p>
+        <p className="mb-3 text-sm text-muted">Keep your saved hackathons, cities and profile on every device.</p>
         <div className="flex gap-3">
           <Link href={withNext('/login', pathname === '/' ? null : pathname)} className="btn-primary flex-1 text-sm">
             <LogIn className="h-4 w-4" aria-hidden="true" />
@@ -319,11 +318,11 @@ export function MobileAccountLinks() {
             <Link
               href={href}
               className={cn(
-                'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-semibold transition hover:bg-ink/[0.05]',
-                pathname === href ? 'bg-accent/10 text-brand-700 dark:text-brand-300' : 'text-ink'
+                'flex min-h-[44px] items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-ink/[0.04]',
+                pathname === href ? 'bg-ink/[0.05] text-ink' : 'text-ink/85'
               )}
             >
-              <Icon className="h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+              <Icon className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
               <span className="flex-1">{label}</span>
               {Boolean(badge) && <span className="rounded-full bg-accent px-1.5 py-0.5 text-[11px] font-bold text-white">{countLabel(badge!)}</span>}
             </Link>
@@ -333,9 +332,9 @@ export function MobileAccountLinks() {
           <button
             type="button"
             onClick={() => void signOut({ callbackUrl: '/' })}
-            className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-ink transition hover:bg-ink/[0.05]"
+            className="flex min-h-[44px] w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-ink/85 transition-colors hover:bg-ink/[0.04]"
           >
-            <LogOut className="h-4 w-4 shrink-0 text-accent" aria-hidden="true" />
+            <LogOut className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
             Sign out
           </button>
         </li>

@@ -116,7 +116,7 @@ export default function OrganizersPage() {
               <div
                 key={plan.name}
                 className={cn(
-                  'relative flex flex-col rounded-3xl p-8',
+                  'relative flex flex-col rounded-xl p-8',
                   plan.highlight ? 'on-dark bg-ink text-white shadow-lift' : 'card'
                 )}
               >

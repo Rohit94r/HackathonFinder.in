@@ -89,7 +89,7 @@ function RecordForm({
   });
 
   return (
-    <form onSubmit={submit} noValidate className="space-y-4 rounded-2xl border border-ink/15 bg-ink/[0.03] p-4 sm:p-5">
+    <form onSubmit={submit} noValidate className="space-y-4 rounded-xl border border-ink/15 bg-ink/[0.03] p-4 sm:p-5">
       <div className="flex items-center justify-between gap-3">
         <h3 className="text-base">{initial ? 'Edit this hackathon' : 'Add a hackathon you took part in'}</h3>
         <button type="button" onClick={onCancel} className="rounded-lg p-1.5 hover:bg-ink/5" aria-label="Close without saving">
@@ -276,7 +276,7 @@ export default function RecordManager({
         />
       ) : (
         !mode && (
-          <p className="rounded-2xl border border-dashed border-ink/20 p-5 text-sm text-ink/70">
+          <p className="rounded-xl border border-dashed border-ink/20 p-5 text-sm text-ink/70">
             Add hackathons you’ve been to, even ones from before you joined. They fill your results ring, stats and badges.
           </p>
         )

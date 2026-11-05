@@ -124,10 +124,10 @@ export default function LoginForm({
         </button>
       </form>
 
-      <p className="mt-6 flex items-center gap-1.5 text-xs text-ink/60">
-        Just browsing? You don’t need an account to find hackathons.
-        <Link href="/near-me" className="inline-flex items-center gap-0.5 font-semibold text-ink hover:underline">
-          Near me <ArrowRight className="h-3 w-3" aria-hidden="true" />
+      <p className="mt-6 border-t border-line pt-5 text-xs leading-5 text-muted">
+        Just browsing? You don’t need an account to find hackathons.{' '}
+        <Link href="/hackathons" className="inline-flex items-center gap-0.5 whitespace-nowrap font-medium text-accent hover:underline">
+          Explore hackathons <ArrowRight className="h-3 w-3" aria-hidden="true" />
         </Link>
       </p>
     </div>

@@ -28,7 +28,7 @@ export default function WinOwnerActions({ slug, title, mine }: { slug: string; t
   };
 
   return (
-    <div className="rounded-2xl bg-ink/5 p-4 text-sm text-ink/70">
+    <div className="rounded-xl bg-ink/5 p-4 text-sm text-ink/70">
       <p>{mine ? 'This is your story. You can change it any time.' : 'Admin: you can edit or remove this story.'}</p>
       <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2">
         <Link href={`/wins/${slug}?edit=1`} className="inline-flex items-center gap-1.5 font-semibold text-ink hover:underline">

@@ -9,12 +9,13 @@ export const revalidate = 86400;
 
 export function GET() {
   const f = siteConfig.founder;
+  const c = siteConfig.coFounder;
   const lines = [
     `# ${siteConfig.name}`,
     '',
     `> ${siteConfig.name} (${siteConfig.url}) is a hackathon aggregator for India. It finds hackathons, ideathons and coding competitions from ${SOURCES.map((s) => s.name).join(', ')} and lists them in one place, searchable by city, theme, mode (online or offline), deadline, team size and prize. Free for students.`,
     '',
-    `Founded by ${f.name} (${f.role}). Contact: ${siteConfig.email}. Founder: ${f.linkedin}`,
+    `Founded by ${f.name} (${f.role}) and ${c.name} (${c.role}). Contact: ${siteConfig.email}. Founder: ${f.linkedin}. Co-founder: ${c.linkedin}`,
     '',
     '## Main pages',
     `- [All hackathons](${abs('/hackathons')}): every open and upcoming hackathon, with filters`,
@@ -26,7 +27,7 @@ export function GET() {
     `- [Winning stories](${abs('/wins')}): how students won hackathons`,
     `- [Submit a hackathon](${abs('/submit')}): organizers and students can add events`,
     `- [How it works](${abs('/how-it-works')}): how listings are found, checked and kept up to date`,
-    `- [About](${abs('/about')}): mission and founder`,
+    `- [About](${abs('/about')}): mission and founders`,
     '',
     '## Cities',
     ...CITIES.map((c) => `- [Hackathons in ${c.name}](${abs(`/cities/${c.slug}`)}), ${c.state}`),

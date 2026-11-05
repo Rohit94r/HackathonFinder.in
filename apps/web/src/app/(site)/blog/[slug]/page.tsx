@@ -50,19 +50,19 @@ export default function BlogPostPage({ params }: { params: { slug: string } }) {
             All guides
           </Link>
           <p className="text-xs font-semibold uppercase tracking-wider text-ink">{post.category}</p>
-          <h1 className="mt-3 font-sans text-4xl font-semibold normal-case leading-tight tracking-normal sm:text-5xl">{post.title}</h1>
+          <h1 className="mt-3 font-sans text-3xl font-semibold leading-tight sm:text-4xl">{post.title}</h1>
           <p className="mt-4 text-lg text-ink/70">{post.excerpt}</p>
           <p className="mt-5 text-sm text-ink/60">
             {post.author} · <time dateTime={published}>{post.date}</time> · {post.readMinutes} min read
           </p>
-          <EventArt theme={post.theme} title={post.title} size="hero" className="mt-8 h-56 rounded-3xl" />
+          <EventArt theme={post.theme} title={post.title} size="hero" className="mt-8 h-56 rounded-xl" />
         </div>
       </header>
 
       <div className="container-page max-w-3xl py-12">
         <div className="prose-hf" dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
 
-        <div className="on-dark mt-14 overflow-hidden rounded-3xl bg-ink p-8 text-center sm:p-10">
+        <div className="on-dark mt-14 overflow-hidden rounded-xl bg-ink p-8 text-center sm:p-10">
           <h2 className="text-2xl font-bold text-white">Ready for your next hackathon?</h2>
           <p className="mx-auto mt-2 max-w-md text-surface/80">
             Search open hackathons by city, theme, deadline and team size.

@@ -1,4 +1,4 @@
-// Contact details, founder and social links. An empty link means we don't have that
+// Contact details, founders and social links. An empty link means we don't have that
 // channel yet; it is hidden everywhere (see activeSocials).
 export const siteConfig = {
   name: 'HackathonFinder',
@@ -18,6 +18,14 @@ export const siteConfig = {
     instagramHandle: 'dev.by.rohit',
     linkedin: 'https://www.linkedin.com/in/rohit-jadhav94/',
     github: 'https://github.com/rohit94r',
+  },
+  coFounder: {
+    name: 'Yash Desai',
+    role: 'Co-founder',
+    email: 'yashdesai5115@gmail.com',
+    linkedin: 'https://www.linkedin.com/in/yash-desai-1aa9b5310/',
+    github: 'https://github.com/yassudicoder',
+    website: 'https://the-open-box.vercel.app/',
   },
   social: {
     instagram: 'https://www.instagram.com/dev.by.rohit/',

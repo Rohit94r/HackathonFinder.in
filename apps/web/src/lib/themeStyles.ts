@@ -24,18 +24,19 @@ interface ThemeStyle {
   soft: string;
 }
 
-// Cover art and tints stay inside the palette: red, white and charcoal, in a few mixes
+// Cover art and tints stay inside the palette: indigo and cool neutrals, in a few mixes
 // so neighbouring cards still look different. Full class strings so Tailwind keeps them in the build.
 const ART = {
-  signature: 'from-[#ec3750] to-[#ff6b81]',
-  deepRed: 'from-[#9b1830] via-[#ec3750] to-[#ff6b81]',
-  sunset: 'from-[#ff6b81] via-[#f2465f] to-[#be1e3a]',
-  nightRed: 'from-[#17171d] via-[#3d1d26] to-[#ec3750]',
-  nightOrange: 'from-[#17171d] via-[#7d142a] to-[#ec3750]',
+  signature: 'from-[#635bff] to-[#8580ff]',
+  deepRed: 'from-[#332d8f] via-[#635bff] to-[#8580ff]',
+  sunset: 'from-[#8580ff] via-[#7069ff] to-[#5047e5]',
+  nightRed: 'from-[#171923] via-[#272a37] to-[#635bff]',
+  nightOrange: 'from-[#171923] via-[#332d8f] to-[#635bff]',
 };
+// Tags are quiet: the accent tint for a few themes, neutral for the rest.
 const TINT = {
-  red: 'bg-brand-50 text-brand-700 dark:bg-brand-400/15 dark:text-brand-200',
-  orange: 'bg-ink/5 text-ink/80 dark:bg-white/10 dark:text-white/85',
+  red: 'bg-accent-soft text-brand-800 dark:bg-accent/15 dark:text-brand-200',
+  orange: 'bg-ink/[0.05] text-ink/75 dark:bg-white/[0.07] dark:text-white/80',
 };
 
 export const THEME_STYLES: Record<ThemeSlug, ThemeStyle> = {

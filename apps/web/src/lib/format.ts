@@ -73,6 +73,14 @@ export function formatPrizeShort(amount: number, currency: Currency): string {
   return `₹${amount}`;
 }
 
+/** Large rupee totals for stats: "₹2.4 Cr", "₹85 L", "₹40K". */
+export function formatInrCompact(amount: number): string {
+  if (amount >= 1e7) return `₹${trim(Math.round(amount / 1e6) / 10)} Cr`;
+  if (amount >= 1e5) return `₹${trim(Math.round(amount / 1e4) / 10)} L`;
+  if (amount >= 1000) return `₹${Math.round(amount / 1000)}K`;
+  return `₹${amount}`;
+}
+
 function trim(n: number): string {
   return Number.isInteger(n) ? String(n) : n.toFixed(1);
 }

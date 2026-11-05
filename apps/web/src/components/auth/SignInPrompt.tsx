@@ -48,7 +48,7 @@ export default function SignInPrompt({
   return (
     <div className={cn('mx-auto max-w-xl', className)}>
       <div className="card p-7 text-center sm:p-10">
-        <span className="mx-auto inline-flex rounded-2xl bg-accent p-4 text-white">
+        <span className="mx-auto inline-flex rounded-xl bg-accent p-4 text-white">
           <Icon className="h-7 w-7" aria-hidden="true" />
         </span>
         <h1 className="mt-5 font-sans text-2xl font-bold normal-case tracking-normal sm:text-3xl">{title}</h1>

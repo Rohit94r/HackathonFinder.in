@@ -73,7 +73,7 @@ export default function ScrollEffects() {
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none fixed inset-x-0 top-0 z-[70] h-[3px] origin-left bg-gradient-to-r from-accent via-brand-400 to-pop"
+      className="pointer-events-none fixed inset-x-0 top-0 z-[70] h-[2px] origin-left bg-accent"
       style={{ transform: 'scaleX(var(--scroll-progress, 0))' }}
     />
   );

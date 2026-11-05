@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Bookmark, ChevronDown, Menu, Navigation, Plus, X } from 'lucide-react';
+import { Bookmark, CalendarCheck, ChevronDown, Menu, Plus, X } from 'lucide-react';
 import { Logo } from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
 import { MobileAccountLinks, NavAccount } from '@/components/auth/AccountMenu';
@@ -12,45 +12,41 @@ import { useSaved } from '@/lib/useSaved';
 import { cn } from '@/lib/cn';
 
 const iconBtn =
-  'inline-flex h-10 w-10 items-center justify-center rounded-full border border-ink/15 text-ink/80 transition hover:border-accent hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
+  'inline-flex h-9 w-9 items-center justify-center rounded-lg text-ink/70 transition-colors hover:bg-ink/[0.05] hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent';
 
-function pill(active: boolean) {
+function navLink(active: boolean) {
   return cn(
-    'inline-flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full px-4 text-[15px] font-semibold transition',
-    active ? 'bg-accent/10 text-brand-700 dark:text-brand-300' : 'text-ink/80 hover:bg-ink/[0.05] hover:text-ink'
+    'inline-flex h-9 items-center gap-1 whitespace-nowrap rounded-lg px-3 text-sm font-medium transition-colors',
+    active ? 'bg-ink/[0.05] text-ink' : 'text-ink/70 hover:bg-ink/[0.04] hover:text-ink'
   );
 }
 
 function isActive(pathname: string, href: string) {
   // Filtered views like "Closing soon" share a path with "All hackathons"; only the plain link lights up.
   if (href.includes('?')) return false;
-  const path = href;
-  return pathname === path || pathname.startsWith(`${path}/`);
+  return pathname === href || pathname.startsWith(`${href}/`);
 }
 
 function Dropdown({ group, pathname, onNavigate }: { group: NavGroup; pathname: string; onNavigate: () => void }) {
   return (
-    <div
-      id={`nav-${group.label.toLowerCase()}`}
-      className="hf-dd-in absolute left-1/2 top-full z-50 w-[380px] -translate-x-1/2 pt-3"
-    >
-      <ul className="rounded-2xl border border-ink/10 bg-card p-2 shadow-lift dark:border-white/10">
+    <div id={`nav-${group.label.toLowerCase()}`} className="hf-dd-in absolute left-0 top-full z-50 w-[340px] pt-2">
+      <ul className="rounded-xl border border-line bg-card p-1.5 shadow-lift">
         {group.items.map((item) => (
           <li key={item.href}>
             <Link
               href={item.href}
               onClick={onNavigate}
               className={cn(
-                'group flex items-start gap-3 rounded-xl px-3 py-2.5 transition hover:bg-ink/[0.05]',
-                isActive(pathname, item.href) && 'bg-ink/[0.05]'
+                'group flex items-start gap-3 rounded-lg px-2.5 py-2 transition-colors hover:bg-ink/[0.04]',
+                isActive(pathname, item.href) && 'bg-ink/[0.04]'
               )}
             >
-              <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-accent/10 text-accent transition group-hover:bg-accent group-hover:text-white">
-                <item.icon className="h-[18px] w-[18px]" />
+              <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-line bg-surface text-ink/70 transition-colors group-hover:text-accent">
+                <item.icon className="h-4 w-4" />
               </span>
               <span>
-                <span className="block text-sm font-semibold text-ink">{item.label}</span>
-                <span className="block text-xs text-ink/60">{item.description}</span>
+                <span className="block text-sm font-medium text-ink">{item.label}</span>
+                <span className="block text-xs text-muted">{item.description}</span>
               </span>
             </Link>
           </li>
@@ -64,6 +60,9 @@ export default function Navbar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
+  // Over a dark hero (an element with data-hero-dark), the bar goes dark too until the hero scrolls away.
+  const [overDark, setOverDark] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navRef = useRef<HTMLElement>(null);
   const { count, ready } = useSaved();
@@ -72,6 +71,27 @@ export default function Navbar() {
     setMobileOpen(false);
     setOpenGroup(null);
   }, [pathname]);
+
+  useEffect(() => {
+    const hero = document.querySelector('[data-hero-dark]');
+    const onScroll = () => {
+      setScrolled(window.scrollY > 4);
+      setOverDark(hero ? hero.getBoundingClientRect().bottom > 64 : false);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, [pathname]);
+
+  // The mobile sheet covers the page; stop the page behind it from scrolling.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileOpen]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -109,60 +129,59 @@ export default function Navbar() {
   });
 
   return (
-    <header className="sticky top-0 z-50 border-b border-ink/10 bg-surface/85 backdrop-blur-xl">
-      {/* On wide screens, equal side columns keep the links exactly centred. */}
-      <nav
-        ref={navRef}
-        className="container-page flex h-[72px] items-center justify-between gap-4 xl:grid xl:grid-cols-[1fr_auto_1fr]"
-        aria-label="Main"
-      >
-        <div className="xl:justify-self-start">
-          <Logo />
-        </div>
+    <header
+      data-theme={overDark ? 'dark' : undefined}
+      className={cn(
+        'sticky top-0 z-50 border-b backdrop-blur transition-colors duration-300',
+        overDark ? 'bg-surface/80' : 'bg-card/90 supports-[backdrop-filter]:bg-card/80',
+        (scrolled && !overDark) || mobileOpen ? 'border-line' : overDark && scrolled ? 'border-white/10' : 'border-transparent'
+      )}
+    >
+      <nav ref={navRef} className="container-page flex h-16 items-center gap-6" aria-label="Main">
+        <Logo />
 
-        <ul className="hidden items-center gap-1 xl:flex xl:justify-self-center">
+        <ul className="hidden items-center gap-0.5 lg:flex">
           <GroupItem {...groupProps(NAV_HACKATHONS)} />
           <li>
-            <Link href="/near-me" className={pill(isActive(pathname, '/near-me'))}>
-              <span className="relative inline-flex">
-                <Navigation className="h-4 w-4 text-accent" />
-                <span className="absolute -right-0.5 -top-0.5 h-1.5 w-1.5 animate-ping rounded-full bg-accent motion-reduce:hidden" aria-hidden="true" />
-              </span>
+            <Link href="/near-me" className={navLink(isActive(pathname, '/near-me'))}>
               Near me
             </Link>
           </li>
           <li>
-            <Link href="/teams" className={pill(isActive(pathname, '/teams'))}>
+            <Link href="/teams" className={navLink(isActive(pathname, '/teams'))}>
               Team Finder
             </Link>
           </li>
           <GroupItem {...groupProps(NAV_COMMUNITY)} />
         </ul>
 
-        <div className="flex items-center gap-2 xl:justify-self-end">
-          <ThemeToggle className={iconBtn} />
+        <div className="ml-auto flex items-center gap-1.5">
           <Link
             href="/saved"
-            className={cn(iconBtn, 'relative hidden sm:inline-flex')}
-            aria-label={`My hackathons${ready && count ? `, ${count} saved` : ''}`}
-            title="My hackathons"
+            className={cn(navLink(isActive(pathname, '/saved')), 'relative px-2.5 sm:px-3')}
+            aria-label={`Saved hackathons${ready && count ? `, ${count} saved` : ''}`}
           >
-            <Bookmark className="h-[18px] w-[18px]" />
+            <Bookmark className="h-4 w-4" aria-hidden="true" />
+            <span className="hidden xl:inline">Saved</span>
             {ready && count > 0 && (
-              <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent px-1 text-[11px] font-bold text-white">
+              <span className="ml-0.5 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-accent-soft px-1.5 text-[11px] font-semibold text-brand-700 dark:bg-accent/20 dark:text-brand-200">
                 {count}
               </span>
             )}
           </Link>
+          <Link href="/profile" className={cn(navLink(isActive(pathname, '/profile')), 'hidden xl:inline-flex')}>
+            <CalendarCheck className="h-4 w-4" aria-hidden="true" />
+            My events
+          </Link>
+          <Link href="/submit" className="btn-primary ml-1 hidden h-9 min-h-0 whitespace-nowrap px-3.5 py-0 md:inline-flex">
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            Submit hackathon
+          </Link>
           {/* Bell and avatar menu when signed in, "Sign in" when not. */}
           <NavAccount iconClassName={iconBtn} />
-          <Link href="/submit" className="btn-primary hidden h-10 whitespace-nowrap rounded-full px-4 py-0 text-sm md:inline-flex">
-            <Plus className="h-4 w-4" />
-            Submit
-          </Link>
           <button
             type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-accent text-white xl:hidden"
+            className={cn(iconBtn, 'lg:hidden')}
             onClick={() => setMobileOpen((v) => !v)}
             aria-expanded={mobileOpen}
             aria-controls="mobile-menu"
@@ -172,33 +191,32 @@ export default function Navbar() {
           </button>
         </div>
       </nav>
-      {/* Red hairline under the bar */}
-      <div className="h-px bg-gradient-to-r from-transparent via-accent/50 to-transparent" aria-hidden="true" />
 
       {mobileOpen && (
-        <div id="mobile-menu" className="hf-dd-in max-h-[calc(100vh-73px)] overflow-y-auto border-t border-ink/10 bg-surface xl:hidden">
-          <div className="container-page grid gap-6 py-6 sm:grid-cols-2">
-            <MobileLinks
-              title="Find"
-              items={[
-                { ...NAV_HACKATHONS.items[1], label: 'Hackathons near me' },
-                ...NAV_HACKATHONS.items.filter((i) => i.href !== '/near-me'),
-              ]}
-              pathname={pathname}
-            />
+        <div
+          id="mobile-menu"
+          className="hf-fade-in fixed inset-x-0 bottom-0 top-16 overflow-y-auto overscroll-contain border-t border-line bg-card lg:hidden"
+        >
+          <div className="container-page grid gap-6 py-5 sm:grid-cols-2">
+            <MobileLinks title="Explore" items={NAV_HACKATHONS.items} pathname={pathname} />
             <MobileLinks title="Community" items={NAV_COMMUNITY.items} pathname={pathname} />
           </div>
-          <div className="container-page border-t border-ink/10 py-6">
-            <MobileAccountLinks />
-          </div>
-          <div className="container-page flex gap-3 pb-6">
-            <Link href="/saved" className="btn-secondary flex-1 px-3 text-sm">
-              <Bookmark className="h-4 w-4" />
+          <div className="container-page grid grid-cols-2 gap-2 pb-5">
+            <Link href="/saved" className="btn-secondary">
+              <Bookmark className="h-4 w-4" aria-hidden="true" />
               Saved{ready && count > 0 ? ` (${count})` : ''}
             </Link>
-            <Link href="/submit" className="btn-primary flex-1 px-3 text-sm">
-              Submit
+            <Link href="/submit" className="btn-primary">
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              Submit hackathon
             </Link>
+          </div>
+          <div className="container-page border-t border-line py-5">
+            <MobileAccountLinks />
+          </div>
+          <div className="container-page flex items-center justify-between border-t border-line py-4 pb-8">
+            <span className="text-sm text-muted">Appearance</span>
+            <ThemeToggle className={cn(iconBtn, 'border border-line')} />
           </div>
         </div>
       )}
@@ -225,13 +243,13 @@ function GroupItem({ group, pathname, open, onEnter, onLeave, onToggle, onNaviga
     <li className="relative" onMouseEnter={onEnter} onMouseLeave={onLeave}>
       <button
         type="button"
-        className={pill(active || open)}
+        className={navLink(active || open)}
         aria-expanded={open}
         aria-controls={`nav-${group.label.toLowerCase()}`}
         onClick={onToggle}
       >
         {group.label}
-        <ChevronDown className={cn('h-4 w-4 transition-transform', open && 'rotate-180')} />
+        <ChevronDown className={cn('h-3.5 w-3.5 text-muted transition-transform', open && 'rotate-180')} aria-hidden="true" />
       </button>
       {open && <Dropdown group={group} pathname={pathname} onNavigate={onNavigate} />}
     </li>
@@ -241,22 +259,19 @@ function GroupItem({ group, pathname, open, onEnter, onLeave, onToggle, onNaviga
 function MobileLinks({ title, items, pathname }: { title: string; items: NavGroup['items']; pathname: string }) {
   return (
     <div>
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-ink/50">{title}</p>
-      <ul className="space-y-1">
+      <p className="mb-1.5 px-3 text-xs font-medium uppercase tracking-wider text-muted">{title}</p>
+      <ul>
         {items.map((item) => (
           <li key={item.href}>
             <Link
               href={item.href}
               className={cn(
-                'flex items-center gap-3 rounded-xl px-3 py-2.5 transition hover:bg-ink/[0.05]',
-                isActive(pathname, item.href) ? 'bg-accent/10 text-brand-700 dark:text-brand-300' : 'text-ink'
+                'flex min-h-[44px] items-center gap-3 rounded-lg px-3 py-2 text-[15px] font-medium transition-colors hover:bg-ink/[0.04]',
+                isActive(pathname, item.href) ? 'bg-ink/[0.05] text-ink' : 'text-ink/85'
               )}
             >
-              <item.icon className="h-5 w-5 shrink-0 text-accent" />
-              <span>
-                <span className="block font-semibold">{item.label}</span>
-                <span className="block text-xs text-ink/60">{item.description}</span>
-              </span>
+              <item.icon className="h-[18px] w-[18px] shrink-0 text-muted" aria-hidden="true" />
+              {item.label}
             </Link>
           </li>
         ))}

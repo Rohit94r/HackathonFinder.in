@@ -68,7 +68,7 @@ export default function AvatarUploader({ name }: { name: string }) {
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-ink/10 p-4 sm:flex-row sm:items-center">
+    <div className="flex flex-col gap-4 rounded-xl border border-ink/10 p-4 sm:flex-row sm:items-center">
       <div className="relative shrink-0 self-start">
         <Avatar name={name || me?.name || 'You'} image={image} size="xl" className="h-24 w-24 ring-0" />
         {busy === 'upload' && (

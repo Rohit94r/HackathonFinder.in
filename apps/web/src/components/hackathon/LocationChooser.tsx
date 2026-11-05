@@ -28,7 +28,7 @@ export default function LocationChooser({ state, onLocate, onPickCity, row = fal
   return (
     <div className={className}>
       <div className={cn('flex flex-col gap-3', row && 'sm:flex-row')}>
-        <button type="button" onClick={onLocate} disabled={state === 'locating'} className="btn-primary whitespace-nowrap py-2.5">
+        <button type="button" onClick={onLocate} disabled={state === 'locating'} className="btn-secondary whitespace-nowrap">
           <LocateFixed className={cn('h-4 w-4', state === 'locating' && 'animate-spin')} />
           {state === 'locating' ? 'Finding you…' : 'Use my location'}
         </button>
@@ -39,7 +39,7 @@ export default function LocationChooser({ state, onLocate, onPickCity, row = fal
           id={id}
           value=""
           onChange={(e) => e.target.value && onPickCity(e.target.value)}
-          className={cn('input py-2.5', row && 'sm:w-52')}
+          className={cn('input', row && 'sm:w-52')}
         >
           <option value="">Or pick your city</option>
           {CITIES.map((c) => (
@@ -50,7 +50,7 @@ export default function LocationChooser({ state, onLocate, onPickCity, row = fal
         </select>
       </div>
       {message && (
-        <p role="status" className="mt-2 text-xs font-medium text-rose-600 dark:text-rose-400">
+        <p role="status" className="mt-2 text-xs font-medium text-danger dark:text-red-400">
           {message}
         </p>
       )}

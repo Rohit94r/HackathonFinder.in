@@ -15,7 +15,6 @@ export default function ForgotPasswordPage({ searchParams }: { searchParams: Rec
       title="No"
       accent="worries"
       description="We’ll email you a link to choose a new password. Your saved hackathons and profile stay just as they are."
-      sticker={{ text: 'Reset', tone: 'turquoise' }}
     >
       <ForgotPasswordForm initialEmail={(email ?? '').slice(0, 200)} />
     </AuthShell>

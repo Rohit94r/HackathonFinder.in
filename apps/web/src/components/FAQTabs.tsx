@@ -24,7 +24,7 @@ export default function FAQTabs({ students, organizers }: { students: FaqItem[];
   return (
     <div className="grid gap-10 lg:grid-cols-[320px_1fr]">
       <div>
-        <h2 className="mb-8 text-6xl sm:text-7xl">FAQs</h2>
+        <h2 className="mb-6 text-2xl sm:text-3xl">Frequently asked questions</h2>
         <div role="tablist" aria-label="FAQ topics" className="flex flex-col gap-3">
           {tabs.map((tab) => {
             const isActive = tab.id === active;
@@ -39,7 +39,7 @@ export default function FAQTabs({ students, organizers }: { students: FaqItem[];
                   setOpen(`${tab.id}-0`);
                 }}
                 className={cn(
-                  'flex items-center gap-3 rounded-[14px] border-2 px-5 py-4 text-left text-lg font-semibold uppercase transition',
+                  'flex items-center gap-3 rounded-lg border-2 px-5 py-4 text-left text-lg font-semibold uppercase transition',
                   isActive ? 'border-ink bg-ink text-surface' : 'border-ink/15 bg-card text-ink hover:border-ink'
                 )}
               >

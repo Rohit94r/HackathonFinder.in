@@ -215,9 +215,9 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
           <div className="h-4 w-40 animate-pulse rounded bg-ink/10" />
         </div>
         <div className="flex-1 space-y-3 p-5">
-          <div className="h-10 w-2/3 animate-pulse rounded-2xl bg-ink/[0.06]" />
-          <div className="ml-auto h-10 w-1/2 animate-pulse rounded-2xl bg-ink/[0.06]" />
-          <div className="h-10 w-1/3 animate-pulse rounded-2xl bg-ink/[0.06]" />
+          <div className="h-10 w-2/3 animate-pulse rounded-xl bg-ink/[0.06]" />
+          <div className="ml-auto h-10 w-1/2 animate-pulse rounded-xl bg-ink/[0.06]" />
+          <div className="h-10 w-1/3 animate-pulse rounded-xl bg-ink/[0.06]" />
         </div>
       </div>
     );
@@ -254,7 +254,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
             <MoreVertical className="h-5 w-5" />
           </button>
           {menuOpen && (
-            <div className="hf-dd-in absolute right-0 top-full z-20 mt-2 w-52 rounded-2xl border border-ink/10 bg-card p-1.5 text-sm shadow-lift">
+            <div className="hf-dd-in absolute right-0 top-full z-20 mt-2 w-52 rounded-xl border border-ink/10 bg-card p-1.5 text-sm shadow-lift">
               {profileHref && (
                 <Link href={profileHref} className="flex items-center gap-2.5 rounded-xl px-3 py-2 hover:bg-ink/5">
                   <UserRound className="h-4 w-4 text-ink/60" />
@@ -286,7 +286,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
             </button>
           </div>
         ) : (
-          <div className="mx-auto mb-5 max-w-md rounded-2xl border border-ink/10 px-4 py-3 text-center text-xs leading-5 text-ink/60">
+          <div className="mx-auto mb-5 max-w-md rounded-xl border border-ink/10 px-4 py-3 text-center text-xs leading-5 text-ink/60">
             <ShieldCheck className="mx-auto mb-1 h-4 w-4 text-ink/50" aria-hidden="true" />
             You connected when {conv.origin === 'invite' ? 'an invite' : 'a join request'} was accepted. Only the two of you can see
             this chat. Keep it respectful, and never share passwords or OTPs.
@@ -315,7 +315,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
           })}
           {pending.map((p) => (
             <li key={p.tempId} className="flex flex-col items-end pt-1">
-              <p className={cn('max-w-[85%] whitespace-pre-wrap break-words rounded-2xl rounded-br-md px-3.5 py-2 text-sm sm:max-w-[70%]', p.failed ? 'bg-accent/20 text-ink' : 'bg-accent/70 text-white')}>
+              <p className={cn('max-w-[85%] whitespace-pre-wrap break-words rounded-xl rounded-br-md px-3.5 py-2 text-sm sm:max-w-[70%]', p.failed ? 'bg-accent/20 text-ink' : 'bg-accent/70 text-white')}>
                 {p.body}
               </p>
               {p.failed ? (
@@ -413,7 +413,7 @@ function Bubble({ message: m, grouped, status }: { message: ChatMessage; grouped
     <li className={cn('flex flex-col', m.mine ? 'items-end' : 'items-start', grouped ? 'pt-0.5' : 'pt-2')}>
       <p
         className={cn(
-          'max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-3.5 py-2 text-sm leading-relaxed sm:max-w-[70%]',
+          'max-w-[85%] whitespace-pre-wrap break-words rounded-xl px-3.5 py-2 text-sm leading-relaxed sm:max-w-[70%]',
           m.mine ? 'rounded-br-md bg-accent text-white' : 'rounded-bl-md bg-ink/[0.07] text-ink'
         )}
       >

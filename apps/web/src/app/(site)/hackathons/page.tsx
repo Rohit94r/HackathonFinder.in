@@ -26,11 +26,10 @@ export default async function HackathonsPage({
   return (
     <>
       <PageHero
-        title="Every hackathon"
-        accent="one search"
+        title="Explore hackathons"
         description={`${openOnly(items).length} events are open for registration right now. Filter by what matters to you and register on the official page.`}
       />
-      <section className="bg-surface py-10">
+      <section className="bg-surface py-8">
         <div className="container-page">
           <Explorer items={items} initial={initial} />
         </div>

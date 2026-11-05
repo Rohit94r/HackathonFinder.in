@@ -23,7 +23,6 @@ export default async function SignupPage({ searchParams }: { searchParams: Recor
       title="Join the"
       accent="builders"
       description="Free for students. Takes a minute. Find hackathons near you, team up and keep a record of everything you ship."
-      sticker={{ text: 'Free', tone: 'yellow' }}
       perks={[
         { icon: BellRing, text: 'Deadline reminders for the hackathons you save' },
         { icon: Users, text: 'Team Finder: invite and join students across India' },

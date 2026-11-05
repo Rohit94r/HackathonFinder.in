@@ -473,7 +473,7 @@ export default function TeamBoard({
       <ProfileSetupCard next="/teams" className="mb-6" />
 
       <div className="mb-6">
-        <div role="tablist" aria-label="Team Finder" className="grid grid-cols-2 gap-1 rounded-2xl border border-ink/10 bg-card p-1 sm:inline-grid">
+        <div role="tablist" aria-label="Team Finder" className="grid grid-cols-2 gap-1 rounded-xl border border-ink/10 bg-card p-1 sm:inline-grid">
           {tabs.map((t) => {
             const isActive = tab === t.value;
             return (
@@ -513,7 +513,7 @@ export default function TeamBoard({
       {justPosted && (
         <p
           role="status"
-          className="mb-6 flex items-center gap-2 rounded-[14px] bg-accent/10 px-4 py-3 text-sm font-medium text-ink"
+          className="mb-6 flex items-center gap-2 rounded-lg bg-accent/10 px-4 py-3 text-sm font-medium text-ink"
         >
           <CheckCircle2 className="h-4 w-4 shrink-0 text-accent" />
           Your team post is up. Students who match can now ask to join, and you’ll get a notification.

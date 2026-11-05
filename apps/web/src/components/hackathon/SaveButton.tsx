@@ -1,7 +1,8 @@
 'use client';
 
-import { Bookmark, BookmarkCheck } from 'lucide-react';
+import { Bookmark } from 'lucide-react';
 import { useSaved } from '@/lib/useSaved';
+import { toast } from '@/components/Toaster';
 import { cn } from '@/lib/cn';
 
 interface SaveButtonProps {
@@ -14,13 +15,14 @@ interface SaveButtonProps {
 export default function SaveButton({ slug, title, variant = 'icon', className }: SaveButtonProps) {
   const { saved, toggle } = useSaved();
   const isSaved = Boolean(saved[slug]);
-  const Icon = isSaved ? BookmarkCheck : Bookmark;
 
   const onClick = (e: React.MouseEvent) => {
     // Cards are links; keep the click on the button.
     e.preventDefault();
     e.stopPropagation();
     toggle(slug, title);
+    if (isSaved) toast('Removed from Saved', { tone: 'info' });
+    else toast('Saved to My hackathons', { action: { label: 'View', href: '/saved' } });
   };
 
   if (variant === 'full') {
@@ -29,10 +31,10 @@ export default function SaveButton({ slug, title, variant = 'icon', className }:
         type="button"
         onClick={onClick}
         aria-pressed={isSaved}
-        className={cn(isSaved ? 'btn-secondary border-ink text-ink' : 'btn-secondary', className)}
+        className={cn('btn-secondary', isSaved && 'border-accent/40 bg-accent-soft text-brand-700 hover:bg-accent-soft dark:bg-accent/15 dark:text-brand-200', className)}
       >
-        <Icon className="h-4 w-4" />
-        {isSaved ? 'Saved to My hackathons' : 'Save'}
+        <Bookmark className={cn('h-4 w-4', isSaved && 'fill-current')} />
+        {isSaved ? 'Saved' : 'Save for later'}
       </button>
     );
   }
@@ -42,14 +44,15 @@ export default function SaveButton({ slug, title, variant = 'icon', className }:
       type="button"
       onClick={onClick}
       aria-pressed={isSaved}
-      aria-label={isSaved ? `Remove ${title} from My hackathons` : `Save ${title}`}
+      aria-label={isSaved ? `Remove ${title} from Saved` : `Save ${title}`}
+      title={isSaved ? 'Saved' : 'Save'}
       className={cn(
-        'inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/90 shadow-sm ring-1 ring-black/5 backdrop-blur transition hover:scale-105',
-        isSaved ? 'text-accent' : 'text-navy/70',
+        'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-black/5 bg-white/95 shadow-sm transition-colors hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+        isSaved ? 'text-accent' : 'text-navy/70 hover:text-navy',
         className
       )}
     >
-      <Icon className="h-4 w-4" />
+      <Bookmark className={cn('h-4 w-4', isSaved && 'fill-current')} />
     </button>
   );
 }

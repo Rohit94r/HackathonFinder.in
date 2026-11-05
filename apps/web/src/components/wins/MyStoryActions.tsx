@@ -16,7 +16,7 @@ export default function MyStoryActions({ id, title }: { id: string; title: strin
   };
 
   return (
-    <div className="rounded-2xl bg-ink/5 p-4 text-sm text-ink/70">
+    <div className="rounded-xl bg-ink/5 p-4 text-sm text-ink/70">
       <p>This is your story. It’s saved in this browser until accounts launch, so only you can see it for now.</p>
       <button type="button" onClick={onDelete} className="mt-3 inline-flex items-center gap-1.5 font-semibold text-rose-600 hover:underline dark:text-rose-400">
         <Trash2 className="h-4 w-4" aria-hidden="true" />

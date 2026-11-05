@@ -16,7 +16,6 @@ export default function ResetPasswordPage({ searchParams }: { searchParams: Reco
       title="Fresh"
       accent="start"
       description="Pick a password you don’t use anywhere else. Longer is stronger."
-      sticker={{ text: 'New key', tone: 'turquoise' }}
     >
       <ResetPasswordForm token={token && token.length >= 10 ? token : null} />
     </AuthShell>

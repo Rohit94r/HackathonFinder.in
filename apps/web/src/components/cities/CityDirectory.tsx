@@ -247,7 +247,7 @@ export default function CityDirectory({ items }: CityDirectoryProps) {
     <div>
       <section aria-labelledby="shortlist-title" className="mb-16">
         <div className="mb-6 max-w-2xl">
-          <h2 id="shortlist-title" className="text-4xl sm:text-5xl">
+          <h2 id="shortlist-title" className="text-2xl sm:text-3xl">
             Your shortlist
           </h2>
           <p className="mt-3 text-base text-ink/70">
@@ -259,7 +259,7 @@ export default function CityDirectory({ items }: CityDirectoryProps) {
           <div className="card h-44 animate-pulse" aria-hidden="true" />
         ) : shortlist.length === 0 ? (
           <div className="card flex flex-col items-start gap-4 p-6 sm:flex-row sm:items-center">
-            <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-accent text-white">
+            <span className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent text-white">
               <Star className="h-6 w-6 fill-current" />
             </span>
             <div className="flex-1">
@@ -280,7 +280,7 @@ export default function CityDirectory({ items }: CityDirectoryProps) {
 
       <section aria-labelledby="all-cities-title">
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <h2 id="all-cities-title" className="text-4xl sm:text-5xl">
+          <h2 id="all-cities-title" className="text-2xl sm:text-3xl">
             All cities
           </h2>
           <p className="text-sm text-ink/60">

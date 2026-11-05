@@ -269,7 +269,7 @@ function DeleteAccount() {
           Delete my account
         </button>
       ) : (
-        <form onSubmit={remove} className="space-y-3 rounded-2xl border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-500/30 dark:bg-brand-500/10">
+        <form onSubmit={remove} className="space-y-3 rounded-xl border border-brand-200 bg-brand-50/60 p-4 dark:border-brand-500/30 dark:bg-brand-500/10">
           <label htmlFor="delete-confirm" className="label">
             Type <strong className="font-mono text-ink">DELETE</strong> to confirm
           </label>
@@ -314,7 +314,7 @@ export default function SettingsView({ connected }: { connected?: string | null 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-4xl sm:text-5xl">Settings</h1>
+        <h1 className="text-2xl sm:text-3xl">Settings</h1>
         <p className="mt-2 text-sm text-ink/70">Your account, sign-in and emails.</p>
       </div>
 

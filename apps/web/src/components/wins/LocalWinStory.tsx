@@ -15,7 +15,7 @@ export default function LocalWinStory({ id, listings }: { id: string; listings: 
       <div className="container-page max-w-5xl py-10" aria-busy="true" aria-label="Loading the story">
         <div className="h-6 w-40 animate-pulse rounded bg-ink/10" />
         <div className="mt-6 h-12 w-2/3 animate-pulse rounded bg-ink/10" />
-        <div className="mt-8 h-56 animate-pulse rounded-3xl bg-ink/10" />
+        <div className="mt-8 h-56 animate-pulse rounded-xl bg-ink/10" />
       </div>
     );
   }
@@ -26,7 +26,7 @@ export default function LocalWinStory({ id, listings }: { id: string; listings: 
     return (
       <div className="container-page max-w-3xl py-16">
         <div className="card flex flex-col items-center px-6 py-16 text-center">
-          <span className="mb-4 rounded-2xl bg-ink/5 p-4 text-ink">
+          <span className="mb-4 rounded-xl bg-ink/5 p-4 text-ink">
             <Trophy className="h-7 w-7" aria-hidden="true" />
           </span>
           <h1 className="font-sans text-2xl font-bold normal-case tracking-normal">We can’t find this story</h1>

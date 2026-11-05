@@ -64,7 +64,7 @@ export default function ActivityHeatmap({ counts, todayKey, unit = 'action' }: {
     <div>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <p className="text-sm text-ink/70">
-          <strong className="font-display text-3xl font-normal leading-none text-ink">{stats.total.toLocaleString('en-IN')}</strong>{' '}
+          <strong className="font-display text-3xl leading-none text-ink">{stats.total.toLocaleString('en-IN')}</strong>{' '}
           {stats.total === 1 ? unit : `${unit}s`} in the past year
         </p>
         <dl className="flex flex-wrap gap-x-5 gap-y-1 text-xs text-ink/60">

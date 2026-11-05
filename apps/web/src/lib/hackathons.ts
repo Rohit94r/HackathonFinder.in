@@ -1,4 +1,4 @@
-import { CITIES, THEMES, isRegistrationOpen, type Hackathon, type Status } from '@hackathonfinder/shared';
+import { CITIES, THEMES, isRegistrationOpen, prizeInInr, type Hackathon, type Status } from '@hackathonfinder/shared';
 
 // Types and pure helpers for listings, safe in client components. Loading listings
 // happens on the server: see getHackathons in @/server/hackathons.
@@ -12,6 +12,15 @@ export interface HackathonView extends Hackathon {
 export interface HackathonSnapshot {
   nowIso: string;
   items: HackathonView[];
+}
+
+/** Above this a stated prize pool is almost certainly a scraping error (a phone number, joined digits). */
+export const MAX_PLAUSIBLE_PRIZE_INR = 10_00_00_000;
+
+/** The prize pool in INR, or 0 when none is stated or the figure isn't believable. */
+export function plausiblePrize(h: Pick<HackathonView, 'prizePool' | 'prizeCurrency'>): number {
+  const inr = prizeInInr(h.prizePool, h.prizeCurrency);
+  return inr > MAX_PLAUSIBLE_PRIZE_INR ? 0 : inr;
 }
 
 export function openOnly(items: HackathonView[]): HackathonView[] {

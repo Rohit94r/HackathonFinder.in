@@ -54,6 +54,7 @@ export function JsonLd({ data }: { data: object | object[] }) {
 
 export const ORG_ID = `${siteConfig.url}/#organization`;
 export const FOUNDER_ID = `${siteConfig.url}/about#founder`;
+export const COFOUNDER_ID = `${siteConfig.url}/about#co-founder`;
 export const WEBSITE_ID = `${siteConfig.url}/#website`;
 
 export function founderJsonLd() {
@@ -70,7 +71,21 @@ export function founderJsonLd() {
   };
 }
 
-/** The organisation, its founder and the site, sent on every page from the root layout. */
+export function coFounderJsonLd() {
+  const c = siteConfig.coFounder;
+  return {
+    '@type': 'Person',
+    '@id': COFOUNDER_ID,
+    name: c.name,
+    jobTitle: `${c.role}, ${siteConfig.name}`,
+    email: `mailto:${c.email}`,
+    url: abs('/about'),
+    sameAs: [c.linkedin, c.github, c.website],
+    worksFor: { '@id': ORG_ID },
+  };
+}
+
+/** The organisation, its founders and the site, sent on every page from the root layout. */
 export function siteJsonLd() {
   return {
     '@context': 'https://schema.org',
@@ -86,13 +101,14 @@ export function siteJsonLd() {
         email: `mailto:${siteConfig.email}`,
         foundingDate: siteConfig.foundingDate,
         areaServed: { '@type': 'Country', name: 'India' },
-        founder: { '@id': FOUNDER_ID },
+        founder: [{ '@id': FOUNDER_ID }, { '@id': COFOUNDER_ID }],
         sameAs,
         contactPoint: [
           { '@type': 'ContactPoint', contactType: 'customer support', email: siteConfig.email, availableLanguage: ['English', 'Hindi'] },
         ],
       },
       founderJsonLd(),
+      coFounderJsonLd(),
       {
         '@type': 'WebSite',
         '@id': WEBSITE_ID,

@@ -55,7 +55,7 @@ export default function NotificationsList() {
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-4xl sm:text-5xl">Notifications</h1>
+          <h1 className="text-2xl sm:text-3xl">Notifications</h1>
           <p className="mt-2 text-sm text-ink/70" aria-live="polite">
             {data ? (unread ? `${unread} unread` : 'You’re all caught up.') : ' '}
           </p>
@@ -90,7 +90,7 @@ export default function NotificationsList() {
       </div>
 
       {actionError && (
-        <p role="alert" className="mt-4 rounded-[14px] border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-400/25 dark:bg-brand-500/10 dark:text-brand-100">
+        <p role="alert" className="mt-4 rounded-lg border border-brand-200 bg-brand-50 px-4 py-3 text-sm text-brand-800 dark:border-brand-400/25 dark:bg-brand-500/10 dark:text-brand-100">
           {actionError}
         </p>
       )}
@@ -111,7 +111,7 @@ export default function NotificationsList() {
           </div>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center px-6 py-14 text-center">
-            <span className="mb-4 rounded-2xl bg-ink/5 p-4 text-ink/70">
+            <span className="mb-4 rounded-xl bg-ink/5 p-4 text-ink/70">
               {unreadOnly ? <CheckCheck className="h-7 w-7" aria-hidden="true" /> : <BellOff className="h-7 w-7" aria-hidden="true" />}
             </span>
             <h2 className="text-xl">{unreadOnly ? 'No unread notifications' : 'Nothing here yet'}</h2>

@@ -28,7 +28,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
       title="Welcome"
       accent="back"
       description="Pick up where you left off: your tracker, your cities and your team."
-      sticker={{ text: 'Ship it', tone: 'yellow' }}
       perks={[
         { icon: Bookmark, text: 'Your saved hackathons, on every device' },
         { icon: BellRing, text: 'Reminders before registration closes' },
