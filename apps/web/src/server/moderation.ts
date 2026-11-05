@@ -12,7 +12,7 @@ import { ApiError } from './api';
 // ("f u c k", "f.u.c.k") and masked letters ("f*ck") are caught too. Whole-word matching
 // keeps "class", "assess" and "Scunthorpe" safe; ALLOW lists normal words that look close.
 
-export const RESPECT_MESSAGE = 'Please keep it respectful — remove the offensive words and try again.';
+export const RESPECT_MESSAGE = 'Please keep it respectful. Remove the offensive words and try again.';
 
 /** Whole words: English, Hindi/Hinglish and Marathi (romanised and Devanagari). */
 const WORDS = [

@@ -5,7 +5,7 @@ import { termsHtml } from '@/data/legalData';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Terms of use',
-  description: 'The terms for using HackathonFinder.',
+  description: 'The rules for using HackathonFinder: listings and accuracy, your account, what you post, Team Finder, event submissions and organizers.',
   path: '/terms',
 });
 

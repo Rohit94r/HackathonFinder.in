@@ -8,7 +8,7 @@ export const runtime = 'edge';
 
 export default function Image() {
   return ogCard({
-    eyebrow: 'Every hackathon. One station.',
+    eyebrow: 'Hackathons online and near you',
     title: 'Find every hackathon near you, in one place',
     subtitle: 'Devpost, MLH, Devfolio, Unstop, college pages and social posts, searchable by city, theme, deadline and prize.',
   });

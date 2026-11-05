@@ -52,6 +52,7 @@ import ResultRing from './ResultRing';
 import StatTiles from './StatTiles';
 import StoryCard from './StoryCard';
 import VerifyEmailBanner from './VerifyEmailBanner';
+import { toast } from '@/components/Toaster';
 
 export interface ProfileEvent {
   slug: string;
@@ -117,7 +118,7 @@ function toStory(w: WinApiItem): ProfileStory | null {
   };
 }
 
-function Onboarding({ firstName, welcome, initial, onSave }: { firstName: string; welcome: boolean; initial: MyProfile; onSave: (p: MyProfile) => Promise<void> }) {
+function Onboarding({ welcome, initial, onSave }: { welcome: boolean; initial: MyProfile; onSave: (p: MyProfile) => Promise<void> }) {
   const perks = [
     { icon: CalendarDays, text: 'An activity heatmap that fills up as you save, register and ship' },
     { icon: BadgeCheck, text: 'Badges for your first save, your first submission, your first win' },
@@ -138,7 +139,7 @@ function Onboarding({ firstName, welcome, initial, onSave }: { firstName: string
           </figcaption>
         </figure>
         <div className="p-6 sm:p-7">
-          <h1 className="font-sans text-3xl font-bold normal-case tracking-normal">{welcome ? `Welcome, ${firstName}` : 'Your hackathon profile'}</h1>
+          <h1 className="font-sans text-3xl font-bold normal-case tracking-normal">{welcome ? 'Set up your hackathon profile' : 'Your hackathon profile'}</h1>
           <p className="mt-3 text-sm leading-6 text-ink/70">
             Like a LeetCode profile, but for hackathons. Add a photo, your college and skills so teammates know who you are, and
             pick your city so we show the nearest hackathons first. It takes a minute, and you can change it any time.
@@ -215,16 +216,15 @@ export default function MyProfileView({
     );
   }
 
-  const firstName = me.name.split(' ')[0];
 
   if (!me.onboarded) {
     return (
       <Onboarding
-        firstName={firstName}
         welcome={welcome}
         initial={profile}
         onSave={async (p) => {
           await save({ ...p, onboarded: true });
+          toast('Profile saved');
           if (next) router.push(next);
         }}
       />
@@ -239,6 +239,7 @@ export default function MyProfileView({
           onSave={async (p) => {
             await save(p);
             setEditing(false);
+            toast('Profile saved');
             if (next) router.push(next);
             else if (edit) router.replace('/profile', { scroll: false });
           }}
@@ -387,7 +388,7 @@ export default function MyProfileView({
                   <Link href={`/hackathons/${slug}`} className="min-w-0 truncate font-semibold text-ink hover:underline">
                     {titleFor(slug)}
                   </Link>
-                  <span className={cn('shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold', STATUS_STYLES[status])}>{TRACK_LABELS[status]}</span>
+                  <span className={cn('shrink-0 rounded-md px-2.5 py-1 text-xs font-semibold', STATUS_STYLES[status])}>{TRACK_LABELS[status]}</span>
                 </li>
               ))}
             </ul>

@@ -34,7 +34,7 @@ function StationClock() {
   const clock = now === null ? null : stationClock(now, localZone());
   return (
     <span className="hidden items-center gap-1.5 rounded-md border border-ink/15 px-2 py-1 font-mono text-[11px] tabular-nums text-ink/60 2xl:inline-flex" aria-hidden="true">
-      <span className="h-1.5 w-1.5 rounded-full bg-board shadow-[0_0_6px_#ffc629]" />
+      <span className="h-1.5 w-1.5 rounded-full bg-board" />
       {clock ? `${clock.time} ${clock.zone}` : '--:--:--'}
     </span>
   );

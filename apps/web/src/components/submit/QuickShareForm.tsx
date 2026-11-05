@@ -172,7 +172,7 @@ export default function QuickShareForm() {
           value={form.message}
           onChange={(e) => set('message', e.target.value)}
           maxLength={5000}
-          placeholder="e.g. the WhatsApp forward with the dates and registration details"
+          placeholder="e.g. the WhatsApp forward with the dates and registration details…"
           aria-invalid={Boolean(errors.message) || undefined}
           aria-describedby={errors.message ? 'qs-message-error' : undefined}
           className={cn('input min-h-[110px]', errors.message && 'border-red-400')}
@@ -225,6 +225,8 @@ export default function QuickShareForm() {
         <input
           id="qs-email"
           type="email"
+          spellCheck={false}
+          autoComplete="email"
           value={form.email}
           onChange={(e) => set('email', e.target.value)}
           placeholder={status === 'authenticated' ? 'We’ll also tell you in your notifications' : 'We’ll tell you when it’s live'}

@@ -7,7 +7,7 @@ import { cn } from '@/lib/cn';
  */
 export function Logo({ size = 'md' }: { dark?: boolean; size?: 'md' | 'lg' }) {
   return (
-    <Link href="/" className="flex shrink-0 items-center rounded-md" aria-label="HackathonFinder home">
+    <Link href="/" className="flex shrink-0 items-center rounded-md" aria-label="HackathonFinder home" translate="no">
       <span className={cn('station-board flex flex-col items-center', size === 'md' ? 'px-3 py-[7px]' : 'px-5 py-3')}>
         <span
           className={cn(

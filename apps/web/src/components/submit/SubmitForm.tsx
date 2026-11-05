@@ -197,7 +197,7 @@ export default function SubmitForm() {
             </select>
           </Field>
           <Field id="sub-email" label="Your email" error={errors.email}>
-            <input {...inputProps('email')} type="email" value={form.email} onChange={(e) => set('email', e.target.value)} />
+            <input {...inputProps('email')} type="email" spellCheck={false} autoComplete="email" value={form.email} onChange={(e) => set('email', e.target.value)} />
           </Field>
         </div>
         <label className="flex items-center gap-2 text-sm text-ink/80">
@@ -243,7 +243,7 @@ export default function SubmitForm() {
               </Field>
               {form.city === 'other' && (
                 <Field id="sub-cityName" label="City name" error={errors.cityName}>
-                  <input {...inputProps('cityName')} value={form.cityName} onChange={(e) => set('cityName', e.target.value)} maxLength={60} placeholder="e.g. Nashik" />
+                  <input {...inputProps('cityName')} value={form.cityName} onChange={(e) => set('cityName', e.target.value)} maxLength={60} placeholder="e.g. Nashik…" />
                 </Field>
               )}
               <Field id="sub-venue" label="Venue" error={errors.venue}>

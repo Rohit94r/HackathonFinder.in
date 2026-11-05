@@ -4,9 +4,9 @@ import { cn } from '@/lib/cn';
 // Status colours mean the same thing everywhere, like railway signals: green is open, amber is
 // last call, red is running now, grey is over. Solid fills, so badges stay readable on top of cover art.
 const STYLES: Record<Status, { badge: string; dot: string }> = {
-  open: { badge: 'bg-[#e1f3e7] text-[#14532d] ring-[#14532d]/25', dot: 'bg-[#22a35a] shadow-[0_0_6px_#22a35a]' },
-  'closing-soon': { badge: 'bg-board text-navy ring-navy/30', dot: 'bg-[#e05a00] shadow-[0_0_6px_#ff7a1a]' },
-  'in-progress': { badge: 'bg-[#c8261d] text-white ring-black/20', dot: 'bg-white shadow-[0_0_6px_#fff]' },
+  open: { badge: 'bg-[#e1f3e7] text-[#14532d] ring-[#14532d]/25', dot: 'bg-[#22a35a]' },
+  'closing-soon': { badge: 'bg-board text-navy ring-navy/30', dot: 'bg-[#e05a00]' },
+  'in-progress': { badge: 'bg-[#c8261d] text-white ring-black/20', dot: 'bg-white' },
   'registration-closed': { badge: 'bg-[#ece6da] text-[#4a443b] ring-black/10', dot: 'bg-[#9c9486]' },
   completed: { badge: 'bg-[#ece6da] text-[#4a443b] ring-black/10', dot: 'bg-[#9c9486]' },
 };

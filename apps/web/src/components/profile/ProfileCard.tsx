@@ -42,13 +42,13 @@ export default function ProfileCard({
       {(profile.lookingForTeam || highlight) && (
         <div className="mt-3 flex flex-wrap gap-2">
           {profile.lookingForTeam && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-brand-700 dark:text-brand-300">
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-accent/10 px-3 py-1 text-xs font-semibold text-brand-700 dark:text-brand-300">
               <Users className="h-3.5 w-3.5" aria-hidden="true" />
               Looking for a team
             </span>
           )}
           {highlight && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-ink/[0.06] px-3 py-1 text-xs font-semibold text-ink/80">
+            <span className="inline-flex items-center gap-1.5 rounded-md bg-ink/[0.06] px-3 py-1 text-xs font-semibold text-ink/80">
               <Trophy className="h-3.5 w-3.5" aria-hidden="true" />
               {highlight}
             </span>

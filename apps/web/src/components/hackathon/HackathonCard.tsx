@@ -179,7 +179,7 @@ export default function HackathonCard({ h, distanceKm, variant = 'standard', eag
   if (variant === 'compact') {
     // A slim ticket: cover and details, with a stub on the right showing the deadline.
     return (
-      <article data-hf-impression={h.slug} className={cn('ticket ticket-v group relative [--notch:7px] [--stub:92px] sm:[--stub:104px]', className)}>
+      <article data-hf-impression={h.slug} className={cn('ticket ticket-v group relative min-w-0 [--notch:7px] [--stub:92px] sm:[--stub:104px]', className)}>
         <div className="ticket-paper flex items-stretch">
           <div className="flex min-w-0 flex-1 items-center gap-3 p-2.5 sm:gap-4">
             <EventArt title={h.title} imageUrl={h.imageUrl} className="h-16 w-20 shrink-0 rounded-[5px] sm:h-[72px] sm:w-28" />
@@ -217,7 +217,7 @@ export default function HackathonCard({ h, distanceKm, variant = 'standard', eag
     return (
       <article
         data-hf-impression={h.slug}
-        className={cn('ticket ticket-h group relative [--stub:86px] hover:-translate-y-1 motion-reduce:hover:translate-y-0', className)}
+        className={cn('ticket ticket-h group relative min-w-0 [--stub:86px] hover:-translate-y-1 motion-reduce:hover:translate-y-0', className)}
       >
         <div className="ticket-paper flex h-full flex-col">
           <div className="grid flex-1 md:grid-cols-[1.1fr_1fr]">
@@ -279,7 +279,7 @@ export default function HackathonCard({ h, distanceKm, variant = 'standard', eag
   return (
     <article
       data-hf-impression={h.slug}
-      className={cn('ticket ticket-h group relative [--stub:72px] hover:-translate-y-1 motion-reduce:hover:translate-y-0', className)}
+      className={cn('ticket ticket-h group relative min-w-0 [--stub:72px] hover:-translate-y-1 motion-reduce:hover:translate-y-0', className)}
     >
       <div className="ticket-paper flex h-full flex-col">
         <div className="relative">

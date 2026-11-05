@@ -49,7 +49,7 @@ export default function MessagesView({
             Chats
           </h2>
           {unread > 0 && (
-            <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-white">
+            <span className="rounded-md bg-accent px-2 py-0.5 text-xs font-bold text-white">
               {unread > 99 ? '99+' : unread} unread
             </span>
           )}

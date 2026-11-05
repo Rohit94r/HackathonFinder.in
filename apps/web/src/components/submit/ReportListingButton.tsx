@@ -60,7 +60,7 @@ export default function ReportListingButton({ slug, className }: { slug: string;
     <form onSubmit={send} className={cn('card space-y-3 p-4', className)}>
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm font-semibold text-ink">What’s wrong with this listing?</p>
-        <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="rounded-full p-1 text-ink/60 hover:text-ink">
+        <button type="button" onClick={() => setOpen(false)} aria-label="Close" className="rounded-md p-1 text-ink/60 hover:text-ink">
           <X className="h-4 w-4" />
         </button>
       </div>

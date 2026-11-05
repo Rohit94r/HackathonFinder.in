@@ -493,7 +493,7 @@ export default function TeamBoard({
                 <t.icon className="h-4 w-4 shrink-0" />
                 <span className="sm:hidden">{t.short}</span>
                 <span className="hidden sm:inline">{t.long}</span>
-                <span className={cn('rounded-full px-1.5 text-xs', isActive ? 'bg-white/20' : 'bg-ink/10')}>{t.total}</span>
+                <span className={cn('rounded-md px-1.5 text-xs', isActive ? 'bg-white/20' : 'bg-ink/10')}>{t.total}</span>
               </button>
             );
           })}
@@ -555,7 +555,7 @@ export default function TeamBoard({
               <button type="button" onClick={() => setPanelOpen(true)} className="btn-secondary flex-1 py-2.5 sm:flex-none lg:hidden" aria-expanded={panelOpen}>
                 <SlidersHorizontal className="h-4 w-4" />
                 Filters
-                {count > 0 && <span className="rounded-full bg-accent px-1.5 text-xs font-bold text-white">{count}</span>}
+                {count > 0 && <span className="rounded-md bg-accent px-1.5 text-xs font-bold text-white">{count}</span>}
               </button>
               <label htmlFor="team-sort" className="sr-only">
                 Sort by
@@ -663,7 +663,7 @@ export default function TeamBoard({
                 key={chip.label}
                 type="button"
                 onClick={chip.clear}
-                className="inline-flex items-center gap-1 rounded-full bg-ink/5 px-2.5 py-1 text-xs font-semibold text-ink hover:bg-ink/10"
+                className="inline-flex items-center gap-1 rounded-md bg-ink/5 px-2.5 py-1 text-xs font-semibold text-ink hover:bg-ink/10"
               >
                 {chip.label}
                 <X className="h-3 w-3" />

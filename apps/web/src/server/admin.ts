@@ -59,6 +59,7 @@ import { enabledProviders, getSessionUser, type SessionUser } from './auth';
 import { sendEmail, siteUrl } from './email';
 import { rateLimit } from './rateLimit';
 import { listScrapeRuns, SCRAPE_SCHEDULE, type ScrapeItem, type ScrapeRunSummary } from './scrape';
+import { listingsChanged } from './hackathons';
 import { storageMode } from './storage';
 import { isSocialLink, sourceFor, submissionTitle } from './submissions';
 import { adminEmails, grantsAdmin, isAdminEmail } from './users';
@@ -521,6 +522,7 @@ export async function updateListing(id: string, patch: ListingPatch, admin: Sess
     const action = patch.state && patch.state !== before ? `listing.${patch.state === 'live' ? (before === 'pending' ? 'approve' : 'restore') : patch.state === 'removed' ? 'remove' : patch.state}` : 'listing.edit';
     await audit(admin, action, 'listing', String(doc._id), `“${doc.title}”: ${changes.join(', ')}`);
   }
+  listingsChanged();
   return listingRow(doc.toObject());
 }
 
@@ -535,6 +537,7 @@ export async function deleteListing(id: string, admin: SessionUser, opts: { quie
     Submission.updateMany({ hackathonId: doc._id }, { $unset: { hackathonId: 1 } }),
   ]);
   if (!opts.quiet) await audit(admin, 'listing.delete', 'listing', String(doc._id), `Deleted “${doc.title}” (${doc.slug}) permanently`);
+  listingsChanged();
   return { id: String(doc._id), slug: doc.slug, title: doc.title };
 }
 
@@ -571,6 +574,7 @@ export async function bulkListings(ids: string[], action: BulkAction, admin: Ses
       ids: done.slice(0, 100),
     });
   }
+  listingsChanged();
   return { done, failed };
 }
 
@@ -678,6 +682,7 @@ export async function mergeListing(fromId: string, intoId: string, admin: Sessio
     moveSaves(from.slug, into.slug),
   ]);
   await audit(admin, 'listing.merge', 'listing', String(from._id), `Merged “${from.title}” into “${into.title}”`, { intoId: String(into._id) });
+  listingsChanged();
   return { slug: into.slug, id: String(into._id) };
 }
 
@@ -754,6 +759,7 @@ export async function approveSubmission(id: string, input: ListingInputValues, a
   await sub.save();
   await tellSubmitter(sub, listing, false);
   await audit(admin, 'submission.approve', 'submission', String(sub._id), `Approved a submission as “${listing.title}”`, { hackathonId: String(listing._id) });
+  listingsChanged();
   return { id: String(listing._id), slug: listing.slug };
 }
 
@@ -789,6 +795,7 @@ export async function mergeSubmission(id: string, hackathonId: string, admin: Se
   await sub.save();
   if (into.state === 'live') await tellSubmitter(sub, into, true);
   await audit(admin, 'submission.merge', 'submission', String(sub._id), `Merged a submission into “${into.title}”`, { hackathonId: String(into._id) });
+  listingsChanged();
   return { id: String(into._id), slug: into.slug };
 }
 

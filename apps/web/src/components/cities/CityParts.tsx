@@ -50,7 +50,7 @@ export function FollowCityButton({ name, following, onToggle, variant = 'icon', 
       aria-label={`Follow ${name}`}
       title={following ? `Unfollow ${name}` : `Follow ${name}`}
       className={cn(
-        'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border transition',
+        'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md border transition',
         following
           ? 'border-accent bg-accent text-white hover:bg-brand-700'
           : 'border-ink/20 text-ink/60 hover:border-accent hover:text-accent',

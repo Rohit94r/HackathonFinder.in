@@ -99,10 +99,12 @@ function providers(): NextAuthOptions['providers'] {
           url: 'https://api.github.com/user',
           async request({ client, tokens }) {
             const profile = await client.userinfo(tokens.access_token!);
+            // If GitHub is slow or down, treat it as "no verified email", which safely fails the sign-in.
             const res = await fetch('https://api.github.com/user/emails', {
               headers: { Authorization: `token ${tokens.access_token}`, 'User-Agent': 'HackathonFinder' },
-            });
-            const emails: { email: string; primary: boolean; verified: boolean }[] = res.ok ? await res.json() : [];
+              signal: AbortSignal.timeout(8_000),
+            }).catch(() => null);
+            const emails: { email: string; primary: boolean; verified: boolean }[] = res?.ok ? await res.json() : [];
             const verified = emails.find((e) => e.primary && e.verified) ?? emails.find((e) => e.verified);
             return { ...profile, email: verified?.email ?? null, email_verified: Boolean(verified) };
           },

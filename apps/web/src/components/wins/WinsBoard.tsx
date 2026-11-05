@@ -122,7 +122,7 @@ export default function WinsBoard({
             value={q}
             onChange={(e) => setQ(e.target.value)}
             maxLength={100}
-            placeholder="Search by project, hackathon or tech"
+            placeholder="Search by project, hackathon or tech…"
             className="input pl-11"
           />
         </div>

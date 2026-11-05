@@ -106,13 +106,6 @@ export default function HowItWorksPage() {
                 </div>
               );
             })}
-            <div className="rounded-lg border-2 border-accent bg-accent-soft p-6 dark:bg-accent/10">
-              <h3 className="text-base font-bold">Browser extension</h3>
-              <p className="mt-2 text-sm text-ink/70">
-                See a hackathon on Instagram, LinkedIn or any site? One click on “Add to
-                HackathonFinder” turns it into a listing. Coming soon.
-              </p>
-            </div>
           </div>
         </div>
       </section>

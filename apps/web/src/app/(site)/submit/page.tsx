@@ -45,13 +45,6 @@ export default function SubmitPage({ searchParams }: { searchParams: { as?: stri
               </ul>
             </div>
             <div className="rounded-lg bg-ink/5 p-6">
-              <h2 className="text-lg font-bold">Spotted it while browsing?</h2>
-              <p className="mt-2 text-sm text-ink/70">
-                Our Chrome extension adds the page or post you’re looking at in one click, from Instagram, LinkedIn,
-                Facebook or any website. It only reads the page when you click it.
-              </p>
-            </div>
-            <div className="rounded-lg bg-ink/5 p-6">
               <h2 className="text-lg font-bold">Want more reach?</h2>
               <p className="mt-2 text-sm text-ink/70">Featured listings get top placement and a spot in our weekly digest.</p>
               <Link href="/organizers" className="mt-4 inline-block text-sm font-semibold text-ink">

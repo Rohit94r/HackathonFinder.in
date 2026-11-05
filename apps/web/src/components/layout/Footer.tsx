@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { CITIES, THEMES } from '@hackathonfinder/shared';
 import { Logo } from '@/components/Logo';
 import ThemeToggle from '@/components/ThemeToggle';
+import CopyrightYear from './CopyrightYear';
 import { activeSocials, siteConfig } from '@/data/siteConfig';
 
 const COLUMNS = [
@@ -113,17 +114,10 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* The sign-off, set like a terminus board. */}
-      <div className="container-page" aria-hidden="true">
-        <p className="select-none border-t border-line pt-6 font-display text-[13vw] font-extrabold uppercase leading-[0.8] tracking-[-0.02em] text-ink/[0.07] lg:text-[150px]">
-          Next stop: you.
-        </p>
-      </div>
-
       <div className="border-t border-line">
         <div className="container-page flex flex-col gap-3 py-5 text-xs text-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © {new Date().getFullYear()} {siteConfig.domain}. Founded by{' '}
+            © <CopyrightYear initial={new Date().getFullYear()} /> {siteConfig.domain}. Founded by{' '}
             <Link href="/about#founder" className="underline-offset-2 hover:text-ink hover:underline">
               {siteConfig.founder.name}
             </Link>{' '}

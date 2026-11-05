@@ -21,7 +21,7 @@ export default function Error({ error, reset }: { error: Error & { digest?: stri
       </span>
       <h1 className="text-4xl font-bold">Something went wrong on our side</h1>
       <p className="mt-3 max-w-md text-ink/70">
-        We couldn’t load this page just now. It’s usually temporary — try again in a moment.
+        We couldn’t load this page just now. It’s usually temporary, so try again in a moment.
       </p>
       <div className="mt-8 flex flex-wrap justify-center gap-3">
         <button type="button" onClick={reset} className="btn-primary">

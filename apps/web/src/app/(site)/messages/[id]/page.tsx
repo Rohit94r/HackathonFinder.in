@@ -13,6 +13,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Messages',
+  description: 'Your private chats with teammates on HackathonFinder.',
   robots: { index: false, follow: false },
 };
 

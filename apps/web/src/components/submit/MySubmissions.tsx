@@ -53,7 +53,7 @@ export default function MySubmissions() {
               <li key={s.id} className="py-3 first:pt-0 last:pb-0">
                 <div className="flex items-start justify-between gap-3">
                   <p className="min-w-0 break-words text-sm font-semibold text-ink">{s.hackathon?.title ?? s.title}</p>
-                  <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-[11px] font-semibold', st.className)}>{st.label}</span>
+                  <span className={cn('shrink-0 rounded-md px-2 py-0.5 text-[11px] font-semibold', st.className)}>{st.label}</span>
                 </div>
                 <p className="mt-0.5 text-xs text-ink/60">
                   {KIND[s.kind]} · {formatDate(s.createdAt)}

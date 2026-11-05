@@ -120,7 +120,7 @@ export default function SignupForm({ next }: { next: string | null }) {
             onChange={(e) => set('name', e.target.value)}
             autoComplete="name"
             maxLength={80}
-            placeholder="e.g. Ananya Sharma"
+            placeholder="e.g. Ananya Sharma…"
             className={cn('input', errors.name && 'border-brand-500')}
             {...fieldProps('name')}
           />
@@ -133,6 +133,7 @@ export default function SignupForm({ next }: { next: string | null }) {
           <input
             id="signup-email"
             type="email"
+            spellCheck={false}
             inputMode="email"
             autoComplete="email"
             value={form.email}

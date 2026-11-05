@@ -1,6 +1,13 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { SearchX } from 'lucide-react';
 import SiteLayout from './(site)/layout';
+
+export const metadata: Metadata = {
+  title: 'Page not found',
+  description: 'This page doesn’t exist on HackathonFinder. Search open hackathons or go back to the home page.',
+  robots: { index: false, follow: true },
+};
 
 export default function NotFound() {
   return (

@@ -224,7 +224,7 @@ export default function MyRequestsPanel({
           <InboxIcon className="h-5 w-5" />
           My requests & invites
           {waiting > 0 && (
-            <span className="rounded-full bg-accent px-2 text-xs font-bold text-white">
+            <span className="rounded-md bg-accent px-2 text-xs font-bold text-white">
               {waiting}
               <span className="sr-only"> waiting for you</span>
             </span>

@@ -16,8 +16,8 @@ export const metadata: Metadata = pageMetadata({
   keywords: ['about HackathonFinder', 'HackathonFinder founder', siteConfig.founder.name, siteConfig.coFounder.name, 'hackathon aggregator'],
 });
 
-// The live counts change with every scrape.
-export const dynamic = 'force-dynamic';
+// The live counts change with every scrape; refreshed at most every 5 minutes.
+export const revalidate = 300;
 
 const PRINCIPLES = [
   { title: 'Many sources, one list', text: 'We collect discoveries from public platforms, college sites, web search and community submissions, then link each listing back to its source.' },

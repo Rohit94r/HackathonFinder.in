@@ -229,7 +229,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
   return (
     <div className="flex h-full min-h-0 flex-col">
       <header className="flex items-center gap-2 border-b border-ink/10 px-2 py-2.5 sm:gap-3 sm:px-4">
-        <Link href="/messages" className="rounded-full p-2 text-ink/70 hover:bg-ink/5 hover:text-ink lg:hidden" aria-label="Back to all chats">
+        <Link href="/messages" className="rounded-md p-2 text-ink/70 hover:bg-ink/5 hover:text-ink lg:hidden" aria-label="Back to all chats">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <Avatar name={other.name} image={other.image} size="md" className="ring-0" />
@@ -249,7 +249,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
             onClick={() => setMenuOpen((v) => !v)}
             aria-expanded={menuOpen}
             aria-label="Chat options"
-            className="rounded-full p-2 text-ink/70 hover:bg-ink/5 hover:text-ink"
+            className="rounded-md p-2 text-ink/70 hover:bg-ink/5 hover:text-ink"
           >
             <MoreVertical className="h-5 w-5" />
           </button>
@@ -306,7 +306,7 @@ export default function ConversationPane({ id, initial }: { id: string; initial?
               <Fragment key={m.id}>
                 {newDay && (
                   <li className="py-3 text-center" aria-hidden="true">
-                    <span className="rounded-full bg-ink/[0.06] px-3 py-1 text-[11px] font-semibold text-ink/60">{dayLabel(m.createdAt, now)}</span>
+                    <span className="rounded-md bg-ink/[0.06] px-3 py-1 text-[11px] font-semibold text-ink/60">{dayLabel(m.createdAt, now)}</span>
                   </li>
                 )}
                 <Bubble message={m} grouped={grouped} status={m === lastMine ? (seen ? 'seen' : 'sent') : undefined} />

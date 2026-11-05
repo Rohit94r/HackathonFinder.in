@@ -87,7 +87,7 @@ export const PATCH = route(
       await notify(
         user!.id,
         'system',
-        'Welcome to HackathonFinder!',
+        'Your profile is ready',
         'Save a hackathon near you to start your streak. You’ll get reminders before its deadline.',
         '/near-me'
       );

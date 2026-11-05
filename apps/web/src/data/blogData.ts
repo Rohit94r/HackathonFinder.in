@@ -207,7 +207,7 @@ const guidePosts: BlogPost[] = [
 <h2>9. Prizes and perks</h2>
 <p>Read how prizes are split between overall winners, track prizes and special mentions, when they’re paid, and whether there are certificates or other perks. Prizes shouldn’t be your only reason to join, but you should know what’s on offer.</p>
 <h2>10. Track it</h2>
-<p>Once everything checks out, save the event to <a href="/saved">My hackathons</a>, then move it from saved to registered after you’ve signed up on the organiser’s page. Deadline reminders are coming soon; until then, add the key dates to your phone’s calendar as well.</p>
+<p>Once everything checks out, save the event to <a href="/saved">My hackathons</a>, then move it from saved to registered after you’ve signed up on the organiser’s page. When you’re signed in, we email you a couple of days before registration closes, and it helps to add the key dates to your phone’s calendar as well.</p>
 <blockquote>Quick rule: if you can’t find the organiser, the dates and the eligibility rules within five minutes, treat that as a warning sign.</blockquote>`,
   },
   {
@@ -327,7 +327,7 @@ const guidePosts: BlogPost[] = [
 <li>We write our own short summaries instead of copying organisers’ descriptions.</li>
 </ul>
 <h2>How you can help</h2>
-<p>If you organise a hackathon or spot one we’ve missed, add it through <a href="/submit">Submit a hackathon</a>. If a listing looks wrong, tell us in the <a href="/community">community</a> so we can recheck it. A weekly digest and deadline reminders are coming soon; for now, save events to <a href="/saved">My hackathons</a> to keep track of them. For more on the process, see <a href="/how-it-works">How it works</a>.</p>`,
+<p>If you organise a hackathon or spot one we’ve missed, add it through <a href="/submit">Submit a hackathon</a>. If a listing looks wrong, tell us in the <a href="/community">community</a> so we can recheck it. Save events to <a href="/saved">My hackathons</a> to keep track of them, get an email before each saved event’s registration closes, and sign up for the <a href="/digest">weekly digest</a> to hear about new ones. For more on the process, see <a href="/how-it-works">How it works</a>.</p>`,
   },
 ];
 

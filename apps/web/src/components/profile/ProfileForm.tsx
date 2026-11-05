@@ -191,7 +191,7 @@ export default function ProfileForm({
             value={form.about}
             onChange={(e) => set('about', e.target.value)}
             maxLength={60}
-            placeholder="e.g. 2nd year, Information Technology"
+            placeholder="e.g. 2nd year, Information Technology…"
             className="input"
           />
         </div>
@@ -204,7 +204,7 @@ export default function ProfileForm({
             value={form.college}
             onChange={(e) => set('college', e.target.value)}
             maxLength={80}
-            placeholder="e.g. College of Engineering, Pune"
+            placeholder="e.g. College of Engineering, Pune…"
             className="input"
           />
         </div>
@@ -313,14 +313,14 @@ export default function ProfileForm({
         </span>
         <span
           className={cn(
-            'relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition',
+            'relative inline-flex h-6 w-11 shrink-0 items-center rounded-[5px] transition',
             form.lookingForTeam ? 'bg-brand-600' : 'bg-ink/20'
           )}
           aria-hidden="true"
         >
           <span
             className={cn(
-              'inline-block h-5 w-5 rounded-full bg-white shadow transition',
+              'inline-block h-5 w-5 rounded-[3px] bg-white shadow transition',
               form.lookingForTeam ? 'translate-x-[22px]' : 'translate-x-0.5'
             )}
           />

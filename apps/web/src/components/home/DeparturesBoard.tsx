@@ -189,7 +189,8 @@ export default function DeparturesBoard({ departures, nowIso }: { departures: De
 
   useEffect(() => {
     if (pages < 2 || reducedMotion()) return;
-    const id = setInterval(() => setPage((p) => (p + 1) % pages), PAGE_MS);
+    // Holds the page while the visitor has paused animations (MotionToggle).
+    const id = setInterval(() => document.documentElement.dataset.motion !== 'paused' && setPage((p) => (p + 1) % pages), PAGE_MS);
     return () => clearInterval(id);
   }, [pages]);
 
@@ -205,7 +206,7 @@ export default function DeparturesBoard({ departures, nowIso }: { departures: De
     <section aria-label="Next hackathon deadlines" className="departures">
       <div className="flex items-center justify-between gap-4 border-b border-white/10 px-4 py-3 sm:px-6">
         <p className="flex items-center gap-2.5 font-mono text-[11px] font-semibold uppercase tracking-[0.2em] text-[#fbbf24] sm:text-xs">
-          <span className="inline-block h-2 w-2 rounded-full bg-[#fbbf24] shadow-[0_0_8px_#fbbf24]" aria-hidden="true" />
+          <span className="inline-block h-2 w-2 rounded-full bg-[#fbbf24]" aria-hidden="true" />
           Departures
           <span className="hidden text-white/35 sm:inline">· next registration deadlines</span>
         </p>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Globe2, MapPin, Search, SearchX, SlidersHorizontal, X } from 'lucide-react';
 import {
   CITIES,
@@ -71,7 +71,6 @@ function Pill({ active, onClick, children }: { active: boolean; onClick: () => v
 }
 
 export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoLocate = false }: ExplorerProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const [filters, setFilters] = useState<Filters>(initial);
   const [panelOpen, setPanelOpen] = useState(false);
@@ -81,9 +80,12 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
   const drawerCloseRef = useRef<HTMLButtonElement>(null);
   const filtersButtonRef = useRef<HTMLButtonElement>(null);
 
+  // Filtering happens here in the browser, so the URL is updated in place: Next (14.1+) keeps
+  // history.replaceState in sync with the router, with no server round trip per keystroke.
   useEffect(() => {
-    router.replace(`${pathname}${toQueryString(filters, base)}`, { scroll: false });
-  }, [filters, base, pathname, router]);
+    const url = `${pathname}${toQueryString(filters, base)}`;
+    if (url !== `${window.location.pathname}${window.location.search}`) window.history.replaceState(null, '', url);
+  }, [filters, base, pathname]);
 
   useEffect(() => {
     if (!autoLocate || !ready || location || asked.current) return;
@@ -158,7 +160,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
     const visible = Math.min(shown[group], list.length);
     return (
       <>
-        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
           {list.slice(0, visible).map((h, i) => (
             <HackathonCard key={h.slug} h={h} distanceKm={distances.get(h.slug)} eager={i < 3} />
           ))}
@@ -408,7 +410,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
               type="search"
               value={filters.q}
               onChange={(e) => set({ q: e.target.value })}
-              placeholder="Search by name, technology, organizer or city"
+              placeholder="Search by name, technology, organizer or city…"
               className="input h-11 pl-10 pr-16 [&::-webkit-search-cancel-button]:hidden"
               autoComplete="off"
             />
@@ -442,7 +444,7 @@ export default function Explorer({ items, initial, base = DEFAULT_FILTERS, autoL
               <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
               Filters
               {count > 0 && (
-                <span className="rounded-full bg-accent px-1.5 text-xs font-semibold tabular-nums text-white">{count}</span>
+                <span className="rounded-md bg-accent px-1.5 text-xs font-semibold tabular-nums text-white">{count}</span>
               )}
             </button>
             <label htmlFor="explore-sort" className="sr-only">

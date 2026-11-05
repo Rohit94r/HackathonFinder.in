@@ -17,6 +17,7 @@ import NewThreadForm, { type EventOption } from './NewThreadForm';
 import { AuthorLink, CategoryChip, PinnedChip, TagChip, VoteButton } from './parts';
 import { SORTS, ago, type SortKey, type ThreadItem, type ThreadList } from './model';
 import { useViewer, useVotes } from './useCommunity';
+import { toast } from '@/components/Toaster';
 
 export interface BoardFilters {
   category: CategoryId | '';
@@ -202,7 +203,7 @@ export default function DiscussionBoard({
               value={q}
               onChange={(e) => setQ(e.target.value)}
               maxLength={100}
-              placeholder="Search questions, hackathons or tips"
+              placeholder="Search questions, hackathons or tips…"
               className="input pl-11"
             />
           </div>
@@ -242,7 +243,7 @@ export default function DiscussionBoard({
               <button
                 type="button"
                 onClick={() => set({ hackathon: '' })}
-                className="inline-flex items-center gap-1 rounded-full bg-ink/5 px-2.5 py-1 text-xs font-semibold text-ink hover:bg-ink/10"
+                className="inline-flex items-center gap-1 rounded-md bg-ink/5 px-2.5 py-1 text-xs font-semibold text-ink hover:bg-ink/10"
               >
                 About: {titles[filters.hackathon] ?? items[0]?.hackathonTitle ?? filters.hackathon}
                 <X className="h-3 w-3" />
@@ -269,6 +270,7 @@ export default function DiscussionBoard({
             onCancel={() => setFormOpen(false)}
             onPosted={(thread) => {
               mutate();
+              toast('Discussion posted');
               router.push(`/community/${thread.slug}`);
             }}
           />

@@ -88,6 +88,7 @@ export default function LoginForm({
           <input
             id="login-email"
             type="email"
+            spellCheck={false}
             inputMode="email"
             autoComplete="email"
             value={email}

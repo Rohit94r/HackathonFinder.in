@@ -10,7 +10,7 @@ import HomeSearch, { type CityOption } from '@/components/home/HomeSearch';
 import DiscoveryTabs, { type DiscoveryTab } from '@/components/home/DiscoveryTabs';
 import CountUp from '@/components/home/CountUp';
 import DeparturesBoard, { type Departure } from '@/components/home/DeparturesBoard';
-import HackathonTrain from '@/components/home/HackathonTrain';
+import MotionToggle from '@/components/home/MotionToggle';
 import { PlatformSign, StationBoard } from '@/components/junction/Signs';
 import { PHOTOS } from '@/components/landing/photos';
 import { formatUsdCompact } from '@/lib/format';
@@ -22,8 +22,9 @@ import { itemListJsonLd, JsonLd } from '@/lib/seo';
 
 export const metadata: Metadata = { alternates: { canonical: '/' } };
 
-// Statuses depend on today, so render per request.
-export const dynamic = 'force-dynamic';
+// Rendered at most every 5 minutes and served from the CDN in between. Statuses are worked out at
+// render time, and the departures board counts down live in the browser.
+export const revalidate = 300;
 
 const TAB_SIZE = 8;
 
@@ -43,7 +44,7 @@ const CATEGORIES: { theme: ThemeSlug; label: string }[] = [
 function Grid({ items }: { items: HackathonView[] }) {
   return (
     // Phones show four; the "View all" button below covers the rest.
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-sm:[&>*:nth-child(n+5)]:hidden">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 max-sm:[&>*:nth-child(n+5)]:hidden">
       {items.map((h) => (
         <HackathonCard key={h.slug} h={h} />
       ))}
@@ -89,8 +90,6 @@ export default async function HomePage() {
   const [{ items, nowIso }, community] = await Promise.all([getHackathons(), getCommunityStats()]);
   const now = Date.parse(nowIso);
   const open = openOnly(items);
-  // The train: real banners, soonest deadline first.
-  const coaches = [...open].filter((h) => h.imageUrl).sort(byDeadline).slice(0, 14);
   // The departures board: the next deadlines, four pages of six.
   const departures: Departure[] = [...open]
     .sort(byDeadline)
@@ -103,7 +102,7 @@ export default async function HomePage() {
     { label: 'Hackathons listed', value: <CountUp value={items.length} /> },
     { label: 'Open for registration', value: <CountUp value={open.length} /> },
     { label: 'Upcoming events', value: <CountUp value={items.filter((h) => Date.parse(h.startDate) > now).length} /> },
-    { label: 'In open prize pools', value: prizeTotal > 0 ? formatUsdCompact(prizeTotal) : '—' },
+    { label: 'In open prize pools', value: prizeTotal > 0 ? formatUsdCompact(prizeTotal) : 'None stated' },
   ];
 
   // Promoted listings first, then the biggest prize pools still open; banners only, so the section looks finished.
@@ -156,17 +155,16 @@ export default async function HomePage() {
       <main id="main" tabIndex={-1} className="flex-1 outline-none">
         {/* Hero: the station at night (data-theme flips the colour tokens inside it). */}
         <section data-theme="dark" className="relative isolate overflow-hidden bg-surface text-ink">
-          <div aria-hidden="true" className="junction-lamps pointer-events-none absolute inset-0 -z-10" />
 
           <div className="container-page relative pt-10 sm:pt-16">
             {/* The station's own board, hanging from the canopy on wide screens. */}
             <div className="pointer-events-none absolute right-8 top-0 hidden xl:block" aria-hidden="true">
-              <div className="swing flex flex-col items-center">
+              <div className="flex flex-col items-center">
                 <div className="flex w-[260px] justify-between px-10">
                   <span className="h-12 w-[3px] bg-gradient-to-b from-[#4a443b] to-[#9c9486]" />
                   <span className="h-12 w-[3px] bg-gradient-to-b from-[#4a443b] to-[#9c9486]" />
                 </div>
-                <StationBoard en="Hackathon Jn." code="HFJN" note="Every route. One station." size="lg" />
+                <StationBoard en="Hackathon Jn." code="HFJN" note={`${open.length} open now`} size="lg" />
               </div>
             </div>
 
@@ -177,7 +175,7 @@ export default async function HomePage() {
                   className="mb-7 inline-flex items-center gap-2.5 rounded-md border border-ink/15 bg-ink/[0.04] py-1.5 pl-2 pr-3 font-mono text-[11px] font-medium uppercase tracking-[0.14em] text-ink/80 transition-colors hover:border-board/60 hover:text-ink sm:text-xs"
                 >
                   <span className="relative flex h-2 w-2" aria-hidden="true">
-                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#22a35a] opacity-75 motion-reduce:hidden" />
+                    <span className="absolute inline-flex h-full w-full hero-ping animate-ping rounded-full bg-[#22a35a] opacity-75 motion-reduce:hidden" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-[#22a35a]" />
                   </span>
                   <span>
@@ -187,10 +185,10 @@ export default async function HomePage() {
                 </Link>
               )}
 
-              <h1 className="text-[3.3rem] leading-[0.86] tracking-[-0.01em] min-[400px]:text-[3.8rem] sm:text-[6rem] lg:text-[7.4rem]">
-                Every hackathon.
-                <br />
-                <span className="text-board">One station.</span>
+              {/* Each line balances on its own, so a narrow screen never strands "you." on a line. */}
+              <h1 className="text-[3.3rem] leading-[0.86] tracking-[-0.01em] min-[400px]:text-[3.8rem] sm:text-[5.4rem] lg:text-[6.4rem]">
+                <span className="block text-balance">Find hackathons</span>
+                <span className="block text-balance text-board">online and near you.</span>
               </h1>
               <p className="mt-6 max-w-2xl text-[17px] leading-7 text-ink/70 sm:text-lg sm:leading-8">
                 Live departures from Devpost, MLH, Devfolio, Unstop, DoraHacks, lablab.ai, college sites and more. Online from anywhere or in
@@ -204,11 +202,10 @@ export default async function HomePage() {
 
             <div className="mt-14 max-w-5xl sm:mt-16">
               <DeparturesBoard departures={departures} nowIso={nowIso} />
+              <div className="mt-3 flex justify-end">
+                <MotionToggle />
+              </div>
             </div>
-          </div>
-
-          <div className="relative mt-10 sm:mt-12">
-            <HackathonTrain items={coaches} />
           </div>
 
           {/* Station information board. */}
@@ -328,7 +325,7 @@ export default async function HomePage() {
                         alt={c.alt}
                         fill
                         sizes="(min-width: 768px) 400px, 100vw"
-                        className="object-cover grayscale-[35%] transition-[transform,filter] duration-500 group-hover:scale-[1.03] group-hover:grayscale-0 motion-reduce:transition-none"
+                        className="object-cover grayscale-[35%] transition-[filter] duration-500 group-hover:grayscale-0 motion-reduce:transition-none"
                       />
                       <span className="station-board absolute left-3 top-3 flex items-center gap-1.5 px-2.5 py-1.5">
                         <c.icon className="h-4 w-4" aria-hidden="true" />

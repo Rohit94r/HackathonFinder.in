@@ -18,8 +18,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 export default async function WinStoryPage({ params }: { params: { slug: string } }) {
   const viewerUser = await getSessionUser();
   const viewer = viewerUser ? { id: viewerUser.id, handle: viewerUser.handle, role: viewerUser.role } : null;
-  const data = await getWin(params.slug, viewer);
-  const { items } = await getHackathons();
+  const [data, { items }] = await Promise.all([getWin(params.slug, viewer), getHackathons()]);
 
   if (!data) {
     // Stories posted in this browser have "my-" ids and are looked up on the client.

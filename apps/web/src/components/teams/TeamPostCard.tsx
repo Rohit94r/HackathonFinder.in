@@ -140,7 +140,7 @@ export default function TeamPostCard({
         </span>
         <ModeBadge mode={post.mode} />
         {isMine && !post.open && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-ink/10 px-2 py-0.5 text-[11px] font-semibold text-ink/80">
+          <span className="inline-flex items-center gap-1 rounded-md bg-ink/10 px-2 py-0.5 text-[11px] font-semibold text-ink/80">
             <Lock className="h-3 w-3" aria-hidden="true" />
             {full ? 'Full' : 'Closed'}
           </span>

@@ -20,7 +20,7 @@ export default function ConversationList({
     <ul className="divide-y divide-ink/10" aria-label="Your chats">
       {items.map((c) => {
         const active = c.id === activeId;
-        const preview = c.lastMessage ? `${c.lastMessage.mine ? 'You: ' : ''}${c.lastMessage.body}` : 'New chat. Say hi!';
+        const preview = c.lastMessage ? `${c.lastMessage.mine ? 'You: ' : ''}${c.lastMessage.body}` : 'New chat';
         return (
           <li key={c.id}>
             <Link
@@ -51,7 +51,7 @@ export default function ConversationList({
                     )}
                   </span>
                   {c.unread > 0 && (
-                    <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-accent px-1.5 text-[11px] font-bold text-white">
+                    <span className="inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-accent px-1.5 text-[11px] font-bold text-white">
                       {c.unread > 99 ? '99+' : c.unread}
                       <span className="sr-only"> unread</span>
                     </span>

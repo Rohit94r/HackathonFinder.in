@@ -26,8 +26,15 @@ const nextConfig = {
     instrumentationHook: true,
   },
   poweredByHeader: false,
+  // next/image serves AVIF where the browser supports it, else WebP.
+  images: { formats: ['image/avif', 'image/webp'] },
   async headers() {
     return [
+      // Event photos rarely change: browsers keep them a week and refresh in the background after.
+      {
+        source: '/photos/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' }],
+      },
       {
         source: '/:path*',
         headers: [

@@ -1,6 +1,7 @@
 import { runScrapeNow, slotNear } from '@hackathonfinder/agents';
 import { route } from '@/server/api';
 import { assertCron } from '@/server/cron';
+import { listingsChanged } from '@/server/hackathons';
 
 // Scheduled scrape for hosts without a long-running server (Vercel Cron calls this at
 // 02:00 and 14:00 IST; see vercel.json). Protected by CRON_SECRET. It waits for the
@@ -18,6 +19,8 @@ const handler = route(
     const res = await runScrapeNow({ trigger: slot ? 'schedule' : 'api', slot, budgetMs: 240_000 });
     if (res.skipped) return { ok: true, runId: res.runId, skipped: res.skipped };
     const r = res.result!;
+    // New and updated listings show on every page straight away, not after the cache expires.
+    listingsChanged();
     return { ok: r.status !== 'failed', runId: res.runId, status: r.status, counts: r.counts, unchanged: r.unchanged, durationMs: r.durationMs };
   },
   { auth: 'none' }

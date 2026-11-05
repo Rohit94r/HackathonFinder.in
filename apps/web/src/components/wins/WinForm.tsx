@@ -333,7 +333,7 @@ export default function WinForm({
             value={form.hackathon}
             onChange={(e) => set('hackathon', e.target.value)}
             maxLength={HACKATHON_MAX}
-            placeholder="e.g. Capital Hack 2026"
+            placeholder="e.g. Capital Hack 2026…"
             className={cn('input', errors.hackathon && INVALID)}
           />
           <FieldError id="win-hackathon" message={errors.hackathon} />
@@ -362,7 +362,7 @@ export default function WinForm({
             value={form.prize}
             onChange={(e) => set('prize', e.target.value)}
             maxLength={PRIZE_MAX}
-            placeholder="e.g. $1,000 + incubation interview"
+            placeholder="e.g. $1,000 + incubation interview…"
             className={cn('input', errors.prize && INVALID)}
           />
           <FieldError id="win-prize" message={errors.prize} />
@@ -396,7 +396,7 @@ export default function WinForm({
             value={form.projectName}
             onChange={(e) => set('projectName', e.target.value)}
             maxLength={PROJECT_MAX}
-            placeholder="e.g. RentRight"
+            placeholder="e.g. RentRight…"
             className={cn('input', errors.projectName && INVALID)}
           />
           <FieldError id="win-projectName" message={errors.projectName} />

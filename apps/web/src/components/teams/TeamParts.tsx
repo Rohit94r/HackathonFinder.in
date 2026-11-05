@@ -9,7 +9,7 @@ import type { SkillMatch } from './teamUtils';
 export function ModeBadge({ mode }: { mode: TeamMode }) {
   const Icon = mode === 'online' ? Laptop : Users;
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-ink/[0.06] px-2 py-0.5 text-[11px] font-semibold text-ink/75">
+    <span className="inline-flex items-center gap-1 rounded-md bg-ink/[0.06] px-2 py-0.5 text-[11px] font-semibold text-ink/75">
       <Icon className="h-3 w-3" aria-hidden="true" />
       {teamModeLabel(mode)}
     </span>
@@ -19,7 +19,7 @@ export function ModeBadge({ mode }: { mode: TeamMode }) {
 export function MatchBadge({ match }: { match: SkillMatch }) {
   const tone = match.pct >= 75 ? 'bg-accent text-white' : match.pct > 0 ? 'bg-accent/10 text-brand-700 dark:text-brand-300' : 'bg-ink/5 text-ink/60';
   return (
-    <span className={cn('inline-flex shrink-0 items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold', tone)}>
+    <span className={cn('inline-flex shrink-0 items-center gap-1 rounded-md px-2.5 py-1 text-xs font-bold', tone)}>
       <Sparkles className="h-3 w-3" aria-hidden="true" />
       {match.pct}% match
     </span>
@@ -113,7 +113,7 @@ const STATUS: Record<TeamStatus, { label: string; className: string; icon: typeo
 export function StatusChip({ status }: { status: TeamStatus }) {
   const { label, className, icon: Icon } = STATUS[status];
   return (
-    <span className={cn('inline-flex shrink-0 items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold', className)}>
+    <span className={cn('inline-flex shrink-0 items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold', className)}>
       <Icon className="h-3 w-3" aria-hidden="true" />
       {label}
     </span>

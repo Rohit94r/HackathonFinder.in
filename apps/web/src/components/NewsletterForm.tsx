@@ -45,6 +45,8 @@ export default function NewsletterForm({ dark = true }: { dark?: boolean }) {
           <input
             id="newsletter-email"
             type="email"
+            spellCheck={false}
+            autoComplete="email"
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}

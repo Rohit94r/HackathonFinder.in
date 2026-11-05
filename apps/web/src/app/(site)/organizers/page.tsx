@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
-import { BadgeCheck, BarChart3, Check, Eye, Megaphone, PenLine, Rocket, Sparkles, Target } from 'lucide-react';
+import { BadgeCheck, Check, Eye, Megaphone, PenLine, Rocket, Sparkles, Target } from 'lucide-react';
 import FAQ from '@/components/FAQ';
 import { PageHero, SectionHeading } from '@/components/ui';
 import { organizerFaqs } from '@/data/faqData';
@@ -19,7 +19,6 @@ const BENEFITS = [
   { icon: Target, title: 'The right students', text: 'Reach students filtering for your city, theme, team size and eligibility.' },
   { icon: Eye, title: 'More visibility', text: 'Your event appears in search, city and theme pages, the calendar and our channels.' },
   { icon: BadgeCheck, title: 'Verified badge', text: 'Claim your listing to keep details correct and show students it’s official.' },
-  { icon: BarChart3, title: 'Simple analytics', text: 'See views, saves and clicks to your registration page. Coming soon.' },
 ];
 
 const STEPS = [
@@ -75,7 +74,7 @@ export default function OrganizersPage() {
       <section className="section bg-surface">
         <div className="container-page">
           <SectionHeading center eyebrow="Why list here" title="Built to fill your seats" />
-          <div data-reveal-stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div data-reveal-stagger className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {BENEFITS.map((b) => (
               <div key={b.title} className="card p-6">
                 <span className="mb-4 inline-flex rounded-lg bg-brand-600 p-2.5 text-white">
@@ -120,7 +119,7 @@ export default function OrganizersPage() {
                 )}
               >
                 {plan.highlight && (
-                  <span className="absolute -top-3 left-8 inline-flex items-center gap-1 rounded-full bg-lime px-3 py-1 text-xs font-bold text-navy">
+                  <span className="absolute -top-3 left-8 inline-flex items-center gap-1 rounded-md bg-lime px-3 py-1 text-xs font-bold text-navy">
                     <Sparkles className="h-3 w-3" />
                     Most reach
                   </span>

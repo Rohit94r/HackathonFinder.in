@@ -22,7 +22,7 @@ export const studentFaqs: FaqItem[] = [
   },
   {
     q: 'How do I keep track of hackathons?',
-    a: 'Tap the bookmark on any hackathon to save it to My hackathons. There you can mark each one as registered, submitted or done. Deadline reminders by email are coming soon.',
+    a: 'Tap the bookmark on any hackathon to save it to My hackathons. There you can mark each one as registered, submitted or done. When you’re signed in, we email you a couple of days before a saved hackathon’s registration closes; you can turn this off in Settings.',
   },
   {
     q: 'How do you know the details are correct?',

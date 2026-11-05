@@ -58,7 +58,7 @@ export default function InviteButton({
   if (state === 'sent' || state === 'already') {
     return (
       <div className={className}>
-        <p className="flex items-center justify-center gap-2 rounded-full bg-accent/10 px-4 py-3 text-sm font-semibold text-brand-700 dark:text-brand-300">
+        <p className="flex items-center justify-center gap-2 rounded-md bg-accent/10 px-4 py-3 text-sm font-semibold text-brand-700 dark:text-brand-300">
           <Check className="h-4 w-4" aria-hidden="true" />
           {state === 'sent' ? `Invite sent to ${firstName}` : 'Already invited'}
         </p>

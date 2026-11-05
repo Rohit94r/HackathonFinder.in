@@ -77,6 +77,7 @@ export default function ForgotPasswordForm({ initialEmail = '' }: { initialEmail
           <input
             id="forgot-email"
             type="email"
+            spellCheck={false}
             inputMode="email"
             autoComplete="email"
             value={email}

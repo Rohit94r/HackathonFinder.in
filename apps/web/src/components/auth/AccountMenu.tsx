@@ -82,7 +82,7 @@ export function NotificationBell({ className = DEFAULT_ICON_BTN }: { className?:
       >
         <Bell className="h-[18px] w-[18px]" aria-hidden="true" />
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-semibold text-white">
+          <span className="absolute -right-0.5 -top-0.5 inline-flex h-4 min-w-4 items-center justify-center rounded-md bg-accent px-1 text-[10px] font-semibold text-white">
             {countLabel(unread)}
           </span>
         )}
@@ -214,7 +214,7 @@ export function AccountMenu() {
                   <Icon className="h-4 w-4 text-ink/70" aria-hidden="true" />
                   <span className="flex-1">{label}</span>
                   {Boolean(badge) && (
-                    <span className="rounded-full bg-accent px-1.5 py-0.5 text-[11px] font-bold text-white">{countLabel(badge!)}</span>
+                    <span className="rounded-md bg-accent px-1.5 py-0.5 text-[11px] font-bold text-white">{countLabel(badge!)}</span>
                   )}
                 </Link>
               </li>
@@ -324,7 +324,7 @@ export function MobileAccountLinks() {
             >
               <Icon className="h-4 w-4 shrink-0 text-muted" aria-hidden="true" />
               <span className="flex-1">{label}</span>
-              {Boolean(badge) && <span className="rounded-full bg-accent px-1.5 py-0.5 text-[11px] font-bold text-white">{countLabel(badge!)}</span>}
+              {Boolean(badge) && <span className="rounded-md bg-accent px-1.5 py-0.5 text-[11px] font-bold text-white">{countLabel(badge!)}</span>}
             </Link>
           </li>
         ))}

@@ -4,9 +4,10 @@ import './globals.css';
 import Providers from '@/components/Providers';
 import ScrollEffects from '@/components/motion/ScrollEffects';
 import Tracker from '@/components/analytics/Tracker';
+import SpeedInsights from '@/components/analytics/SpeedInsights';
 import { siteConfig } from '@/data/siteConfig';
 import { JsonLd, siteJsonLd } from '@/lib/seo';
-import { THEME_KEY } from '@/lib/theme';
+import { MOTION_KEY, THEME_KEY } from '@/lib/theme';
 
 // Hackathon Junction type: Barlow for text, Barlow Condensed for signage headings and JetBrains Mono
 // for ticket data (times, codes). Self-hosted (all SIL OFL) so a
@@ -34,7 +35,8 @@ const display = localFont({
 const mono = localFont({ src: './fonts/jetbrains-mono.woff2', weight: '400 700', variable: '--font-mono', display: 'swap' });
 
 const THEME_SCRIPT = `document.documentElement.classList.add('reveal-ready');
-try { if (localStorage.getItem('${THEME_KEY}') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}`;
+try { if (localStorage.getItem('${THEME_KEY}') === 'dark') document.documentElement.dataset.theme = 'dark'; } catch (e) {}
+try { if (localStorage.getItem('${MOTION_KEY}') === 'paused') document.documentElement.dataset.motion = 'paused'; } catch (e) {}`;
 
 // The browser bar matches the dark station canopy; content may run under the iPhone notch and home indicator
 // (the navbar and bottom bars pad themselves with the safe-area insets).
@@ -115,6 +117,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="flex min-h-screen flex-col">
         <ScrollEffects />
         <Tracker />
+        <SpeedInsights />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-lg focus:border focus:border-line focus:bg-card focus:px-4 focus:py-2 focus:shadow-lift"

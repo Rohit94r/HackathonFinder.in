@@ -108,5 +108,8 @@ userSchema.index({ email: 1 }, { unique: true, partialFilterExpression: { email:
 userSchema.index({ handle: 1 }, { unique: true });
 userSchema.index({ 'providers.provider': 1, 'providers.providerAccountId': 1 });
 userSchema.index({ city: 1, lookingForTeam: 1 });
+// Team Finder hides banned and deleted accounts on every list (server/teams.ts hiddenUserIds).
+userSchema.index({ banned: 1 });
+userSchema.index({ deletedAt: 1 });
 
 export const User = defineModel<IUser>('User', userSchema);

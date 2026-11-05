@@ -79,7 +79,7 @@ export default function SavedList({ items }: { items: HackathonView[] }) {
           return (
             <section key={col} aria-label={TRACK_LABELS[col]} className="rounded-lg bg-card/60 p-3 ring-1 ring-ink/15">
               <h2 className="mb-3 flex items-center justify-between px-1 font-sans text-sm font-semibold">
-                <span className={cn('rounded-full px-2.5 py-1', COLUMN_STYLES[col])}>{TRACK_LABELS[col]}</span>
+                <span className={cn('rounded-md px-2.5 py-1', COLUMN_STYLES[col])}>{TRACK_LABELS[col]}</span>
                 <span className="text-ink/45">{inCol.length}</span>
               </h2>
               <ul className="space-y-3">

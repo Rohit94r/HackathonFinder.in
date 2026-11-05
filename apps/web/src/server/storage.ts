@@ -49,7 +49,18 @@ export async function storeImage(data: Buffer, folder: 'posters' | 'covers' | 'a
     form.set('timestamp', timestamp);
     form.set('api_key', process.env.CLOUDINARY_API_KEY!);
     form.set('signature', signature);
-    const res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`, { method: 'POST', body: form });
+    let res: Response;
+    try {
+      res = await fetch(`https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/upload`, {
+        method: 'POST',
+        body: form,
+        signal: AbortSignal.timeout(30_000),
+      });
+    } catch (err) {
+      // Timed out or couldn't reach Cloudinary: same answer as a failed upload.
+      console.error('[storage] Cloudinary upload failed', err);
+      throw new ApiError(502, 'upload_failed', 'We couldn’t save that image. Please try again.');
+    }
     if (!res.ok) {
       console.error('[storage] Cloudinary upload failed', res.status, await res.text());
       throw new ApiError(502, 'upload_failed', 'We couldn’t save that image. Please try again.');

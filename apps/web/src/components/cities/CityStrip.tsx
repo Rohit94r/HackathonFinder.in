@@ -125,7 +125,7 @@ export default function CityStrip({ slug, snapshot }: CityStripProps) {
             </>
           ) : (
             <>
-              <span className="mt-2 inline-flex rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 dark:bg-brand-400/15 dark:text-brand-200">
+              <span className="mt-2 inline-flex rounded-md bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 dark:bg-brand-400/15 dark:text-brand-200">
                 Starting soon
               </span>
               <p className="mt-2 text-sm text-ink/70">Until then, follow {city.name} to keep its hackathons on your shortlist.</p>

@@ -61,7 +61,7 @@ export default function NotificationsList() {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="inline-flex rounded-full border border-ink/15 p-1" role="group" aria-label="Show">
+          <div className="inline-flex rounded-md border border-ink/15 p-1" role="group" aria-label="Show">
             {[
               { value: false, label: 'All' },
               { value: true, label: 'Unread' },
@@ -72,7 +72,7 @@ export default function NotificationsList() {
                 aria-pressed={unreadOnly === tab.value}
                 onClick={() => setUnreadOnly(tab.value)}
                 className={cn(
-                  'rounded-full px-4 py-1.5 text-sm font-semibold transition',
+                  'rounded-md px-4 py-1.5 text-sm font-semibold transition',
                   unreadOnly === tab.value ? 'bg-ink text-surface' : 'text-ink/70 hover:text-ink'
                 )}
               >

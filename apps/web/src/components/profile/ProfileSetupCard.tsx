@@ -60,7 +60,7 @@ export default function ProfileSetupCard({
             <li
               key={p.key}
               className={cn(
-                'inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold',
+                'inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-xs font-semibold',
                 p.done ? 'bg-ink/[0.06] text-ink/60 line-through decoration-ink/30' : 'bg-accent/10 text-brand-700 dark:text-brand-300'
               )}
             >

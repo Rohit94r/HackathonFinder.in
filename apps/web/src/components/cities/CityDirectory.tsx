@@ -299,7 +299,7 @@ export default function CityDirectory({ items }: CityDirectoryProps) {
               type="search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search a city or state"
+              placeholder="Search a city or state…"
               className="input pl-11"
             />
           </div>

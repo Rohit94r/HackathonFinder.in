@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, Info } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { PlatformSign } from '@/components/junction/Signs';
 
@@ -86,22 +86,5 @@ export function PageHero({
         {children && <div className="mt-7 w-full">{children}</div>}
       </div>
     </section>
-  );
-}
-
-export function SampleNotice({ children, className }: { children?: React.ReactNode; className?: string }) {
-  return (
-    <p
-      className={cn(
-        'flex items-start gap-2 rounded-md border border-line bg-card px-4 py-3 text-sm text-ink/80',
-        className
-      )}
-    >
-      <Info className="mt-0.5 h-4 w-4 shrink-0" />
-      <span>
-        {children ??
-          'Preview: these are sample listings. Real hackathons appear here as soon as our discovery agents go live.'}
-      </span>
-    </p>
   );
 }

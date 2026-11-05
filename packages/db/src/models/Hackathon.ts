@@ -173,6 +173,8 @@ hackathonSchema.index({ state: 1, themes: 1 });
 hackathonSchema.index({ state: 1, createdAt: -1 });
 hackathonSchema.index({ 'sourceRefs.source': 1, 'sourceRefs.externalId': 1 });
 hackathonSchema.index({ 'sourceRefs.url': 1 });
+// Duplicate check on shared links matches the registration link too (server/submissions.ts findDuplicate).
+hackathonSchema.index({ registrationUrl: 1 });
 hackathonSchema.index(
   { title: 'text', tagline: 'text', organizer: 'text', summary: 'text', venue: 'text' },
   { weights: { title: 10, organizer: 4, tagline: 3, venue: 2, summary: 1 }, name: 'hackathon_text' }

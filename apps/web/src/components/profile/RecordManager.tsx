@@ -8,6 +8,7 @@ import { cn } from '@/lib/cn';
 import type { ProfileEvent } from './MyProfileView';
 import { type ProfileRecord, type ResultKind } from './profileTypes';
 import RecordList from './RecordList';
+import { toast } from '@/components/Toaster';
 
 const RESULTS: ResultKind[] = ['winner', 'runner-up', 'finalist', 'participant'];
 
@@ -112,7 +113,7 @@ function RecordForm({
             value={draft.event}
             onChange={(e) => set('event', e.target.value)}
             maxLength={120}
-            placeholder="e.g. HackMIT 2025"
+            placeholder="e.g. HackMIT 2025…"
             className={cn('input', errors.event && 'border-brand-500')}
             {...invalid('event')}
           />
@@ -154,7 +155,7 @@ function RecordForm({
             value={draft.project}
             onChange={(e) => set('project', e.target.value)}
             maxLength={120}
-            placeholder="e.g. FloodWatch"
+            placeholder="e.g. FloodWatch…"
             className="input"
           />
         </div>
@@ -212,6 +213,7 @@ export default function RecordManager({
       : await apiFetch<{ record: ProfileRecord[] }>('/api/me/record', { body });
     onChange(res.record);
     setMode(null);
+    toast(editing ? 'Record updated' : 'Added to your record');
   };
 
   const remove = async (id: string) => {
@@ -219,6 +221,7 @@ export default function RecordManager({
     try {
       const res = await apiFetch<{ record: ProfileRecord[] }>(`/api/me/record/${id}`, { method: 'DELETE' });
       onChange(res.record);
+      toast('Removed from your record', { tone: 'info' });
     } catch (err) {
       setError(err instanceof ApiClientError ? err.message : 'Couldn’t remove that. Try again.');
     } finally {

@@ -73,6 +73,8 @@ const winSchema = new Schema<IWin>(
 );
 winSchema.index({ slug: 1 }, { unique: true });
 winSchema.index({ deletedAt: 1, createdAt: -1 });
+// The "most cheered" sort (server/wins.ts listWins).
+winSchema.index({ deletedAt: 1, cheers: -1, createdAt: -1 });
 winSchema.index({ authorId: 1, createdAt: -1 });
 winSchema.index({ result: 1, city: 1 });
 winSchema.index({ projectName: 'text', hackathon: 'text', tagline: 'text', techStack: 'text' }, { name: 'win_text' });

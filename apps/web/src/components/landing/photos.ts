@@ -11,7 +11,7 @@ export interface Photo {
 }
 
 const photo = (file: string, by: string, id: string): Photo => ({
-  src: `/photos/${file}.jpg`,
+  src: `/photos/${file}.webp`,
   by,
   page: `https://unsplash.com/photos/${id}`,
 });

@@ -40,6 +40,8 @@ export async function sendEmail(email: Email): Promise<boolean> {
   try {
     const res = await fetch('https://api.resend.com/emails', {
       method: 'POST',
+      // A slow mail service must not hold up the page that sent the email.
+      signal: AbortSignal.timeout(10_000),
       headers: { Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         from: process.env.EMAIL_FROM || 'HackathonFinder <hello@hackathonfinder.in>',

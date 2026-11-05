@@ -66,7 +66,7 @@ export default function HomeSearch({ cities }: { cities: CityOption[] }) {
               type="search"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search hackathons, technologies or organizers"
+              placeholder="Search hackathons, technologies or organizers…"
               className="h-12 w-full rounded-md bg-transparent pl-11 pr-3 text-[16px] text-ink placeholder:text-muted/80 focus:bg-surface focus:outline-none"
               autoComplete="off"
               enterKeyHint="search"
@@ -126,7 +126,7 @@ export default function HomeSearch({ cities }: { cities: CityOption[] }) {
 
           <button type="submit" className="btn-primary h-12 px-6 text-[16px] lg:min-w-[130px]" disabled={pending}>
             {pending ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Search className="h-4 w-4" aria-hidden="true" />}
-            {pending ? 'Searching' : 'Search'}
+            {pending ? 'Searching…' : 'Search'}
           </button>
         </div>
       </form>

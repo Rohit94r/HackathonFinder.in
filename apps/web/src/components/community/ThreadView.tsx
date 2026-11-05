@@ -108,7 +108,7 @@ export default function ThreadView({ initial, viewer }: { initial: ThreadDetailD
                 {thread.city && (
                   <Link
                     href={`/cities/${thread.city}`}
-                    className="inline-flex items-center gap-1 rounded-full border border-ink/15 px-2.5 py-0.5 text-xs font-semibold text-ink hover:border-brand-500"
+                    className="inline-flex items-center gap-1 rounded-md border border-ink/15 px-2.5 py-0.5 text-xs font-semibold text-ink hover:border-brand-500"
                   >
                     <MapPin className="h-3.5 w-3.5" />
                     {cityName(thread.city)}

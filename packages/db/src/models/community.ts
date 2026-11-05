@@ -72,6 +72,9 @@ const threadSchema = new Schema<IThread>(
 );
 threadSchema.index({ slug: 1 }, { unique: true });
 threadSchema.index({ deletedAt: 1, pinned: -1, lastActivityAt: -1 });
+// The thread list's "new" and "top" sorts (server/community.ts listThreads).
+threadSchema.index({ deletedAt: 1, pinned: -1, createdAt: -1 });
+threadSchema.index({ deletedAt: 1, pinned: -1, votes: -1, createdAt: -1 });
 threadSchema.index({ category: 1, createdAt: -1 });
 threadSchema.index({ city: 1 });
 threadSchema.index({ hackathonSlug: 1 });

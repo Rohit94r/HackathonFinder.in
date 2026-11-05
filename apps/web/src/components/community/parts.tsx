@@ -81,7 +81,7 @@ export function AuthorLink({
 export function CategoryChip({ id, className }: { id: CategoryId; className?: string }) {
   const Icon = CATEGORY_ICONS[id];
   return (
-    <span className={cn('inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold', CATEGORY_STYLES[id], className)}>
+    <span className={cn('inline-flex items-center gap-1 rounded-md px-2.5 py-0.5 text-xs font-semibold', CATEGORY_STYLES[id], className)}>
       <Icon className="h-3.5 w-3.5" />
       {categoryById(id)?.label ?? id}
     </span>
@@ -90,7 +90,7 @@ export function CategoryChip({ id, className }: { id: CategoryId; className?: st
 
 export function PinnedChip() {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full bg-ink px-2.5 py-0.5 text-xs font-bold text-surface">
+    <span className="inline-flex items-center gap-1 rounded-md bg-ink px-2.5 py-0.5 text-xs font-bold text-surface">
       <Pin className="h-3 w-3" />
       Pinned
     </span>
@@ -205,7 +205,7 @@ export function TagFields({
           value={value.extra}
           onChange={(e) => onChange({ ...value, extra: e.target.value })}
           maxLength={120}
-          placeholder="e.g. first-timers, travel"
+          placeholder="e.g. first-timers, travel…"
           aria-invalid={Boolean(error) || undefined}
           aria-describedby={error ? `${idPrefix}-tags-error` : `${idPrefix}-tags-hint`}
         />
