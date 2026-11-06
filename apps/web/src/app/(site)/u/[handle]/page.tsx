@@ -19,6 +19,7 @@ import { SampleBadge } from '@/components/teams/TeamParts';
 import { getSessionUser } from '@/server/auth';
 import { conversationBetween } from '@/server/chat';
 import { getPublicProfile } from '@/server/profiles';
+import { pageMetadata } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -33,15 +34,15 @@ export async function generateMetadata(props: { params: Promise<{ handle: string
   const record = stats.hackathons
     ? `${stats.hackathons} hackathon${stats.hackathons === 1 ? '' : 's'}, ${stats.wins} win${stats.wins === 1 ? '' : 's'}.`
     : 'New to hackathons.';
-  const description = [`${user.name}’s hackathon profile on HackathonFinder.`, record, user.bio].filter(Boolean).join(' ').slice(0, 300);
-  return {
+  const description = [`${user.name}’s hackathon profile on HackathonFinder.`, record, user.bio].filter(Boolean).join(' ');
+  return pageMetadata({
     title: `${user.name} (@${user.handle})`,
     description,
-    alternates: { canonical: `/u/${user.handle}` },
-    openGraph: { title: `${user.name} (@${user.handle})`, description, type: 'profile' },
+    path: `/u/${user.handle}`,
+    type: 'profile',
     // Sample students are made up, so search engines shouldn't list them.
-    robots: user.isSample ? { index: false, follow: true } : undefined,
-  };
+    noindex: user.isSample,
+  });
 }
 
 export default async function PersonPage(props: { params: Promise<{ handle: string }> }) {

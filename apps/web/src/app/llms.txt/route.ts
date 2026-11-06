@@ -44,6 +44,10 @@ export function GET() {
     '## News & trends',
     ...newsPosts.map((p) => `- [${p.title}](${abs(`/news/${p.slug}`)}): ${p.dek}`),
     '',
+    '## Feeds',
+    `- [Guides RSS](${abs('/blog/rss.xml')}): new hackathon guides`,
+    `- [News RSS](${abs('/news/rss.xml')}): new AI, skills and market briefings`,
+    '',
   ];
   return new Response(lines.join('\n'), { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=3600' } });
 }

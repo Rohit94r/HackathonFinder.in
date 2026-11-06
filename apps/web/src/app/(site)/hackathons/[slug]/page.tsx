@@ -62,10 +62,31 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   if (!found) return { title: 'Hackathon not found' };
   const h = found.item;
   const where = h.mode === 'online' ? 'online' : `in ${cityName(h.city, h.cityName)}`;
+  const raw = h.title.trim();
+  const clipped = raw.length > 60 ? `${raw.slice(0, 57).replace(/[\s\-–—:|,]+$/, '')}…` : raw;
+  const full = `${clipped}: ${eventTypeLabel(h.type)} ${where}`;
+  const place = `${clipped}: ${where}`;
+  // Two listings can share a title (a rerun, or the same event scraped twice). Add the start
+  // date so the two pages don't compete with an identical title in search results.
+  const duplicate = found.items.some((x) => x.slug !== h.slug && x.title === h.title);
+  const dated = `${clipped} (${formatDay(h.startDate)})`;
+  const candidates = duplicate ? [dated, full, place, clipped] : [full, place, dated, clipped];
+  // Keep the useful words inside the ~60-character cut.
+  const title = candidates.find((t) => t.length <= 60) ?? clipped;
+  // The same event is sometimes listed twice from two scrape runs. Point both pages at the
+  // shortest slug so search engines treat them as one event.
+  const canonicalSlug = h.registrationUrl
+    ? found.items
+        .filter((x) => x.registrationUrl === h.registrationUrl)
+        .map((x) => x.slug)
+        .sort((a, b) => a.length - b.length)[0] ?? h.slug
+    : h.slug;
+  const lead = (h.summary || `${h.title} is a ${eventTypeLabel(h.type).toLowerCase()} ${where} by ${h.organizer}.`).trim();
+  const description = lead.length < 110 ? `${lead} Dates, registration deadline, prizes, team size and how to register.` : lead;
   return pageMetadata({
-    title: `${h.title}: ${eventTypeLabel(h.type)} ${where}`,
-    description: (h.summary || `${h.title}, a ${eventTypeLabel(h.type).toLowerCase()} ${where} by ${h.organizer}. Dates, deadline, prizes, team size and how to register.`).slice(0, 300),
-    path: `/hackathons/${h.slug}`,
+    title,
+    description,
+    path: `/hackathons/${canonicalSlug}`,
     keywords: [h.title, `${h.title} registration`, `hackathon ${where}`, ...h.themes.map((t) => `${themeName(t)} hackathon`)],
     image: h.imageUrl,
     // Finished events stay reachable but drop out of search results.
@@ -285,6 +306,33 @@ export default async function HackathonDetailPage(props: { params: Promise<{ slu
                     )}
                   </div>
                 )}
+              </div>
+
+              <div className="card mt-8 p-6 sm:p-8">
+                <h2 className="text-[28px]">Before you register</h2>
+                <p className="mt-2 leading-7 text-ink/75">
+                  Three things worth doing before the deadline: check what the registration actually asks for, line up a
+                  team if the event allows one, and decide what a finished demo looks like.
+                </p>
+                <ul className="mt-5 grid gap-3 sm:grid-cols-3">
+                  {[
+                    { href: '/blog/checklist-before-you-register', label: 'Registration checklist' },
+                    { href: '/teams', label: 'Find a team' },
+                    h.themes.includes('ai-ml')
+                      ? { href: '/news/choosing-an-ai-model', label: 'Choose an AI model' }
+                      : { href: '/blog/pitch-your-project-in-three-minutes', label: 'Pitch in 3 minutes' },
+                  ].map((l) => (
+                    <li key={l.href}>
+                      <Link
+                        href={l.href}
+                        className="flex h-full items-center justify-between gap-2 rounded-md border border-line bg-surface px-4 py-3 text-sm font-semibold text-ink transition hover:border-ink"
+                      >
+                        {l.label}
+                        <ChevronRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
               <LatestDiscussions hackathonSlug={h.slug} city={h.city} limit={3} title="Talk about this event" className="mt-8" />

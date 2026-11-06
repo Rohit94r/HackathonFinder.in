@@ -91,13 +91,15 @@ export const metadata: Metadata = {
     description: siteConfig.description,
     url: siteConfig.url,
     siteName: siteConfig.name,
-    locale: 'en_US',
+    locale: 'en_IN',
     type: 'website',
+    images: [{ url: `${siteConfig.url}/opengraph-image`, width: 1200, height: 630, alt: `${siteConfig.name}: find hackathons online and near you` }],
   },
   twitter: {
     card: 'summary_large_image',
     title: HOME_TITLE,
     description: siteConfig.description,
+    images: [`${siteConfig.url}/opengraph-image`],
   },
   // Search Console / Bing Webmaster verification codes, set in the host's environment.
   verification: {

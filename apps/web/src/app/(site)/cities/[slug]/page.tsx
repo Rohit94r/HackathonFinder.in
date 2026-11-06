@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
-import { breadcrumbJsonLd, itemListJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
+import { breadcrumbJsonLd, faqJsonLd, itemListJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
 import { notFound } from 'next/navigation';
 import { CITIES } from '@hackathonfinder/shared';
 import CityStrip from '@/components/cities/CityStrip';
 import LatestDiscussions from '@/components/community/LatestDiscussions';
 import Explorer from '@/components/hackathon/Explorer';
+import SeoContent from '@/components/seo/SeoContent';
 import { PageHero } from '@/components/ui';
 import { DEFAULT_FILTERS, parseFilters } from '@/lib/filters';
 import { cityCounts } from '@/lib/hackathons';
+import { cityCopy } from '@/lib/listingCopy';
 import { getHackathons } from '@/server/hackathons';
 import { loadCitySnapshot } from '@/server/teams';
 
@@ -41,6 +43,7 @@ export default async function CityPage(
   const count = cityCounts(items)[city.slug] ?? 0;
 
   const inCity = items.filter((h) => h.city === city.slug && h.status !== 'completed');
+  const copy = cityCopy(city, items);
 
   return (
     <>
@@ -51,6 +54,7 @@ export default async function CityPage(
             { name: city.name, path: `/cities/${city.slug}` },
           ]),
           itemListJsonLd(`Hackathons in ${city.name}`, inCity),
+          faqJsonLd(copy.faqs),
         ]}
       />
       <PageHero
@@ -66,6 +70,14 @@ export default async function CityPage(
         <div className="container-page">
           <CityStrip slug={city.slug} snapshot={snapshot} />
           <Explorer items={items} initial={parseFilters(searchParams, base)} base={base} />
+          <SeoContent
+            copy={copy}
+            links={[
+              { href: '/blog/how-to-win-your-first-hackathon', label: 'Winning your first hackathon' },
+              { href: '/teams', label: `Find teammates from ${city.name}` },
+              { href: '/blog/checklist-before-you-register', label: 'Checklist before you register' },
+            ]}
+          />
           <LatestDiscussions city={city.slug} title={`Talk with students in ${city.name}`} className="mt-12" />
         </div>
       </section>

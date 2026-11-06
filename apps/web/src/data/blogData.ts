@@ -278,7 +278,7 @@ const guidePosts: BlogPost[] = [
   },
   {
     slug: 'how-hackathonfinder-finds-every-hackathon',
-    title: 'How HackathonFinder finds hackathons and keeps listings honest',
+    title: 'How HackathonFinder finds and checks hackathons',
     excerpt:
       'Where our listings come from, what our AI agents do, how we remove duplicates and check details, and the data rules we follow for every source.',
     category: 'Inside HackathonFinder',

@@ -7,18 +7,21 @@ import WinCard from '@/components/wins/WinCard';
 import { blogPosts, postIsoDate } from '@/data/blogData';
 import { newsCategory, newsPosts } from '@/data/newsData';
 import { trendingHackathons } from '@/lib/hackathons';
-import { blogListJsonLd, breadcrumbJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
+import { blogListJsonLd, breadcrumbJsonLd, JsonLd, pageMetadata, abs } from '@/lib/seo';
 import { getSessionUser } from '@/server/auth';
 import { getHackathons } from '@/server/hackathons';
 import { latestWins } from '@/server/wins';
 
-export const metadata: Metadata = pageMetadata({
-  title: 'Hackathon Guides & Tips for Students',
-  description:
-    'Free hackathon guides for students: what a hackathon is, finding events near you, winning your first one, finding teammates and pitching to judges.',
-  path: '/blog',
-  keywords: ['hackathon tips', 'how to win a hackathon', 'hackathon guide', 'what is a hackathon', 'hackathons for beginners', 'hackathon resume'],
-});
+export const metadata: Metadata = {
+  ...pageMetadata({
+    title: 'Hackathon Guides & Tips for Students',
+    description:
+      'Free hackathon guides for students: what a hackathon is, finding events near you, winning your first one, finding teammates and pitching to judges.',
+    path: '/blog',
+    keywords: ['hackathon tips', 'how to win a hackathon', 'hackathon guide', 'what is a hackathon', 'hackathons for beginners', 'hackathon resume'],
+  }),
+  alternates: { canonical: abs('/blog'), types: { 'application/rss+xml': abs('/blog/rss.xml') } },
+};
 
 export default async function BlogPage() {
   const [featured, ...rest] = blogPosts;

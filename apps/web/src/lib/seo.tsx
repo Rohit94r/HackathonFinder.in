@@ -23,31 +23,51 @@ function resolvedTitle(title: string): Metadata['title'] {
 }
 
 /**
+ * Search snippets cut around 155–160 characters. Trim at a word boundary so the
+ * description never gets chopped mid-word, and never invent a shorter one.
+ */
+function metaDescription(text: string): string {
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= 158) return clean;
+  const cut = clean.slice(0, 158);
+  const space = cut.lastIndexOf(' ');
+  const kept = (space > 120 ? cut.slice(0, space) : cut).replace(/[.,;:!?\-–—]+$/, '');
+  return `${kept}…`;
+}
+
+/**
  * Metadata for an indexable page: title, description, canonical URL and matching
  * Open Graph / Twitter tags (Next merges these with the root layout's defaults).
+ * Non-article pages fall back to the site-wide social card, so every shared link
+ * has an image even when the page has no artwork of its own.
  */
 export function pageMetadata(opts: {
   title: string;
   description: string;
   path: string;
   keywords?: string[];
-  type?: 'website' | 'article';
+  type?: 'website' | 'article' | 'profile';
   publishedTime?: string;
   modifiedTime?: string;
   image?: string;
   noindex?: boolean;
 }): Metadata {
   const url = abs(opts.path);
-  const images = opts.image ? [{ url: opts.image }] : undefined;
+  const description = metaDescription(opts.description);
+  const images = opts.image
+    ? [{ url: opts.image }]
+    : opts.type === 'article'
+      ? undefined
+      : [{ url: abs('/opengraph-image'), width: 1200, height: 630, alt: `${siteConfig.name}: ${opts.title}` }];
   return {
     title: resolvedTitle(opts.title),
-    description: opts.description,
+    description,
     keywords: opts.keywords,
     alternates: { canonical: url },
     robots: opts.noindex ? { index: false, follow: true } : undefined,
     openGraph: {
       title: opts.title,
-      description: opts.description,
+      description,
       url,
       siteName: siteConfig.name,
       locale: 'en_IN',
@@ -55,7 +75,7 @@ export function pageMetadata(opts: {
       ...(opts.type === 'article' ? { publishedTime: opts.publishedTime, modifiedTime: opts.modifiedTime, authors: [siteConfig.founder.name] } : {}),
       ...(images ? { images } : {}),
     },
-    twitter: { card: 'summary_large_image', title: opts.title, description: opts.description, ...(images ? { images } : {}) },
+    twitter: { card: 'summary_large_image', title: opts.title, description, ...(images ? { images: images.map((i) => i.url) } : {}) },
   };
 }
 
@@ -156,11 +176,22 @@ export function faqJsonLd(faqs: { q: string; a: string }[]) {
   };
 }
 
-export function articleJsonLd(post: { slug: string; title: string; excerpt: string; published: string; modified?: string; keywords?: string[]; category: string }) {
-  const url = abs(`/blog/${post.slug}`);
+export function articleJsonLd(post: {
+  slug: string;
+  title: string;
+  excerpt: string;
+  published: string;
+  modified?: string;
+  keywords?: string[];
+  category: string;
+  /** Defaults to /blog/[slug]; wins stories pass their own path. */
+  path?: string;
+  type?: 'BlogPosting' | 'Article';
+}) {
+  const url = abs(post.path ?? `/blog/${post.slug}`);
   return {
     '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
+    '@type': post.type ?? 'BlogPosting',
     '@id': `${url}#article`,
     mainEntityOfPage: url,
     headline: post.title,
@@ -172,12 +203,15 @@ export function articleJsonLd(post: { slug: string; title: string; excerpt: stri
     keywords: post.keywords?.join(', '),
     // The per-post card's URL carries a build hash, so structured data uses the site card.
     image: abs('/opengraph-image'),
-    author: { '@type': 'Organization', name: `${siteConfig.name} Team`, url: siteConfig.url },
+    author: [
+      { '@type': 'Person', name: siteConfig.founder.name, url: abs('/about#founder') },
+      { '@type': 'Organization', name: `${siteConfig.name} Team`, url: siteConfig.url },
+    ],
     publisher: { '@id': ORG_ID },
   };
 }
 
-/** schema.org Event for a listing, so it can appear in Google's event results. */
+/** schema.org Blog for the guides index. */
 export function blogListJsonLd(posts: { slug: string; title: string; published: string; modified?: string }[]) {
   return {
     '@context': 'https://schema.org',
@@ -221,7 +255,10 @@ export function newsArticleJsonLd(post: {
     articleSection: post.category,
     keywords: post.keywords?.join(', '),
     image: abs('/opengraph-image'),
-    author: { '@type': 'Organization', name: `${siteConfig.name} Team`, url: siteConfig.url },
+    author: [
+      { '@type': 'Person', name: siteConfig.founder.name, url: abs('/about#founder') },
+      { '@type': 'Organization', name: `${siteConfig.name} Team`, url: siteConfig.url },
+    ],
     publisher: { '@id': ORG_ID },
   };
 }

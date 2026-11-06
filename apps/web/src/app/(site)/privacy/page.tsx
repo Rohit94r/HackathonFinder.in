@@ -5,7 +5,7 @@ import { privacyHtml } from '@/data/legalData';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Privacy policy',
-  description: 'What HackathonFinder collects, why, and the choices you have.',
+  description: 'What HackathonFinder collects, why we collect it, how long we keep it, and the choices you have over your data and account.',
   path: '/privacy',
 });
 

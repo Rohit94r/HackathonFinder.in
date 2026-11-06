@@ -12,6 +12,7 @@ import { categoryById, excerpt } from '@/data/discussions';
 import { getSessionUser } from '@/server/auth';
 import { getThread, moreInCategory } from '@/server/community';
 import { getHackathon } from '@/server/hackathons';
+import { pageMetadata } from '@/lib/seo';
 import { cn } from '@/lib/cn';
 
 export const dynamic = 'force-dynamic';
@@ -21,13 +22,13 @@ const smallHeading = 'font-sans text-base font-bold normal-case leading-tight tr
 export async function generateMetadata(props: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const params = await props.params;
   const data = await getThread(params.slug, null);
-  if (!data) return { title: 'Discussion not found', robots: { index: false } };
+  if (!data) return { title: 'Discussion not found', robots: { index: false, follow: true } };
   const t = data.thread;
-  return {
+  return pageMetadata({
     title: t.title,
-    description: `${categoryById(t.category)?.label ?? 'Community'}: ${excerpt(t.body)}`,
-    alternates: { canonical: `/community/${t.slug}` },
-  };
+    description: `${categoryById(t.category)?.label ?? 'Community'} discussion on HackathonFinder: ${excerpt(t.body)}`,
+    path: `/community/${t.slug}`,
+  });
 }
 
 export default async function ThreadPage(props: { params: Promise<{ slug: string }> }) {

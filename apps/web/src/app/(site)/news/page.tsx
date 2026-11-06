@@ -6,17 +6,20 @@ import NewsletterForm from '@/components/NewsletterForm';
 import { PageHero, SectionHeading } from '@/components/ui';
 import { NEWS_CATEGORIES, newsCategory, newsPosts, newsIsoDate } from '@/data/newsData';
 import { trendingHackathons } from '@/lib/hackathons';
-import { breadcrumbJsonLd, JsonLd, newsListJsonLd, pageMetadata } from '@/lib/seo';
+import { breadcrumbJsonLd, JsonLd, newsListJsonLd, pageMetadata, abs } from '@/lib/seo';
 import { getHackathons } from '@/server/hackathons';
 import { cn } from '@/lib/cn';
 
-export const metadata: Metadata = pageMetadata({
-  title: 'AI, Skills & Hackathon News',
-  description:
-    'AI models, in-demand skills and market trends, briefed for student builders. Plus what is moving in hackathons and how to act on it.',
-  path: '/news',
-  keywords: ['ai news for students', 'tech skills 2026', 'hackathon trends', 'ai models', 'market trends', 'tech careers'],
-});
+export const metadata: Metadata = {
+  ...pageMetadata({
+    title: 'AI, Skills & Hackathon News',
+    description:
+      'AI models, in-demand skills and market trends, briefed for student builders. Plus what is moving in hackathons and how to act on it.',
+    path: '/news',
+    keywords: ['ai news for students', 'tech skills 2026', 'hackathon trends', 'ai models', 'market trends', 'tech careers'],
+  }),
+  alternates: { canonical: abs('/news'), types: { 'application/rss+xml': abs('/news/rss.xml') } },
+};
 
 export default async function NewsPage(props: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const searchParams = await props.searchParams;

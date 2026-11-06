@@ -15,6 +15,8 @@ import { PHOTOS } from '@/components/landing/photos';
 import Money from '@/components/Money';
 import { byDeadline, openOnly, plausiblePrize, themeCounts, type HackathonView } from '@/lib/hackathons';
 import { themeStyle } from '@/lib/themeStyles';
+import { blogPosts } from '@/data/blogData';
+import { newsPosts } from '@/data/newsData';
 import { getCommunityStats, shownCount } from '@/server/communityStats';
 import { getHackathons } from '@/server/hackathons';
 import { itemListJsonLd, JsonLd } from '@/lib/seo';
@@ -442,6 +444,44 @@ export default async function HomePage() {
             </div>
           </section>
         )}
+
+        {/* PF 6: Reading (guides, news and winning stories) */}
+        <section className="section border-t border-line">
+          <div className="container-page">
+            <SectionHeader
+              pf={6}
+              sign="Reading"
+              title="Before your next hackathon"
+              description="Guides for the build and the pitch, briefings on what is moving in tech, and stories from students who have done it."
+            />
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <Link href="/blog" className="group card flex flex-col p-6 transition hover:-translate-y-1 hover:shadow-lift">
+                <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink">Blog & guides</span>
+                <h3 className="mt-2 text-xl font-bold leading-snug">{blogPosts[0]?.title ?? 'Hackathon guides'}</h3>
+                <p className="mt-2 text-sm leading-6 text-ink/70">How to pick an event, build fast, find teammates and pitch to judges.</p>
+                <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-ink">
+                  All guides <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+                </span>
+              </Link>
+              <Link href="/news" className="group card flex flex-col p-6 transition hover:-translate-y-1 hover:shadow-lift">
+                <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink">News & trends</span>
+                <h3 className="mt-2 text-xl font-bold leading-snug">{newsPosts[0]?.title ?? 'Tech news for builders'}</h3>
+                <p className="mt-2 text-sm leading-6 text-ink/70">AI models, the skills internships ask for and where the market is heading.</p>
+                <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-ink">
+                  All briefings <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+                </span>
+              </Link>
+              <Link href="/wins" className="group card flex flex-col p-6 transition hover:-translate-y-1 hover:shadow-lift">
+                <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink">Winning stories</span>
+                <h3 className="mt-2 text-xl font-bold leading-snug">What judges actually rewarded</h3>
+                <p className="mt-2 text-sm leading-6 text-ink/70">Students share the problem, what they built and what they would change.</p>
+                <span className="mt-auto pt-4 inline-flex items-center gap-1 text-sm font-semibold text-ink">
+                  Read the stories <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" aria-hidden="true" />
+                </span>
+              </Link>
+            </div>
+          </div>
+        </section>
 
         {/* For organizers: get it on the board */}
         <section className="border-t border-line py-14">
