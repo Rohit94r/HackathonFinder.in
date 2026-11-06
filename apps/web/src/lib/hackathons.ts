@@ -35,6 +35,16 @@ export function closingSoon(items: HackathonView[], limit = 4): HackathonView[] 
   return openOnly(items).sort(byDeadline).slice(0, limit);
 }
 
+/**
+ * The events students are opening most. Until view counts build up, the closest
+ * deadlines are the honest stand-in, so the section never looks empty.
+ */
+export function trendingHackathons(items: HackathonView[], limit = 3): HackathonView[] {
+  const open = openOnly(items);
+  if (!open.some((h) => (h.views ?? 0) > 0)) return [...open].sort(byDeadline).slice(0, limit);
+  return [...open].sort((a, b) => (b.views ?? 0) - (a.views ?? 0) || byDeadline(a, b)).slice(0, limit);
+}
+
 export function similarTo(item: HackathonView, items: HackathonView[], limit = 3): HackathonView[] {
   return openOnly(items)
     .filter((h) => h.slug !== item.slug)

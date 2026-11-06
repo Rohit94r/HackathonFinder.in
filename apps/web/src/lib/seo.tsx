@@ -197,6 +197,58 @@ export function blogListJsonLd(posts: { slug: string; title: string; published: 
   };
 }
 
+/** schema.org NewsArticle for a briefing in the news section. */
+export function newsArticleJsonLd(post: {
+  slug: string;
+  title: string;
+  dek: string;
+  category: string;
+  published: string;
+  modified?: string;
+  keywords?: string[];
+}) {
+  const url = abs(`/news/${post.slug}`);
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    '@id': `${url}#article`,
+    mainEntityOfPage: url,
+    headline: post.title,
+    description: post.dek,
+    datePublished: post.published,
+    dateModified: post.modified ?? post.published,
+    inLanguage: 'en',
+    articleSection: post.category,
+    keywords: post.keywords?.join(', '),
+    image: abs('/opengraph-image'),
+    author: { '@type': 'Organization', name: `${siteConfig.name} Team`, url: siteConfig.url },
+    publisher: { '@id': ORG_ID },
+  };
+}
+
+/** The news hub as a collection of article links. */
+export function newsListJsonLd(posts: { slug: string; title: string; published: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    '@id': abs('/news#collection'),
+    name: `Tech news & trends · ${siteConfig.name}`,
+    description: 'AI, skills and market briefings for student builders, plus what is moving in hackathons.',
+    url: abs('/news'),
+    isPartOf: { '@id': WEBSITE_ID },
+    publisher: { '@id': ORG_ID },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: posts.map((p, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: abs(`/news/${p.slug}`),
+        name: p.title,
+      })),
+    },
+  };
+}
+
 export function eventJsonLd(h: Hackathon & { status?: string }) {
   const online = h.mode === 'online';
   const place = {

@@ -86,6 +86,8 @@ export interface Hackathon {
   logoUrl?: string;
   /** One of the built-in preview listings rather than a real event. */
   sample?: boolean;
+  /** Page views recorded on HackathonFinder, used for "trending" ordering. */
+  views?: number;
 }
 
 export interface Theme {

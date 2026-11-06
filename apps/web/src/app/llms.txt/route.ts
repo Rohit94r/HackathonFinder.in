@@ -1,5 +1,6 @@
 import { CITIES, SOURCES, THEMES } from '@hackathonfinder/shared';
 import { blogPosts } from '@/data/blogData';
+import { newsPosts } from '@/data/newsData';
 import { siteConfig } from '@/data/siteConfig';
 import { abs } from '@/lib/seo';
 
@@ -25,6 +26,8 @@ export function GET() {
     `- [Team Finder](${abs('/teams')}): find teammates by skill and city`,
     `- [Community](${abs('/community')}): student discussions about hackathons`,
     `- [Winning stories](${abs('/wins')}): how students won hackathons`,
+    `- [Blog & guides](${abs('/blog')}): how to find, build for, pitch and win hackathons`,
+    `- [News & trends](${abs('/news')}): briefings on AI models, in-demand skills and hackathon trends`,
     `- [Submit a hackathon](${abs('/submit')}): organizers and students can add events`,
     `- [How it works](${abs('/how-it-works')}): how listings are found, checked and kept up to date`,
     `- [About](${abs('/about')}): mission and founders`,
@@ -37,6 +40,9 @@ export function GET() {
     '',
     '## Guides',
     ...blogPosts.map((p) => `- [${p.title}](${abs(`/blog/${p.slug}`)}): ${p.excerpt}`),
+    '',
+    '## News & trends',
+    ...newsPosts.map((p) => `- [${p.title}](${abs(`/news/${p.slug}`)}): ${p.dek}`),
     '',
   ];
   return new Response(lines.join('\n'), { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'public, max-age=3600' } });

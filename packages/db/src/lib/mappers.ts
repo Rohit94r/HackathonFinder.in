@@ -42,6 +42,7 @@ export function toHackathon(doc: Lean<IHackathon>): Hackathon {
     beginnerFriendly: Boolean(doc.beginnerFriendly),
     featured: Boolean(doc.featured),
     verified: Boolean(doc.verified),
+    views: doc.stats?.views ?? 0,
     registrationUrl: doc.registrationUrl,
     registrationVia: doc.registrationVia === 'qr' ? 'qr' : undefined,
     sources: doc.sources ?? [],

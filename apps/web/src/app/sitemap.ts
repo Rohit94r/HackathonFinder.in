@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 import { connectDb, isDbConfigured, Thread, Win } from '@hackathonfinder/db';
 import { CITIES, THEMES } from '@hackathonfinder/shared';
 import { blogPosts, postIsoDate } from '@/data/blogData';
+import { newsIsoDate, newsPosts } from '@/data/newsData';
 import { abs } from '@/lib/seo';
 import { getHackathons } from '@/server/hackathons';
 
@@ -20,6 +21,7 @@ const STATIC: { path: string; priority: number; changeFrequency: Entry['changeFr
   { path: '/community', priority: 0.7, changeFrequency: 'daily' },
   { path: '/wins', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
+  { path: '/news', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/how-it-works', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/about', priority: 0.6, changeFrequency: 'monthly' },
   { path: '/organizers', priority: 0.6, changeFrequency: 'monthly' },
@@ -37,6 +39,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...CITIES.map((c) => ({ url: abs(`/cities/${c.slug}`), lastModified: now, changeFrequency: 'daily' as const, priority: 0.8 })),
     ...THEMES.map((t) => ({ url: abs(`/themes/${t.slug}`), lastModified: now, changeFrequency: 'daily' as const, priority: 0.75 })),
     ...blogPosts.map((p) => ({ url: abs(`/blog/${p.slug}`), lastModified: postIsoDate(p.updated ?? p.date), changeFrequency: 'monthly' as const, priority: 0.7 })),
+    ...newsPosts.map((p) => ({ url: abs(`/news/${p.slug}`), lastModified: newsIsoDate(p.updated ?? p.date), changeFrequency: 'monthly' as const, priority: 0.65 })),
   ];
 
   if (!isDbConfigured()) return entries;
