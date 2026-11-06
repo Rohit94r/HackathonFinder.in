@@ -25,7 +25,6 @@ const STATIC: { path: string; priority: number; changeFrequency: Entry['changeFr
   { path: '/calendar', priority: 0.8, changeFrequency: 'daily' },
   { path: '/teams', priority: 0.75, changeFrequency: 'daily' },
   { path: '/community', priority: 0.7, changeFrequency: 'daily' },
-  { path: '/wins', priority: 0.7, changeFrequency: 'weekly' },
   { path: '/blog', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/news', priority: 0.8, changeFrequency: 'weekly' },
   { path: '/how-it-works', priority: 0.6, changeFrequency: 'monthly' },
@@ -70,6 +69,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       Thread.find({ deletedAt: null }).select('slug updatedAt').sort({ updatedAt: -1 }).limit(5000).lean(),
     ]);
     for (const w of wins) entries.push({ url: abs(`/wins/${w.slug}`), lastModified: w.createdAt, changeFrequency: 'monthly', priority: 0.5 });
+    // The index is only worth submitting once there is a story on it.
+    if (wins.length > 0) entries.push({ url: abs('/wins'), lastModified: SITE_UPDATED, changeFrequency: 'weekly', priority: 0.7 });
     for (const t of threads) entries.push({ url: abs(`/community/${t.slug}`), lastModified: t.updatedAt, changeFrequency: 'weekly', priority: 0.4 });
   } catch (err) {
     // A database hiccup still serves the static part rather than a broken sitemap.

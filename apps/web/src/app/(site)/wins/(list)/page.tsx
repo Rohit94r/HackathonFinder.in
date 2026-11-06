@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { breadcrumbJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
+import { breadcrumbJsonLd, faqJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
 import { PageHero } from '@/components/ui';
 import WinsBoard, { type WinFilters } from '@/components/wins/WinsBoard';
 import { CITIES, THEMES, type ThemeSlug } from '@hackathonfinder/shared';
@@ -55,7 +55,25 @@ export default async function WinsPage(
 
   return (
     <>
-      <JsonLd data={breadcrumbJsonLd([{ name: 'Winning stories', path: '/wins' }])} />
+      <JsonLd
+        data={[
+          breadcrumbJsonLd([{ name: 'Winning stories', path: '/wins' }]),
+          faqJsonLd([
+            {
+              q: 'What makes a hackathon project win?',
+              a: 'Judges usually reward a narrow problem, a demo that works within the first minute, and a team that can explain what they cut and why. A small, finished project with honest trade-offs scores better than an ambitious prototype that only half runs.',
+            },
+            {
+              q: 'Do you have to be a coder to win a hackathon?',
+              a: 'No. Teams need a clear problem, a usable interface and a pitch that lands, so design, research and communication matter as much as code. Many winning teams include one person who owns the demo and the story.',
+            },
+            {
+              q: 'Can I share a story if my team was a finalist and not the winner?',
+              a: 'Yes. Finalist and special-mention stories often teach more than first-place ones, because they show what the judges compared and what was missing. You can share any result from the story form on this page.',
+            },
+          ]),
+        ]}
+      />
       <PageHero title="Winning"
         accent="stories"
         description="Students share how they won: the problem, what they built, what the judges liked and what they’d tell you before your next hackathon."
@@ -81,6 +99,75 @@ export default async function WinsPage(
             <Link className="font-semibold text-ink" href="/blog/pitch-your-project-in-three-minutes">three-minute pitch structure</Link>.
             Won something recently? Share your story from this page and add the project to your profile.
           </p>
+        </div>
+      </section>
+
+      <section className="section border-t border-ink/10 bg-surface">
+        <div className="container-page max-w-4xl">
+          <h2 className="text-2xl font-bold sm:text-3xl">What winning projects have in common</h2>
+          <p className="mt-3 max-w-3xl text-ink/70">
+            The stories differ, but the pattern is consistent. These three things show up in almost every write-up
+            from a team that made the final.
+          </p>
+          <div className="mt-7 grid gap-6 sm:grid-cols-3">
+            <div>
+              <h3 className="font-semibold text-ink">A demo that works in 30 seconds</h3>
+              <p className="mt-1.5 text-sm leading-6 text-ink/70">
+                The first screen shows the problem and the result, not a login form or a slide. Teams record a backup
+                run so a live failure cannot end the pitch.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-ink">A problem small enough to finish</h3>
+              <p className="mt-1.5 text-sm leading-6 text-ink/70">
+                One user, one workflow, one working path. The scope is narrow on purpose, and the team can say what
+                they deliberately left out.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-semibold text-ink">Trade-offs stated, not hidden</h3>
+              <p className="mt-1.5 text-sm leading-6 text-ink/70">
+                Answers to “what breaks?” and “what would you do next?” land better than claims of accuracy. Judges
+                are comparing judgement as much as code.
+              </p>
+            </div>
+          </div>
+          <p className="mt-7 max-w-3xl text-ink/70">
+            If you are preparing for an event now, start with the{' '}
+            <Link className="font-semibold text-ink" href="/blog/hackathon-project-ideas">project ideas guide</Link>{' '}
+            and the{' '}
+            <Link className="font-semibold text-ink" href="/blog/checklist-before-you-register">registration checklist</Link>,
+            then look at the events on the{' '}
+            <Link className="font-semibold text-ink" href="/hackathons">hackathon board</Link>.
+          </p>
+
+          <h2 className="mt-12 text-2xl font-bold sm:text-3xl">Frequently asked questions</h2>
+          <dl className="mt-4 max-w-3xl space-y-5">
+            <div>
+              <dt className="font-semibold text-ink">What makes a hackathon project win?</dt>
+              <dd className="mt-1 text-[15px] leading-7 text-ink/75">
+                Judges usually reward a narrow problem, a demo that works within the first minute, and a team that can
+                explain what they cut and why. A small, finished project with honest trade-offs scores better than an
+                ambitious prototype that only half runs.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold text-ink">Do you have to be a coder to win a hackathon?</dt>
+              <dd className="mt-1 text-[15px] leading-7 text-ink/75">
+                No. Teams need a clear problem, a usable interface and a pitch that lands, so design, research and
+                communication matter as much as code. Many winning teams include one person who owns the demo and the
+                story.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold text-ink">Can I share a story if my team was a finalist and not the winner?</dt>
+              <dd className="mt-1 text-[15px] leading-7 text-ink/75">
+                Yes. Finalist and special-mention stories often teach more than first-place ones, because they show
+                what the judges compared and what was missing. You can share any result from the story form on this
+                page.
+              </dd>
+            </div>
+          </dl>
         </div>
       </section>
     </>
