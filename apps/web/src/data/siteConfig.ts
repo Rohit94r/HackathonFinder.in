@@ -4,8 +4,9 @@ export const siteConfig = {
   name: 'HackathonFinder',
   domain: 'HackathonFinder.in',
   tagline: 'Every hackathon. One place.',
+  // Kept under ~160 characters: this is the meta description on the home page.
   description:
-    'HackathonFinder finds hackathons from Unstop, Devfolio, Devpost, MLH, Google, Instagram, LinkedIn and more, and lists them in one place. Find hackathons online or near you and search by city, theme, deadline, team size and prize.',
+    'Find hackathons online and near you from Unstop, Devfolio, Devpost, MLH and more. Search by city, theme, deadline, team size and prize. Free for students.',
   url: 'https://www.hackathonfinder.in',
   email: 'hello@hackathonfinder.in',
   /** When the site went live; used in structured data. */

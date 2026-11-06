@@ -10,6 +10,18 @@ export function abs(path = '/'): string {
   return new URL(path, siteConfig.url).toString();
 }
 
+/** Search results cut the title around 60 characters; wide glyphs cut it sooner. */
+const TITLE_LIMIT = 60;
+
+/**
+ * Next appends "· HackathonFinder" from the root layout template. When that would
+ * push the tag past the limit, send the title absolute so the useful words survive
+ * instead of being truncated mid-phrase.
+ */
+function resolvedTitle(title: string): Metadata['title'] {
+  return `${title} · ${siteConfig.name}`.length > TITLE_LIMIT ? { absolute: title } : title;
+}
+
 /**
  * Metadata for an indexable page: title, description, canonical URL and matching
  * Open Graph / Twitter tags (Next merges these with the root layout's defaults).
@@ -28,7 +40,7 @@ export function pageMetadata(opts: {
   const url = abs(opts.path);
   const images = opts.image ? [{ url: opts.image }] : undefined;
   return {
-    title: opts.title,
+    title: resolvedTitle(opts.title),
     description: opts.description,
     keywords: opts.keywords,
     alternates: { canonical: url },
@@ -166,6 +178,25 @@ export function articleJsonLd(post: { slug: string; title: string; excerpt: stri
 }
 
 /** schema.org Event for a listing, so it can appear in Google's event results. */
+export function blogListJsonLd(posts: { slug: string; title: string; published: string; modified?: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Blog',
+    '@id': abs('/blog#blog'),
+    name: `Hackathon guides · ${siteConfig.name}`,
+    description: 'Practical guides on finding, building for, pitching and winning hackathons.',
+    url: abs('/blog'),
+    publisher: { '@id': ORG_ID },
+    blogPost: posts.map((p) => ({
+      '@type': 'BlogPosting',
+      headline: p.title,
+      url: abs(`/blog/${p.slug}`),
+      datePublished: p.published,
+      dateModified: p.modified ?? p.published,
+    })),
+  };
+}
+
 export function eventJsonLd(h: Hackathon & { status?: string }) {
   const online = h.mode === 'online';
   const place = {

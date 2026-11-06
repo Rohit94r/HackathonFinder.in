@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { pageMetadata } from '@/lib/seo';
+import Link from 'next/link';
+import { breadcrumbJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
 import { PageHero } from '@/components/ui';
 import WinsBoard, { type WinFilters } from '@/components/wins/WinsBoard';
 import { CITIES, THEMES, type ThemeSlug } from '@hackathonfinder/shared';
@@ -54,6 +55,7 @@ export default async function WinsPage(
 
   return (
     <>
+      <JsonLd data={breadcrumbJsonLd([{ name: 'Winning stories', path: '/wins' }])} />
       <PageHero title="Winning"
         accent="stories"
         description="Students share how they won: the problem, what they built, what the judges liked and what they’d tell you before your next hackathon."
@@ -61,6 +63,24 @@ export default async function WinsPage(
       <section className="bg-surface py-10 sm:py-14">
         <div className="container-page">
           <WinsBoard events={events} initial={initial} initialData={initialData} openForm={one(searchParams.share) === '1'} />
+        </div>
+      </section>
+      <section className="section border-t border-ink/10">
+        <div className="container-page max-w-3xl">
+          <h2 className="text-2xl font-bold">What a winning story includes</h2>
+          <p className="mt-3 text-ink/70">
+            Every story is written by the student who was there, so the details are the kind you only get from the
+            inside: the problem they picked, the part they had to cut, what the demo actually showed and what the
+            judges asked afterwards. Stories cover first wins, finalists and special-mention projects, because a
+            shortlist run often teaches more than a trophy.
+          </p>
+          <p className="mt-3 text-ink/70">
+            Read them before you pick your next event, then put the lessons to work with our guide to{' '}
+            <Link className="font-semibold text-ink" href="/blog/how-to-win-your-first-hackathon">winning your first hackathon</Link>{' '}
+            and the{' '}
+            <Link className="font-semibold text-ink" href="/blog/pitch-your-project-in-three-minutes">three-minute pitch structure</Link>.
+            Won something recently? Share your story from this page and add the project to your profile.
+          </p>
         </div>
       </section>
     </>

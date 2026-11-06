@@ -7,6 +7,204 @@ import type { BlogPost } from './blogData';
  */
 export const seoBlogPosts: BlogPost[] = [
   {
+    slug: 'hackathons-with-prizes',
+    title: 'Hackathons with prizes: what you can actually win',
+    excerpt:
+      'Cash, internships, cloud credits and certificates: what hackathons really award, how a team splits a prize and how to judge if an event is worth it.',
+    category: 'Guides',
+    author: 'HackathonFinder Team',
+    date: '5 Nov 2026',
+    readMinutes: 6,
+    theme: 'open-innovation',
+    keywords: [
+      'hackathons with prizes',
+      'hackathon prize money',
+      'hackathon prizes in India',
+      'hackathon cash prize',
+      'hackathon perks',
+      'hackathon certificates',
+      'hackathons with cash prizes',
+    ],
+    faqs: [
+      {
+        q: 'Do Indian hackathons give cash prizes?',
+        a: 'Many do, especially college fests, company-sponsored events and national-level competitions. Others award internships, cloud credits, hardware, mentorship or certificates instead of cash. The prize section on the organiser’s page is the only reliable source, so read it before you register.',
+      },
+      {
+        q: 'How much prize money do college hackathons usually offer?',
+        a: 'It varies enormously. A campus-level hackathon might offer a total pool in the tens of thousands of rupees, while a national company-run event can offer lakhs across multiple tracks. Compare the total pool, the number of winning teams and any track prizes rather than the headline number alone.',
+      },
+      {
+        q: 'Is hackathon prize money split between teammates?',
+        a: 'Usually yes. Most organisers treat the team as one winner and expect the members to divide the prize themselves. Agree on an equal split before the event starts, and check the rules in case the organiser pays each member separately or pays only the team leader.',
+      },
+      {
+        q: 'Do I have to pay tax on a hackathon prize?',
+        a: 'Cash prizes can be taxable income, and organisers may deduct tax at source before paying out. Rules depend on the amount, the organiser and your own situation. Ask the organiser how the payout works and keep the paperwork; for anything large, confirm with a tax professional.',
+      },
+    ],
+    contentHtml: `<p>Prize pools are the loudest number on any hackathon listing. “₹5,00,000 in prizes” looks great until you read the breakdown and find that it is spread across twelve tracks, four special mentions and a goodie bag. If you are choosing events partly for what you can win, it helps to know how hackathon prizes actually work and when a prize is not worth the weekend.</p>
+<h2>How hackathon prizes are usually structured</h2>
+<p>Most events do not have a single winner-takes-everything prize. A typical structure looks like this:</p>
+<ul>
+<li><strong>Overall winners.</strong> First, second and sometimes third place across the whole event.</li>
+<li><strong>Track prizes.</strong> Sponsored tracks, such as a fintech or sustainability track, often pay more than the overall prize because a company is funding them.</li>
+<li><strong>Category prizes.</strong> Best beginner team, best use of a particular API, best design, best social impact.</li>
+<li><strong>Special mentions and goodies.</strong> Swag, devices, licences, subscriptions and certificates.</li>
+</ul>
+<p>That structure matters when you are deciding where to aim. A team that cannot beat the strongest group in the room can still win a sponsored track, a beginner category or a tool-specific prize. Read the judging criteria and the track descriptions and pick a lane deliberately.</p>
+<h2>What hackathons in India commonly award</h2>
+<p>Cash is common but far from universal. The realistic list looks like this:</p>
+<ul>
+<li><strong>Cash.</strong> Usually paid after the event, sometimes weeks later, and often with paperwork such as PAN details.</li>
+<li><strong>Internships and interview passes.</strong> Common at company-run events, and often worth more than the cash to a final-year student.</li>
+<li><strong>Cloud and API credits.</strong> Useful if you keep building, useless if you never touch the project again.</li>
+<li><strong>Hardware.</strong> Boards, devices, laptops or peripherals, sometimes awarded to a specific track.</li>
+<li><strong>Mentorship and incubation.</strong> Calls, workspace or a place in a programme, which suits teams that want to continue.</li>
+<li><strong>Certificates and swag.</strong> Nice for a resume line and a photo, but not a reason on their own.</li>
+</ul>
+<p>If cash is what matters to you, filter for <a href="/hackathons?prize=50000">hackathons with a prize pool of ₹50,000 or more</a> and sort by prize. Just remember that the listed pool is the total, not what one team takes home.</p>
+<h2>How the prize gets split</h2>
+<p>Three things decide what you actually receive:</p>
+<ol>
+<li><strong>Team size.</strong> A ₹30,000 prize split four ways is ₹7,500 each, before any deductions.</li>
+<li><strong>Payout rules.</strong> Some organisers pay the team leader, some pay each member, and some pay only after a verification process.</li>
+<li><strong>Deductions.</strong> Cash prizes can attract tax deducted at source, and travel or entry fees come out of your own pocket either way.</li>
+</ol>
+<p>Agree on the split before you start building. An equal split is the simplest and the least likely to cause a fight on the last night. Our guide to <a href="/blog/find-the-right-teammates">finding the right teammates</a> covers that conversation along with everything else worth settling early.</p>
+<h2>When a prize is not worth it</h2>
+<p>Some events look generous and are not. Watch for these:</p>
+<ul>
+<li><strong>An entry fee that is close to the realistic prize value.</strong> If a team of four pays ₹500 each to compete for a ₹5,000 prize, the maths only works if you would have joined anyway.</li>
+<li><strong>Travel and stay you have to cover.</strong> A free offline event three states away is not free.</li>
+<li><strong>“Exposure” and unpaid continuation.</strong> Be careful with events that ask you to hand over your project or keep working for free after the weekend.</li>
+<li><strong>IP terms you have not read.</strong> Check who owns what you build, especially at sponsored events.</li>
+</ul>
+<p>If an organiser asks for money through a personal payment link, treat it as a warning sign and confirm the event on an official page first.</p>
+<h2>What is usually worth more than cash</h2>
+<p>For most students, the durable returns are not the cheque:</p>
+<ul>
+<li><strong>A finished project</strong> you can show in an interview, with a public repo and a demo video.</li>
+<li><strong>Feedback from mentors and judges</strong>, which is hard to buy and easy to waste if you do not ask for it.</li>
+<li><strong>Recruiters who watched you work</strong>, especially at company-run events.</li>
+<li><strong>Teammates</strong> you would build with again.</li>
+</ul>
+<p>Winning stories on <a href="/wins">HackathonFinder</a> are full of this pattern: the prize was nice, but the thing that changed the student’s next year was the project and the people.</p>
+<h2>How to compare events before you commit</h2>
+<ol>
+<li><strong>Read the prize section properly.</strong> Total pool, number of winners, track prizes and payout timing.</li>
+<li><strong>Subtract your costs.</strong> Entry fee, travel, food and missed classes.</li>
+<li><strong>Check what else is on offer.</strong> Internships, mentors, tracks that match your skills.</li>
+<li><strong>Use the filters.</strong> Sort by prize, then filter by city or online, theme, deadline and team size on <a href="/hackathons">all hackathons</a>.</li>
+<li><strong>Save the shortlist.</strong> Add events to <a href="/saved">My hackathons</a> and check the <a href="/calendar">calendar</a> so two good events do not clash.</li>
+</ol>
+<blockquote>A prize is a bonus, not the plan. Pick events where the weekend itself is worth it, then compete for the rest.</blockquote>
+<h2>Frequently asked questions</h2>
+<h3>Do Indian hackathons give cash prizes?</h3>
+<p>Many do, especially college fests, company-sponsored events and national-level competitions. Others award internships, cloud credits, hardware, mentorship or certificates instead of cash. The prize section on the organiser’s page is the only reliable source, so read it before you register.</p>
+<h3>How much prize money do college hackathons usually offer?</h3>
+<p>It varies enormously. A campus-level hackathon might offer a total pool in the tens of thousands of rupees, while a national company-run event can offer lakhs across multiple tracks. Compare the total pool, the number of winning teams and any track prizes rather than the headline number alone.</p>
+<h3>Is hackathon prize money split between teammates?</h3>
+<p>Usually yes. Most organisers treat the team as one winner and expect the members to divide the prize themselves. Agree on an equal split before the event starts, and check the rules in case the organiser pays each member separately or pays only the team leader.</p>
+<h3>Do I have to pay tax on a hackathon prize?</h3>
+<p>Cash prizes can be taxable income, and organisers may deduct tax at source before paying out. Rules depend on the amount, the organiser and your own situation. Ask the organiser how the payout works and keep the paperwork; for anything large, confirm with a tax professional.</p>`,
+  },
+  {
+    slug: 'hackathon-project-ideas',
+    title: 'Hackathon project ideas that judges remember',
+    excerpt:
+      'How to pick a hackathon project idea you can finish in 24 hours, with five patterns that work across AI, health, fintech, climate and education themes.',
+    category: 'Guides',
+    author: 'HackathonFinder Team',
+    date: '2 Nov 2026',
+    readMinutes: 6,
+    theme: 'ai-ml',
+    keywords: [
+      'hackathon project ideas',
+      'hackathon ideas',
+      'hackathon project ideas for students',
+      'ai hackathon ideas',
+      'beginner hackathon projects',
+      'hackathon ideas 2026',
+    ],
+    faqs: [
+      {
+        q: 'How do I come up with a hackathon project idea?',
+        a: 'Start from a person and a repeated frustration rather than from a technology. Name who has the problem, what they do today instead and what one step you could remove. An idea you can state in one sentence and demo in one flow is usually strong enough to build.',
+      },
+      {
+        q: 'What are good hackathon project ideas for beginners?',
+        a: 'Small tools with a single flow: a queue tracker, a receipt splitter, a study planner that turns a syllabus into a schedule, or a browser tool that explains a confusing form. Beginners do better with an idea that needs one screen and one clear input than with a platform.',
+      },
+      {
+        q: 'Should I use AI in my hackathon project?',
+        a: 'Only if it removes real work for the user. Judges see a lot of thin chat wrappers. If a model is doing something specific, such as extracting fields from a document or summarising a call, say clearly what it replaces and show it working on realistic data.',
+      },
+      {
+        q: 'How many features should a hackathon project have?',
+        a: 'One complete flow, plus a second only if it is nearly free. A demo that works end to end for one scenario beats a half-built product with ten half-features, because judges can see the value immediately and you can finish the pitch on time.',
+      },
+    ],
+    contentHtml: `<p>Most hackathon projects fail for the same reason: the idea was too big for the clock. A team picks a platform, spends six hours on authentication and a database schema, then demos a login screen at the end. Judges do not need a platform. They need to see one person’s problem disappear.</p>
+<p>Here is how to choose an idea you can actually finish, with patterns that work across themes.</p>
+<h2>Start from a person, not a technology</h2>
+<p>“A blockchain platform for supply chains” is a technology looking for a problem. Start instead with a specific person in a specific situation:</p>
+<blockquote>A hostel warden who tracks room complaints in a WhatsApp group and loses the ones that were never fixed.</blockquote>
+<p>Now the project has a user, a pain and a test: can the warden see which complaints are still open? That sentence is the whole idea, and it fits on a slide.</p>
+<h2>Five patterns that keep winning</h2>
+<h3>1. Remove one repeated step</h3>
+<p>Find something a person does ten times a day and automate one step of it. A tool that turns a photo of a handwritten bill into a split expense, or that fills a repetitive college form from a saved profile. Small scope, obvious demo.</p>
+<h3>2. Make a paper process trackable</h3>
+<p>Queues, complaints, inventory and attendance still live in notebooks. A simple board that shows what is open, who owns it and what is overdue is easy to build and easy to show. Offline-first and low-bandwidth versions do especially well in social impact tracks.</p>
+<h3>3. Turn messy input into a clean answer</h3>
+<p>Documents, voice notes, screenshots and PDFs are where AI genuinely helps. A model that pulls the three fields a user needs from a confusing document is a real feature. A generic chatbot is not. Say explicitly what the model replaces and show it on realistic data.</p>
+<h3>4. Bridge a language or access gap</h3>
+<p>Regional-language forms, screen-reader-friendly flows, sign-language learning tools, voice-first interfaces for people who do not type comfortably. These ideas score well on impact and are usually buildable in a day if you keep them to one flow.</p>
+<h3>5. Make an existing tool safer or cheaper</h3>
+<p>A privacy checker for a browser, a cost calculator for a common purchase, a warning before someone shares something they should not. These are unglamorous and memorable, because the value is immediate.</p>
+<h2>Ideas by theme, in one line each</h2>
+<ul>
+<li><strong>AI/ML:</strong> extract structured data from a document type people actually handle, or summarise a long call into decisions and action items.</li>
+<li><strong>HealthTech:</strong> a medicine reminder that a family member can set up for someone else, or a plain-language explainer for a lab report.</li>
+<li><strong>FinTech:</strong> a shared-expense tracker for hostel roommates, or a tool that explains a confusing charge on a bill.</li>
+<li><strong>Climate:</strong> a local waste-collection tracker, or a calculator that shows the real cost of a commute choice.</li>
+<li><strong>EdTech:</strong> a syllabus-to-study-plan generator, or a practice tool that turns notes into questions.</li>
+<li><strong>Social impact:</strong> a complaint tracker for a local body, or a directory that helps volunteers find nearby needs.</li>
+</ul>
+<p>Filter <a href="/hackathons">open hackathons</a> by theme to see which tracks are actually running before you commit to an idea.</p>
+<h2>Scope it for the clock you have</h2>
+<ol>
+<li><strong>Write the demo script first.</strong> Five steps: open, do the thing, see the result, understand why it matters. If a step needs a feature, that feature is in scope. Everything else is not.</li>
+<li><strong>Use fake data.</strong> Seeded records look better than live typing and never fail on stage.</li>
+<li><strong>Skip login.</strong> A hardcoded demo user is fine. Nobody is auditing your auth at a hackathon.</li>
+<li><strong>Cut the second screen.</strong> One flow done well reads as a product. Three screens half-done reads as an unfinished project.</li>
+<li><strong>Stop adding features at the three-quarter mark.</strong> Spend the rest of the time on stability and the pitch.</li>
+</ol>
+<p>Our guide to <a href="/blog/how-to-win-your-first-hackathon">winning your first hackathon</a> walks through the same timeline from registration to the final pitch.</p>
+<h2>Ideas to avoid</h2>
+<ul>
+<li><strong>Anything that needs a network of users.</strong> A social app with no users demos as an empty feed.</li>
+<li><strong>“Uber for X” clones.</strong> Judges have seen them, and the hard part is operations, not the app.</li>
+<li><strong>A thin wrapper around a chat model.</strong> If the only feature is a prompt, the demo is a conversation, not a product.</li>
+<li><strong>Projects that need real data you do not have.</strong> You will spend the whole event cleaning data instead of building.</li>
+<li><strong>Three ideas stapled together.</strong> Pick one and go deep.</li>
+</ul>
+<h2>Validate in fifteen minutes</h2>
+<p>Before you write code, talk to three people who could use the thing. Ask what they do today, not whether they like your idea. If two of them describe the same frustration in their own words, you have a demo script. If nobody recognises the problem, change the idea while it is still cheap.</p>
+<h2>Make the pitch follow the build</h2>
+<p>The strongest projects are the easiest to explain: one user, one pain, one flow, one result. If your pitch needs a diagram to justify the scope, the scope is wrong. Keep the story tight and practise it out loud with a timer; our <a href="/blog/pitch-your-project-in-three-minutes">three-minute pitch structure</a> covers the timing.</p>
+<p>Short of a team for your idea? Post the problem and the skills you need on the <a href="/teams">Team Finder board</a>, and check <a href="/wins">winning stories</a> to see what judges rewarded at events you are considering.</p>
+<h2>Frequently asked questions</h2>
+<h3>How do I come up with a hackathon project idea?</h3>
+<p>Start from a person and a repeated frustration rather than from a technology. Name who has the problem, what they do today instead and what one step you could remove. An idea you can state in one sentence and demo in one flow is usually strong enough to build.</p>
+<h3>What are good hackathon project ideas for beginners?</h3>
+<p>Small tools with a single flow: a queue tracker, a receipt splitter, a study planner that turns a syllabus into a schedule, or a browser tool that explains a confusing form. Beginners do better with an idea that needs one screen and one clear input than with a platform.</p>
+<h3>Should I use AI in my hackathon project?</h3>
+<p>Only if it removes real work for the user. Judges see a lot of thin chat wrappers. If a model is doing something specific, such as extracting fields from a document or summarising a call, say clearly what it replaces and show it working on realistic data.</p>
+<h3>How many features should a hackathon project have?</h3>
+<p>One complete flow, plus a second only if it is nearly free. A demo that works end to end for one scenario beats a half-built product with ten half-features, because judges can see the value immediately and you can finish the pitch on time.</p>`,
+  },
+  {
     slug: 'upcoming-hackathons-in-india',
     title: 'Upcoming hackathons in India for students: 2026–27 guide',
     excerpt:
@@ -119,7 +317,7 @@ export const seoBlogPosts: BlogPost[] = [
   },
   {
     slug: 'hackathons-near-me',
-    title: 'Hackathons near me: how to find offline events in your city',
+    title: 'Hackathons near me: find offline events in your city',
     excerpt:
       'Searching for hackathons near me? How to find offline hackathons in Pune, Mumbai, Bengaluru, Delhi, Hyderabad and Chennai, and which are worth the trip.',
     category: 'Guides',

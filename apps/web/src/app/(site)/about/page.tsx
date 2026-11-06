@@ -10,8 +10,8 @@ import { abs, breadcrumbJsonLd, coFounderJsonLd, founderJsonLd, JsonLd, ORG_ID, 
 import { getHackathons } from '@/server/hackathons';
 
 export const metadata: Metadata = pageMetadata({
-  title: `About ${siteConfig.name}: Founded by ${siteConfig.founder.name} and ${siteConfig.coFounder.name}`,
-  description: `${siteConfig.name} is a free hackathon aggregator for students and builders everywhere, founded by ${siteConfig.founder.name} with co-founder ${siteConfig.coFounder.name}. Our mission: no student should miss a hackathon because it was posted somewhere they didn’t look.`,
+  title: `About ${siteConfig.name}: Our Mission & Founders`,
+  description: `${siteConfig.name} is a free hackathon aggregator for students and builders, founded by ${siteConfig.founder.name} and ${siteConfig.coFounder.name}. Every listing links to its source.`,
   path: '/about',
   keywords: ['about HackathonFinder', 'HackathonFinder founder', siteConfig.founder.name, siteConfig.coFounder.name, 'hackathon aggregator'],
 });

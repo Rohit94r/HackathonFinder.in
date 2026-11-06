@@ -7,7 +7,7 @@ import { getHackathons } from '@/server/hackathons';
 export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = pageMetadata({
-  title: 'Hackathon Calendar 2026: Dates & Registration Deadlines',
+  title: 'Hackathon Calendar 2026: Dates & Deadlines',
   description: 'Every hackathon start date and registration deadline for the month, in one calendar. Never miss a deadline again.',
   path: '/calendar',
   keywords: ['hackathon calendar', 'hackathon calendar 2026', 'hackathon deadlines', 'hackathon dates'],

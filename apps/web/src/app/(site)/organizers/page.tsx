@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { pageMetadata } from '@/lib/seo';
+import { faqJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
 import Link from 'next/link';
 import { BadgeCheck, Check, Eye, Megaphone, PenLine, Rocket, Sparkles, Target } from 'lucide-react';
 import FAQ from '@/components/FAQ';
@@ -57,6 +57,7 @@ const PLANS = [
 export default function OrganizersPage() {
   return (
     <>
+      <JsonLd data={faqJsonLd(organizerFaqs)} />
       <PageHero title="Get your hackathon"
         accent="in front of students"
         description="Students come to HackathonFinder to decide what to join next. List your event for free and we’ll send them to your registration page."

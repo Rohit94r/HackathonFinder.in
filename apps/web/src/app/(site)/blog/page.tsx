@@ -4,15 +4,15 @@ import { ArrowRight } from 'lucide-react';
 import EventArt from '@/components/hackathon/EventArt';
 import { PageHero, SectionHeading } from '@/components/ui';
 import WinCard from '@/components/wins/WinCard';
-import { blogPosts } from '@/data/blogData';
-import { pageMetadata } from '@/lib/seo';
+import { blogPosts, postIsoDate } from '@/data/blogData';
+import { blogListJsonLd, breadcrumbJsonLd, JsonLd, pageMetadata } from '@/lib/seo';
 import { getSessionUser } from '@/server/auth';
 import { latestWins } from '@/server/wins';
 
 export const metadata: Metadata = pageMetadata({
   title: 'Hackathon Guides & Tips for Students',
   description:
-    'Free hackathon guides for students: what a hackathon is, how to find hackathons near you, win your first one, find teammates, pitch to judges and use wins for internships.',
+    'Free hackathon guides for students: what a hackathon is, finding events near you, winning your first one, finding teammates and pitching to judges.',
   path: '/blog',
   keywords: ['hackathon tips', 'how to win a hackathon', 'hackathon guide', 'what is a hackathon', 'hackathons for beginners', 'hackathon resume'],
 });
@@ -25,6 +25,12 @@ export default async function BlogPage() {
 
   return (
     <>
+      <JsonLd
+        data={[
+          blogListJsonLd(blogPosts.map((p) => ({ slug: p.slug, title: p.title, published: postIsoDate(p.date), modified: postIsoDate(p.updated ?? p.date) }))),
+          breadcrumbJsonLd([{ name: 'Blog', path: '/blog' }]),
+        ]}
+      />
       <PageHero title="Guides to help"
         accent="you hack better"
         description="Practical advice on picking hackathons, building fast, working as a team and pitching to judges."
