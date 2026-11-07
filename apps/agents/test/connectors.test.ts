@@ -7,7 +7,7 @@ import { lablab, lablabCandidate, lablabEventUrls } from '../src/connectors/labl
 import { writeCopy } from '../src/pipeline/refresh';
 import { placeRules } from '../src/run';
 import { mlhCandidate, mlhEvents, mlhSeason } from '../src/connectors/mlh';
-import { unstop, unstopApplyDetail, unstopCandidate, unstopEventDates, unstopPrizes } from '../src/connectors/unstop';
+import { unstop, unstopApplyDetail, unstopCandidate, unstopEventDates, unstopPrizes, unstopShouldKeep } from '../src/connectors/unstop';
 import { parsePage } from '../src/html';
 import { normalize } from '../src/pipeline/normalize';
 import { validate } from '../src/pipeline/validate';
@@ -159,6 +159,39 @@ describe('unstop', () => {
     const detailed = await unstop.detail!(unstopCandidate(fixtureJson('unstop-row-1773246.json'))!, ctx(http));
     expect(detailed.data.imageUrl).toMatch(/opportunity-bannerImages/);
     expect(http.calls.some((c) => c.includes('/robots.txt'))).toBe(true);
+  });
+
+  it('keeps events that are still open and drops ones that ended or closed registration', () => {
+    const item = (end?: string, reg?: string) => ({ end_date: end, regnRequirements: reg ? { end_regn_dt: reg } : {} });
+    expect(unstopShouldKeep(item('2027-01-01T00:00:00+05:30', '2026-12-01T00:00:00+05:30'), NOW)).toBe(true);
+    expect(unstopShouldKeep(item('2026-10-01T00:00:00+05:30', '2026-12-01T00:00:00+05:30'), NOW)).toBe(false);
+    expect(unstopShouldKeep(item('2027-01-01T00:00:00+05:30', '2026-10-01T00:00:00+05:30'), NOW)).toBe(false);
+    // A day of grace keeps an event ending tonight in the update.
+    expect(unstopShouldKeep(item('2026-10-23T20:00:00+05:30', '2026-12-01T00:00:00+05:30'), NOW)).toBe(true);
+    // No dates at all: the pipeline's date checks decide.
+    expect(unstopShouldKeep({}, NOW)).toBe(true);
+  });
+
+  it('pages through every upcoming listing and skips the ended ones', async () => {
+    const row = (id: string, end: string, reg: string) => ({
+      id,
+      title: `Hack ${id}`,
+      seo_url: `https://unstop.com/hackathons/hack-${id}`,
+      end_date: end,
+      regnRequirements: { end_regn_dt: reg },
+      region: 'online',
+    });
+    const pages: Record<string, unknown> = {
+      '1': { data: { data: [row('1', '2027-01-01T00:00:00+05:30', '2026-12-01T00:00:00+05:30'), row('2', '2026-01-01T00:00:00+05:30', '2025-12-01T00:00:00+05:30')], last_page: 2 } },
+      '2': { data: { data: [row('3', '2027-02-01T00:00:00+05:30', '2026-12-15T00:00:00+05:30')], last_page: 2 } },
+    };
+    const http = fakeHttp({
+      'https://unstop.com/api/public/opportunity/search-result': (url) => json(pages[new URL(url).searchParams.get('page') ?? '1']),
+    });
+    const list = await unstop.fetch(ctx(http));
+    expect(list.map((c) => c.externalId)).toEqual(['1', '3']);
+    expect(http.calls.filter((c) => c.includes('&page=2')).length).toBe(1);
+    expect(http.calls.every((c) => !c.includes('search-result') || c.includes('per_page=2000'))).toBe(true);
   });
 });
 

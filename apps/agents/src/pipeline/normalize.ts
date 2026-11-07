@@ -184,6 +184,7 @@ export function normalize(c: RawCandidate, connector: Pick<Connector, 'slug' | '
 
   let prizePool = 0;
   let prizeCurrency = d.prizeCurrency ?? 'INR';
+  const prizeRaw = cleanLine(d.prizeText, 500) || (d.prizes ?? []).map((p) => cleanLine(p, 160)).filter(Boolean).join('; ').slice(0, 500) || undefined;
   if (typeof d.prizePool === 'number' && d.prizePool > 0) {
     prizePool = Math.round(d.prizePool);
   } else {
@@ -230,6 +231,7 @@ export function normalize(c: RawCandidate, connector: Pick<Connector, 'slug' | '
     prizePool,
     prizeCurrency,
     prizes: (d.prizes ?? []).map((p) => cleanLine(p, 120)).filter(Boolean).slice(0, 6),
+    prizeRaw,
     perks: (d.perks ?? []).map((p) => cleanLine(p, 120)).filter(Boolean).slice(0, 6),
     themes,
     beginnerFriendly: d.beginnerFriendly ?? inferBeginnerFriendly(`${title}\n${text.slice(0, 20_000)}`),

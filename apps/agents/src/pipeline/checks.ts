@@ -1,3 +1,4 @@
+import { prizeInInr } from '@hackathonfinder/shared';
 import { hostOf } from '../text';
 import type { LinkCheck } from '../http';
 import type { Draft } from './draft';
@@ -8,10 +9,24 @@ const SHORTENERS = new Set(['bit.ly', 'tinyurl.com', 't.co', 'goo.gl', 'rb.gy', 
 const PAYMENT_HOSTS = /(^|\.)(rzp\.io|razorpay\.me|pages\.razorpay\.com|paytm\.me|p\.paytm\.me|instamojo\.com|imjo\.in|paypal\.me|cashfree\.com|payu\.in|phonepe\.com|gpay\.app\.goo\.gl)$/;
 const SPAM_WORDS = /\b(earn money|work from home|guaranteed (prize|winning|placement)|airdrop|giveaway|lottery|investment plan|refer and earn)\b/i;
 
-/** INR above this (₹5 crore) or USD above $1M is unusual enough for a person to check. */
+/**
+ * No single student hackathon has a believable ₹5 crore prize pool. Devpost carries
+ * large international prizes, so other sources are held to a tighter ₹1 crore line.
+ * A figure over the line is kept on the record for admins, but hidden from visitors
+ * and left out of prize totals until someone checks it.
+ */
 const MAX_PRIZE_INR = 5_00_00_000;
+const MAX_PRIZE_OTHER_INR = 1_00_00_000;
 const MAX_PRIZE_USD = 1_000_000;
 const HIGH_FEE_INR = 2000;
+
+export function isPrizeOutlier(d: Pick<Draft, 'prizePool' | 'prizeCurrency' | 'listingSource'>): boolean {
+  if (!d.prizePool || d.prizePool <= 0) return false;
+  if (d.prizeCurrency === 'USD' && d.prizePool > MAX_PRIZE_USD) return true;
+  const inr = prizeInInr(d.prizePool, d.prizeCurrency);
+  if (inr > MAX_PRIZE_INR) return true;
+  return d.listingSource !== 'devpost' && inr > MAX_PRIZE_OTHER_INR;
+}
 
 export function suspiciousFlags(d: Draft): string[] {
   const flags: string[] = [];
@@ -19,8 +34,11 @@ export function suspiciousFlags(d: Draft): string[] {
   const host = d.registrationUrl ? hostOf(d.registrationUrl) : '';
   if (SHORTENERS.has(host)) flags.push('Registration link is a URL shortener');
   if (PAYMENT_HOSTS.test(host) || d.registrationUrl?.startsWith('upi:')) flags.push('Registration link is a payment page');
-  if ((d.prizeCurrency === 'USD' && d.prizePool > MAX_PRIZE_USD) || (d.prizeCurrency === 'INR' && d.prizePool > MAX_PRIZE_INR)) {
+  if (isPrizeOutlier(d)) {
+    d.prizeOutlier = true;
     flags.push('Prize amount looks unusually large; check it');
+  } else {
+    d.prizeOutlier = false;
   }
   if (SPAM_WORDS.test(d.title)) flags.push('Title looks like spam');
   return flags;

@@ -61,9 +61,9 @@ export interface Scheduler {
 const g = globalThis as typeof globalThis & { __hfScrapeScheduler?: Scheduler };
 
 /**
- * Runs a scrape at 02:00 and 14:00 India time. Each run carries its slot id, so the
- * same slot never runs twice (even with several servers or Vercel Cron too). Safe to
- * call more than once per process: the first scheduler is reused.
+ * Runs a scrape every six hours: 02:00, 08:00, 14:00 and 20:00 India time. Each run
+ * carries its slot id, so the same slot never runs twice (even with several servers or
+ * Vercel Cron too). Safe to call more than once per process: the first scheduler is reused.
  */
 export function startScheduler(opts: SchedulerOptions = {}): Scheduler {
   if (g.__hfScrapeScheduler) return g.__hfScrapeScheduler;
@@ -79,7 +79,7 @@ export function startScheduler(opts: SchedulerOptions = {}): Scheduler {
     }
   };
   const task = cron.schedule(SCRAPE_CRON, () => fire(slotId(latestSlot(new Date())), 'on time'), { timezone: SCRAPE_TIMEZONE, name: 'hackathonfinder-scrape', noOverlap: true });
-  log(`scheduled scrapes at 02:00 and 14:00 ${SCRAPE_TIMEZONE}`);
+  log(`scheduled scrapes at 02:00, 08:00, 14:00 and 20:00 ${SCRAPE_TIMEZONE}`);
   if (opts.catchUp) {
     void (async () => {
       try {

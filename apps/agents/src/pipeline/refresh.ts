@@ -49,7 +49,25 @@ export interface DerivedUpdate {
  * (when `dates`), and a placeholder banner (replaced by a real one, or removed).
  */
 export function derivedUpdate(
-  doc: Pick<IHackathon, 'teamMin' | 'teamMax' | 'themes' | 'tagline' | 'summary' | 'verified' | 'prizePool' | 'prizeCurrency' | 'prizes' | 'startDate' | 'endDate' | 'registrationDeadline' | 'imageUrl' | 'sourceImageUrl'> & { teamSizeKnown?: boolean },
+  doc: Pick<
+    IHackathon,
+    | 'teamMin'
+    | 'teamMax'
+    | 'themes'
+    | 'tagline'
+    | 'summary'
+    | 'verified'
+    | 'prizePool'
+    | 'prizeCurrency'
+    | 'prizes'
+    | 'prizeRaw'
+    | 'prizeOutlier'
+    | 'startDate'
+    | 'endDate'
+    | 'registrationDeadline'
+    | 'imageUrl'
+    | 'sourceImageUrl'
+  > & { teamSizeKnown?: boolean },
   d: Draft,
   opts: { dates: boolean }
 ): DerivedUpdate {
@@ -69,6 +87,8 @@ export function derivedUpdate(
     put('prizePool', doc.prizePool ?? 0, d.prizePool);
     put('prizeCurrency', doc.prizeCurrency ?? 'INR', d.prizeCurrency);
     put('prizes', doc.prizes ?? [], d.prizes);
+    put('prizeRaw', doc.prizeRaw ?? '', d.prizeRaw ?? '');
+    put('prizeOutlier', Boolean(doc.prizeOutlier), Boolean(d.prizeOutlier));
   }
   if (opts.dates && d.startDate && d.endDate && d.registrationDeadline) {
     put('startDate', doc.startDate, d.startDate);

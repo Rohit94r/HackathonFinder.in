@@ -4,6 +4,8 @@
     { "path": "/api/cron/reminders", "schedule": "30 3 * * *" },
     { "path": "/api/cron/digest", "schedule": "30 3 * * 1" },
     { "path": "/api/cron/scrape", "schedule": "30 20 * * *" },
-    { "path": "/api/cron/scrape", "schedule": "30 8 * * *" }
+    { "path": "/api/cron/scrape", "schedule": "30 2 * * *" },
+    { "path": "/api/cron/scrape", "schedule": "30 8 * * *" },
+    { "path": "/api/cron/scrape", "schedule": "30 14 * * *" }
   ]
 }

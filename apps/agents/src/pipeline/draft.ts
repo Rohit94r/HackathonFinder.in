@@ -35,6 +35,10 @@ export interface Draft {
   prizePool: number;
   prizeCurrency: Currency;
   prizes: string[];
+  /** The source's own prize text, kept for admin checks. */
+  prizeRaw?: string;
+  /** Set when the stated figure is too large to trust. */
+  prizeOutlier?: boolean;
   perks: string[];
   themes: ThemeSlug[];
   beginnerFriendly: boolean;

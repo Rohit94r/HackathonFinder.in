@@ -1,6 +1,6 @@
 import pLimit from 'p-limit';
 import { cityFromText, extractEvent, isAiEnabled } from '@hackathonfinder/ai';
-import { AgentRun, connectDb, Hackathon, isDbConfigured, RawItem, slugify, Types, uniqueSlug, type IHackathon, type IRunItem, type RawItemStatus, type RunStatus } from '@hackathonfinder/db';
+import { AgentRun, connectDb, Hackathon, isDbConfigured, RawItem, slugify, Source, Types, uniqueSlug, type IHackathon, type IRunItem, type RawItemStatus, type RunStatus } from '@hackathonfinder/db';
 import { CITIES } from '@hackathonfinder/shared';
 import { CONNECTORS, missingEnv } from './connectors';
 import { Geocoder, nearestCatalogCity } from './enrich/geocode';
@@ -237,7 +237,10 @@ class JobQueue {
 }
 
 /** Bump when the pipeline's rules change, so items rejected under the old rules are read again. */
-export const PIPELINE_VERSION = 3;
+export const PIPELINE_VERSION = 4;
+
+/** Prefix of the removal reason used when a source stops listing an event (so a reappearance revives it). */
+export const AUTO_HIDDEN_REASON = 'Auto-hidden: not listed by its source';
 
 /** What the content hash covers: what the source said (not when we asked), and the rules version. */
 function candidateHash(c: RawCandidate): string {
@@ -393,6 +396,7 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
       start: d.startDate,
       city: d.city,
       mode: d.mode,
+      organizer: d.organizer,
     });
 
     /** Our unmirrored copy of a banner (Cloudinary failed last time), which a later run should store. */
@@ -532,6 +536,8 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
         prizePool: d.prizePool,
         prizeCurrency: d.prizeCurrency,
         prizes: d.prizes,
+        prizeRaw: d.prizeRaw,
+        prizeOutlier: Boolean(d.prizeOutlier),
         perks: d.perks,
         themes: d.themes,
         beginnerFriendly: d.beginnerFriendly,
@@ -595,13 +601,20 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
       }
       const refs = [...(doc.sourceRefs ?? [])];
       const at = refs.findIndex((r) => r.source === ref.source && (ref.externalId ? r.externalId === ref.externalId : normalizeUrl(r.url) === normalizeUrl(ref.url)));
-      if (at >= 0) refs[at] = { ...refs[at], url: ref.url, lastSeenAt: now };
-      else refs.push({ ...ref, firstSeenAt: now, lastSeenAt: now });
+      if (at >= 0) refs[at] = { ...refs[at], url: ref.url, lastSeenAt: now, misses: 0 };
+      else refs.push({ ...ref, firstSeenAt: now, lastSeenAt: now, misses: 0 });
       const sources = (doc.sources ?? []).includes(ref.source) ? doc.sources : [...(doc.sources ?? []), ref.source];
       // A candidate that now passes the required field/date checks becomes public even if an older
       // pipeline version had left it pending for low confidence or a review flag.
       if (doc.state === 'pending') {
         set.state = 'live';
+        changed.push('state');
+      }
+      // It came back after we hid it for disappearing: put it live again. A listing an
+      // admin removed stays removed.
+      if (doc.state === 'removed' && doc.removedReason?.startsWith(AUTO_HIDDEN_REASON)) {
+        set.state = 'live';
+        unset.push('removedReason', 'removedAt');
         changed.push('state');
       }
       for (const k of unset) delete set[k];
@@ -797,6 +810,56 @@ export async function runScrape(opts: ScrapeOptions = {}): Promise<ScrapeResult>
     }
     if (writes && touchedRaw.length) await RawItem.updateMany({ _id: { $in: touchedRaw } }, { $set: { lastSeenAt: now } });
     if (budgetHit) rec.log(`Time budget reached: ${budgetHit} candidates left for the next run.`);
+
+    // 3. Disappeared listings: a complete source that succeeds and still returns a
+    //    healthy list is trusted when it stops listing an upcoming event. Count the
+    //    misses; hide the event (never delete it) after three complete runs. Partial
+    //    lists (a limit, a budget cut, a sudden drop) never count as "gone".
+    if (writes && !budgetHit && !opts.limit) {
+      const complete = scouted.filter((s) => s.ok && s.connector.complete && s.list.length >= 10);
+      if (complete.length) {
+        const previous = new Map(
+          (await Source.find({ slug: { $in: complete.map((s) => s.connector.slug) } })
+            .select('slug lastItemCount')
+            .lean()).map((d) => [d.slug, d.lastItemCount ?? 0] as [string, number])
+        );
+        for (const s of complete) {
+          const slug = s.connector.slug;
+          const before = previous.get(slug) ?? 0;
+          if (before >= 20 && s.list.length < before * 0.5) {
+            rec.log(`${s.connector.name}: returned ${s.list.length} after ${before}; not treating the difference as removals`);
+            continue;
+          }
+          const docs = await Hackathon.find({
+            state: { $in: ['live', 'pending'] },
+            // A registration that has closed is not a disappearance: the source may simply
+            // stop listing it while the event itself is still ahead.
+            registrationDeadline: { $gte: now },
+            sourceRefs: { $elemMatch: { source: slug, lastSeenAt: { $lt: now } } },
+          })
+            .select('_id sourceRefs')
+            .lean();
+          let hidden = 0;
+          for (const doc of docs) {
+            const refs = doc.sourceRefs ?? [];
+            // Another source saw it in this run: the listing is still current.
+            if (refs.some((r) => r.source !== slug && r.lastSeenAt && new Date(r.lastSeenAt).getTime() >= now.getTime())) continue;
+            const ref = refs.find((r) => r.source === slug);
+            const misses = (ref?.misses ?? 0) + 1;
+            if (misses >= 3) {
+              await Hackathon.updateOne(
+                { _id: doc._id, state: { $in: ['live', 'pending'] } },
+                { $set: { state: 'removed', removedReason: `${AUTO_HIDDEN_REASON} (${slug})`, removedAt: now } }
+              );
+              hidden++;
+            } else {
+              await Hackathon.updateOne({ _id: doc._id, 'sourceRefs.source': slug }, { $set: { 'sourceRefs.$.misses': misses } });
+            }
+          }
+          if (hidden) rec.log(`${s.connector.name}: hid ${hidden} listing(s) it no longer lists`);
+        }
+      }
+    }
 
     // 4. Source health.
     if (writes) {

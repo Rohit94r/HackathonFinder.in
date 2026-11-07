@@ -11,8 +11,36 @@ import { arr, eligibilityFrom, firstImage, int, isObj, labels, moneyLine, num, p
 // without an image, and when the rules change.
 
 const API = 'https://unstop.com/api/public';
-const PER_PAGE = 100;
-const MAX_PAGES = 10;
+/**
+ * Unstop's search API returns every hackathon (open, upcoming and years of past
+ * editions) under "upcoming". At 2,000 rows a page that is four pages; asking for
+ * all of them is what makes the coverage complete instead of only the ~190 "open"
+ * ones. Each page is about 20 MB, so the client's byte and time limits are raised
+ * for these calls.
+ */
+const PER_PAGE = 2000;
+const MAX_PAGES = 8;
+const LIST_REQUEST = { maxBytes: 40 * 1024 * 1024, timeoutMs: 60_000 } as const;
+
+/** A day of grace, so an event ending tonight is still read and updated. */
+const END_GRACE_MS = 24 * 3600_000;
+
+/**
+ * Keep only events that have not ended and whose registration has not closed.
+ * The list mixes in years of past editions (and a few old rows with a future end
+ * date), so filtering here keeps the pipeline's work — and its detail-page reads —
+ * on events students can actually enter.
+ */
+export function unstopShouldKeep(item: Obj, now: Date): boolean {
+  const regn = isObj(item.regnRequirements) ? item.regnRequirements : {};
+  const end = parseDate(str(item.end_date), { kind: 'end' });
+  const regEnd = parseDate(str(regn.end_regn_dt), { kind: 'deadline' });
+  const cutoff = now.getTime() - END_GRACE_MS;
+  if (end && end.getTime() < cutoff) return false;
+  if (regEnd && regEnd.getTime() < cutoff) return false;
+  // No end date at all: let the pipeline's date checks decide.
+  return true;
+}
 
 const MODES: Record<string, Mode> = { online: 'online', offline: 'offline', hybrid: 'hybrid' };
 
@@ -214,22 +242,32 @@ export const unstop: Connector = {
   slug: 'unstop',
   name: 'Unstop',
   kind: 'platform',
-  defaultSchedule: '0 2,14 * * *',
+  defaultSchedule: '0 2,8,14,20 * * *',
   description: 'Open hackathons from Unstop’s public API, with banners and event dates from each competition page.',
   trust: 0.9,
   extract: 'missing',
+  complete: true,
   async fetch(ctx: ConnectorContext): Promise<RawCandidate[]> {
     const out: RawCandidate[] = [];
     const seen = new Set<string>();
     let lastPage = 1;
+    let read = 0;
+    let past = 0;
     for (let page = 1; page <= Math.min(lastPage, MAX_PAGES); page++) {
       const json = await ctx.http.fetchJson<{ data?: { data?: unknown[]; last_page?: number } }>(
-        `${API}/opportunity/search-result?opportunity=hackathons&per_page=${PER_PAGE}&oppstatus=open&page=${page}`
+        `${API}/opportunity/search-result?opportunity=hackathons&per_page=${PER_PAGE}&oppstatus=upcoming&page=${page}`,
+        LIST_REQUEST
       );
       const rows = arr(json?.data?.data).filter(isObj);
       lastPage = int(json?.data?.last_page, 1, 1000) ?? 1;
+      read += rows.length;
+      ctx.progress?.(`Unstop: page ${page} of ${Math.min(lastPage, MAX_PAGES)} (${read} listings)`);
       for (const row of rows) {
         try {
+          if (!unstopShouldKeep(row, ctx.now)) {
+            past++;
+            continue;
+          }
           const c = unstopCandidate(row);
           if (c && !seen.has(c.externalId!)) {
             seen.add(c.externalId!);
@@ -242,7 +280,7 @@ export const unstop: Connector = {
       }
       if (!rows.length) break;
     }
-    ctx.log(`unstop: ${out.length} open hackathons`);
+    ctx.log(`unstop: ${out.length} open or upcoming hackathons (read ${read}, skipped ${past} ended or closed)`);
     return out;
   },
   async detail(c: RawCandidate, ctx: ConnectorContext): Promise<RawCandidate> {

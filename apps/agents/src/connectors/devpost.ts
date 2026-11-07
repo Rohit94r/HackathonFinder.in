@@ -76,10 +76,11 @@ export const devpost: Connector = {
   slug: 'devpost',
   name: 'Devpost',
   kind: 'platform',
-  defaultSchedule: '0 2,14 * * *',
+  defaultSchedule: '0 2,8,14,20 * * *',
   description: 'Open and upcoming hackathons from Devpost’s listing API (mostly online, worldwide).',
   trust: 0.85,
   extract: 'missing',
+  complete: true,
   async fetch(ctx: ConnectorContext): Promise<RawCandidate[]> {
     const out: RawCandidate[] = [];
     const seen = new Set<string>();

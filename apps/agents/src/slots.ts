@@ -1,14 +1,14 @@
-// When scheduled scrapes run: 02:00 and 14:00 India time, every day. Each time is a
-// "slot" with a stable id ("2026-10-25T02:00+05:30"); AgentRun.slot is unique, so
-// one slot runs once even when the website's timer, Vercel Cron and the agents
-// worker all fire for it.
+// When scheduled scrapes run: 02:00, 08:00, 14:00 and 20:00 India time, every day (every
+// six hours). Each time is a "slot" with a stable id ("2026-10-25T02:00+05:30");
+// AgentRun.slot is unique, so one slot runs once even when the website's timer, Vercel
+// Cron and the agents worker all fire for it.
 
-export const SCRAPE_TIMES = ['02:00', '14:00'] as const;
+export const SCRAPE_TIMES = ['02:00', '08:00', '14:00', '20:00'] as const;
 export const SCRAPE_TIMEZONE = 'Asia/Kolkata';
 /** node-cron expression, read in Asia/Kolkata. */
-export const SCRAPE_CRON = '0 2,14 * * *';
-/** Vercel Cron runs in UTC: 20:30 and 08:30 UTC are 02:00 and 14:00 IST. */
-export const SCRAPE_CRON_UTC = ['30 20 * * *', '30 8 * * *'];
+export const SCRAPE_CRON = '0 2,8,14,20 * * *';
+/** Vercel Cron runs in UTC: 20:30, 02:30, 08:30 and 14:30 UTC are 02:00, 08:00, 14:00 and 20:00 IST. */
+export const SCRAPE_CRON_UTC = ['30 20 * * *', '30 2 * * *', '30 8 * * *', '30 14 * * *'];
 
 /** India has no daylight saving: IST is always UTC+05:30. */
 const IST_OFFSET_MS = 330 * 60_000;

@@ -1,7 +1,9 @@
 import {
   CITIES,
+  CITY_GAZETTEER,
   cityName,
   eventTypeLabel,
+  gazetteerCity,
   themeName,
   type Currency,
   type Eligibility,
@@ -14,7 +16,7 @@ import {
 // them directly, and they are the fallback when AI isn't configured.
 
 // Localities and alternate names → city slug. Longer names first so "navi mumbai" wins over "mumbai".
-const CITY_ALIASES: [string, string][] = [
+const BASE_CITY_ALIASES: [string, string][] = [
   ['navi mumbai', 'mumbai'], ['thane', 'mumbai'], ['andheri', 'mumbai'], ['powai', 'mumbai'], ['bandra', 'mumbai'], ['bombay', 'mumbai'], ['mumbai', 'mumbai'],
   ['pimpri', 'pune'], ['chinchwad', 'pune'], ['hinjewadi', 'pune'], ['hinjawadi', 'pune'], ['baner', 'pune'], ['wakad', 'pune'], ['kharadi', 'pune'], ['hadapsar', 'pune'], ['shivajinagar', 'pune'], ['kothrud', 'pune'], ['pune', 'pune'], ['poona', 'pune'],
   ['bangalore', 'bengaluru'], ['bengaluru', 'bengaluru'], ['whitefield', 'bengaluru'], ['koramangala', 'bengaluru'], ['electronic city', 'bengaluru'], ['indiranagar', 'bengaluru'],
@@ -27,6 +29,16 @@ const CITY_ALIASES: [string, string][] = [
   ['chandigarh', 'chandigarh'], ['mohali', 'chandigarh'], ['panchkula', 'chandigarh'],
   ['kochi', 'kochi'], ['cochin', 'kochi'], ['ernakulam', 'kochi'], ['kakkanad', 'kochi'],
   ['indore', 'indore'], ['nagpur', 'nagpur'], ['bhubaneswar', 'bhubaneswar'], ['bhubaneshwar', 'bhubaneswar'],
+];
+
+// Every gazetteer city is matched by its own name and slug, so "Bhopal" or "bhopal" resolves
+// even though it has no hand-written alias. Catalog cities keep their curated aliases.
+const CITY_ALIASES: [string, string][] = [
+  ...BASE_CITY_ALIASES,
+  ...CITY_GAZETTEER.flatMap((c): [string, string][] => [
+    [c.name.toLowerCase(), c.slug],
+    [c.slug.replace(/-/g, ' '), c.slug],
+  ]),
 ].sort((a, b) => b[0].length - a[0].length) as [string, string][];
 
 /** City slug for a place name or address, if it's one of our cities. */
@@ -42,7 +54,9 @@ export function cityFromText(text: string | null | undefined): string | undefine
 /** City centre coordinates for a city slug, for listings without an exact venue point. */
 export function cityPoint(slug: string | undefined): { lat: number; lng: number } | undefined {
   const city = CITIES.find((c) => c.slug === slug);
-  return city ? { lat: city.lat, lng: city.lng } : undefined;
+  if (city) return { lat: city.lat, lng: city.lng };
+  const extra = gazetteerCity(slug);
+  return extra ? { lat: extra.lat, lng: extra.lng } : undefined;
 }
 
 /** "₹1,50,000", "1.5 lakh", "INR 2 crore", "$5K", "USD 10,000" → amount and currency. */

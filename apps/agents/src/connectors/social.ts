@@ -213,7 +213,7 @@ function socialConnector(net: Network, extra?: Partial<Connector>): Connector {
     slug: net.slug,
     name: net.label,
     kind: 'social',
-    defaultSchedule: '0 2,14 * * *',
+    defaultSchedule: '0 2,8,14,20 * * *',
     description: `${net.label} posts found through web search; complete event details publish as unverified listings (we never crawl ${net.label}).`,
     optionalEnv: SEARCH_KEYS,
     trust: 0.4,

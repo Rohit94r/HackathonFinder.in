@@ -107,6 +107,12 @@ export interface Connector {
   trust: number;
   /** "always": every candidate goes through the Extractor (posts, snippets). "missing": only when key fields are missing. */
   extract: 'always' | 'missing';
+  /**
+   * True when fetch() returns every currently listed event (all pages), so an event
+   * it stops returning can be counted as missing. Never set it for search/social
+   * connectors, which only find a sample.
+   */
+  complete?: boolean;
   /** False when image URLs expire or may not be hotlinked (Instagram CDN); they're then only read, or mirrored. */
   storeImages?: boolean;
   /** Env vars that add to the connector when set (an official API) but aren't needed. */

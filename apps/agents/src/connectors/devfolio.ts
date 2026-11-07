@@ -52,10 +52,11 @@ export const devfolio: Connector = {
   slug: 'devfolio',
   name: 'Devfolio',
   kind: 'platform',
-  defaultSchedule: '0 2,14 * * *',
+  defaultSchedule: '0 2,8,14,20 * * *',
   description: 'Hackathons open for applications (and opening soon) from Devfolio’s search API, with cover images.',
   trust: 0.9,
   extract: 'missing',
+  complete: true,
   async fetch(ctx: ConnectorContext): Promise<RawCandidate[]> {
     const out: RawCandidate[] = [];
     const seen = new Set<string>();

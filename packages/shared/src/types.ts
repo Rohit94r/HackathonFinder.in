@@ -71,6 +71,10 @@ export interface Hackathon {
   prizePool: number;
   prizeCurrency: Currency;
   prizes: string[];
+  /** The prize text exactly as the source stated it, kept for admin checks. */
+  prizeRaw?: string;
+  /** True when the stated figure is too large to trust; it is hidden from visitors and totals. */
+  prizeOutlier?: boolean;
   perks: string[];
   themes: ThemeSlug[];
   beginnerFriendly: boolean;

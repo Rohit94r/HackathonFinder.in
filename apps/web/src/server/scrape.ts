@@ -4,7 +4,7 @@ import { failStaleRuns, launchScrape, setSourceEnabled, sourceStatuses } from '@
 
 // The website's door to the discovery engine (apps/agents): start a scrape, follow its
 // progress and list past runs. The admin dashboard's "Scrape now", the scheduled runs
-// (2:00 and 14:00 India time) and /api/cron/scrape all go through here.
+// (every six hours: 02:00, 08:00, 14:00 and 20:00 India time) and /api/cron/scrape all go through here.
 //
 // CONTRACT: the admin dashboard is built against these types and signatures. Keep them
 // stable; implement the bodies.
@@ -14,7 +14,7 @@ export type ScrapeStatus = 'queued' | 'running' | 'success' | 'partial' | 'faile
 export type ScrapeItemAction = 'created' | 'updated' | 'merged' | 'review' | 'rejected' | 'error';
 
 /** When scheduled scrapes run, for the dashboard. */
-export const SCRAPE_SCHEDULE = { times: ['02:00', '14:00'], timezone: 'Asia/Kolkata' } as const;
+export const SCRAPE_SCHEDULE = { times: ['02:00', '08:00', '14:00', '20:00'], timezone: 'Asia/Kolkata' } as const;
 
 export interface ScrapeCounts {
   found: number;

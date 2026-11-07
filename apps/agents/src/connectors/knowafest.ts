@@ -102,10 +102,11 @@ export const knowafest: Connector = {
   slug: 'knowafest',
   name: 'KnowAFest',
   kind: 'events',
-  defaultSchedule: '0 2,14 * * *',
+  defaultSchedule: '0 2,8,14,20 * * *',
   description: 'College hackathons across India from KnowAFest’s public event search, with posters and the organizer’s registration form.',
   trust: 0.8,
   extract: 'missing',
+  complete: true,
   async fetch(ctx: ConnectorContext): Promise<RawCandidate[]> {
     const out: RawCandidate[] = [];
     const seen = new Set<string>();

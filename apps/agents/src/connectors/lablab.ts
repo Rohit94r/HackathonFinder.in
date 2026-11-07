@@ -54,10 +54,11 @@ export const lablab: Connector = {
   slug: 'lablab',
   name: 'lablab.ai',
   kind: 'platform',
-  defaultSchedule: '0 2,14 * * *',
+  defaultSchedule: '0 2,8,14,20 * * *',
   description: 'AI hackathons from lablab.ai (schema.org events on each page; online, worldwide).',
   trust: 0.85,
   extract: 'missing',
+  complete: true,
   async fetch(ctx: ConnectorContext): Promise<RawCandidate[]> {
     const list = await ctx.http.fetchHtml(LIST);
     const urls = lablabEventUrls(list.html).slice(0, Math.min(MAX_EVENTS, ctx.limit));

@@ -1,5 +1,5 @@
 // Runs once when the Next.js server starts. On a long-running Node server it starts
-// the discovery scheduler: scrapes at 02:00 and 14:00 India time (see apps/agents).
+// the discovery scheduler: scrapes every six hours (02:00, 08:00, 14:00 and 20:00 India time; see apps/agents).
 //
 // Off when SCRAPE_SCHEDULER=off, and on Vercel (serverless functions can't keep a
 // timer; Vercel Cron calls /api/cron/scrape instead). In production (`next start`)

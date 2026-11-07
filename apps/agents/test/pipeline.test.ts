@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { inferThemes, parseTeamSize, templateSummary, templateTagline } from '@hackathonfinder/ai';
+import { cityFromText, cityPoint, inferThemes, parseTeamSize, templateSummary, templateTagline } from '@hackathonfinder/ai';
+import { CLOSING_SOON_DAYS, daysUntil } from '@hackathonfinder/shared';
 import { firstImage } from '../src/connectors/util';
+import { isPrizeOutlier } from '../src/pipeline/checks';
 import { DedupeIndex, type IndexEntry } from '../src/pipeline/dedupe';
 import { cityLabel, feeFromText, normalize, resolveCity, statedCity, strongThemes } from '../src/pipeline/normalize';
 import { derivedUpdate, isTemplateSummary, writeCopy } from '../src/pipeline/refresh';
@@ -87,6 +89,25 @@ describe('dedupe', () => {
     // The same event listed elsewhere with the same form still matches.
     expect(index.find({ ...q, listingSource: 'unstop', externalId: '1', url: 'https://unstop.com/x', title: 'Fullstackathon 2026 Full Stack Workshop' })?.reason).toBe('registration-url');
   });
+
+  it('merges the same organizer’s event listed under a longer name', () => {
+    const index = DedupeIndex.from([{ ...entry('a', 'Hackfest', 'https://iitb.example/hackfest'), organizer: 'IIT Bombay' }]);
+    const q = {
+      listingSource: 'devfolio',
+      externalId: '2',
+      url: 'https://x.example/hackfest-finals',
+      title: 'Hackfest Finals',
+      mode: 'offline' as const,
+      city: 'chennai',
+      start: new Date('2026-11-01T09:00:00+05:30'),
+      organizer: 'IIT Bombay Student Club',
+    };
+    expect(index.find(q)?.reason).toBe('title');
+    // Without the shared organizer the lower title score is not enough.
+    expect(index.find({ ...q, organizer: undefined })).toBeNull();
+    // A different event by the same organizer still stays separate.
+    expect(index.find({ ...q, title: 'Code Sprint', organizer: 'IIT Bombay' })).toBeNull();
+  });
 });
 
 describe('rule-based readers', () => {
@@ -117,10 +138,55 @@ describe('rule-based readers', () => {
     expect(resolveCity({ city: '', region: 'Delhi' })).toBe('delhi-ncr');
   });
 
+  it('reads gazetteer cities from free text and gives them a map point', () => {
+    expect(cityFromText('Bhopal, Madhya Pradesh')).toBe('bhopal');
+    expect(cityFromText('MANIT campus, Bhopal')).toBe('bhopal');
+    expect(cityFromText('Lucknow')).toBe('lucknow');
+    expect(cityFromText('Nowhere City')).toBeUndefined();
+    expect(cityPoint('bhopal')).toEqual({ lat: 23.2599, lng: 77.4126 });
+    expect(cityPoint('pune')).toEqual({ lat: 18.5204, lng: 73.8567 });
+    expect(cityPoint('nowhere')).toBeUndefined();
+  });
+
   it('writes our own summary and tagline, with the city label', () => {
     const s = templateSummary({ type: 'hackathon', mode: 'offline', organizer: 'MANIT', city: 'bhopal', cityName: 'Bhopal', themes: ['ai-ml'], teamMin: 2, teamMax: 4, fee: 1500, beginnerFriendly: true });
     expect(s).toBe('An in-person hackathon by MANIT, in Bhopal. Tracks include AI / ML. Teams of 2–4. Entry fee ₹1,500. First-timers are welcome.');
     expect(templateSummary({ type: 'hackathon', mode: 'hybrid', themes: [], teamMin: 1, teamMax: 4, fee: 0, beginnerFriendly: false })).toMatch(/^A hybrid hackathon: take part in person or online\./);
     expect(templateTagline({ type: 'ideathon', mode: 'offline', city: 'bhopal', cityName: 'Bhopal', themes: ['fintech'] })).toBe('In-person ideathon in Bhopal on FinTech');
+  });
+});
+
+describe('prize validation', () => {
+  const d = (prizePool: number, prizeCurrency: 'INR' | 'USD' = 'INR', listingSource = 'unstop') => ({ prizePool, prizeCurrency, listingSource });
+
+  it('hides implausible prize pools from visitors', () => {
+    expect(isPrizeOutlier(d(50_000))).toBe(false);
+    expect(isPrizeOutlier(d(0))).toBe(false);
+    // Any single event over ₹5 crore is held back, whoever lists it.
+    expect(isPrizeOutlier(d(6_00_00_000, 'INR', 'devpost'))).toBe(true);
+    // Devpost carries large international prizes; other sources are held to ₹1 crore.
+    expect(isPrizeOutlier(d(2_00_00_000, 'INR', 'devpost'))).toBe(false);
+    expect(isPrizeOutlier(d(2_00_00_000))).toBe(true);
+    // A dollar prize is compared in rupees, and also against the $1M line.
+    expect(isPrizeOutlier(d(100_000, 'USD'))).toBe(false);
+    expect(isPrizeOutlier(d(500_000, 'USD', 'devpost'))).toBe(false);
+    expect(isPrizeOutlier(d(1_100_000, 'USD', 'devpost'))).toBe(true);
+  });
+});
+
+describe('deadline days', () => {
+  it('counts India calendar days, so tomorrow evening is "tomorrow"', () => {
+    const now = new Date('2026-11-07T22:30:00+05:30');
+    expect(daysUntil('2026-11-07T23:59:00+05:30', now)).toBe(0);
+    expect(daysUntil('2026-11-08T23:00:00+05:30', now)).toBe(1);
+    expect(daysUntil('2026-11-09T00:30:00+05:30', now)).toBe(2);
+    expect(daysUntil('2026-11-01T10:00:00+05:30', now)).toBe(-6);
+    expect(CLOSING_SOON_DAYS).toBe(7);
+  });
+
+  it('uses India time even when the server stores UTC', () => {
+    // 20:00 UTC on 7 Nov is 01:30 IST on 8 Nov.
+    const now = new Date('2026-11-07T20:00:00Z');
+    expect(daysUntil('2026-11-08T20:00:00Z', now)).toBe(1);
   });
 });

@@ -34,10 +34,11 @@ export const hackerearth: Connector = {
   slug: 'hackerearth',
   name: 'HackerEarth',
   kind: 'platform',
-  defaultSchedule: '0 2,14 * * *',
+  defaultSchedule: '0 2,8,14,20 * * *',
   description: 'Ongoing and upcoming HackerEarth hackathons and challenges from its public events feed.',
   trust: 0.85,
   extract: 'missing',
+  complete: true,
   async fetch(ctx: ConnectorContext): Promise<RawCandidate[]> {
     const json = await ctx.http.fetchJson<{ response?: unknown[] }>(FEED);
     const out: RawCandidate[] = [];

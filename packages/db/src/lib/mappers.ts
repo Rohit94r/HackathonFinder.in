@@ -37,6 +37,8 @@ export function toHackathon(doc: Lean<IHackathon>): Hackathon {
     prizePool: doc.prizePool ?? 0,
     prizeCurrency: doc.prizeCurrency ?? 'INR',
     prizes: doc.prizes ?? [],
+    prizeRaw: doc.prizeRaw || undefined,
+    prizeOutlier: doc.prizeOutlier || undefined,
     perks: doc.perks ?? [],
     themes: doc.themes ?? [],
     beginnerFriendly: Boolean(doc.beginnerFriendly),

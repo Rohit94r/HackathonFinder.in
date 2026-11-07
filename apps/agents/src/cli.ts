@@ -7,7 +7,7 @@ import { redact, runScrape } from './run';
 import { sourceStatuses, syncSources } from './sources';
 
 // pnpm agents:run -- [--source unstop,devfolio] [--limit 20] [--dry-run]
-// pnpm agents:schedule            long-running worker: scrapes at 02:00 and 14:00 IST
+// pnpm agents:schedule            long-running worker: scrapes every six hours (02:00, 08:00, 14:00, 20:00 IST)
 // pnpm agents:sources -- [--sync] lists sources, missing keys and health
 // tsx src/cli.ts repair [--dry-run]  brings existing listings in line with the current rules
 

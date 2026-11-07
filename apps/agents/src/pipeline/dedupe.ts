@@ -11,6 +11,12 @@ export const TITLE_THRESHOLD = 0.85;
 export const START_WINDOW_MS = 2 * DAY;
 /** Two listings with the same registration link are one event only if their titles are at least this alike. */
 export const REG_URL_TITLE_THRESHOLD = 0.5;
+/**
+ * The same organizer often lists one event under different names ("Hackfest" /
+ * "Hackfest 2026 – Grand Finale"). With the same organizer, start and place, a
+ * lower title score is enough.
+ */
+export const ORGANIZER_TITLE_THRESHOLD = 0.65;
 
 export interface IndexEntry {
   id: string;
@@ -19,6 +25,7 @@ export interface IndexEntry {
   start: number;
   city?: string;
   mode: Mode;
+  organizer?: string;
   /** Normalized registration URL. */
   regUrl: string;
   refs: { source: string; externalId?: string; url: string }[];
@@ -37,6 +44,7 @@ export interface MatchQuery {
   start?: Date;
   city?: string;
   mode?: Mode;
+  organizer?: string;
 }
 
 export type MatchReason = 'source-id' | 'source-url' | 'registration-url' | 'title';
@@ -47,7 +55,21 @@ export interface Match {
   score: number;
 }
 
-type EventKey = { title: string; start?: Date | number; city?: string; mode?: Mode };
+type EventKey = { title: string; start?: Date | number; city?: string; mode?: Mode; organizer?: string };
+
+/** Two organizer names that clearly mean the same body ("IIT Bombay" / "Indian Institute of Technology Bombay"). */
+function sameOrganizer(a: string | undefined, b: string | undefined): boolean {
+  const clean = (s: string) =>
+    s
+      .toLowerCase()
+      .replace(/\b(the|inc|pvt|ltd|limited|private|technologies|technology|college|university|institute|club|chapter|team|organizers?|presented by)\b/g, ' ')
+      .replace(/[^a-z0-9]+/g, ' ')
+      .trim();
+  const x = clean(a ?? '');
+  const y = clean(b ?? '');
+  if (x.length < 3 || y.length < 3) return false;
+  return x === y || x.includes(y) || y.includes(x);
+}
 
 /** Similarity when two events look like the same one (title, start date, place), else null. */
 export function sameEvent(a: EventKey, b: EventKey): number | null {
@@ -57,12 +79,15 @@ export function sameEvent(a: EventKey, b: EventKey): number | null {
   const samePlace = a.mode !== 'online' && b.mode !== 'online' && (a.city ?? '') === (b.city ?? '');
   if (!bothOnline && !samePlace) return null;
   const score = dice(normalizeTitle(a.title), normalizeTitle(b.title));
-  return score >= TITLE_THRESHOLD ? score : null;
+  if (score >= TITLE_THRESHOLD) return score;
+  // The same organizer on the same days in the same place is almost certainly one event.
+  if (score >= ORGANIZER_TITLE_THRESHOLD && sameOrganizer(a.organizer, b.organizer)) return score;
+  return null;
 }
 
 export function entryFromDoc(
   doc: Pick<IHackathon, 'title' | 'startDate' | 'city' | 'mode' | 'registrationUrl' | 'sourceRefs' | 'sources'> &
-    Partial<Pick<IHackathon, 'imageUrl' | 'sourceImageUrl'>> & { _id: unknown }
+    Partial<Pick<IHackathon, 'imageUrl' | 'sourceImageUrl' | 'organizer'>> & { _id: unknown }
 ): IndexEntry {
   return {
     imageUrl: doc.imageUrl || undefined,
@@ -73,6 +98,7 @@ export function entryFromDoc(
     start: new Date(doc.startDate).getTime(),
     city: doc.city || undefined,
     mode: doc.mode,
+    organizer: doc.organizer || undefined,
     regUrl: isBareDomain(doc.registrationUrl) ? '' : normalizeUrl(doc.registrationUrl),
     refs: (doc.sourceRefs ?? []).map((r) => ({ source: r.source, externalId: r.externalId, url: isBareDomain(r.url) ? '' : normalizeUrl(r.url) })),
     sources: doc.sources ?? [],
@@ -86,7 +112,7 @@ export class DedupeIndex {
   static async load(now: Date): Promise<DedupeIndex> {
     // Sample listings are made up; never merge real events into them.
     const docs = await Hackathon.find({ flags: { $ne: 'sample' }, endDate: { $gte: new Date(now.getTime() - 60 * DAY) } })
-      .select('title startDate city mode registrationUrl sourceRefs sources imageUrl sourceImageUrl')
+      .select('title startDate city mode organizer registrationUrl sourceRefs sources imageUrl sourceImageUrl')
       .lean();
     return DedupeIndex.from(docs.map((d) => entryFromDoc(d)));
   }
@@ -127,7 +153,10 @@ export class DedupeIndex {
     }
     let best: Match | null = null;
     for (const e of all) {
-      const score = sameEvent({ title: q.title, start: q.start, city: q.city, mode: q.mode }, { title: e.title, start: e.start, city: e.city, mode: e.mode });
+      const score = sameEvent(
+        { title: q.title, start: q.start, city: q.city, mode: q.mode, organizer: q.organizer },
+        { title: e.title, start: e.start, city: e.city, mode: e.mode, organizer: e.organizer }
+      );
       if (score !== null && (!best || score > best.score)) best = { entry: e, reason: 'title', score };
     }
     return best;
@@ -154,6 +183,8 @@ type Existing = Pick<
   | 'perks'
   | 'prizePool'
   | 'prizeCurrency'
+  | 'prizeRaw'
+  | 'prizeOutlier'
   | 'themes'
   | 'summary'
   | 'beginnerFriendly'
@@ -214,9 +245,13 @@ export function planMerge(existing: Existing, d: Draft, opts: { sameSource: bool
       put('prizePool', d.prizePool);
       put('prizeCurrency', d.prizeCurrency);
     }
+    if (d.prizeRaw && d.prizeRaw !== existing.prizeRaw) put('prizeRaw', d.prizeRaw);
+    if (Boolean(d.prizeOutlier) !== Boolean(existing.prizeOutlier)) put('prizeOutlier', Boolean(d.prizeOutlier));
   } else if (!existing.prizePool && d.prizePool > 0) {
     put('prizePool', d.prizePool);
     put('prizeCurrency', d.prizeCurrency);
+    if (d.prizeRaw) put('prizeRaw', d.prizeRaw);
+    if (d.prizeOutlier) put('prizeOutlier', true);
   }
   return { set, changed };
 }

@@ -3,8 +3,8 @@ import { route } from '@/server/api';
 import { assertCron } from '@/server/cron';
 import { listingsChanged } from '@/server/hackathons';
 
-// Scheduled scrape for hosts without a long-running server (Vercel Cron calls this at
-// 02:00 and 14:00 IST; see vercel.json). Protected by CRON_SECRET. It waits for the
+// Scheduled scrape for hosts without a long-running server (Vercel Cron calls this every
+// six hours: 02:00, 08:00, 14:00 and 20:00 IST; see vercel.json). Protected by CRON_SECRET. It waits for the
 // run, so it stops taking new items before the function's time limit; whatever is
 // left is picked up by the next run. A call near a slot time carries that slot, so a
 // slot already run by another server is skipped.

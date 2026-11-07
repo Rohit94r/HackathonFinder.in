@@ -54,7 +54,7 @@ pnpm agents:run                                  # every enabled source, written
 pnpm agents:run --source unstop,devfolio --limit 20
 pnpm agents:run --dry-run                        # read and show what would happen; nothing is written or uploaded
 pnpm agents:sources                              # sources, missing keys, health; add --sync to create the Source docs
-pnpm agents:schedule                             # long-running worker: scrapes at 02:00 and 14:00 India time
+pnpm agents:schedule                             # long-running worker: scrapes every six hours (02:00, 08:00, 14:00, 20:00 India time)
 pnpm agents:repair                               # bring existing listings in line with the current rules (--dry-run to preview)
 pnpm --filter @hackathonfinder/agents test       # tests (a throwaway MongoDB; never the real one)
 ```
@@ -63,7 +63,7 @@ The root `.env` is read by everything. The website imports the engine as `@hacka
 
 ## Schedule and "Scrape now"
 
-Scrapes run at **02:00 and 14:00 Asia/Kolkata**. Each time is a slot with an id like
+Scrapes run every six hours: **02:00, 08:00, 14:00 and 20:00 Asia/Kolkata**. Each time is a slot with an id like
 `2026-10-25T02:00+05:30`, and `AgentRun.slot` is unique, so a slot runs once even when several
 things fire for it:
 

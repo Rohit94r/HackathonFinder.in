@@ -68,10 +68,11 @@ export const mlh: Connector = {
   slug: 'mlh',
   name: 'MLH',
   kind: 'platform',
-  defaultSchedule: '0 2,14 * * *',
+  defaultSchedule: '0 2,8,14,20 * * *',
   description: 'Major League Hacking’s season calendar (online events and those in India).',
   trust: 0.9,
   extract: 'missing',
+  complete: true,
   async fetch(ctx: ConnectorContext): Promise<RawCandidate[]> {
     const season = mlhSeason(ctx.now);
     const page = await ctx.http.fetchHtml(`https://www.mlh.com/seasons/${season}/events`);

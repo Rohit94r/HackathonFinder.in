@@ -3,7 +3,7 @@ import { latestSlot, needsCatchUp, nextSlot, SCRAPE_CRON_UTC, slotId, slotNear, 
 
 const ist = (s: string) => new Date(`${s}+05:30`);
 
-describe('scrape slots (02:00 and 14:00 IST)', () => {
+describe('scrape slots (every six hours: 02:00, 08:00, 14:00, 20:00 IST)', () => {
   it('names slots in India time', () => {
     expect(slotId(ist('2026-10-25T02:00:00'))).toBe('2026-10-25T02:00+05:30');
     expect(slotId(new Date('2026-10-25T08:30:00Z'))).toBe('2026-10-25T14:00+05:30');
@@ -13,10 +13,12 @@ describe('scrape slots (02:00 and 14:00 IST)', () => {
 
   it('finds the latest and next slot, across midnight', () => {
     expect(slotId(latestSlot(ist('2026-10-24T18:21:00')))).toBe('2026-10-24T14:00+05:30');
-    expect(slotId(nextSlot(ist('2026-10-24T18:21:00')))).toBe('2026-10-25T02:00+05:30');
-    expect(slotId(latestSlot(ist('2026-10-25T01:59:59')))).toBe('2026-10-24T14:00+05:30');
+    expect(slotId(nextSlot(ist('2026-10-24T18:21:00')))).toBe('2026-10-24T20:00+05:30');
+    expect(slotId(latestSlot(ist('2026-10-24T21:00:00')))).toBe('2026-10-24T20:00+05:30');
+    expect(slotId(nextSlot(ist('2026-10-24T21:00:00')))).toBe('2026-10-25T02:00+05:30');
+    expect(slotId(latestSlot(ist('2026-10-25T01:59:59')))).toBe('2026-10-24T20:00+05:30');
     expect(slotId(latestSlot(ist('2026-10-25T02:00:00')))).toBe('2026-10-25T02:00+05:30');
-    expect(slotId(nextSlot(ist('2026-10-25T02:00:00')))).toBe('2026-10-25T14:00+05:30');
+    expect(slotId(nextSlot(ist('2026-10-25T02:00:00')))).toBe('2026-10-25T08:00+05:30');
     // Year end.
     expect(slotId(nextSlot(ist('2026-12-31T23:00:00')))).toBe('2027-01-01T02:00+05:30');
   });
@@ -37,6 +39,6 @@ describe('scrape slots (02:00 and 14:00 IST)', () => {
   });
 
   it('has the Vercel cron times in UTC', () => {
-    expect(SCRAPE_CRON_UTC).toEqual(['30 20 * * *', '30 8 * * *']);
+    expect(SCRAPE_CRON_UTC).toEqual(['30 20 * * *', '30 2 * * *', '30 8 * * *', '30 14 * * *']);
   });
 });

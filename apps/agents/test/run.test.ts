@@ -119,7 +119,8 @@ describe('runScrape', () => {
     // The stub geocoder answers "Pune, Maharashtra" to everything: a hit in another state is ignored.
     const bhopal = await Hackathon.findOne({ title: 'Bhopal Build 2026' }).lean();
     expect(bhopal).toMatchObject({ city: 'bhopal', cityName: 'Bhopal', region: 'Madhya Pradesh' });
-    expect(bhopal?.location).toBeUndefined();
+    // The geocoder's wrong-state hit is ignored, but the gazetteer still gives Bhopal a centre point.
+    expect(bhopal?.location?.coordinates).toEqual([77.4126, 23.2599]);
 
     const paid = await Hackathon.findOne({ title: 'Paid Hack 2026' }).lean();
     expect(paid?.state).toBe('live');

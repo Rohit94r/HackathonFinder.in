@@ -12,7 +12,7 @@ See [concept.md](concept.md) for the full product plan.
 | Part | Path | What it does |
 |---|---|---|
 | Website + API | `apps/web` | Next.js 14 site and REST API (`src/app/api`): listings, near me, cities, accounts, profiles, community, winning stories, Team Finder, submissions, admin |
-| Discovery agents | `apps/agents` | Scout → Extract → Dedupe → Verify → Tag → Publish, twice a day (02:00 and 14:00 IST) and on "Scrape now". Connectors for Unstop, Devfolio, Devpost, MLH, HackerEarth, lablab.ai, KnowAFest, web search, and Instagram/LinkedIn/Facebook posts (via search or the official Graph API); banners stored on Cloudinary, venues on the map. See [apps/agents/README.md](apps/agents/README.md) |
+| Discovery agents | `apps/agents` | Scout → Extract → Dedupe → Verify → Tag → Publish, every six hours (02:00, 08:00, 14:00 and 20:00 IST) and on "Scrape now". Connectors for Unstop, Devfolio, Devpost, MLH, HackerEarth, lablab.ai, KnowAFest, web search, and Instagram/LinkedIn/Facebook posts (via search or the official Graph API); banners stored on Cloudinary, venues on the map. See [apps/agents/README.md](apps/agents/README.md) |
 | Database | `packages/db` | MongoDB models (Mongoose), collections and indexes (`pnpm db:setup`), local MongoDB for development, end-to-end check |
 | AI | `packages/ai` | Claude-powered extraction from pages and posters, smart search, plus rule-based fallbacks |
 | Shared | `packages/shared` | Types, cities, themes, sources, status rules, distance helpers |
@@ -50,7 +50,7 @@ One `.env` at the repo root serves the website, the agents and the scripts. Ever
 | AI | `ANTHROPIC_API_KEY`, `AI_MODEL` | Rule-based extraction and smart search |
 | Images | `CLOUDINARY_*` | Local uploads in development, links to the source for scraped images |
 | Discovery | `GOOGLE_CSE_KEY/CX` or `BRAVE_SEARCH_API_KEY`, `INSTAGRAM_ACCESS_TOKEN`, `INSTAGRAM_BUSINESS_ACCOUNT_ID` | Platform and event-site connectors need no keys. Without a search key, web and social search use DuckDuckGo, which often blocks crawlers; without the Instagram token there are no Graph API hashtag posts |
-| Discovery schedule | `SCRAPE_SCHEDULER`, `SCRAPE_CATCHUP` | The website scrapes at 02:00 and 14:00 IST on a long-running server; `off` turns that off |
+| Discovery schedule | `SCRAPE_SCHEDULER`, `SCRAPE_CATCHUP` | The website scrapes every six hours (02:00, 08:00, 14:00 and 20:00 IST) on a long-running server; `off` turns that off |
 | Scheduled jobs | `CRON_SECRET` | Jobs only run in development |
 
 ## Scripts
@@ -66,13 +66,13 @@ One `.env` at the repo root serves the website, the agents and the scripts. Ever
 | `pnpm db:local` | Just the local MongoDB |
 | `pnpm agents:sources --sync` | Registers the discovery sources and shows their health and missing keys |
 | `pnpm agents:run` | A full scrape of every enabled source into `MONGODB_URI` (`--source devpost --limit 20` for one, `--dry-run` to only look) |
-| `pnpm agents:schedule` | Long-running worker that scrapes at 02:00 and 14:00 IST (for hosts without the website) |
+| `pnpm agents:schedule` | Long-running worker that scrapes every six hours (02:00, 08:00, 14:00 and 20:00 IST) (for hosts without the website) |
 | `pnpm agents:repair` | Brings existing scraped listings in line with the current accuracy rules (`--dry-run` to preview) |
 
 ## Deploying
 
 - **Website:** any Node host or Vercel (`apps/web`). Set the variables above. `apps/web/vercel.json` schedules
-  deadline reminders daily, the weekly digest on Mondays and the discovery scrape at 02:00 and 14:00 IST
+  deadline reminders daily, the weekly digest on Mondays and the discovery scrape every six hours (02:00, 08:00, 14:00 and 20:00 IST)
   (`/api/cron/reminders`, `/api/cron/digest`, `/api/cron/scrape`, authorised with `CRON_SECRET`). On a
   long-running Node server the website runs the scrape timer itself (`src/instrumentation.ts`).
 - **Database:** MongoDB Atlas. Run `pnpm db:setup` once against the production database: it creates all

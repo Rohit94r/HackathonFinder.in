@@ -14,6 +14,8 @@ export interface ISourceRef {
   externalId?: string;
   firstSeenAt: Date;
   lastSeenAt: Date;
+  /** Consecutive complete runs of this source that did not list the event; hidden at 3. */
+  misses?: number;
 }
 
 export interface IHackathon {
@@ -48,6 +50,10 @@ export interface IHackathon {
   prizePool: number;
   prizeCurrency: Currency;
   prizes: string[];
+  /** The prize text exactly as the source stated it, kept for admin checks. */
+  prizeRaw?: string;
+  /** True when the figure is too large to trust; hidden from visitors and prize totals. */
+  prizeOutlier?: boolean;
   perks: string[];
   themes: ThemeSlug[];
   beginnerFriendly: boolean;
@@ -99,6 +105,7 @@ const sourceRefSchema = new Schema<ISourceRef>(
     externalId: String,
     firstSeenAt: { type: Date, default: () => new Date() },
     lastSeenAt: { type: Date, default: () => new Date() },
+    misses: { type: Number, min: 0, default: 0 },
   },
   { _id: false }
 );
@@ -134,6 +141,8 @@ const hackathonSchema = new Schema<IHackathon>(
     prizePool: { type: Number, min: 0, default: 0 },
     prizeCurrency: { type: String, enum: ['INR', 'USD'], default: 'INR' },
     prizes: { type: [String], default: [] },
+    prizeRaw: { type: String, trim: true, maxlength: 500 },
+    prizeOutlier: { type: Boolean, default: false },
     perks: { type: [String], default: [] },
     themes: { type: [String], default: [] },
     beginnerFriendly: { type: Boolean, default: false },
@@ -173,6 +182,8 @@ hackathonSchema.index({ state: 1, themes: 1 });
 hackathonSchema.index({ state: 1, createdAt: -1 });
 hackathonSchema.index({ 'sourceRefs.source': 1, 'sourceRefs.externalId': 1 });
 hackathonSchema.index({ 'sourceRefs.url': 1 });
+// Finding listings a source no longer returns (state + end date keep completed history out).
+hackathonSchema.index({ state: 1, endDate: 1, 'sourceRefs.source': 1, 'sourceRefs.lastSeenAt': 1 });
 // Duplicate check on shared links matches the registration link too (server/submissions.ts findDuplicate).
 hackathonSchema.index({ registrationUrl: 1 });
 hackathonSchema.index(

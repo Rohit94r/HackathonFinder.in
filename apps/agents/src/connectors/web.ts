@@ -209,7 +209,7 @@ export const web: Connector = {
   slug: 'web',
   name: 'Web search',
   kind: 'search',
-  defaultSchedule: '0 2,14 * * *',
+  defaultSchedule: '0 2,8,14,20 * * *',
   description:
     'India-wide deep web discovery: a weighted query matrix for cities, states, college domains and event platforms; search-result paging; one-hop crawling from list pages; and public sitemaps/RSS feeds for platforms without a dedicated connector. Google Custom Search, Brave, SearXNG or DuckDuckGo; every page goes through robots.txt and the polite client.',
   optionalEnv: SEARCH_KEYS,
